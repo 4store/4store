@@ -1,5 +1,0 @@
-#!
-
-# tests optimisation of FILTER(?x = foo || ?x = bar)
-
-../../frontend/4s-query $1 'SELECT DISTINCT ?b ?c WHERE { ?a ?b ?c . FILTER(?c = "Escobar St" || ?c = "Smith St") } LIMIT 10' | sort

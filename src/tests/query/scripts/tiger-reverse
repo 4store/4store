@@ -1,6 +1,0 @@
-#!
-
-# tests OPTIONAL with large number of NULL results
-# bNode RIDs are not replaced with BNODE for this test
-
-../../frontend/4s-query $1 'SELECT * WHERE { ?place <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.census.gov/tiger/2002/featid/type/Rd> . ?place <http://www.census.gov/tiger/2002/vocab#directionPrefix> <http://www.census.gov/tiger/2002/featid/direction/W> }' | sort

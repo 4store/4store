@@ -1,3 +1,0 @@
-#!
-
-echo 'SELECT COUNT(?a) AS count WHERE { ?a ?b "Harris" } LIMIT 250000' | ../../frontend/4s-query $1 -f sparql -P

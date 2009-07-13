@@ -1,6 +1,0 @@
-#!
-
-# tests use of DISTINCT keyword on the predicate slot
-# also tests the internal sorting, results should be in RID order
-
-../../frontend/4s-query $1 'SELECT DISTINCT ?p WHERE { ?s ?p ?o }' | sort

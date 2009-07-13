@@ -1,5 +1,0 @@
-#!
-
-# tests medium-complex graph expressions and DISTINCT
-
-../../frontend/4s-query $1 'PREFIX vocab: <http://www.census.gov/tiger/2002/vocab#> PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> PREFIX feature: <http://www.census.gov/tiger/2002/CFCC/> SELECT DISTINCT ?place ?label WHERE { ?path rdf:type feature:H12 . ?place vocab:path ?path . ?place rdfs:label ?label . }' | sed 's/_:b[^	]*/BNODE/g' | sort

@@ -1,5 +1,0 @@
-#!
-
-# tests GRAPH bindings, and some other stuff
-
-../../frontend/4s-query $1 'PREFIX vocab: <http://www.census.gov/tiger/2002/vocab#> PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> PREFIX feature: <http://www.census.gov/tiger/2002/CFCC/> SELECT DISTINCT ?startlat ?startlong ?g WHERE { GRAPH ?g { ?place rdfs:label "Sugar Hill Terrance West" . ?place vocab:path ?path . ?path vocab:start ?start . ?start vocab:lat ?startlat . ?start vocab:long ?startlong . } }' | sort

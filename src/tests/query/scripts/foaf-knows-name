@@ -1,6 +1,0 @@
-#!
-
-../../frontend/4s-query $1 '
-PREFIX foaf: <http://xmlns.com/foaf/0.1/>
-SELECT ?x ?name
-WHERE { ?x <http://xmlns.com/foaf/0.1/knows> ?p . ?p foaf:name ?name }' | sort

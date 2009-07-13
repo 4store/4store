@@ -1,7 +1,0 @@
-#!
-
-# tests optimisation of FILTER(?x = foo || ?x = bar)
-
-../../frontend/4s-query $1 'explain SELECT DISTINCT ?a WHERE { { ?a <http://www.w3.org/2000/01/rdf-schema#label> "Escobar St" } UNION { ?a <http://www.w3.org/2000/01/rdf-schema#label> "No Such Avenue"} } LIMIT 100'
-../../frontend/4s-query $1 'SELECT DISTINCT ?a WHERE { { ?a <http://www.w3.org/2000/01/rdf-schema#label> "Escobar St" } UNION { ?a <http://www.w3.org/2000/01/rdf-schema#label> "No Such Avenue"} } LIMIT 100' | sort
-../../frontend/4s-query $1 'SELECT DISTINCT ?a WHERE { { ?a <http://www.w3.org/2000/01/rdf-schema#label> "No Such Avenue" } UNION { ?a <http://www.w3.org/2000/01/rdf-schema#label> "Escobar St"} } LIMIT 100' | sort

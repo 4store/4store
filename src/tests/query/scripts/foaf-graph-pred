@@ -1,3 +1,0 @@
-#!
-
-../../frontend/4s-query $1 'SELECT * WHERE { GRAPH ?g { ?x <http://xmlns.com/foaf/0.1/name> ?z } }' | sort

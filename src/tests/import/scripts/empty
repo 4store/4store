@@ -1,7 +1,0 @@
-#!
-
-./test-create.sh --segments 4 $1
-./test-start.sh $1
-echo "# empty store"
-$PRECMD ../../frontend/4s-bind $1 all FS_BIND_SUBJECT FS_BIND_OBJECT FS_BIND_BY_SUBJECT /dev/null /dev/null /dev/null /dev/null
-./test-stop.sh $1

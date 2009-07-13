@@ -1,3 +1,0 @@
-#!
-
-../../frontend/4s-query $1 'SELECT * WHERE { GRAPH <http://example.com/swh.xrdf> { ?x ?y ?z } } LIMIT 10' | wc -l | sed 's/ //g';

@@ -1,6 +1,0 @@
-#!
-
-# tests PREFIX, numbers in var names and single OPTIONAL triple with unbound
-# results, and multiple result rows for repeated predicates
-
-../../frontend/4s-query $1 'PREFIX foaf: <http://xmlns.com/foaf/0.1/> SELECT ?sha1 ?bar ?uri WHERE { ?x foaf:knows ?p . OPTIONAL { ?p foaf:mbox_sha1sum ?sha1 . OPTIONAL { ?p foaf:name ?bar . OPTIONAL { ?uri foaf:mbox_sha1sum ?sha1 } } } }' | sort
