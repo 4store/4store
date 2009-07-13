@@ -11,13 +11,13 @@
 <rdf:Description rdf:about=""> 
 <wot:assurance rdf:resource="swh.xrdf.asc" />
 <foaf:maker> 
-  <foaf:Person rdf:about="mailto:steve@totl.net">
+  <foaf:Person rdf:about="mailto:steve@example.net">
     <foaf:mbox_sha1sum>44bc4fed584a2d1ac8fc55206db67656165d67fd</foaf:mbox_sha1sum>
   </foaf:Person>
 </foaf:maker> 
 </rdf:Description> 
 
-<foaf:Person rdf:about="mailto:steve@totl.net">
+<foaf:Person rdf:about="mailto:steve@example.net">
   <foaf:name>Steve Harris</foaf:name>
   <foaf:title>Mr</foaf:title>
   <foaf:family_name>Harris</foaf:family_name>
