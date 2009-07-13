@@ -1,5 +1,7 @@
 #!/usr/bin/perl -w
 
+use Term::ANSIColor;
+
 $kb_prefix = "test_import_";
 
 $dirname=`dirname '$0'`;
@@ -57,7 +59,7 @@ for $t (@tests) {
 	}
 	$kb_name = $kb_prefix . $t;
 	$kb_name =~s/-/_/g;
-	printf(".... $t\r");
+	printf("[....] $t\r");
 	$ret = system("FORMAT=text LANG=C TESTPATH=../../src ${pre} scripts/$t $kb_name > $outdir/$t $errout");
 	if ($ret == 2) {
 		printf("\n");
@@ -72,13 +74,21 @@ for $t (@tests) {
 		if (@diff) {
 			$destroy = 0;
 			$errors = 1;
-			print("FAIL $t\n");
+			print("[");
+			print color 'bold red';
+			print("FAIL");
+			print color 'reset';
+			print("] $t\n");
 			open(RES, ">> $outdir/$t-errs") || die 'cannot open error file';
 			print RES "\n";
 			print RES @diff;
 			close(RES);
 		} else {
-			print("PASS $t\n");
+			print("[");
+			print color 'bold green';
+			print("PASS");
+			print color 'reset';
+			print("] $t\n");
 			if ($valgrind) {
 				system("grep 'ERROR SUMMARY' $outdir/$t-errs | grep -v '0 errors from 0 contexts'");
 			} else {

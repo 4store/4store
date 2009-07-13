@@ -4,5 +4,5 @@
 <http://example.com/swh.xrdf>	<local:libby>	"Libby Miller"
 <http://example.com/swh.xrdf>	<local:nick>	"Nick Gibbins"
 <http://example.com/swh.xrdf>	<local:stripes>	"Mark Thompson"
-<http://example.com/swh.xrdf>	<mailto:steve@totl.net>	"Steve Harris"
+<http://example.com/swh.xrdf>	<mailto:steve@example.net>	"Steve Harris"
 ?g	?x	?z

@@ -1,10 +1,10 @@
-<local:dajobe> <http://xmlns.com/foaf/0.1/knows> <mailto:steve@totl.net> .
+<local:dajobe> <http://xmlns.com/foaf/0.1/knows> <mailto:steve@example.net> .
 <local:dajobe> <http://xmlns.com/foaf/0.1/name> "Dave Beckett" .
-<local:jo> <http://xmlns.com/foaf/0.1/knows> <mailto:steve@totl.net> .
+<local:jo> <http://xmlns.com/foaf/0.1/knows> <mailto:steve@example.net> .
 <local:jo> <http://xmlns.com/foaf/0.1/name> "Jo Walsh" .
-<local:libby> <http://xmlns.com/foaf/0.1/knows> <mailto:steve@totl.net> .
+<local:libby> <http://xmlns.com/foaf/0.1/knows> <mailto:steve@example.net> .
 <local:libby> <http://xmlns.com/foaf/0.1/name> "Libby Miller" .
-<local:nick> <http://xmlns.com/foaf/0.1/knows> <mailto:steve@totl.net> .
+<local:nick> <http://xmlns.com/foaf/0.1/knows> <mailto:steve@example.net> .
 <local:nick> <http://xmlns.com/foaf/0.1/name> "Nick Gibbins" .
-<local:stripes> <http://xmlns.com/foaf/0.1/knows> <mailto:steve@totl.net> .
+<local:stripes> <http://xmlns.com/foaf/0.1/knows> <mailto:steve@example.net> .
 <local:stripes> <http://xmlns.com/foaf/0.1/name> "Mark Thompson" .

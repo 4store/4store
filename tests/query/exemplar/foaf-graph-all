@@ -1,4 +1,4 @@
-<http://example.com/swh.xrdf>	<http://xmlns.com/foaf/0.1/maker>	<mailto:steve@totl.net>
+<http://example.com/swh.xrdf>	<http://xmlns.com/foaf/0.1/maker>	<mailto:steve@example.net>
 <http://example.com/swh.xrdf>	<http://xmlns.com/wot/0.1/assurance>	<http://example.com/swh.xrdf.asc>
 <http://www.linuxdj.com/audio/lad/contrib/zkm_meeting_2003/photos/steve_harris.jpg>	<http://purl.org/dc/elements/1.1/description>	"Picture of Steve at ZKM in 2003"@EN-GB
 <http://www.linuxdj.com/audio/lad/contrib/zkm_meeting_2003/photos/steve_harris.jpg>	<http://purl.org/dc/elements/1.1/format>	"image/jpeg"
@@ -34,29 +34,29 @@
 <local:stripes>	<http://xmlns.com/foaf/0.1/mbox_sha1sum>	"0f585a7b90a5f2d3cceac58f5fd998ebd99b6e71"
 <local:stripes>	<http://xmlns.com/foaf/0.1/name>	"Mark Thompson"
 <local:stripes>	<http://xmlns.com/foaf/0.1/nick>	"Stripes"
-<mailto:steve@totl.net>	<http://www.w3.org/1999/02/22-rdf-syntax-ns#type>	<http://xmlns.com/foaf/0.1/Person>
-<mailto:steve@totl.net>	<http://www.w3.org/2000/01/rdf-schema#seeAlso>	<http://triplestore.aktors.org/resolve/?resource=http%3A%2F%2Fwww.ecs.soton.ac.uk%2Finfo%2F%23person-00384>
-<mailto:steve@totl.net>	<http://xmlns.com/foaf/0.1/currentProject>	<local:akt>
-<mailto:steve@totl.net>	<http://xmlns.com/foaf/0.1/depiction>	<http://www.linuxdj.com/audio/lad/contrib/zkm_meeting_2003/photos/steve_harris.jpg>
-<mailto:steve@totl.net>	<http://xmlns.com/foaf/0.1/empty>	""
-<mailto:steve@totl.net>	<http://xmlns.com/foaf/0.1/family_name>	"Harris"
-<mailto:steve@totl.net>	<http://xmlns.com/foaf/0.1/givenname>	"Stephen"
-<mailto:steve@totl.net>	<http://xmlns.com/foaf/0.1/homepage>	<http://inanna.ecs.soton.ac.uk/>
-<mailto:steve@totl.net>	<http://xmlns.com/foaf/0.1/img>	<http://www.linuxdj.com/audio/lad/contrib/zkm_meeting_2003/photos/steve_harris.jpg>
-<mailto:steve@totl.net>	<http://xmlns.com/foaf/0.1/interest>	<http://www.w3.org/2000/01/sw/>
-<mailto:steve@totl.net>	<http://xmlns.com/foaf/0.1/interest>	<http://www.w3.org/RDF/>
-<mailto:steve@totl.net>	<http://xmlns.com/foaf/0.1/knows>	<local:dajobe>
-<mailto:steve@totl.net>	<http://xmlns.com/foaf/0.1/knows>	<local:jo>
-<mailto:steve@totl.net>	<http://xmlns.com/foaf/0.1/knows>	<local:libby>
-<mailto:steve@totl.net>	<http://xmlns.com/foaf/0.1/knows>	<local:nick>
-<mailto:steve@totl.net>	<http://xmlns.com/foaf/0.1/knows>	<local:stripes>
-<mailto:steve@totl.net>	<http://xmlns.com/foaf/0.1/mbox_sha1sum>	"44bc4fed584a2d1ac8fc55206db67656165d67fd"
-<mailto:steve@totl.net>	<http://xmlns.com/foaf/0.1/name>	"Steve Harris"
-<mailto:steve@totl.net>	<http://xmlns.com/foaf/0.1/nick>	"swh"
-<mailto:steve@totl.net>	<http://xmlns.com/foaf/0.1/someDecimal>	"1.12345678"
-<mailto:steve@totl.net>	<http://xmlns.com/foaf/0.1/someDecimal>	"1000017.23"
-<mailto:steve@totl.net>	<http://xmlns.com/foaf/0.1/someHexNumber>	"123deadbeef"^^<http://example.org/hex>
-<mailto:steve@totl.net>	<http://xmlns.com/foaf/0.1/someInteger>	"123456789"^^<http://www.w3.org/2001/XMLSchema#int>
-<mailto:steve@totl.net>	<http://xmlns.com/foaf/0.1/title>	"Mr"
-<mailto:steve@totl.net>	<http://xmlns.com/foaf/0.1/workplaceHomePage>	<http://www.ecs.soton.ac.uk/>
+<mailto:steve@example.net>	<http://www.w3.org/1999/02/22-rdf-syntax-ns#type>	<http://xmlns.com/foaf/0.1/Person>
+<mailto:steve@example.net>	<http://www.w3.org/2000/01/rdf-schema#seeAlso>	<http://triplestore.aktors.org/resolve/?resource=http%3A%2F%2Fwww.ecs.soton.ac.uk%2Finfo%2F%23person-00384>
+<mailto:steve@example.net>	<http://xmlns.com/foaf/0.1/currentProject>	<local:akt>
+<mailto:steve@example.net>	<http://xmlns.com/foaf/0.1/depiction>	<http://www.linuxdj.com/audio/lad/contrib/zkm_meeting_2003/photos/steve_harris.jpg>
+<mailto:steve@example.net>	<http://xmlns.com/foaf/0.1/empty>	""
+<mailto:steve@example.net>	<http://xmlns.com/foaf/0.1/family_name>	"Harris"
+<mailto:steve@example.net>	<http://xmlns.com/foaf/0.1/givenname>	"Stephen"
+<mailto:steve@example.net>	<http://xmlns.com/foaf/0.1/homepage>	<http://inanna.ecs.soton.ac.uk/>
+<mailto:steve@example.net>	<http://xmlns.com/foaf/0.1/img>	<http://www.linuxdj.com/audio/lad/contrib/zkm_meeting_2003/photos/steve_harris.jpg>
+<mailto:steve@example.net>	<http://xmlns.com/foaf/0.1/interest>	<http://www.w3.org/2000/01/sw/>
+<mailto:steve@example.net>	<http://xmlns.com/foaf/0.1/interest>	<http://www.w3.org/RDF/>
+<mailto:steve@example.net>	<http://xmlns.com/foaf/0.1/knows>	<local:dajobe>
+<mailto:steve@example.net>	<http://xmlns.com/foaf/0.1/knows>	<local:jo>
+<mailto:steve@example.net>	<http://xmlns.com/foaf/0.1/knows>	<local:libby>
+<mailto:steve@example.net>	<http://xmlns.com/foaf/0.1/knows>	<local:nick>
+<mailto:steve@example.net>	<http://xmlns.com/foaf/0.1/knows>	<local:stripes>
+<mailto:steve@example.net>	<http://xmlns.com/foaf/0.1/mbox_sha1sum>	"44bc4fed584a2d1ac8fc55206db67656165d67fd"
+<mailto:steve@example.net>	<http://xmlns.com/foaf/0.1/name>	"Steve Harris"
+<mailto:steve@example.net>	<http://xmlns.com/foaf/0.1/nick>	"swh"
+<mailto:steve@example.net>	<http://xmlns.com/foaf/0.1/someDecimal>	"1.12345678"
+<mailto:steve@example.net>	<http://xmlns.com/foaf/0.1/someDecimal>	"1000017.23"
+<mailto:steve@example.net>	<http://xmlns.com/foaf/0.1/someHexNumber>	"123deadbeef"^^<http://example.org/hex>
+<mailto:steve@example.net>	<http://xmlns.com/foaf/0.1/someInteger>	"123456789"^^<http://www.w3.org/2001/XMLSchema#int>
+<mailto:steve@example.net>	<http://xmlns.com/foaf/0.1/title>	"Mr"
+<mailto:steve@example.net>	<http://xmlns.com/foaf/0.1/workplaceHomePage>	<http://www.ecs.soton.ac.uk/>
 ?x	?y	?z
