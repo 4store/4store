@@ -1,5 +1,7 @@
 #!/usr/bin/perl -w
 
+use Term::ANSIColor;
+
 $kb_name = "query_test_".$ENV{'USER'};
 
 $dirname=`dirname '$0'`;
@@ -40,6 +42,8 @@ if (!@tests) {
 
 if ($pid = fork()) {
 	sleep(2);
+	my $fails = 0;
+	my $passes = 0;
 	for $t (@tests) {
 		chomp $t;
 		if (!stat("exemplar/$t") && $test) {
@@ -52,7 +56,7 @@ if ($pid = fork()) {
 		} else {
 			$errout = "";
 		}
-		print(".... $t\r");
+		print("[....] $t\r");
 		my $ret = system("FORMAT=ascii LANG=C TESTPATH=../../src scripts/$t $kb_name > $outdir/$t $errout");
 		if ($ret == 2) {
 			exit(2);
@@ -60,16 +64,27 @@ if ($pid = fork()) {
 		if ($test) {
 			@diff = `diff exemplar/$t $outdir/$t 2>/dev/null`;
 			if (@diff) {
-				print("FAIL $t\n");
+				print("[");
+				print color 'bold red';
+				print("FAIL");
+				print color 'reset';
+				print("] $t\n");
 				open(RES, ">> $outdir/$t-errs") || die 'cannot open error file';
 				print RES "\n";
 				print RES @diff;
 				close(RES);
+				$fails++;
 			} else {
-				print("PASS $t\n");
+				print("[");
+				print color 'bold green';
+				print("PASS");
+				print color 'reset';
+				print("] $t\n");
+				$passes++;
 			}
 		}
 	}
+	print("Tests completed: passed $passes/".($fails+$passes)."\n");
 	$ret = kill 15, $pid;
 	if (!$ret) {
 		warn("failed to kill server process, pid $pid");
