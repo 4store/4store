@@ -84,7 +84,7 @@ if ($pid = fork()) {
 			}
 		}
 	}
-	print("Tests completed: passed $passes/".($fails+$passes)."\n");
+	print("Tests completed: passed $passes/".($fails+$passes)." ($fails fails)\n");
 	$ret = kill 15, $pid;
 	if (!$ret) {
 		warn("failed to kill server process, pid $pid");
