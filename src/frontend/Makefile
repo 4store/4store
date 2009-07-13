@@ -3,7 +3,7 @@ include ../rev.mk
 include ../darwin.mk
 include ../readedit.mk
 
-DEFINES := $(shell pkg-config rasqal --atleast-version=0.9.14 && echo "-DHAVE_LAQRS")
+DEFINES := $(shell pkg-config rasqal --atleast-version=0.9.14 && echo "-DHAVE_LAQRS") $(shell pkg-config rasqal --atleast-version=0.9.16 && echo "-DHAVE_RASQAL_WORLD")
 BINS = 4s-query 4s-import 4s-delete-model 4s-size 4s-info
 test_BINS = filter-test decimal-test 4s-bind 4s-resolve
 

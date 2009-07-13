@@ -169,7 +169,9 @@ int main(int argc, char *argv[])
     }
 
     raptor_init();
+#ifndef HAVE_RASQAL_WORLD
     rasqal_init();
+#endif /* ! HAVE_RASQAL_WORLD */
     fs_hash_init(fsp_hash_type(link));
 
     raptor_uri *bu = raptor_new_uri((unsigned char *)base_uri);
@@ -218,7 +220,9 @@ int main(int argc, char *argv[])
 
     raptor_free_uri(bu);
     raptor_finish();
+#ifndef HAVE_RASQAL_WORLD
     rasqal_finish();
+#endif /* ! HAVE_RASQAL_WORLD */
 
     fs_query_cache_flush(qs, verbosity);
     fs_query_fini(qs);
@@ -302,7 +306,9 @@ static void programatic_io(fsp_link *link, raptor_uri *bu, const char *query_lan
     raptor_free_uri(bu);
     fsp_close_link(link);
     raptor_finish();
+#ifndef HAVE_RASQAL_WORLD
     rasqal_finish();
+#endif /* ! HAVE_RASQAL_WORLD */
 
     fs_query_cache_flush(qs, verbosity);
     fs_query_fini(qs);
@@ -390,7 +396,9 @@ static void interactive(fsp_link *link, raptor_uri *bu, const char *result_forma
     raptor_free_uri(bu);
     fsp_close_link(link);
     raptor_finish();
+#ifndef HAVE_RASQAL_WORLD
     rasqal_finish();
+#endif /* ! HAVE_RASQAL_WORLD */
 
     save_history_dotfile();
 

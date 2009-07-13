@@ -1321,7 +1321,9 @@ static void child (int srv, char *kb_name, char *password)
   }
 
   raptor_init();
+#ifndef HAVE_RASQAL_WORLD
   rasqal_init();
+#endif /* ! HAVE_RASQAL_WORLD */
   fs_hash_init(fsp_hash_type(fsplink));
 
   bu = raptor_new_uri((unsigned char *)"local:");

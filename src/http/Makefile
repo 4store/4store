@@ -2,7 +2,7 @@ include ../avahi.mk
 include ../rev.mk
 include ../darwin.mk
 
-DEFINES := $(shell pkg-config rasqal --atleast-version=0.9.14 && echo "-DHAVE_LAQRS")
+DEFINES := $(shell pkg-config rasqal --atleast-version=0.9.14 && echo "-DHAVE_LAQRS") $(shell pkg-config rasqal --atleast-version=0.9.16 && echo "-DHAVE_RASQAL_WORLD")
 BINS = 4s-httpd
 
 FRONTEND = ../frontend/query-cache.o ../frontend/query-datatypes.o ../frontend/query-data.o ../frontend/query.o ../frontend/optimiser.o ../frontend/order.o ../frontend/filter.o ../frontend/filter-datatypes.o ../frontend/decimal.o ../frontend/results.o ../frontend/import.o
