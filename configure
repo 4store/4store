@@ -14,7 +14,7 @@ function fail {
 }
 
 function libtest {
-	(gcc /tmp/configure-$$.o -l$1 -o /tmp/configure.exe 2>/dev/null) && pass "$1 installed" || fail "no $1 devel system"
+	(gcc /tmp/configure-$$.o -l$1 -o /tmp/configure-$$.exe 2>/dev/null) && pass "$1 installed" || fail "no $1 devel system"
 }
 
 cat > /tmp/configure-$$.c <<EOB
@@ -34,3 +34,5 @@ libtest "readline"
 libtest "ncurses"
 libtest "termcap"
 pkg-config --exists avahi && pass "avahi installed" || optfail "no avahi, will build without cluster support"
+
+rm -f /tmp/configure-$$.*
