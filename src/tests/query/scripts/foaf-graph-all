@@ -1,0 +1,3 @@
+#!
+
+../../frontend/4s-query $1 'SELECT * WHERE { GRAPH <http://example.com/swh.xrdf> { ?x ?y ?z } }' | sed 's/_:b[^	]*/BNODE/g' | sort

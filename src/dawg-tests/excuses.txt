@@ -1,0 +1,21 @@
+filter-nested-2			Optimiser flattens
+filter-scope-1			Depends on bottom-up processing
+join-scope-1			Depends on bottom-up processing
+nested-optionals-1		Depends on bottom-up processing
+optional-filter-1		Depends on bottom-up processing
+optional-filter-2-filters	Depends on bottom-up processing
+optional-filter-scope-of-variable	Depends on bottom-up processing
+dawg-construct-optional		PASS: Matches, but graph iso test can't tell
+equality-1-2-graph		Parser problem
+graph-02			Uses default graph only
+graph-04			Uses named graph only
+graph-05			Distinguishes default and named graph
+graph-06			Distinguishes default and named graph
+graph-07			Distinguishes default and named graph
+graph-08			Distinguishes default and named graph
+graph-09			Distinguishes default and named graph
+graph-10			Distinguishes default and named graph
+graph-11			Distinguishes default and named graph
+sameterm-eq			Uses non-standard function
+sameterm-not-eq			Uses non-standard function
+sameterm-simple			Uses non-standard function

@@ -1,0 +1,188 @@
+<?xml version="1.0"?>
+<rdf:RDF xmlns:fipspd="http://www.census.gov/tiger/2002/fips/place_description/"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/fips/place_description/0">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>Legal entity that has no area classified as a central place of an urban
+
+area or central city of a metropolitan area (MA)
+
+</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/fips/place_description/Class"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/fips/place_description/Class">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+	</rdf:Description>
+
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/fips/place_description/1">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>Legal entity that has all of its area classified as a central place of an
+urban area and as a central city of a metropolitan area (MA)
+
+</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/fips/place_description/Class"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/fips/place_description/2">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>Legal entity that has part of its area classified as a central place of an
+urban area and all of its area classified as a central city of a metropolitan
+area (MA)
+
+</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/fips/place_description/Class"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/fips/place_description/3">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>Legal entity that has no area classified as a central place of an urban area
+and all of its area classified as a central city of a metropolitan area (MA)
+
+</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/fips/place_description/Class"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/fips/place_description/4">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>Legal entity that has all of its area classified as a central place of an urban
+area and part of its area classified as a central city of a metropolitan
+area (MA)
+
+</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/fips/place_description/Class"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/fips/place_description/5">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>Legal entity that has part of its area classified as a central place of an
+urban area and part of its area classified as a central city of a metropolitan
+area (MA)
+
+</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/fips/place_description/Class"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/fips/place_description/6">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>Legal entity that has no area classified as a central place of an urban area
+and part of its area classified as a central city of a metropolitan area (MA)
+
+</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/fips/place_description/Class"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/fips/place_description/7">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>Legal entity that has all of its area classified as a central place of an urban
+area and no area classified as a central city of a metropolitan area (MA)
+
+</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/fips/place_description/Class"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/fips/place_description/8">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>Legal entity that has part of its area classified as a central place of an
+urban area and no area classified as a central city of a metropolitan
+area (MA)
+
+</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/fips/place_description/Class"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/fips/place_description/9">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>Legal entity that is a "false" entity or not applicable for a place description
+
+</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/fips/place_description/Class"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/fips/place_description/A">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>Statistical entity that has no area classified as a central place of an urban
+area or central city of a metropolitan area (MA)
+
+</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/fips/place_description/Class"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/fips/place_description/B">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>Statistical entity that has all of its area classified as a central place of an
+urban area and as a central city of a metropolitan area (MA)
+
+</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/fips/place_description/Class"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/fips/place_description/C">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>Statistical entity that has part of its area classified as a central place of
+an urban area and all of its area classified as a central city of a
+metropolitan area (MA)
+
+</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/fips/place_description/Class"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/fips/place_description/D">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>Statistical entity that has no area classified as a central place of an urban
+area and all of its area classified as a central city of a metropolitan
+area (MA)
+
+</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/fips/place_description/Class"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/fips/place_description/E">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>Statistical entity that has all of its area classified as a central place of an
+urban area and part of its area classified as a central city of a metropolitan
+area (MA)
+
+</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/fips/place_description/Class"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/fips/place_description/F">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>Statistical entity that has part of its area classified as a central place of an
+urban area and part of its area classified as a central city of a metropolitan
+area (MA)
+
+</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/fips/place_description/Class"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/fips/place_description/G">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>Statistical entity that has no area classified as a central place of an urban
+area and part of its area classified as a central city of a metropolitan
+area (MA)
+
+</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/fips/place_description/Class"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/fips/place_description/H">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>Statistical entity that has all of its area classified as a central place of an
+urban area and no area classified as a central city of a metropolitan
+area (MA)
+
+</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/fips/place_description/Class"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/fips/place_description/I">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>Statistical entity that has part of its area classified as a central place of
+an urban area and no area classified as a central city of a metropolitan
+area (MA)
+
+</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/fips/place_description/Class"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/fips/place_description/X">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>A voting district (VTD) that a state has identified as an actual VTD</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/fips/place_description/Class"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/fips/place_description/Z">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>A voting district (VTD) that a state has identified as a pseudo-VTD. A
+&lt;blank&gt; appears if a state did not indicate to the U.S. Census Bureau
+whether or not the VTD followed the actual boundaries of the VTD or
+is a pseudo-VTD
+
+</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/fips/place_description/Class"/>
+	</rdf:Description>
+
+</rdf:RDF>

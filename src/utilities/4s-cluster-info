@@ -1,0 +1,12 @@
+#!/bin/sh
+if (($# == 1)) ; then
+ 4s-ssh-all-parallel 4s-backend-info "$1"
+else 
+ echo "Usage: $0 <kbname>"
+ echo
+ echo "Available KBs on this cluster are:"
+ ssh `head -1 /etc/4s-cluster` "ls /var/lib/4store/*/metadata.nt | sed 's/\/var\/lib\/4store\//   /; s/\/.*//'" | grep -v '^[0-9]' | sort | uniq
+ echo
+ echo "Running KBs are: (number of machines)"
+ avahi-browse -t _4store._tcp | sed 's/[^-]*-//; s/ .*//' | sort | uniq -c | awk '{ print "   " $2 " (" $1 ")" }'
+fi

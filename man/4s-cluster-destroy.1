@@ -1,0 +1,30 @@
+.Dd July 8, 2009
+.Dt 4S-CLUSTER-DESTROY 1J 4store
+.Os 4store
+.Sh NAME
+.Nm 4s-cluster-destroy
+.Nd Delete the KB from a cluster.
+.Sh SYNOPSIS
+.Nm
+kb-name
+.sp
+.Sh FILES
+This command depends on the config file /etc/4s-cluster, see 4s-cluster(5).
+.Sh EXAMPLES
+$
+.Nm
+demo
+.sp
+Delete the "demo" knowledgebase. This will completly erase the data in the KB,
+so use with care.
+.Xr 4s-cluster-start 1 .
+.Sh CAVEATS
+If the kb is currently running then it will not be stopped, so the detached backed processes will persist past the detroy operation.
+
+.Xr 4s-cluster-info 1
+can be used to check what KBs are curretnly running.
+.Sh SEE ALSO
+.Xr 4s-cluster-create 1 ,
+.Xr 4s-cluster-start 1 ,
+.Xr 4s-cluster-stop 1 ,
+.Xr 4s-cluster-info 1

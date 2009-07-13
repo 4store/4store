@@ -1,0 +1,12 @@
+# before insert
+?p	?o
+# after insert
+<foo:dt-test>	"chat"^^<http://example.org/word>
+<foo:esc-test>	"<&>\"'"
+<foo:lang-test>	"chat"@EN-GB
+<foo:lang-test>	"chat"@FR
+<foo:p>	"p1"
+<foo:q>	"q1"
+?p	?o
+# after delete
+?p	?o

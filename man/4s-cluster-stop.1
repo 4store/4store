@@ -1,0 +1,28 @@
+.Dd July 8, 2009
+.Dt 4S-CLUSTER-STOP 1J 4store
+.Os 4store
+.Sh NAME
+.Nm 4s-cluster-stop
+.Nd Stop the backends for a KB on the cluster.
+.Sh SYNOPSIS
+.Nm
+kb-name
+.sp
+.Sh FILES
+This command depends on the config file /etc/4s-cluster, see 4s-cluster(5).
+.Sh EXAMPLES
+$
+.Nm
+demo
+.sp
+Stop the "demo" knowledgebase. This will shutdown the backend processes on the
+cluster, preventing any future clients from connecting until it is restarted
+with
+.Xr 4s-cluster-start 1 .
+.Sh CAVEATS
+If the kb is not already running then you will see an error like "No matching 4store backend".
+.Sh SEE ALSO
+.Xr 4s-cluster-create 1 ,
+.Xr 4s-cluster-start 1 ,
+.Xr 4s-cluster-destroy 1 ,
+.Xr 4s-cluster-info 1

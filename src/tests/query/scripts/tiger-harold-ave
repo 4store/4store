@@ -1,0 +1,5 @@
+#!
+
+# tests number handling, string matching and medium-complex graph matches
+
+../../frontend/4s-query $1 'PREFIX vocab: <http://www.census.gov/tiger/2002/vocab#> PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> PREFIX feature: <http://www.census.gov/tiger/2002/CFCC/> SELECT DISTINCT ?startlat ?startlong WHERE { ?place vocab:path ?path . ?place rdfs:label "Harold Ave" . ?path vocab:start ?start . ?start vocab:lat ?startlat . ?start vocab:long ?startlong . }' | sort

@@ -1,0 +1,13 @@
+#!
+
+# Tests multiple OPTIONAL blocks with shared variable
+
+$TESTPATH/frontend/4s-query $1 '
+PREFIX foaf: <http://xmlns.com/foaf/0.1/>
+SELECT ?p ?id
+WHERE {
+   ?x foaf:knows ?p
+   OPTIONAL { ?p foaf:mbox_sha1sum ?id }
+   OPTIONAL { ?p foaf:name ?id }
+} ORDER BY ?id
+'

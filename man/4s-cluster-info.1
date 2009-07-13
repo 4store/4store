@@ -1,0 +1,28 @@
+.Dd July 8, 2009
+.Dt 4S-CLUSTER-INFO 1J 4store
+.Os 4store
+.Sh NAME
+.Nm 4s-cluster-info
+.Nd Get information about the KBs on the cluster, and running ones visible to
+the client.
+.Sh SYNOPSIS
+.Nm
+.Op kb-name
+.Sh DESCRIPTION
+When the name of a KB is given,
+.Nm
+prints the disk space used on each node in the cluster.
+.sp
+When run without arguments it prints the KBs that have been created on the
+cluster, followed but the ones that are currently running.
+.sp
+.Sh FILES
+This command depends on the config file /etc/4s-cluster, see 4s-cluster(5).
+.Sh CAVEATS
+If you do not have Avahi support (ie. clustering is not enabled) then you will
+not be able to see the list of running KBs on the cluster.
+.Sh SEE ALSO
+.Xr 4s-cluster-create 1 ,
+.Xr 4s-cluster-start 1 ,
+.Xr 4s-cluster-stop 1 ,
+.Xr 4s-cluster-destroy 1

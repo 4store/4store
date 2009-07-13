@@ -1,0 +1,53 @@
+PREFIX vocab: <http://www.census.gov/tiger/2002/vocab#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+SELECT DISTINCT ?path ?slat ?slong ?elat ?elong WHERE {
+ ?place rdfs:label @roadname@ .
+ ?start vocab:long ?slong . ?start vocab:lat ?slat .
+ ?path vocab:start ?start . ?path vocab:end
+ ?end ?end vocab:long ?elong . ?end vocab:lat ?elat .
+ ?place vocab:path ?path .  ?path vocab:start ?start . ?path vocab:end ?end
+}
+#EOQ
+
+PREFIX vocab: <http://www.census.gov/tiger/2002/vocab#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+SELECT DISTINCT ?path ?label WHERE {
+ ?place rdfs:label @roadname@ .
+ ?place vocab:path ?path .
+ ?altplace vocab:path ?altpath . ?altplace rdfs:label ?label .
+ ?path vocab:start ?start . ?start vocab:long ?slong . ?start vocab:lat ?slati .
+ ?end vocab:long ?slong . ?end vocab:lat ?slat . ?altpath vocab:end ?end
+} LIMIT 5
+#EOQ
+
+PREFIX vocab: <http://www.census.gov/tiger/2002/vocab#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+SELECT DISTINCT ?path ?label WHERE {
+ ?place rdfs:label @roadname@ .
+ ?place vocab:path ?path .
+ ?altplace vocab:path ?altpath . ?altplace rdfs:label ?label .
+ ?path vocab:end ?end . ?start vocab:long ?elong . ?start vocab:lat ?elat .
+ ?end vocab:long ?elong . ?end vocab:lat ?elat . ?altpath vocab:start ?start
+} LIMIT 5
+#EOQ
+
+PREFIX vocab: <http://www.census.gov/tiger/2002/vocab#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+SELECT DISTINCT ?path ?type ?label ?serieslabel ?superlabel WHERE {
+ ?place rdfs:label @roadname@ . ?place vocab:path ?path .
+ ?path rdf:type ?type . ?type rdfs:subClassOf ?series ; rdfs:label ?label .
+ ?series rdfs:label ?serieslabel .
+ OPTIONAL {
+  ?series rdfs:subClassOf ?super . ?super rdfs:label ?superlabel
+ }
+} LIMIT 10
+#EOQ
+
+PREFIX vocab: <http://www.census.gov/tiger/2002/vocab#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+SELECT ?path ?type WHERE {
+ ?place rdfs:label @roadname@ . ?place rdf:type ?type .
+ ?place vocab:path ?path
+}

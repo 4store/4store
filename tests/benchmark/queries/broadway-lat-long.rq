@@ -1,0 +1,12 @@
+PREFIX vocab: <http://www.census.gov/tiger/2002/vocab#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX feature: <http://www.census.gov/tiger/2002/CFCC/>
+SELECT DISTINCT ?startlat ?startlong
+WHERE {
+   ?place rdfs:label "Broadway" .
+   ?place vocab:path ?path .
+   ?path vocab:start ?start .
+   ?start vocab:lat ?startlat .
+   ?start vocab:long ?startlong .
+}

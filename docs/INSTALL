@@ -1,0 +1,56 @@
+
+To install Raptor (RDF parser) and Rasqal (SPARQL parser)
+---------------------------------------------------------
+
+# install a 64-bit raptor from freshly extracted source
+
+./configure --libdir=/usr/local/lib64 && make
+sudo make install
+
+# similarly for 64-bit rasqal
+
+./configure "--enable-query-languages=laqrs sparql rdql" \
+ --libdir=/usr/local/lib64 && make
+sudo make install
+
+
+# ensure PKG_CONFIG_PATH is set correctly
+# ensure /etc/ld.so.conf.d/ includes /usr/local/lib64
+
+sudo ldconfig
+
+
+
+Other installation hints
+------------------------
+
+Make sure /var/lib/4store/ exists (in a cluster it need only exist
+on backend nodes) and that the user or users who will create new KBs
+have permission to write to this directory.
+
+
+For clusters (or to test cluster tools on a single machine)
+the frontend must have a file /etc/4s-cluster which lists all
+machines in the cluster.
+
+
+To avoid problems running out of Avahi DBUS connections:
+
+modify /etc/dbus-1/system.d/avahi-dbus.conf
+    Increase max_connections_per_user to 200 or so
+    Optionally increase max_match_rules_per_connection to 512 or so
+
+
+To install just the frontend tools on non-cluster frontends
+-----------------------------------------------------------
+
+# pre-requisites for installing the frontend tools
+
+yum install pcre-devel avahi avahi-tools avahi-devel
+
+in src/common:
+	make
+
+in src/frontend:
+	make
+	make install

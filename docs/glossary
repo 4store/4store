@@ -1,0 +1,19 @@
+Glossary
+
+Resource	any RDF "thing", inc. URI (IRI), Literal, bNode etc.
+
+RID		Resource ID (maybe), stored in a 64bit int
+
+Node		a machine running in the storage cluster, each one holds
+		0 or more segments
+
+Segment		1/2^nth of the data space, calculated by masking of the bottom
+		N bits of a hash of the data item. Stored in an unsigned 32bit
+		int
+
+Frontend	Software that controls query and import, runs on externally
+		accesible machine(s)
+
+Backend		Software that runs on the cluster machines, accessed only by
+		the Frontend, stores quads (RID tuples) and resources (RID,
+		lexical, lang, datatype tuples).

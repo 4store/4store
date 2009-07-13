@@ -1,0 +1,8 @@
+#!
+
+# tests DISTINCT, Jo has two mbox_sha1sums
+
+../../frontend/4s-query $1 '
+PREFIX foaf: <http://xmlns.com/foaf/0.1/>
+SELECT DISTINCT ?p
+WHERE { ?p foaf:mbox_sha1sum ?sha1 }' | sort

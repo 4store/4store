@@ -1,0 +1,357 @@
+NB. Warning, the protocol documentation is not entirely up to date
+with the current state of 4store.
+
+The id128 system needs a protocol between the cluster members and the
+outward facing triple store server. It's probably good to abstract this
+away from the guts of the system, so long as we don't impact performance.
+
+I'm going to use lower case for resources, literals etc and upper case
+for the resulting hashes I think...
+
+(x y z ...) is the list of items x, y and z and more like them
+{x,y,z} is a fixed-size structure containing x, y and z
+
+
+Also, we've agreed that B-nodes will use an incrementing serial number
+instead of a hash, but we'll call it a hash here anyway, the hash that
+equates to B-node serial ID #0 will be reserved as "null" for queries
+
+NO-OP
+
+Just a No-operation test message
+
+-> NOP
+<- OK
+
+RESOLVE
+
+We need to be able to convert a list of hashes into a list of resources
+
+-> RESOLVE segment (H1 H2 H3 H4 ...)
+<- OK ({H1,uri://blah1} {H2,'literal2'} {H3,'literal3'} {H4,uri://blah4} ...)
+
+INSERT RESOURCE
+
+We need to be able to insert one or more resources, this is sort-of
+the reverse of the above operation. By not replying the server makes
+it easier to queue up lots of resources for insertion.
+
+-> INSERT RESOURCE segment ({H1, uri://blah1} {H2, 'literal2'} ...)
+
+[Question: Should we send the hash or re-calculate it?
+        A: Yes, probably, see above]
+
+COMMIT RESOURCE
+
+We need to be able to commit a set of inserts. The response occurs
+only when all pending insertions to this segment have completed.
+
+-> COMMIT RESOURCE segment
+<- OK or FAIL
+
+
+INSERT TRIPLE (deprecated)
+
+We need to be able to insert individual triples or an entire graph
+with an associated model. We insert the resources separately first
+(see above) including the model and then just send the hashes.
+
+-> INSERT TRIPLE segment flags M ({S1,P1,O1} {S2,P2,O2} {S3,P3,O3} ...)
+
+flags: is a list of flags, probably only...
+
+* BIND_BY_SUBJECT BIND_BY_OBJECT
+  to indicate whether the triples are grouped by subject or object
+
+COMMIT TRIPLE (deprecated)
+
+We need to be able to commit a set of inserts. The response occurs
+only when all pending insertions to this segment have completed.
+
+-> COMMIT TRIPLE segment flags
+<- OK or FAIL
+
+flags: is the same list as for INSERT TRIPLE
+
+
+DELETE MODEL (deprecated)
+
+We need to be able to delete an entire model
+
+-> DELETE MODEL segment M
+<- OK or FAIL
+
+BIND
+
+We need to be able to match one or more partial quads and get singles,
+doubles, triples or quads as results depending on the match.
+
+-> BIND segment query-flags {(M1 M2 M3 ...),(S1 ...),(P1 P2 ...),(O1 O2 ...)}
+<- OK ({P1,O2} {P4,O2} {P1,O1} ...)
+
+query-flags: is a list of flags, we need at least
+* BIND_MODEL BIND_SUBJECT BIND_PREDICATE BIND_OBJECT
+  to indicate which bindings are to be returned, if no bindings are
+  to be returned, just returns OK for one or more matches
+* BIND_BY_SUBJECT BIND_BY_OBJECT
+  to indicate which optimisation (if any) is to be used
+* BIND_DISTINCT
+  indicates that repeats are not wanted
+
+[A later version adds multiple OR queries, if I understand Steve correctly]
+
+PRICE
+
+We need to be able to ask in advance how much a specific BIND will cost
+
+-> PRICE segment query-flags {(M1 M2 M3 ...),(S1 ...),(P1 P2 ...),(O1 O2 ...)}
+<- OK price-in-rows
+
+This has the same semantics as the BIND query, except that it should
+usually be cheaper because no results are returned. The backend database
+can be asked to EXPLAIN the necessary query and estimate its cost.
+
+
+SEGMENTS (deprecated)
+
+We need to be able to ask for a list of segments supported by a specific
+backend machine. Machines always have all the data for their segment, or
+don't provide that segment at all.
+
+-> SEGMENTS
+<- OK (seg1 seg2 seg3 ...)
+
+
+START IMPORT
+STOP IMPORT
+
+We need to be able to signal that a large import will begin, this allows
+the backend to optimise (e.g. disable updating indices). Once the import
+is complete we can undo this optimisation (which presumably reduces query
+performance or even temporarily disables queries).
+
+-> START IMPORT segment
+<- OK
+
+-> STOP IMPORT segment
+<- OK
+
+
+GET SIZE
+
+We need to be able to determine remotely how much data is stored in each
+segment. This is for operational / maintenance purposes only and doesn't
+need to be optimised.
+
+-> GET SIZE segment
+<- OK {s-quads, o-quads, resources, s-models, o-models}
+
+
+GET IMPORT TIMES
+
+We need to be able to retrieve statistics about the import process on
+each segment.
+
+-> GET IMPORT TIMES segment
+<- OK opaque-statistics
+
+opaque-statistics: some opaque raw data not relevant to normal operation
+
+
+GET QUERY TIMES
+
+We need to be able to retrieve statistics about the query process on
+each segment.
+
+-> GET QUERY TIMES segment
+<- OK opaque-statistics
+
+opaque-statistics: some opaque raw data not relevant to normal operation
+
+
+INSERT QUAD
+
+We need to be able to insert any number of quads, each consisting of a
+triples and an associated model. We insert the resources separately first
+(see above) including the model and then just send the hashes.
+
+-> INSERT QUAD segment flags ({M1,S1,P1,O1} {M2,S2,P2,O2} {M3,S3,P3,O3} ...)
+
+flags: is a list of flags, probably only...
+
+* BIND_BY_SUBJECT BIND_BY_OBJECT
+  to indicate whether the quads are grouped by subject or object
+
+
+COMMIT QUAD
+
+We need to be able to commit a set of inserts. The response occurs
+only when all pending insertions to this segment have completed.
+
+-> COMMIT QUAD segment flags
+<- OK or FAIL
+
+flags: is the same list as for INSERT QUAD
+
+
+BIND LIMIT
+
+Actually we need to be able to perform BIND but with an SQL-style LIMIT
+and OFFSET feature.
+
+-> BIND LIMIT segment query-flags offset limit {(M1 ...),(S1 ...),(),()}
+<- OK ({P1,O2} {P4,O2} {P1,O1} ...)
+
+query-flags: as for BIND above
+
+
+BNODE ALLOC
+
+We need to be able to allocate bnodes (blank nodes) for use in the store
+in advance, as an optimisation, a block is allocated and the range of
+that block is returned.
+
+-> BNODE ALLOC count
+<- OK {start,end}
+
+* the relationship between allocation blocks and the actual bNode IDs
+may be non-trivial and is defined elsewhere
+
+
+RESOLVE ATTR
+
+We need to be able to convert a list of hashes into a list of resources
+and associated (possibly null) attributes. The attributes are returned
+as RIDs, so they may need to be resolved in turn.
+
+-> RESOLVE ATTR segment (H1 H2 H3 ...)
+<- OK ({H1,uri://blah1,A1} {H2,'literal2',A2} {H3,'literal3',A3} ...)
+
+
+AUTH
+
+We need to be able to authenticate to the backends as a legitimate
+frontend. We send a suitably hashed password.
+
+Before authenticating other 4store messages may be rejected with a suitable
+error explaining why.
+
+-> AUTH 16-byte-hash kbname
+<- OK
+
+16-byte-hash: is a 16 byte cryptographic hash H such that
+              H = MD5(kbname . ':' . password)
+kbname: is a variable length string containing the kbname
+password: is a secret password, never sent over the wire
+
+DELETE MODELS
+
+Actually we need to be able to delete several models at once for
+optimisation reasons.
+
+-> DELETE MODELS segment (M1 M2 M3 ...)
+<- OK
+
+
+BIND FIRST
+BIND NEXT
+BIND DONE
+
+A trivial streaming version of the earlier BIND mechanism
+
+-> BIND FIRST segment query-flags count {(M1 ...),(S1 ...),(),()}
+<- OK ({P1,O2} {P4,O2} {P1,O1} ...)
+-> BIND NEXT segment query-flags count
+<- OK ({P1,O2} {P4,O2} {P1,O1} ...)
+-> BIND DONE segment
+<- OK
+
+query-flags: as for BIND above
+count: maximum number of results to return from this segment
+
+
+TRANSACTION
+
+Transaction control command, used to begin and commit or rollback
+transactional imports
+
+-> TRANSACTION segment type
+<- OK
+
+type: a single byte value indicating the operation
+  ASCII 'b' begin transaction
+  ASCII 'c' commit transaction (uninterruptible phase)
+  ASCII 'p' pre-commit phase (get ready to commit)
+  ASCII 'r' rollback transaction
+
+
+NODE SEGMENTS
+
+Actually we need to have slightly more information when querying
+backends about the available segments
+
+-> NODE SEGMENTS
+<- segment-lut
+
+segment-lut: one byte per segment lookup table
+ 0x00 means not available from this backend
+ 0x70 or ASCII 'p' means this backend is primary for this segment
+ 0x6D or ASCII 'm' means this backend contains a mirror of this segment
+
+
+REVERSE BIND
+
+An optimisation with different binding rules
+
+-> REVERSE BIND segment query-flags {(M1 M2 M3 ...),(S1 ...),(P1 P2 ...),(O1 O2 ...)}
+<- OK ({P1,O2} {P4,O2} {P1,O1} ...)
+
+query-flags: as for BIND above
+
+
+LOCK
+UNLOCK
+
+Take or release a global lock on the backend (if the frontend
+disconnects this also releases the global lock)
+
+-> LOCK segment
+<- OK
+
+-> UNLOCK segment
+<- OK
+
+
+GET SIZE REVERSE
+
+Actually we also need to be able to get some more information
+about the new structures for the reverse bind optimisation
+
+-> GET SIZE REVERSE segment
+<- OK sr-quads
+
+sr-quads: count of quads in the reverse subject index
+
+
+NEW MODELS
+
+As an optimisation the frontend lets the backend know when it is
+importing a new model
+
+-> NEW MODELS segment (M1 M2 M3 ...)
+<- OK
+
+
+GET QUAD FREQ
+
+As an optimisation the backend can report RIDs which are most
+commonly repeated in the existing indexes.
+
+-> GET QUAD FREQ segment index max
+<- OK ({K1,K2,count} ...)
+
+index: which index we're interested in e.g. FS_BIND_BY_SUBJECT
+max: the maximum number of structures to return
+K1,K2: primary and secondary keys from this index
+count: number of times this key pair occurs
+

@@ -1,0 +1,7 @@
+#!/bin/sh
+if (($# >= 1)) ; then
+ logger -t $0 "'$*' by $USER"
+ 4s-ssh-all-parallel 4s-backend-setup --node '$id' --cluster '$nodes' --segments 32 "$@"
+else 
+ echo "Usage: $0 <kbname> [--password password]"
+fi

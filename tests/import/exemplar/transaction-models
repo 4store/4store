@@ -1,0 +1,23 @@
+# transaction begin
+# import
+# size
+  seg   quads (s)  quads (sr)      models   resources
+    0           0          +0           0          32
+    1           0          +0           0          26
+    2           0          +0           0          33
+    3           0          +0           0          30
+
+TOTAL           0          +0           0         121
+# transaction commit
+# size
+  seg   quads (s)  quads (sr)      models   resources
+    0          25          +0           2          32
+    1           5          +0           2          26
+    2          36          +0           2          33
+    3          23          +0           2          30
+
+TOTAL          89          +0           2         121
+# query
+?g	
+<file:nasty.ttl>	
+<file:swh.xrdf>	

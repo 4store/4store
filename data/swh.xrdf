@@ -1,0 +1,110 @@
+<?xml version="1.0"?>
+
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+         xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+         xmlns:owl="http://www.w3.org/2002/07/owl#"
+         xmlns:foaf="http://xmlns.com/foaf/0.1/"
+         xmlns:dc="http://purl.org/dc/elements/1.1/"
+         xmlns:wot="http://xmlns.com/wot/0.1/"
+>
+
+<rdf:Description rdf:about=""> 
+<wot:assurance rdf:resource="swh.xrdf.asc" />
+<foaf:maker> 
+  <foaf:Person rdf:about="mailto:steve@totl.net">
+    <foaf:mbox_sha1sum>44bc4fed584a2d1ac8fc55206db67656165d67fd</foaf:mbox_sha1sum>
+  </foaf:Person>
+</foaf:maker> 
+</rdf:Description> 
+
+<foaf:Person rdf:about="mailto:steve@totl.net">
+  <foaf:name>Steve Harris</foaf:name>
+  <foaf:title>Mr</foaf:title>
+  <foaf:family_name>Harris</foaf:family_name>
+  <foaf:givenname>Stephen</foaf:givenname>
+  <foaf:nick>swh</foaf:nick>
+  <foaf:someInteger rdf:datatype="http://www.w3.org/2001/XMLSchema#int">123456789</foaf:someInteger>
+  <foaf:someHexNumber rdf:datatype="http://example.org/hex">123deadbeef</foaf:someHexNumber>
+  <foaf:someDecimal>1.12345678</foaf:someDecimal>
+  <foaf:someDecimal>1000017.23</foaf:someDecimal>
+  <foaf:empty></foaf:empty>
+
+  <foaf:mbox_sha1sum>44bc4fed584a2d1ac8fc55206db67656165d67fd</foaf:mbox_sha1sum>
+
+  <foaf:homepage rdf:resource="http://inanna.ecs.soton.ac.uk/"/>
+  <foaf:img rdf:resource="http://www.linuxdj.com/audio/lad/contrib/zkm_meeting_2003/photos/steve_harris.jpg"/>
+
+  <foaf:workplaceHomePage rdf:resource="http://www.ecs.soton.ac.uk/" />
+
+  <rdfs:seeAlso rdf:resource="http://triplestore.aktors.org/resolve/?resource=http%3A%2F%2Fwww.ecs.soton.ac.uk%2Finfo%2F%23person-00384"/>
+
+  <foaf:depiction>
+    <foaf:Image rdf:about="http://www.linuxdj.com/audio/lad/contrib/zkm_meeting_2003/photos/steve_harris.jpg">
+       <dc:title>Steve Harris</dc:title>
+       <dc:description xml:lang="en-GB">Picture of Steve at ZKM in 2003</dc:description>
+       <dc:format>image/jpeg</dc:format>
+    </foaf:Image>
+  </foaf:depiction>
+
+  <foaf:currentProject>
+    <foaf:Project rdf:about="local:akt">
+      <foaf:name>Advanced Knowledge Technologies</foaf:name>
+      <foaf:homepage rdf:resource="http://www.aktors.org/"/>
+    </foaf:Project>
+  </foaf:currentProject>
+
+  <foaf:knows>
+    <foaf:Person rdf:about="local:nick">
+      <owl:sameIndividualAs rdf:resource="http://www.ecs.soton.ac.uk/info/#person-01269"/>
+      <foaf:name>Nick Gibbins</foaf:name>
+      <foaf:nick>nmg</foaf:nick>
+      <rdfs:seeAlso rdf:resource="http://www.ecs.soton.ac.uk/~nmg/nmg-foaf.rdf"/>
+    </foaf:Person>
+  </foaf:knows>
+
+  <foaf:knows>
+    <foaf:Person rdf:about="local:stripes">
+      <foaf:name>Mark Thompson</foaf:name>
+      <foaf:nick>Stripes</foaf:nick>
+      <foaf:mbox_sha1sum>0f585a7b90a5f2d3cceac58f5fd998ebd99b6e71</foaf:mbox_sha1sum>
+      <rdfs:seeAlso rdf:resource="http://purl.org/net/stripes/foaf.rdf"/>
+    </foaf:Person>
+  </foaf:knows>
+
+  <foaf:knows>
+    <foaf:Person rdf:about="local:dajobe">
+      <foaf:name>Dave Beckett</foaf:name>
+      <foaf:mbox_sha1sum>970987f991961f2553a1bf2574166fa29befbccb</foaf:mbox_sha1sum>
+      <foaf:nick>dajobe</foaf:nick>
+      <rdfs:seeAlso rdf:resource="http://www.ilrt.bris.ac.uk/people/cmdjb/webwho.xrdf"/>
+    </foaf:Person>
+  </foaf:knows>
+
+  <foaf:knows>
+    <foaf:Person rdf:about="local:libby">
+      <foaf:name>Libby Miller</foaf:name>
+      <foaf:mbox_sha1sum>289d4d44325d0b0218edc856c8c3904fa3fd2875</foaf:mbox_sha1sum>
+      <foaf:nick>libby</foaf:nick>
+      <rdfs:seeAlso rdf:resource="http://www.libbymiller.com/webwho.xrdf"/>
+    </foaf:Person>
+  </foaf:knows>
+
+  <foaf:knows>
+    <foaf:Person rdf:about="local:jo">
+      <foaf:name>Jo Walsh</foaf:name>
+      <foaf:mbox_sha1sum>828414515d398b42268a6c2ed879dc505369223a</foaf:mbox_sha1sum>
+      <foaf:mbox_sha1sum>4829af19130151de1c4def299d73d33f33dee0fb</foaf:mbox_sha1sum>
+      <foaf:nick>zool</foaf:nick>
+     </foaf:Person>
+  </foaf:knows>
+
+  <foaf:interest>
+    <rdf:Description rdf:about="http://www.w3.org/RDF/" dc:title="Resource Description Framework (RDF)" /> 
+  </foaf:interest>
+
+  <foaf:interest>
+    <rdf:Description rdf:about="http://www.w3.org/2000/01/sw/" dc:title="Semantic Web" /> 
+  </foaf:interest>
+
+</foaf:Person>
+</rdf:RDF>

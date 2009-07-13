@@ -1,0 +1,26 @@
+#!
+
+./test-create.sh --segments 4 $1
+./test-start.sh $1
+echo "# import TIGER/Line"
+$PRECMD ../../frontend/4s-import $1 -m file:tiger ../../../data/tiger/TGR06001.nt
+echo "# import swh.xrdf"
+$PRECMD ../../frontend/4s-import $1 -m file:swh1 ../../../data/swh.xrdf
+$PRECMD ../../frontend/4s-import $1 -m file:swh2 ../../../data/swh.xrdf
+$PRECMD ../../frontend/4s-import $1 -m file:swh3 ../../../data/swh.xrdf
+$PRECMD ../../frontend/4s-import $1 -m file:swh4 ../../../data/swh.xrdf
+$PRECMD ../../frontend/4s-import $1 -m file:swh5 ../../../data/swh.xrdf
+$PRECMD ../../frontend/4s-import $1 -m file:swh6 ../../../data/swh.xrdf
+$PRECMD ../../frontend/4s-import $1 -m file:swh7 ../../../data/swh.xrdf
+$PRECMD ../../frontend/4s-import $1 -m file:swh8 ../../../data/swh.xrdf
+$PRECMD ../../utilities/4s-rid '<file:swh1>' > file_uri
+echo "# file:swh1 by subject"
+$PRECMD ../../frontend/4s-bind $1 all FS_BIND_SUBJECT FS_BIND_PREDICATE FS_BIND_OBJECT FS_BIND_BY_SUBJECT file_uri /dev/null /dev/null /dev/null | sort
+time $PRECMD ../../frontend/4s-delete-model $1 'file:swh1'
+echo "# file:swh1 by subject, post delete"
+$PRECMD ../../frontend/4s-bind $1 all FS_BIND_SUBJECT FS_BIND_PREDICATE FS_BIND_OBJECT FS_BIND_BY_SUBJECT file_uri /dev/null /dev/null /dev/null | sort
+rm file_uri
+../../backend/ptreedump --table /var/lib/4store/$1/0003/{pairs.ptable,ps-e6515432cc924f71.ptree} | grep ERROR
+$PRECMD ../../frontend/4s-import $1 -m file:swh1 ../../../data/swh.xrdf
+./test-stop.sh $1
+../../backend/ptreedump --table /var/lib/4store/$1/0003/{pairs.ptable,ps-e6515432cc924f71.ptree} | grep ERROR

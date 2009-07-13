@@ -1,0 +1,13 @@
+#!
+
+./test-create.sh --segments 4 $1
+./test-start.sh $1
+echo "# import"
+$PRECMD ../../frontend/4s-import $1 -m file:swh ../../../data/swh.xrdf
+$PRECMD ../../frontend/4s-import $1 -m file:nasty ../../../data/nasty.ttl
+$PRECMD ../../frontend/4s-import $1 -m file:tiger ../../../data/tiger/TGR06001.nt
+echo "# size of result"
+$PRECMD ../../frontend/4s-size $1
+echo "# distinct predicates by object"
+$PRECMD ../../frontend/4s-bind $1 all FS_BIND_PREDICATE FS_BIND_DISTINCT FS_BIND_BY_OBJECT /dev/null /dev/null /dev/null /dev/null | sort | uniq
+./test-stop.sh $1

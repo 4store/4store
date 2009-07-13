@@ -1,0 +1,95 @@
+
+# 1
+# Just needs tiger schema RDF
+# "Perennial canal, ditch, or aqueduct"
+
+./query cluster 'PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> PREFIX feature: <http://www.census.gov/tiger/2002/CFCC/> SELECT DISTINCT ?label WHERE { feature:H21 rdfs:label ?label . }'
+
+
+# 2
+# There aren't any “Indian Creek”s that meet these critera,
+# not least because rdf:subClassOf is nonsense, it's rdfs:subClassOf instead
+# Yet, as of 2006-02-12 many false results are returned, cf item two below
+# fixed in 2006-02-18 r85
+
+./query cluster 'PREFIX vocab: <http://www.census.gov/tiger/2002/vocab#> PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> PREFIX feature: <http://www.census.gov/tiger/2002/CFCC/> SELECT DISTINCT * WHERE { ?s vocab:name "Indian Creek" . ?s rdfs:label ?label . ?s vocab:path ?path . ?path rdf:type ?type . ?type rdf:subClassOf feature:H }'
+
+
+# 3
+# Places called “Smith” that are Local, Neighborhood, and Rural Roads
+# e.g. typically Smith Rd, N Smith St
+
+./query cluster 'PREFIX vocab: <http://www.census.gov/tiger/2002/vocab#> PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> PREFIX feature: <http://www.census.gov/tiger/2002/CFCC/> SELECT DISTINCT ?label WHERE { ?place vocab:name "Smith" . ?place rdfs:label ?label . ?place vocab:path ?path . ?path rdf:type ?type . ?type rdfs:subClassOf feature:A4 }'
+
+
+# 4
+# The above, re-ordered, gives false results as of 2006-02-12
+# only “Smith St” is returned
+# fixed in 2006-02-18 r85 now gives identical results to above query
+
+./query cluster 'PREFIX vocab: <http://www.census.gov/tiger/2002/vocab#> PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> PREFIX feature: <http://www.census.gov/tiger/2002/CFCC/> SELECT DISTINCT ?label WHERE { ?place vocab:name "Smith" . ?place rdfs:label ?label . ?place vocab:path ?path . ?type rdfs:subClassOf feature:A4 . ?path rdf:type ?type }'
+
+
+# 5
+# Names of line features of type H12 (creeks and similar)
+# try H71 for a lot less results
+
+./query cluster 'PREFIX vocab: <http://www.census.gov/tiger/2002/vocab#> PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> PREFIX feature: <http://www.census.gov/tiger/2002/CFCC/> SELECT DISTINCT ?place ?label WHERE { ?path rdf:type feature:H12 . ?place vocab:path ?path . ?place rdfs:label ?label . }'
+
+
+# 6
+# “Harold Ave” co-ordinates list
+
+./query cluster 'PREFIX vocab: <http://www.census.gov/tiger/2002/vocab#> PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> PREFIX feature: <http://www.census.gov/tiger/2002/CFCC/> SELECT DISTINCT ?startlat ?startlong WHERE { ?place rdfs:label "Harold Ave" . ?place vocab:path ?path . ?path vocab:start ?start . ?start vocab:lat ?startlat . ?start vocab:long ?startlong . }'
+
+
+# 6
+# “Harold Ave” co-ordinates list
+# but this time with naive query order, tests optimiser
+# works as-of 2006-03-07
+
+./query cluster 'PREFIX vocab: <http://www.census.gov/tiger/2002/vocab#> PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> PREFIX feature: <http://www.census.gov/tiger/2002/CFCC/> SELECT DISTINCT ?startlat ?startlong WHERE { ?place vocab:path ?path . ?place rdfs:label "Harold Ave" . ?path vocab:start ?start . ?start vocab:lat ?startlat . ?start vocab:long ?startlong . }'
+
+
+# 7
+# “Sugar Hill Terrance West” co-ordinates with model URI
+# one set of results, from TGR06001 expected.
+
+./query cluster 'PREFIX vocab: <http://www.census.gov/tiger/2002/vocab#> PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> PREFIX feature: <http://www.census.gov/tiger/2002/CFCC/> SELECT DISTINCT ?startlat ?startlong ?g WHERE { GRAPH ?g { ?place rdfs:label "Sugar Hill Terrance West" . ?place vocab:path ?path . ?path vocab:start ?start . ?start vocab:lat ?startlat . ?start vocab:long ?startlong . } }'
+
+
+# 8
+# List of all things named “Sugar Hill” with RDFS label and model URI
+
+./query cluster 'PREFIX vocab: <http://www.census.gov/tiger/2002/vocab#> PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> PREFIX feature: <http://www.census.gov/tiger/2002/CFCC/> SELECT DISTINCT ?g ?label WHERE { GRAPH ?g { ?place vocab:name "Sugar Hill" . ?place rdfs:label ?label } }'
+
+
+# 9
+# “Sugar Hill Loop” start-end lines with model URI
+
+./query cluster 'PREFIX vocab: <http://www.census.gov/tiger/2002/vocab#> PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> PREFIX feature: <http://www.census.gov/tiger/2002/CFCC/> SELECT DISTINCT ?g ?slat ?slong ?elat ?elong WHERE { GRAPH ?g { ?place rdfs:label "Sugar Hill Loop" . ?place vocab:path ?path . ?path vocab:start ?start . ?path vocab:end ?end . ?end vocab:lat ?elat . ?end vocab:long ?elong . ?start vocab:lat ?slat . ?start vocab:long ?slong } }'
+
+
+# 10
+# Names of lines (probably roads) connected to ends of “Clifft Rd” lines
+
+./query cluster 'PREFIX vocab: <http://www.census.gov/tiger/2002/vocab#> PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> PREFIX feature: <http://www.census.gov/tiger/2002/CFCC/> SELECT DISTINCT ?g ?label WHERE { GRAPH ?g { ?place rdfs:label "Clifft Rd" . ?place vocab:path ?path . ?path vocab:end ?end . ?end vocab:lat ?elat . ?end vocab:long ?elong . ?altpath vocab:start ?altend . ?altend vocab:lat ?elat. ?altend vocab:long ?elong . ?altplace vocab:path ?altpath . ?altplace rdfs:label ?label } }'
+
+
+# 11
+# Similar to #10 but more idiomatic SPARQL
+
+./query cluster 'PREFIX vocab: <http://www.census.gov/tiger/2002/vocab#> PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> PREFIX feature: <http://www.census.gov/tiger/2002/CFCC/> SELECT DISTINCT ?g ?label WHERE { GRAPH ?g { ?place rdfs:label "Clifft Rd" ; vocab:path ?path . ?path vocab:end [ vocab:lat ?lat; vocab:long ?long ] . ?altpath vocab:start [ vocab:lat ?lat; vocab:long ?long ] . ?altplace vocab:path ?altpath ; rdfs:label ?label } }'
+
+
+# 12
+# Similar to #11 but for TGR06001 and using OPTIONAL to get unnamed lines
+
+./query cluster 'PREFIX vocab: <http://www.census.gov/tiger/2002/vocab#> PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> PREFIX feature: <http://www.census.gov/tiger/2002/CFCC/> SELECT DISTINCT ?label WHERE { ?place rdfs:label "Union City Blvd" ; vocab:path _:path . _:path vocab:end [ vocab:lat _:lat; vocab:long _:long ] . _:altpath vocab:start [ vocab:lat _:lat; vocab:long _:long ] . ?altplace vocab:path _:altpath . OPTIONAL { ?altplace rdfs:label ?label } }'
+
+# 13
+# Random -P query for lat long of endpoints of some line
+
+SELECT * WHERE {<http://www.census.gov/tiger/2002/tlid/102589567> ?x ?y . ?y <http://www.census.gov/tiger/2002/vocab#lat> ?lat ; <http://www.census.gov/tiger/2002/vocab#long> ?long }
+#EOQ
+

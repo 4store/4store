@@ -1,0 +1,26 @@
+#!
+# tries to test all three indexes after a delete
+
+./test-create.sh --segments 4 $1
+./test-start.sh $1
+echo "# TGR06001.nt import"
+$PRECMD $TESTPATH/frontend/4s-import $1 -m file:tiger $TESTPATH/../data/tiger/TGR06001.nt 1>&2
+echo "# forward object bind"
+$PRECMD $TESTPATH/frontend/4s-query $1 'SELECT * WHERE { ?line <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.census.gov/tiger/2002/CFCC/H12> }' | sort
+echo "# forward subject bind"
+$PRECMD $TESTPATH/frontend/4s-query $1 'SELECT * WHERE { <http://www.census.gov/tiger/2002/tlid/125060436> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> ?type }' | sort
+echo "# reverse bind "
+$PRECMD $TESTPATH/frontend/4s-query $1 'SELECT * WHERE { ?line <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.census.gov/tiger/2002/CFCC/F11> . ?line <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.census.gov/tiger/2002/vocab#Line>}' | sort
+echo "# TGR06001.nt delete"
+$PRECMD $TESTPATH/frontend/4s-delete-model $1 file:tiger 1>&2
+echo "# forward object bind"
+$PRECMD $TESTPATH/frontend/4s-query $1 'SELECT * WHERE { ?line <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.census.gov/tiger/2002/CFCC/H12> }' | sort
+echo "# forward subject bind"
+$PRECMD $TESTPATH/frontend/4s-query $1 'SELECT * WHERE { <http://www.census.gov/tiger/2002/tlid/125060436> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> ?type }' | sort
+echo "# reverse bind "
+$PRECMD $TESTPATH/frontend/4s-query $1 'SELECT * WHERE { ?line <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.census.gov/tiger/2002/CFCC/F11> . ?line <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.census.gov/tiger/2002/vocab#Line>}' | sort
+echo "# graph bind"
+$PRECMD $TESTPATH/frontend/4s-query $1 'SELECT * WHERE { GRAPH <file:tiger> { ?x ?y ?x } } LIMIT 10' | sort
+echo "# any bind"
+$PRECMD $TESTPATH/frontend/4s-query $1 'SELECT * WHERE { ?x ?y ?x } LIMIT 10' | sort
+./test-stop.sh $1

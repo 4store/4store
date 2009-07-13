@@ -1,0 +1,19 @@
+PREFIX vocab: <http://www.census.gov/tiger/2002/vocab#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+SELECT * WHERE {
+   _:place vocab:path @line@ .
+   _:place rdfs:label ?label .
+   @line@ vocab:start _:start .
+   _:start vocab:long ?startlong . _:start vocab:lat ?startlat .
+   @line@ vocab:end _:end .
+   _:end vocab:long ?endlong . _:end vocab:lat ?endlat .
+   @line@ rdf:type _:subclass .
+   _:subclass <http://www.w3.org/2000/01/rdf-schema#subClassOf> _:class .
+   _:class rdfs:label ?description .
+   OPTIONAL {
+      _:join vocab:long ?endlong . _:join vocab:lat ?endlat .
+      ?next vocab:start _:join .
+   }
+}
+LIMIT 20

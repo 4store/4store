@@ -1,0 +1,28 @@
+PREFIX vocab: <http://www.census.gov/tiger/2002/vocab#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX feature: <http://www.census.gov/tiger/2002/CFCC/>
+SELECT DISTINCT ?startlat ?startlong
+WHERE {
+   ?place rdfs:label "Broadway" .
+   ?place vocab:path ?path .
+   ?path vocab:start ?start .
+   ?start vocab:lat ?startlat .
+   ?start vocab:long ?startlong .
+}
+#EOQ
+
+PREFIX vocab: <http://www.census.gov/tiger/2002/vocab#> PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> PREFIX feature: <http://www.census.gov/tiger/2002/CFCC/> SELECT DISTINCT ?startlat ?startlong WHERE { ?place vocab:path ?path . ?place rdfs:label "Harold Ave" . ?path vocab:start ?start . ?start vocab:lat ?startlat . ?start vocab:long ?startlong . }
+#EOQ
+
+#PREFIX vocab: <http://www.census.gov/tiger/2002/vocab#> PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> PREFIX feature: <http://www.census.gov/tiger/2002/CFCC/> SELECT DISTINCT * WHERE { ?place vocab:name ?name . ?place a vocab:Landmark . OPTIONAL { ?place vocab:location _:loc . _:loc vocab:lat ?latitude ; vocab:long ?longitude . } }
+##EOQ
+
+PREFIX vocab: <http://www.census.gov/tiger/2002/vocab#> PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> PREFIX feature: <http://www.census.gov/tiger/2002/CFCC/> SELECT DISTINCT ?startlat ?startlong ?g WHERE { GRAPH ?g { ?place rdfs:label "Sugar Hill Terrance West" . ?place vocab:path ?path . ?path vocab:start ?start . ?start vocab:lat ?startlat . ?start vocab:long ?startlong . } }
+#EOQ
+
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#> PREFIX vocab: <http://www.census.gov/tiger/2002/vocab#> PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> PREFIX feature: <http://www.census.gov/tiger/2002/CFCC/> SELECT DISTINCT ?startlat ?startlong ?g WHERE { GRAPH ?g { ?place rdfs:label "Sugar Hill Terrance West" . ?place vocab:path ?path . ?path vocab:start ?start . ?start vocab:lat ?startlat . ?start vocab:long ?startlong . } . FILTER(xsd:decimal(?startlat) < 37.721735 && xsd:decimal(?startlat) > 37.721720) }
+#EOQ
+
+PREFIX vocab: <http://www.census.gov/tiger/2002/vocab#> PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> PREFIX feature: <http://www.census.gov/tiger/2002/CFCC/> SELECT DISTINCT ?place ?label WHERE { GRAPH <file:///usr/local/tiger/CA/TGR06001.ttl> { ?path rdf:type feature:H12 . ?place vocab:path ?path . ?place rdfs:label ?label . } }
+#EOQ

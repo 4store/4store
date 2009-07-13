@@ -1,0 +1,7 @@
+#!
+
+# tests combinatorial explosion on the same query pattern, exercises the existienatial binding optimisation
+
+../../frontend/4s-query $1 'SELECT DISTINCT ?x ?y WHERE { ?x ?y "Corral Hollow Creek" . ?a ?b "Corral Hollow Creek" }' | sort
+echo '==='
+../../frontend/4s-query $1 'SELECT DISTINCT ?a ?b WHERE { ?x ?y "Corral Hollow Creek" . ?a ?b "Corral Hollow Creek" }' | sort

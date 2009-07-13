@@ -1,0 +1,45 @@
+.Dd 2009-07-08
+.Dt 4S-IMPORT 1J 4store
+.Os 4store
+.Sh NAME
+.Nm 4s-import
+.Nd Import RDF into a 4store KB
+.Sh SYNOPSIS
+.Nm
+kbname
+.Op Fl v
+.Op Fl a
+.Op Fl M Ar default-model
+.Op Fl m Ar model
+.Op Fl f Ar format
+.Op rdf-file
+.Ar ...
+.Bl -tag -width indent
+.It Fl "v, \-\-verbose"
+Increase verbosity (by default success is silent)
+.It Fl "a, \-\-add"
+Ordinarily importing RDF to a model replaces any previous contents of that model, by using the --add flag this behaviour is overridden and any triples which were previously in the model are retained.
+.It Fl "M, \-\-model-default"
+Set a model (graph) URI which is used by default for all imported files
+.It Fl "m, \-\-model"
+Set a model (graph) URI for the next named file only (overrides -M if it has been used)
+.It Fl "f, \-\-format"
+Tell the RDF parser the format of the files (if not specified the parser will guess)
+.El
+.Sh SEE ALSO
+4s-query(1), 4s-size(1), 4s-httpd(1), 4s-backend(1), 4s-delete-model(1)
+.Sh EXAMPLES
+$
+.Nm
+demo one.ttl two.xrdf
+.sp
+Imports two files into the demo KB, each as a separate model (graph) guessing the RDF format used for each file
+.sp
+$
+.Nm
+demo
+.Fl M
+http://example.com/menu
+starters.ttl mains.ttl sweets.ttl
+.sp
+Imports three files into a single graph named <http://example.com/menu>

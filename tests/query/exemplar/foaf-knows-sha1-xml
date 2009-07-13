@@ -1,0 +1,33 @@
+<?xml version="1.0"?>
+<sparql xmlns="http://www.w3.org/2005/sparql-results#">
+  <head>
+    <variable name="p"/>
+    <variable name="sha1"/>
+  </head>
+  <results>
+    <result>
+      <binding name="p"><uri>local:nick</uri></binding>
+    </result>
+    <result>
+      <binding name="p"><uri>local:stripes</uri></binding>
+      <binding name="sha1"><literal>0f585a7b90a5f2d3cceac58f5fd998ebd99b6e71</literal></binding>
+    </result>
+    <result>
+      <binding name="p"><uri>local:libby</uri></binding>
+      <binding name="sha1"><literal>289d4d44325d0b0218edc856c8c3904fa3fd2875</literal></binding>
+    </result>
+    <result>
+      <binding name="p"><uri>local:jo</uri></binding>
+      <binding name="sha1"><literal>4829af19130151de1c4def299d73d33f33dee0fb</literal></binding>
+    </result>
+    <result>
+      <binding name="p"><uri>local:jo</uri></binding>
+      <binding name="sha1"><literal>828414515d398b42268a6c2ed879dc505369223a</literal></binding>
+    </result>
+    <result>
+      <binding name="p"><uri>local:dajobe</uri></binding>
+      <binding name="sha1"><literal>970987f991961f2553a1bf2574166fa29befbccb</literal></binding>
+    </result>
+  </results>
+</sparql>
+<!-- EOR -->

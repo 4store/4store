@@ -1,0 +1,234 @@
+NB. Warning, the protocol documentation is not entirely up to date
+with the current state of 4store.
+
+
+Open questions:
+
+* Do we need to handle multiplexing here?
+
+* What errors can reasonably be sent over the wire?
+
+* How are URIs and Literals represented on the wire?
+
+* Do we need a "which segments are on this cluster member?" message?
+
+Message structure
+
+byte
+ 0- 2  'I' 'D' 0x80 version magic
+ 3     message type
+ 4- 7  length of message in bytes, not including this header
+ 8-11  segment address
+  ..   padding
+16-    message contents
+
+
+0x01 FS_NO_OP
+
+(no message contents, length zero)
+This operation always succeeds.
+
+0x02 FS_DONE_OK
+
+(no message contents, length zero)
+
+0x03 FS_ERROR
+
+(contents of error messages to be defined later)
+
+0x04 FS_RESOLVE
+
+ 0-   64-bit rids
+
+Contents are rids, eight octets per rid. It is an error for there to
+be no rids, or partial rids (length not a multiple of 8)
+
+0x05 FS_RESOURCE_LIST
+
+One or more records of the form....
+
+byte
+ 0- 7  64-bit rid
+ 8-11  32-bit unsigned offset of next such record
+12-    resource string incl/ terminating NUL
+
+0x06 FS_INSERT_RESOURCE
+
+byte
+ 0- 3  32-bit count of resources
+ 4- 7  padding
+
+then count records of the form...
+
+byte
+ 0- 7  64-bit rid
+ 8-15  64-bit DT/lang rid for resource
+16-19  32-bit unsigned offset of next such record
+20-    resource string incl/ terminating NUL
+
+
+0x07 FS_INSERT_TRIPLE
+
+ 0- 3  flags value
+  ..   padding
+ 8-15  64-bit rid of model
+16-    64-bit rids x 3 per triple
+
+
+0x08 FS_DELETE_MODEL
+
+ 0- 7  64-bit rid of model
+
+Content is a single resource hash, eight octets. Any other length is
+an error.
+
+0x09 FS_BIND
+
+byte
+ 0- 3  query-flags value
+ 4- 7  count of model rids
+ 8-11  count of subject rids
+12-15  count of predicate rids
+16-19  count of object rids
+  ..   padding
+24-    64-bit rids
+
+Total of the four counts should be appropriate for length of data
+
+0x0A FS_BIND_LIST
+
+ 0-    64-bit rids
+
+Contents are Nv resource hashes, where N varies and v is the number of
+bindings required by the query flags. If matching triples were found but
+no bindings are required the message has no contents and its length is
+zero. If nothing is found see the next message type..
+
+0x0B FS_NO_MATCH
+
+(no message contents, length zero)
+
+0x0C FS_PRICE_BIND
+
+(see FS_BIND)
+
+0x0D FS_ESTIMATED_ROWS
+
+byte
+ 0- 7  count of rows
+
+0x0E FS_SEGMENTS
+
+(no message contents, length zero)
+
+0x0F FS_SEGMENT_LIST
+
+byte
+ 0-    segment numbers
+
+0x10 FS_COMMIT_TRIPLE
+
+byte
+ 0- 3  flags value
+
+A single 32-bit flag value only is to be sent
+
+0x11 FS_COMMIT_RESOURCE
+
+(no message contents, length zero)
+
+0x12 FS_START_IMPORT
+
+(no message contents, length zero)
+
+0x13 FS_STOP_IMPORT
+
+(no message contents, length zero)
+
+0x14 FS_GET_SIZE
+
+(no message contents, length zero)
+
+0x15 FS_SIZE
+
+byte
+ 0- 7  count of subject quads
+ 8-15  count of object quads
+16-23  count of resources
+24-31  count of subject models (distinct)
+32-39  count of object models (distinct)
+
+0x16 FS_GET_IMPORT_TIMES
+
+(no message contents, length zero)
+
+0x17 FS_IMPORT_TIMES
+
+byte
+ 0-    opaque query statistics structure
+
+0x18 FS_INSERT_QUAD
+
+ 0- 3  flags value
+  ..   padding
+ 8-    64-bit rids x 4 per triple
+
+0x19 FS_COMMIT_QUAD
+
+byte
+ 0- 3  flags value
+
+A single 32-bit flag value only is to be sent
+
+0x1A FS_GET_QUERY_TIMES
+
+(no message contents, length zero)
+
+0x1B FS_QUERY_TIMES
+
+byte
+ 0-    opaque query statistics structure
+
+0x1C FS_BIND_LIMIT
+
+byte
+ 0- 3  query-flags value
+ 4- 7  offset of query
+ 8-11  limit of query
+12-15  count of model rids
+16-19  count of subject rids
+20-23  count of predicate rids
+24-27  count of object rids
+  ..   padding
+32-    64-bit rids
+
+0x1D FS_BNODE_ALLOC
+
+byte
+ 0- 3  count
+
+0x1E FS_BNODE_RANGE
+
+byte
+ 0- 7  start of bnode rids
+ 8-15  end of bnode rids
+
+0x1F FS_RESOLVE_ATTR
+
+ 0-   64-bit rids
+
+Contents are rids, eight octets per rid. It is an error for there to
+be no rids, or partial rids (length not a multiple of 8)
+
+0x20 FS_RESOURCE_ATTR_LIST
+
+One or more records of the form....
+
+byte
+ 0- 7  64-bit rid
+ 8-15  64-bit DT/lang rid for resource
+16-19  32-bit unsigned offset of next such record
+20-    resource string incl/ terminating NUL
+
+0x21 FS_RESERVED ...
+

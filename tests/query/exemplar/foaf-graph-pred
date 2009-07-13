@@ -1,0 +1,8 @@
+<http://example.com/swh.xrdf>	<local:akt>	"Advanced Knowledge Technologies"
+<http://example.com/swh.xrdf>	<local:dajobe>	"Dave Beckett"
+<http://example.com/swh.xrdf>	<local:jo>	"Jo Walsh"
+<http://example.com/swh.xrdf>	<local:libby>	"Libby Miller"
+<http://example.com/swh.xrdf>	<local:nick>	"Nick Gibbins"
+<http://example.com/swh.xrdf>	<local:stripes>	"Mark Thompson"
+<http://example.com/swh.xrdf>	<mailto:steve@totl.net>	"Steve Harris"
+?g	?x	?z

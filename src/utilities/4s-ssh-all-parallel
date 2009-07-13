@@ -1,0 +1,38 @@
+#!/bin/sh
+if [ $# == 0 ] ; then
+  echo "Usage: 4s-ssh-all-parallel <remote command>"
+  echo "remember to quote shell metacharacters"
+  exit;
+fi;
+
+function atexit() {
+  for pid in $sshpid; do
+    kill $pid 2>&1 > /dev/null
+  done
+}
+
+trap atexit EXIT
+
+hosts=`cat /etc/4s-cluster`;
+let id=0;
+let nodes=0;
+for node in $hosts; do
+ let nodes=nodes+1;
+done
+
+for node in $hosts; do
+ ssh $node "export id=$id; export nodes=$nodes; $*" > "/tmp/4s-parallel-$$-$id.out" 2>&1 &
+ sshpid="$sshpid $!";
+ let id=id+1;
+done
+wait
+
+let id=0;
+for node in $hosts; do
+ echo "$id: $node:";
+ cat "/tmp/4s-parallel-$$-$id.out"
+ rm "/tmp/4s-parallel-$$-$id.out"
+ let id=id+1;
+done
+
+sshpid=""

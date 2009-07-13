@@ -1,0 +1,7 @@
+#!/bin/sh
+if (($# >= 2)) ; then
+ logger -t $0 "'$*' by $USER"
+ 4s-ssh-all-parallel 4s-backend-copy "$@"
+else 
+ echo "Usage: $0 [--password newpw] <fromkb> <tokb>"
+fi

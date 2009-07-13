@@ -1,0 +1,20 @@
+
+* Implemented calls
+
+- All the initial calls are now implemented, new calls as needed
+
+* Test harness
+
+The 'fsp_test' test harness code takes a single parameter, the name of the
+backend system to connect to. If omitted it creates a minimal server on
+the local machine which only implements NO-OP.
+
+* Little endian
+
+This code is not endian-neutral, a client and server with different byte orders
+will not interoperate. This should be fixed... eventually.
+
+* Listen set to 64 clients
+
+Is 64 a lot? I don't know. We may need to increase this later.
+

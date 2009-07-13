@@ -1,0 +1,18 @@
+#!
+
+./test-create.sh --segments 4 $1
+./test-start.sh $1
+echo "# import TIGER/Line"
+$PRECMD $TESTPATH/frontend/4s-import $1 -m file:first $TESTPATH/../data/tiger/TGR06001.nt
+echo "# import swh.xrdf"
+$PRECMD $TESTPATH/frontend/4s-import $1 -m file:second $TESTPATH/../data/swh.xrdf
+echo "# import TIGER/Line with a different model URI"
+$PRECMD $TESTPATH/frontend/4s-import $1 -m file:third $TESTPATH/../data/tiger/TGR06001.nt
+$PRECMD $TESTPATH/backend/mhashdump --tbchain /var/lib/4store/$1/0000/mlist.tbchain /var/lib/4store/$1/0000/models.mhash | grep ERROR
+echo "# file:second by subject"
+$PRECMD $TESTPATH/utilities/4s-rid '<file:second>' > file_second_uri
+$PRECMD $TESTPATH/frontend/4s-bind $1 all FS_BIND_SUBJECT FS_BIND_PREDICATE FS_BIND_OBJECT FS_BIND_BY_SUBJECT file_second_uri /dev/null /dev/null /dev/null | sort
+echo "# file:second by object"
+$PRECMD $TESTPATH/frontend/4s-bind $1 all FS_BIND_SUBJECT FS_BIND_PREDICATE FS_BIND_OBJECT FS_BIND_BY_OBJECT file_second_uri /dev/null /dev/null /dev/null | sort
+rm file_second_uri
+./test-stop.sh $1

@@ -1,0 +1,5 @@
+#!
+
+# looks somewhat like a typical query from Software Mind's garlik frontend
+
+$TESTPATH/frontend/4s-query $1 'PREFIX vocab: <http://www.census.gov/tiger/2002/vocab#> PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> SELECT DISTINCT ?label ?startlong ?startlat ?endlog ?endlat ?next WHERE { _:place vocab:path <http://www.census.gov/tiger/2002/tlid/125011954> . _:place rdfs:label ?label . <http://www.census.gov/tiger/2002/tlid/125011954> vocab:start _:start . _:start vocab:long ?startlong . _:start vocab:lat ?startlat . <http://www.census.gov/tiger/2002/tlid/125011954> vocab:end _:end . _:end vocab:long ?endlong . _:end vocab:lat ?endlat . OPTIONAL { _:join vocab:long ?endlong . _:join vocab:lat ?endlat . ?next vocab:start _:join . } } LIMIT 50' | sort

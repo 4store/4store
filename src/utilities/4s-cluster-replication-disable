@@ -1,0 +1,7 @@
+#!/bin/sh
+
+if (($# == 1)) ; then
+ 4s-ssh-all grep -q 'segment_m' '/var/lib/4store/'$1'/metadata.nt' '&&' sed "'/<http:\/\/id128.com\/4store#segment_m>/d'" '-i~' '/var/lib/4store/'$1'/metadata.nt'  '||' echo 'replication not enabled'
+else 
+ echo "Usage: $0 <kbname>"
+fi

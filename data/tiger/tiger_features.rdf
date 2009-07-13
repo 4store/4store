@@ -1,0 +1,1437 @@
+<?xml version="1.0"?>
+<rdf:RDF xmlns:tiger="http://www.census.gov/tiger/2002/"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/CFCC/Feature">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>Census Feature Class</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.w3.org/2000/01/rdf-schema#Resource"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/CFCC/A">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:comment>The U.S. Census Bureau uses the term divided to refer to a road with
+
+opposing traffic lanes separated by any size median, and separated to
+
+refer to lanes that are represented in the Census TIGER database as two
+
+distinct complete chains.
+
+The term, rail line in center, indicates that a rail line shares the road rightof-
+
+way. The rail line may follow the center of the road or be directly next
+
+to the road; representation is dependent upon the available source used
+
+during the update. The rail line can represent a railroad, a streetcar line,
+
+or other carline.
+
+</rdfs:comment>
+		<rdfs:label>Road</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/CFCC/Feature"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/CFCC/A1">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:comment>Interstate highways and some toll
+
+highways are in this category (A1) and are distinguished by the presence
+
+of interchanges. These highways are accessed by way of ramps and have
+
+multiple lanes of traffic. The opposing traffic lanes are divided by a
+
+median strip. The TIGER/Line files may depict these opposing traffic
+
+lanes as two distinct lines in which case, the road is called separated.
+
+</rdfs:comment>
+		<rdfs:label>Primary Highway With Limited Access</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/CFCC/A"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/CFCC/A11">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>Primary road with limited access or interstate highway, unseparated
+
+</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/CFCC/A1"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/CFCC/A12">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>Primary road with limited access or interstate highway, unseparated, in tunnel</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/CFCC/A1"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/CFCC/A13">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>Primary road with limited access or interstate highway, unseparated,
+
+underpassing</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/CFCC/A1"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/CFCC/A14">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>Primary road with limited access or interstate highway, unseparated, with
+
+rail line in center</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/CFCC/A1"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/CFCC/A15">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>Primary road with limited access or interstate highway, separated</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/CFCC/A1"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/CFCC/A16">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>Primary road with limited access or interstate highway, separated, in tunnel</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/CFCC/A1"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/CFCC/A17">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>Primary road with limited access or interstate highway, separated,
+
+underpassing</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/CFCC/A1"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/CFCC/A18">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>Primary road with limited access or interstate highway, separated, with
+
+rail line in center</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/CFCC/A1"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/CFCC/A2">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:comment>This category (A2) includes nationally
+
+and regionally important highways that do not have limited access
+
+as required by category A1. It consists mainly of US highways, but may
+
+include some state highways and county highways that connect cities and
+
+larger towns. A road in this category must be hard-surface (concrete or
+
+asphalt). It has intersections with other roads, may be divided or undivided,
+
+and have multi-lane or single-lane characteristics.</rdfs:comment>
+		<rdfs:label>Primary Road Without Limited Access</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/CFCC/A"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/CFCC/A21">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>Primary road without limited access, US highways, unseparated</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/CFCC/A2"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/CFCC/A22">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>Primary road without limited access, US highways, unseparated, in tunnel</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/CFCC/A2"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/CFCC/A23">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>Primary road without limited access, US highways, unseparated, underpassing</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/CFCC/A2"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/CFCC/A24">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>Primary road without limited access, US highways, unseparated, with rail line
+in center</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/CFCC/A2"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/CFCC/A25">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>Primary road without limited access, US highways, separated</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/CFCC/A2"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/CFCC/A26">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>Primary road without limited access, US highways, separated, in tunnel</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/CFCC/A2"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/CFCC/A27">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>Primary road without limited access, US highways, separated, underpassing</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/CFCC/A2"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/CFCC/A28">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>Primary road without limited access, US highways, separated, with rail line
+in center</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/CFCC/A2"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/CFCC/A3">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:comment>This category (A3) includes mostly
+state highways, but may include some county highways that connect
+smaller towns, subdivisions, and neighborhoods. The roads in this
+category generally are smaller than roads in Category A2, must be hard-
+surface (concrete or asphalt), and are usually undivided with single-lane
+characteristics. These roads usually have a local name along with a route
+number and intersect with many other roads and driveways.</rdfs:comment>
+		<rdfs:label>Secondary and Connecting Road</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/CFCC/A"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/CFCC/A31">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>Secondary and connecting road, state highways, unseparated</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/CFCC/A3"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/CFCC/A32">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>Secondary and connecting road, state highways, unseparated, in tunnel</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/CFCC/A3"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/CFCC/A33">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>Secondary and connecting road, state highways, unseparated, underpassing</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/CFCC/A3"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/CFCC/A34">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>Secondary and connecting road, state highways, unseparated, with rail line
+in center</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/CFCC/A3"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/CFCC/A35">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>Secondary and connecting road, state highways, separated</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/CFCC/A3"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/CFCC/A36">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>Secondary and connecting road, state highways, separated, in tunnel</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/CFCC/A3"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/CFCC/A37">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>Secondary and connecting road, state and county highways, separated,
+underpassing</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/CFCC/A3"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/CFCC/A38">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>Secondary and connecting road, state and county highway, separated,
+with rail line in center</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/CFCC/A3"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/CFCC/A4">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:comment>A road in this category (A4) is used
+for local traffic and usually has a single lane of traffic in each direction. In an
+urban area, this is a neighborhood road and street that is not a thoroughfare
+belonging in categories A2 or A3. In a rural area, this is a short-distance
+road connecting the smallest towns; the road may or may not have a state or
+county route number. Scenic park roads, unimproved or unpaved roads,
+and industrial roads are included in this category. Most roads in the Nation
+are classified as A4 roads.</rdfs:comment>
+		<rdfs:label>Local, Neighborhood, and Rural Road</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/CFCC/A"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/CFCC/A41">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>Local, neighborhood, and rural road, city street, unseparated</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/CFCC/A4"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/CFCC/A42">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>Local, neighborhood, and rural road, city street, unseparated, in tunnel</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/CFCC/A4"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/CFCC/A43">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>Local, neighborhood, and rural road, city street, unseparated, underpassing</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/CFCC/A4"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/CFCC/A44">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>Local, neighborhood, and rural road, city street, unseparated, with rail line
+in center</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/CFCC/A4"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/CFCC/A45">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>Local, neighborhood, and rural road, city street, separated</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/CFCC/A4"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/CFCC/A46">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>Local, neighborhood, and rural road, city street, separated, in tunnel</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/CFCC/A4"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/CFCC/A47">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>Local, neighborhood, and rural road, city street, separated, underpassing</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/CFCC/A4"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/CFCC/A48">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>Local, neighborhood, and rural road, city street, separated, with rail line
+in center</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/CFCC/A4"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/CFCC/A5">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:comment>A road in this category (A5) is usable only by four-wheel
+drive vehicles, is usually a one-lane dirt trail, and is found almost exclusively
+in very rural areas. Sometimes the road is called a fire road or
+logging road and may include an abandoned railroad grade where the
+tracks have been removed. Minor, unpaved roads usable by ordinary cars
+and trucks belong in category A4, not A5.</rdfs:comment>
+		<rdfs:label>Vehicular Trail</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/CFCC/A"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/CFCC/A51">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>Vehicular trail, road passable only by 4WD vehicle, unseparated</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/CFCC/A5"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/CFCC/A52">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>Vehicular trail, road passable only by 4WD vehicle, unseparated, in tunnel</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/CFCC/A5"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/CFCC/A53">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>Vehicular trail, road passable only by 4WD vehicle, unseparated, underpassing</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/CFCC/A5"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/CFCC/A6">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:comment>This category (A6) includes roads,
+portions of a road, intersections of a road, or the ends of a road that are
+parts of the vehicular highway system and have separately identifiable
+characteristics.</rdfs:comment>
+		<rdfs:label>Road with Special Characteristics</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/CFCC/A"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/CFCC/A60">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>Special road feature, major category used when the minor category could
+not be determined</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/CFCC/A6"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/CFCC/A61">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>Cul-de-sac, the closed end of a road that forms a loop or turn-around</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/CFCC/A6"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/CFCC/A62">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>Traffic circle, the portion of a road or intersection of roads forming
+a roundabout</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/CFCC/A6"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/CFCC/A63">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>Access ramp, the portion of a road that forms a cloverleaf or limited-
+access interchange</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/CFCC/A6"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/CFCC/A64">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>Service drive, the road or portion of a road that provides access to
+businesses, facilities, and rest areas along a limited-access highway; this
+frontage road may intersect other roads and be named</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/CFCC/A6"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/CFCC/A65">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>Ferry crossing, the representation of a route over water that connects
+roads on opposite shores; used by ships carrying automobiles or people</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/CFCC/A6"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/CFCC/A7">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:comment>A road in this category (A7) is not part of
+the vehicular highway system. It is used by bicyclists or pedestrians, and
+is typically inaccessible to mainstream motor traffic except for privateowner
+and service vehicles. This category includes foot and hiking trails
+located on park and forest land, as well as stairs or walkways that follow
+a road right-of-way and have names similar to road names.</rdfs:comment>
+		<rdfs:label>Road as Other Thoroughfare</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/CFCC/A"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/CFCC/A70">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>Other thoroughfare, major category used when the minor category could
+not be determined</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/CFCC/A7"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/CFCC/A71">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>Walkway or trail for pedestrians, usually unnamed</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/CFCC/A7"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/CFCC/A72">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>Stairway, stepped road for pedestrians, usually unnamed</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/CFCC/A7"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/CFCC/A73">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>Alley, road for service vehicles, usually unnamed, located at the rear
+of buildings and property</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/CFCC/A7"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/CFCC/A74">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>Driveway or service road, usually privately owned and unnamed, used
+as access to residences, trailer parks, and apartment complexes, or as access to
+logging areas, oil rigs, ranches, farms, and park lands</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/CFCC/A7"/>
+	</rdf:Description>
+
+
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/CFCC/B">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>Railroad</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/CFCC/Feature"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/CFCC/B1">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:comment>A railroad in this category is the primary track that
+provides service between destinations. A main line track often carries the
+name of the owning and operating railroad company.</rdfs:comment>
+		<rdfs:label>Railroad Main Line</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/CFCC/B"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/CFCC/B11">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>Railroad main track, not in tunnel or underpassing</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/CFCC/B1"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/CFCC/B12">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>Railroad main track, in tunnel</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/CFCC/B1"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/CFCC/B13">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>Railroad main track, underpassing</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/CFCC/B1"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/CFCC/B2">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:comment>A railroad in this category is the track that leaves the main
+track, ending in an industrial park, factory, or warehouse area, or forming
+a siding along the main track.</rdfs:comment>
+		<rdfs:label>Railroad Spur</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/CFCC/B"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/CFCC/B21">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>Railroad spur track, not in tunnel or underpassing</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/CFCC/B2"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/CFCC/B22">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>Railroad spur track, in tunnel</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/CFCC/B2"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/CFCC/B23">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>Railroad spur track, underpassing</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/CFCC/B2"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/CFCC/B3">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:comment>A railroad yard track has parallel tracks that form a
+working area for the railroad company. Train cars and engines are
+repaired, switched, and dispatched from a yard.</rdfs:comment>
+		<rdfs:label>Railroad Yard</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/CFCC/B"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/CFCC/B31">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>Railroad yard track, not in tunnel or underpassing</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/CFCC/B3"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/CFCC/B32">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>Railroad yard track, in tunnel</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/CFCC/B3"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/CFCC/B33">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>Railroad yard track, underpassing</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/CFCC/B3"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/CFCC/B4">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:comment>A railroad or portions of a rail-
+road track that are parts of the railroad system and have separately
+identifiable characteristics.</rdfs:comment>
+		<rdfs:label>Railroad with Special Characteristics</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/CFCC/B"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/CFCC/B40">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>Railroad ferry crossing, the representation of a route over water used
+by ships carrying train cars to connecting railroads on opposite shores. These
+are primarily located on the Great Lakes.</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/CFCC/B4"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/CFCC/B5">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:comment>A rail line that is not part of the rail-
+road system. This category is for a specialized rail line or railway that is
+typically inaccessible to mainstream railroad traffic.</rdfs:comment>
+		<rdfs:label>Railroad as Other Thoroughfare</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/CFCC/B"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/CFCC/B50">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>Other rail line; major category used alone when the minor category could
+not be determined</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/CFCC/B5"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/CFCC/B51">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>Carline, a track for streetcars, trolleys, and other mass transit rail systems;
+used when the carline is not part of the road right-of-way</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/CFCC/B5"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/CFCC/B52">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>Cog railroad, incline railway, or logging tram</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/CFCC/B5"/>
+	</rdf:Description>
+
+
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/CFCC/C">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>Miscellaneous Ground Transportation</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/CFCC/Feature"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/CFCC/C0">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:comment>Source materials do not allow determination of the miscellaneous ground
+transportation category.</rdfs:comment>
+		<rdfs:label>Miscellaneous Ground Transportation With Category Unknown</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/CFCC/C"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/CFCC/C00">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>Miscellaneous ground transportation, not road or railroad; major and
+minor categories unknown</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/CFCC/C0"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/CFCC/C1">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:comment>Enclosed pipe, carrying fluid or slurry, situated above ground, or
+in special conditions, below ground when marked by a cleared right-ofway
+and signage.</rdfs:comment>
+		<rdfs:label>Pipeline</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/CFCC/C"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/CFCC/C10">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>Pipeline; major category used alone</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/CFCC/C1"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/CFCC/C2">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:comment>High voltage electrical line, on towers, situated on
+cleared right-of-way.</rdfs:comment>
+		<rdfs:label>Power Transmission Line</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/CFCC/C"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/CFCC/C20">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>Power transmission line; major category used alone</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/CFCC/C2"/>
+	</rdf:Description>
+
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/CFCC/C3">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:comment>A portion of a ground transportation system that has separately identifi-
+able characteristics. This category is for specialized transportation, usually
+confined to a local area, that is separate from other ground transportation.</rdfs:comment>
+		<rdfs:label>Miscellaneous Ground Transportation With Special Characteristics</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/CFCC/C"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/CFCC/C30">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>Other ground transportation that is not a pipeline or a power transmission
+line; major category used alone when minor category could not be determined</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/CFCC/C3"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/CFCC/C31">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>Aerial tramway, monorail, or ski lift</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/CFCC/C3"/>
+	</rdf:Description>
+
+
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/CFCC/D">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>Landmark</rdfs:label>
+		<rdfs:comment>Landmark is the general name given to a cartographic (or locational)
+landmark or a land-use area. A cartographic landmark is identified for use
+by an enumerator while working in the field. A land-use area is identified
+in order to minimize enumeration efforts in uninhabited areas or areas
+where human access is restricted.</rdfs:comment>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/CFCC/Feature"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/CFCC/D0">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:comment>Source materials do not allow determination
+of the landmark category.</rdfs:comment>
+		<rdfs:label>Landmark With Category Unknown</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/CFCC/D"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/CFCC/D00">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>Landmark; major and minor categories unknown</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/CFCC/D0"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/CFCC/D1">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:comment>Base, yard, or depot used by the U.S. Army, Navy,
+Air Force, Marines, the Coast Guard, or the National Guard. With the
+exception of the Coast Guard which is administered by the Department of
+Transportation, and the National Guard which is administered by states,
+these areas are administered by the U.S. Department of Defense.</rdfs:comment>
+		<rdfs:label>Military Installation</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/CFCC/D"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/CFCC/D10">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>Military installation or reservation; major category used alone</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/CFCC/D1"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/CFCC/D2">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>Multihousehold or Transient Quarters</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/CFCC/D"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/CFCC/D20">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>Multihousehold or transient quarters; major category used alone when the
+minor category could not be determined</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/CFCC/D2"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/CFCC/D21">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>Apartment building or complex</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/CFCC/D2"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/CFCC/D22">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>Rooming or boarding house</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/CFCC/D2"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/CFCC/D23">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>Trailer court or mobile home parkM</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/CFCC/D2"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/CFCC/D24">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>Marina</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/CFCC/D2"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/CFCC/D25">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>Crew-of-vessel area</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/CFCC/D2"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/CFCC/D26">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>Housing facility for workers</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/CFCC/D2"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/CFCC/D27">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>Hotel, motel, resort, spa, hostel, YMCA, or YWCA</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/CFCC/D2"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/CFCC/D28">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>Campground</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/CFCC/D2"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/CFCC/D29">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>Shelter or mission</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/CFCC/D2"/>
+	</rdf:Description>
+
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/CFCC/D3">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:comment>This category includes institutions that have personnel
+such as guards, nurses, and caretakers to preserve the welfare of those
+individuals resident in the facility.</rdfs:comment>
+		<rdfs:label>Custodial Facility</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/CFCC/D"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/CFCC/D30">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>Custodial facility; major category used alone when the minor category
+could not be determined</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/CFCC/D3"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/CFCC/D31">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>Hospital</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/CFCC/D3"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/CFCC/D32">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>Halfway house</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/CFCC/D3"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/CFCC/D33">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>Nursing home, retirement home, or home for the aged</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/CFCC/D3"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/CFCC/D34">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>County home or poor farm</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/CFCC/D3"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/CFCC/D35">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>Orphanage</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/CFCC/D3"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/CFCC/D36">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>Jail or detention center</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/CFCC/D3"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/CFCC/D37">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>Federal penitentiary, state prison, or prison farm</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/CFCC/D3"/>
+	</rdf:Description>
+
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/CFCC/D4">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>Educational or Religious Institution</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/CFCC/D"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/CFCC/D40">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>Educational or religious institution; major category used alone when the minor
+category could not be determined</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/CFCC/D4"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/CFCC/D41">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>Sorority or fraternity</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/CFCC/D4"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/CFCC/D42">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>Convent or monastery</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/CFCC/D4"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/CFCC/D43">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>Educational institution, including academy, school, college, and university</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/CFCC/D4"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/CFCC/D44">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>Religious institution, including church, synagogue, seminary, temple, and mosque</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/CFCC/D4"/>
+	</rdf:Description>
+
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/CFCC/D5">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:comment>The facility where transportation equipment is
+stored, the destination for travel on the transportation system, or the
+intermodal connection facility between transportation systems.</rdfs:comment>
+		<rdfs:label>Transportation Terminal</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/CFCC/D"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/CFCC/D50">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>Transportation terminal; major category used alone when the minor
+category could not be determined</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/CFCC/D5"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/CFCC/D51">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>Airport or airfield</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/CFCC/D5"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/CFCC/D52">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>Train station</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/CFCC/D5"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/CFCC/D53">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>Bus terminal</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/CFCC/D5"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/CFCC/D54">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>Marine terminal</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/CFCC/D5"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/CFCC/D55">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>Seaplane anchorage</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/CFCC/D5"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/CFCC/D57">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>Airport-Statistical Representation used as part of urban area delineation
+where major airports are contiguous with urban areas</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/CFCC/D5"/>
+	</rdf:Description>
+
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/CFCC/D6">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:comment>This category includes locations with high-density
+employment.</rdfs:comment>
+		<rdfs:label>Employment Center</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/CFCC/D"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/CFCC/D60">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>Employment center; major category used alone when the minor category
+could not be determined</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/CFCC/D6"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/CFCC/D61">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>Shopping center or major retail center</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/CFCC/D6"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/CFCC/D62">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>Industrial building or industrial park</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/CFCC/D6"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/CFCC/D63">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>Office building or office park</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/CFCC/D6"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/CFCC/D64">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>Amusement center</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/CFCC/D6"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/CFCC/D65">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>Government center</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/CFCC/D6"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/CFCC/D66">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>Other employment center</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/CFCC/D6"/>
+	</rdf:Description>
+
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/CFCC/D7">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>Tower</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/CFCC/D"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/CFCC/D70">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>Tower; major category used alone when minor category could not be determined</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/CFCC/D7"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/CFCC/D71">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>Lookout tower</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/CFCC/D7"/>
+	</rdf:Description>
+
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/CFCC/D8">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:comment>This category contains areas of open space with no inhabitants, or
+with inhabitants restricted to known sites within the area.</rdfs:comment>
+		<rdfs:label>Open Space</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/CFCC/D"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/CFCC/D80">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>Open space; major category used alone when the minor category could
+not be determined</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/CFCC/D8"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/CFCC/D81">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>Golf course</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/CFCC/D8"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/CFCC/D82">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>Cemetery</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/CFCC/D8"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/CFCC/D83">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>National Park Service land</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/CFCC/D8"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/CFCC/D84">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>National forest or other Federal land</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/CFCC/D8"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/CFCC/D85">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>State or local park or forest</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/CFCC/D8"/>
+	</rdf:Description>
+
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/CFCC/D9">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:comment>This category includes landmarks not otherwise classified.</rdfs:comment>
+		<rdfs:label>Special Purpose Landmark</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/CFCC/D"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/CFCC/D90">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>Special purpose landmark; major category used alone when the minor
+category could not be determined</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/CFCC/D9"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/CFCC/D91">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>Post office</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/CFCC/D9"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/CFCC/D92">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>Urbanizacion, an identifiable community development in Puerto Rico</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/CFCC/D9"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/CFCC/D93">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>Fire Department</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/CFCC/D9"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/CFCC/D94">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>Police Station</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/CFCC/D9"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/CFCC/D95">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>Library</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/CFCC/D9"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/CFCC/D96">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>City/Town Hall</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/CFCC/D9"/>
+	</rdf:Description>
+
+
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/CFCC/E">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>Physical Feature</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/CFCC/Feature"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/CFCC/E0">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:comment>Source materials do not allow determination of the physical feature category.</rdfs:comment>
+		<rdfs:label>Physical Feature With Category Unknown</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/CFCC/E"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/CFCC/E00">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>Physical feature, tangible but not transportation or hydrographic; major and
+minor categories unknown</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/CFCC/E0"/>
+	</rdf:Description>
+
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/CFCC/E1">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:comment>This category describes a fence that separates property. For
+example, a fence around a military reservation or prison separates the
+reservation from civilian land. Thus, a fence line is a property line marked
+by a fence.</rdfs:comment>
+		<rdfs:label>Fence</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/CFCC/E"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/CFCC/E10">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>Fence line locating a visible and permanent fence between separately
+identified property</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/CFCC/E1"/>
+	</rdf:Description>
+
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/CFCC/E2">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:comment>This category refers to topographical features that
+may be used as boundaries or as a reference for an area. The Census
+TIGER database contains topographic features used to define the limits
+of statistical entities in locations where no other visible feature
+can be identified.</rdfs:comment>
+		<rdfs:label>Topographic Feature</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/CFCC/E"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/CFCC/E20">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>Topographic feature; major category used when the minor category could
+not be determined</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/CFCC/E2"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/CFCC/E21">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>Ridge line, the line of highest elevation of a linear mountain</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/CFCC/E2"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/CFCC/E22">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>Mountain peak, the point of highest elevation of a mountain</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/CFCC/E2"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/CFCC/E23">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>Island, identified by name</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/CFCC/E2"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/CFCC/E24">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>Levee, an embankment, as of earth or concrete, used to prevent a river or other
+body of water from overflowing</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/CFCC/E2"/>
+	</rdf:Description>
+
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/CFCC/F">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:comment>Nonvisible features are used to delimit tabulation entities, property areas,
+and legal and administrative entities. The U.S. Census Bureau separately
+identifies nonvisible boundaries only when they do not follow a visible
+feature such as a road, stream, or ridge line.</rdfs:comment>
+		<rdfs:label>Nonvisible Features</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/CFCC/Feature"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/CFCC/F0">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>Nonvisible Boundary With Classification Unknown or Not Elsewhere Classified</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/CFCC/F"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/CFCC/F00">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>Nonvisible boundary; major and minor categories unknown</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/CFCC/F0"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/CFCC/F1">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>Nonvisible Legal Entity Boundary</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/CFCC/F"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/CFCC/F10">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>Nonvisible current boundary of a legally defined entity</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/CFCC/F1"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/CFCC/F11">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>Offset boundary of a current legally defined entity</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/CFCC/F1"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/CFCC/F12">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>Corridor boundary of a current legally defined entity</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/CFCC/F1"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/CFCC/F13">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>Nonvisible superseded 2000 legal boundary</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/CFCC/F1"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/CFCC/F14">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>Nonvisible superseded 1990 legal boundary</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/CFCC/F1"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/CFCC/F15">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>Nonvisible superseded 1990 legal count question resolution boundary</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/CFCC/F1"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/CFCC/F16">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>Nonvisible superseded legal boundary, that was current at the time of the 1997
+Economic Census</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/CFCC/F1"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/CFCC/F17">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>Nonvisible current State Legislative District boundary</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/CFCC/F1"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/CFCC/F18">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>Nonvisible current Congressional District boundary</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/CFCC/F1"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/CFCC/F19">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>Nonvisible superseded 2000 legal count question resolution boundary</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/CFCC/F1"/>
+	</rdf:Description>
+
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/CFCC/F2">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:comment>This category contains various
+types of nonvisible lines used to maintain the topology in the Census
+TIGER database.</rdfs:comment>
+		<rdfs:label>Nonvisible Features for Database Topology</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/CFCC/F"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/CFCC/F20">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>Nonvisible feature for database topology; major category used when the
+minor category could not be determined</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/CFCC/F2"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/CFCC/F21">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>Automated feature extension to lengthen existing physical feature</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/CFCC/F2"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/CFCC/F22">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>Irregular feature extension, determined manually, to lengthen existing
+physical feature</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/CFCC/F2"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/CFCC/F23">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>Closure extension to complete database topological closure between
+extremely close features (used to close small gaps between complete chains and
+create polygons to improve block labeling on cartographic products)</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/CFCC/F2"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/CFCC/F24">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>Nonvisible separation line used with corporate offset and corridor boundaries</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/CFCC/F2"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/CFCC/F25">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>Nonvisible centerline of area enclosed by a corporate corridor boundary</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/CFCC/F2"/>
+	</rdf:Description>
+
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/CFCC/F3">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>Point-to-Point Line</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/CFCC/F"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/CFCC/F30">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>Point-to-point line, follows a line of sight and should not cross any visible
+feature; for example, from the end of a road to a mountain peak</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/CFCC/F3"/>
+	</rdf:Description>
+
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/CFCC/F4">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>Property Line</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/CFCC/F"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/CFCC/F40">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>Property line, nonvisible boundary of either public or private lands,
+e.g., a park boundary</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/CFCC/F4"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/CFCC/F5">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>ZIP Code Tabulation Boundary</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/CFCC/F"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/CFCC/F53">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>ZIP Code tabulation area boundary, used in delineating ZIP Code
+Tabulation Areas</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/CFCC/F5"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/CFCC/F7">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>Nonvisible Statistical Boundary</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/CFCC/F"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/CFCC/F70">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>Statistical boundary; major category used when the minor category could
+not be determined</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/CFCC/F7"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/CFCC/F71">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>Superseded tabulation boundary</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/CFCC/F7"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/CFCC/F72">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>Superseded tabulation boundary</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/CFCC/F7"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/CFCC/F73">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>Internal U.S. Census Bureau use</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/CFCC/F7"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/CFCC/F74">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>Superseded tabulation boundary</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/CFCC/F7"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/CFCC/F80">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>Nonvisible other tabulation boundary; major category used when the minor
+category could not be determined</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/CFCC/F7"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/CFCC/F81">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>School district boundary</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/CFCC/F7"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/CFCC/F82">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>Internal U.S. Census Bureau use</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/CFCC/F7"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/CFCC/F83">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>Census 2000 collection block boundary; used to hold Census 2000
+collection block boundaries not represented by existing physical features</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/CFCC/F7"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/CFCC/F84">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>Census 2000 statistical area boundary; used to hold Census 2000
+statistical area boundaries not represented by existing physical features</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/CFCC/F7"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/CFCC/F85">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>Census 2000 tabulation block boundary; used to hold Census 2000
+tabulation block boundaries not represented by existing physical features</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/CFCC/F7"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/CFCC/F86">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>Internal U.S. Census Bureau use</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/CFCC/F7"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/CFCC/F87">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>Oregon urban growth area boundary</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/CFCC/F7"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/CFCC/F88">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>Current statistical area boundary</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/CFCC/F7"/>
+	</rdf:Description>
+
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/CFCC/H">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>Hydrography</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/CFCC/Feature"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/CFCC/H0">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:comment>This category includes shorelines of all water regard-less
+of the classification of the water itself.</rdfs:comment>
+		<rdfs:label>Basic Hydrography</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/CFCC/H"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/CFCC/H00">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>Water feature, classification unknown or not elsewhere classified</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/CFCC/H0"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/CFCC/H01">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>Shoreline of perennial water feature</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/CFCC/H0"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/CFCC/H02">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>Shoreline of intermittent water feature</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/CFCC/H0"/>
+	</rdf:Description>
+
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/CFCC/H1">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>Naturally Flowing Water Features</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/CFCC/H"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/CFCC/H11">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>Perennial stream or river</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/CFCC/H1"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/CFCC/H12">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>Intermittent stream, river, or wash</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/CFCC/H1"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/CFCC/H13">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>Braided stream or river</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/CFCC/H1"/>
+	</rdf:Description>
+
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/CFCC/H2">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:comment>These features are used for purposes
+such as transportation, irrigation, or navigation.</rdfs:comment>
+		<rdfs:label>Man-Made Channel to Transport Water</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/CFCC/H"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/CFCC/H21">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>Perennial canal, ditch, or aqueduct</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/CFCC/H2"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/CFCC/H22">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>Intermittent canal, ditch, or aqueduct</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/CFCC/H2"/>
+	</rdf:Description>
+
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/CFCC/H3">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>Inland Body of Water</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/CFCC/H"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/CFCC/H30">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>Lake or pond; major category used when the minor category could not
+be determined</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/CFCC/H3"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/CFCC/H31">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>Perennial lake or pond</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/CFCC/H3"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/CFCC/H32">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>Intermittent lake or pond</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/CFCC/H3"/>
+	</rdf:Description>
+
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/CFCC/H4">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>Man-Made Body of Water</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/CFCC/H"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/CFCC/H40">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>Reservoir; major category used when the minor category could not be determined</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/CFCC/H4"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/CFCC/H41">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>Perennial reservoir</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/CFCC/H4"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/CFCC/H42">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>Intermittent reservoir</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/CFCC/H4"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/CFCC/H5">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>Seaward Body of Water</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/CFCC/H"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/CFCC/H50">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>Bay, estuary, gulf, sound, sea, or ocean; major category used when the minor
+category could not be determined</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/CFCC/H5"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/CFCC/H51">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>Bay, estuary, gulf, or sound</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/CFCC/H5"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/CFCC/H52">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>Sea or ocean</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/CFCC/H5"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/CFCC/H6">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>Body of Water in a Man-Made Excavation</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/CFCC/H"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/CFCC/H60">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>Gravel pit or quarry filled with water</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/CFCC/H6"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/CFCC/H7">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:comment>The U.S. Census Bureau digitizes nonvisible definition boundaries to
+separate named water areas; for instance, an artificial boundary is drawn
+to separate a named river from the connecting bay.</rdfs:comment>
+		<rdfs:label>Nonvisible Definition Between Water Bodies</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/CFCC/H"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/CFCC/H70">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>Nonvisible water area definition boundary; used to separate named water areas and
+as the major category when the minor category could not be determined</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/CFCC/H7"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/CFCC/H71">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>USGS closure line; used as a maritime shoreline</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/CFCC/H7"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/CFCC/H72">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>Census water center line; computed to use as a median positional boundary</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/CFCC/H7"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/CFCC/H73">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>Census water boundary, international in waterways or at 10-mile limit; used
+as an area measurement line</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/CFCC/H7"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/CFCC/H74">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>Census water boundary separating inland from coastal or Great Lakes;
+used as an area measurement line</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/CFCC/H7"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/CFCC/H75">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>Census water boundary separating coastal water from territorial sea at the
+3-mile limit; used as an area measurement line</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/CFCC/H7"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/CFCC/H8">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:comment>Includes area covered by glaciers or snow fields.</rdfs:comment>
+		<rdfs:label>Special Water Feature</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/CFCC/H"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/CFCC/H80">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>Special water feature; major category used when the minor category could
+not be determined</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/CFCC/H8"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/CFCC/H81">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>Glacier</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/CFCC/H8"/>
+	</rdf:Description>
+
+</rdf:RDF>

@@ -1,0 +1,29 @@
+.Dd July 8, 2009
+.Dt 4S-CLUSTER-START 1J 4store
+.Os 4store
+.Sh NAME
+.Nm 4s-cluster-start
+.Nd Start the backends for a KB on the cluster.
+.Sh SYNOPSIS
+.Nm
+kb-name
+.sp
+.Sh FILES
+This command depends on the config file /etc/4s-cluster, see 4s-cluster(5).
+.Sh EXAMPLES
+$
+.Nm
+demo
+.sp
+Start the "demo" knowledgebase
+.sp
+Knowledgebases can be stoped with the
+.Xr 4s-cluster-stop 1
+command.
+.Sh CAVEATS
+If the kb has not already been created then you will see an error like "failed to open metadata file .../metadata.nt for locking: No such file or directory"
+.Sh SEE ALSO
+.Xr 4s-cluster-create 1 ,
+.Xr 4s-cluster-stop 1 ,
+.Xr 4s-cluster-destroy 1 ,
+.Xr 4s-cluster-info 1

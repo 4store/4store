@@ -1,0 +1,17 @@
+#!/bin/sh
+if [ $# == 0 ] ; then
+  echo "Usage: 4s-ssh-all <remote command>"
+  echo "remember to quote shell metacharacters"
+  exit;
+fi;
+hosts=`cat /etc/4s-cluster`;
+let id=0;
+let nodes=0;
+for node in $hosts; do
+ let nodes=nodes+1;
+done
+for node in $hosts; do
+ echo "$id: $node:";
+ ssh $node "export id=$id; export nodes=$nodes; $*" ;
+ let id=id+1;
+done

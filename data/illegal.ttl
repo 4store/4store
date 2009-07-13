@@ -1,0 +1,13 @@
+@prefix : <foo:> .
+
+:a :esc-test "<&>\"'" .
+:b :esc-newline <http://example.org/\nnewline> .
+:c :esc-angle <http://example.org/\u003Eangle> .
+:d :newline <http://example.org/
+newline> .
+:e :esc-cr <http://example.org/\u000Dcr> .
+:f :tab <http://example.org/	tab> .
+:g :space <http://example.org/ space / space / space /> .
+:h :goat <http://example.org/\U00010052goat> .
+:i :ngeadal <http://example.org/\u168D> .
+

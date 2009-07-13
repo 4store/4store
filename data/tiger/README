@@ -1,0 +1,18 @@
+TIGER schema was from http://labs.intellidimension.com/tiger/
+
+TIGER data derived from US Census 2006 TIGER data (now obsolete)
+using the included tiger.pl script. If you have a source of 2006 vintage
+TIGER data you can use it to generate more test data in the same schema.
+
+We use this in 4store as a source of non-synthetic test data (real world data
+is good for throwing up unexpected scenarios that might not be tested by
+synthetic data)
+
+I've begun to deviate from the intellidimension.com usage, in particular
+they claim that a named feature has a feature code, whereas I observe
+that in line features, such as roads, each line segment has a feature code
+(e.g. Harrison St may at times run through a tunnel)
+
+Current versions of the tiger.pl script also deviate by using a per-edition
+identifier for URIs of some items like polygons which are not uniquely
+numbered across editions.

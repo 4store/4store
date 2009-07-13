@@ -1,0 +1,31 @@
+2006-10-19
+
+	Num	%age
+Passed	314	92.4
+Failed	26	7.6
+Excused	38	—
+Total	378	
+
+2006-10-20
+
+        Num	%age
+Passed	318	93.5
+Failed	22	6.5
+Excused	38	—
+Total	378	
+
+2006-10-20
+
+        Num	%age
+Passed	322	95.8
+Failed	14	4.2
+Excused	42	—
+Total	378	
+
+2006-10-20
+
+	Num	%age
+Passed	325	96.7
+Failed	11	3.3
+Excused	42	—
+Total	378	

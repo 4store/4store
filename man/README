@@ -1,0 +1,7 @@
+Helpful docs at http://www.mirbsd.org/htman/i386/man7/mandoc.htm
+
+You can test these manpages with
+man ./filename
+
+This is equivalent to
+groff -Tutf8 -mandoc -c <filename>

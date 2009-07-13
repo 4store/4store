@@ -1,0 +1,69 @@
+.Dd 2009-07-08
+.Dt 4S-QUERY 1J 4store
+.Os 4store
+.Sh NAME
+.Nm 4s-query
+.Nd Run SPARQL queries on a 4store storage backend
+.Sh SYNOPSIS
+.Nm
+kb-name
+.Op Fl f Ar format
+.Op Fl O Ar optimisation-level
+.Op Fl I Ar insert-mode
+.Op Fl r
+.Op Fl s Ar soft-limit
+.Op Fl b Ar base-URI
+.Op Fl P 
+.Op query
+.Bl -tag -width indent
+.It Fl f
+Set the format to output results it, options are "sparql", "text", and "testcase"
+.It Fl "O, \-\-opt-level"
+Set the optimisation level of the query engine, in the range 0-3.
+.It Fl "I, \-\-insert"
+Treat CONSTRUCT statements as INSERT statements. This feature is highly experimental and largly untested.
+.It Fl "r, \-\-restricted"
+Enable query complexity restriction mode
+.It Fl "s, \-\-soft-limit"
+Override default soft limit on search breadth
+.It Fl "b, \-\-base"
+Set base URI for queries
+.It Fl "P"
+Enable programatic IO mode
+.El
+.Sh INTERACTIVE MODE
+If
+.Op query
+is ommited then
+.Nm
+goes into interactive mode, suitable for trying queries from the command line.
+.sp
+.Fl P
+enables programatic interactive mode, suitable for infacing with processes via
+stdin and stdout. Queries are sent as UTF-8 bytes, terminated with
+"#EOQ" on a line of it's own, results are returned, ending with "#EOR".
+Interacting with 4store in this way is more efficient than using the SPARQL
+protocol, but non-standard.
+.Sh SEE ALSO
+.Xr 4s-import 1 ,
+.Xr 4s-httpd 1 ,
+.Xr 4s-backend 1 ,
+.Xr 4s-delete-model 1
+.Sh STANDARDS
+.Nm
+implements the SPARQL Query Language specification (aka. SPARQL/Query 1.0) and the SPARQL Result Format specification (aka. SPARQL/Results 1.0).
+.Sh EXAMPLES
+$
+.Nm
+.Fl f Ar sparql 
+demo 'SELECT * WHERE { ?s ?p ?s } LIMIT 10'
+.sp
+Return 10 random triples from the knowledgebase "demo" in the SPARQL XML result
+format.
+.sp
+$
+.Nm
+.Fl P
+demo < query.rq
+.sp
+Run the query in query.rq and output the result to stdout

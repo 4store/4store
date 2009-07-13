@@ -1,0 +1,28 @@
+@prefix : <foo:> .
+
+:all :o :a, :b, :c, :d, :e, :f, :g, :h .
+
+:a :esc-test "<&>\"'" .
+:a :lang-test "chat"@fr .
+:a :lang-test "chat"@en-GB .
+:a :dt-test "chat"^^<http://example.org/word> .
+
+:a :p "p1" .
+:b :p "p2" .
+:c :p "p3" .
+:d :p "p4" .
+:e :p "p5a" .
+:e :p "p5b" .
+:e :p "p5c" .
+:f :p "p6" .
+:g :p "p7" .
+:h :p "p8" .
+
+:a :q "q1" .
+:b :q "q2" .
+:c :q "q3" .
+#:d :q "q4" .
+:e :q "q5" .
+#:f :q "q6" .
+:g :q "q7" .
+:h :q "q8" .

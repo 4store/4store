@@ -1,0 +1,91 @@
+<?xml version="1.0"?>
+<rdf:RDF xmlns:tiger="http://www.census.gov/tiger/2002/vocab#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/vocab#FeatureIdentifier">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>Feature Identifier</rdfs:label>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/vocab#Landmark">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>Landmark</rdfs:label>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/vocab#Line">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>Line</rdfs:label>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/vocab#Point">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>Point</rdfs:label>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/vocab#Polygon">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>Polygon</rdfs:label>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/vocab#area">
+		<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+		<rdfs:label>area</rdfs:label>
+		<rdfs:range rdf:resource="http://www.census.gov/tiger/2002/vocab#Polygon"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/vocab#atLeft">
+		<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+		<rdfs:domain rdf:resource="http://www.census.gov/tiger/2002/vocab#Point"/>
+		<rdfs:label>at left</rdfs:label>
+		<rdfs:range rdf:resource="http://www.census.gov/tiger/2002/vocab#Polygon"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/vocab#atRight">
+		<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+		<rdfs:domain rdf:resource="http://www.census.gov/tiger/2002/vocab#Line"/>
+		<rdfs:label>at right</rdfs:label>
+		<rdfs:range rdf:resource="http://www.census.gov/tiger/2002/vocab#Polygon"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/vocab#directionPrefix">
+		<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+		<rdfs:label>direction prefix</rdfs:label>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/vocab#directionSuffix">
+		<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+		<rdfs:label>direction suffix</rdfs:label>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/vocab#end">
+		<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+		<rdfs:domain rdf:resource="http://www.census.gov/tiger/2002/vocab#Line"/>
+		<rdfs:label>end</rdfs:label>
+		<rdfs:range rdf:resource="http://www.census.gov/tiger/2002/vocab#Point"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/vocab#identifier">
+		<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+		<rdfs:label>identifier</rdfs:label>
+		<rdfs:range rdf:resource="http://www.census.gov/tiger/2002/vocab#FeatureIdentifier"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/vocab#lat">
+		<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+		<rdfs:domain rdf:resource="http://www.census.gov/tiger/2002/vocab#Point"/>
+		<rdfs:label>latitude</rdfs:label>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/vocab#location">
+		<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+		<rdfs:label>location</rdfs:label>
+		<rdfs:range rdf:resource="http://www.census.gov/tiger/2002/vocab#Point"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/vocab#long">
+		<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+		<rdfs:domain rdf:resource="http://www.census.gov/tiger/2002/vocab#Point"/>
+		<rdfs:label>longitude</rdfs:label>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/vocab#name">
+		<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+		<rdfs:label>name</rdfs:label>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/vocab#path">
+		<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+		<rdfs:label>path</rdfs:label>
+		<rdfs:range rdf:resource="http://www.census.gov/tiger/2002/vocab#Line"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/vocab#start">
+		<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+		<rdfs:domain rdf:resource="http://www.census.gov/tiger/2002/vocab#Line"/>
+		<rdfs:label>start</rdfs:label>
+		<rdfs:range rdf:resource="http://www.census.gov/tiger/2002/vocab#Point"/>
+	</rdf:Description>
+</rdf:RDF>

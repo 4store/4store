@@ -1,0 +1,701 @@
+<http://www.census.gov/tiger/2002/landmark/6001/100>	"Park"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/101>	"Park"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/102>	"Park"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/103>	"Jefferson Square Recreation Ct"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/104>	"Sunol Valley Golf Course"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/105>	"Lafayette Square"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/106>	"Lincoln Square Recreation Ctr"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/107>	"Harrison Square"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/108>	"Madison Park"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/109>	"Lake Merritt Channel Park"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/110>	"Laney College"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/111>	"Boat Launch"	"37.769645"	"-122.290716"
+<http://www.census.gov/tiger/2002/landmark/6001/112>	"Encinal High School"	"37.772362"	"-122.289702"
+<http://www.census.gov/tiger/2002/landmark/6001/113>	"Mid"	"37.776883"	"-122.285921"
+<http://www.census.gov/tiger/2002/landmark/6001/114>	"Public Elementary School"	"37.779225"	"-122.287519"
+<http://www.census.gov/tiger/2002/landmark/6001/115>	"Longfellow Park"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/117>	"Oyster Bay Exhibit Hall"	"37.769421"	"-122.278233"
+<http://www.census.gov/tiger/2002/landmark/6001/118>	"Public Elementary School"	"37.772736"	"-122.272818"
+<http://www.census.gov/tiger/2002/landmark/6001/119>	"Mastick Senior Center"	"37.773512"	"-122.265845"
+<http://www.census.gov/tiger/2002/landmark/6001/120>	"Alameda Hospital"	"37.76249"	"-122.253664"
+<http://www.census.gov/tiger/2002/landmark/6001/121>	"South Shore Center"	"37.757388"	"-122.252633"
+<http://www.census.gov/tiger/2002/landmark/6001/122>	"Berryman Reservoir"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/123>	"Terrace View Playground"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/124>	"Univ of California Berkeley"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/125>	"Park"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/126>	"Park"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/127>	"Claremont Country Club"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/128>	"Grizzly Peak"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/129>	"Lk Temescal Regional Recreatio"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/12>	"Alameda Point"	"37.772019"	"-122.299982"
+<http://www.census.gov/tiger/2002/landmark/6001/130>	"Lake Temescal"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/131>	"Mosswood Park"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/132>	"Oak Glen Park"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/133>	"Lakeside Park"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/134>	"Lakeside Park"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/135>	"Park"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/136>	"Lake Merritt"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/137>	"Lakeside Park"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/138>	"Peralta Park"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/139>	"Lakeside Park"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/13>	"California Aqueduct"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/140>	"Peralta Park"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/141>	"Oakland Unified School Distric"	"37.796841"	"-122.259573"
+<http://www.census.gov/tiger/2002/landmark/6001/142>	"Peralta Park"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/143>	"Athol Plaza"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/144>	"Higuera Adobe Park"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/145>	"Clinton Square"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/146>	"Lakeside Park"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/147>	"F M Smith Park"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/148>	"Brooklyn Basin"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/149>	"Vantage Point Park"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/14>	"California Aqueduct"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/150>	"Vantage Point Park"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/151>	"Park"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/152>	"San Antonio Recreation Center"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/153>	"Havens Playground"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/154>	"Highland General Hospital"	"37.798152"	"-122.231572"
+<http://www.census.gov/tiger/2002/landmark/6001/155>	"Garfield Municipal Playground"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/156>	"Central Reservoir Recreation A"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/157>	"Fremont Drag Strip"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/158>	"Arroyo Agua Caliente Park"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/159>	"Central Reservoir"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/15>	"Kleeberger Intramural Playfiel"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/160>	"Peralta Hacienda Park"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/161>	"Grimmer Park"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/162>	"Montclair Golf Course"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/163>	"Blacow Park"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/164>	"Joaquin Miller Park"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/165>	"Azeveda Park"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/166>	"City Hall"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/167>	"Post Office"	"37.534893"	"-122.032039"
+<http://www.census.gov/tiger/2002/landmark/6001/168>	"Cabrillo Park"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/169>	"Presbyterian Cemetery"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/16>	"State Pumping Plant"	"37.799299"	"-121.616704"
+<http://www.census.gov/tiger/2002/landmark/6001/170>	"Westridge Park"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/171>	"Brookdale Park"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/172>	"Redwood Regional Park"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/173>	"Brookvale Park"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/174>	"Littlejohn Park"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/175>	"Island Yacht Club"	"37.775695"	"-122.249088"
+<http://www.census.gov/tiger/2002/landmark/6001/176>	"St Joseph Notre Dame H S"	"37.765439"	"-122.256005"
+<http://www.census.gov/tiger/2002/landmark/6001/178>	"Public Elementary School"	"37.768975"	"-122.261293"
+<http://www.census.gov/tiger/2002/landmark/6001/179>	"Franklin Park"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/17>	"California Memorial Stadium"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/180>	"Public Elementary School"	"37.761458"	"-122.260765"
+<http://www.census.gov/tiger/2002/landmark/6001/181>	"Mid"	"37.759842"	"-122.263768"
+<http://www.census.gov/tiger/2002/landmark/6001/182>	"Oakland Inner Harbor"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/183>	"Thompson Field"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/184>	"Public Elementary School"	"37.769551"	"-122.250658"
+<http://www.census.gov/tiger/2002/landmark/6001/186>	"Alameda High School"	"37.764425"	"-122.24701"
+<http://www.census.gov/tiger/2002/landmark/6001/187>	"City Hall"	"37.766102"	"-122.243387"
+<http://www.census.gov/tiger/2002/landmark/6001/188>	"Jackson Park"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/189>	"Jackson Park"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/18>	"Univ of California Berkeley"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/190>	"Towata Park"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/191>	"San Francisco Bay"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/192>	"Alameda Gateway Ferry Terminal"	"37.790406"	"-122.294309"
+<http://www.census.gov/tiger/2002/landmark/6001/193>	"San Leandro Bay"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/194>	"Oakland International Airport"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/195>	"Public Elementary School"	"37.753068"	"-122.237885"
+<http://www.census.gov/tiger/2002/landmark/6001/196>	"San Leandro Bay"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/197>	"Shoreline Park"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/198>	"Metropolitan Oakland Internati"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/199>	"Harbor Bay Landing"	"37.736388"	"-122.239299"
+<http://www.census.gov/tiger/2002/landmark/6001/19>	"Hearst Greek Theatre"	"37.873909"	"-122.254329"
+<http://www.census.gov/tiger/2002/landmark/6001/1>	"Del Valle State Rec Area"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/200>	"Public High School"	"37.768175"	"-122.237203"
+<http://www.census.gov/tiger/2002/landmark/6001/201>	"Public Elementary School"	"37.764198"	"-122.234896"
+<http://www.census.gov/tiger/2002/landmark/6001/202>	"San Leandro Bay"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/203>	"Martin Luther King Jr Regional"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/205>	"Chuck Corica Municipal Golf Co"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/206>	"Aeolian Yacht Club"	"37.749694"	"-122.23568"
+<http://www.census.gov/tiger/2002/landmark/6001/208>	"Chuck Corica Municipal Golf Co"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/209>	"Oakland International Airport"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/20>	"Ebmud Reservoir"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/210>	"Rainbow Recreation Center"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/211>	"Patterson Park"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/212>	"Crandall Creek Park"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/213>	"Mills College"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/214>	"Public High School"	"37.76025"	"-122.191804"
+<http://www.census.gov/tiger/2002/landmark/6001/215>	"Public Elementary School"	"37.760636"	"-122.192536"
+<http://www.census.gov/tiger/2002/landmark/6001/216>	"Public Junior High School"	"37.761086"	"-122.193244"
+<http://www.census.gov/tiger/2002/landmark/6001/217>	"City Municipal Service Yard"	"37.747589"	"-122.212157"
+<http://www.census.gov/tiger/2002/landmark/6001/218>	"Oakland Alameda Co Sports Aren"	"37.749898"	"-122.203444"
+<http://www.census.gov/tiger/2002/landmark/6001/219>	"Park Plaza Hotel"	"37.729062"	"-122.1985"
+<http://www.census.gov/tiger/2002/landmark/6001/21>	"Delta Mendota Canal"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/220>	"Brookfield Village Park"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/221>	"Department of Motor Vehicles"	"37.739042"	"-122.192863"
+<http://www.census.gov/tiger/2002/landmark/6001/222>	"Holiday Inn"	"37.741396"	"-122.19462"
+<http://www.census.gov/tiger/2002/landmark/6001/223>	"Mills College"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/224>	"Deep Creek Park"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/226>	"Verdese Carter Park"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/227>	"Hilton Hotel"	"37.727054"	"-122.201941"
+<http://www.census.gov/tiger/2002/landmark/6001/228>	"San Francisco Bay"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/229>	"Marina Park"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/230>	"Trasher Park"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/231>	"Tony Lema Golf Course"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/232>	"Upper San Leandro Reservoir"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/233>	"Ardenwood Regional Preserve"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/234>	"Castro Valley Community Park"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/235>	"Knowland Park"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/237>	"Oakland Zoo"	"37.749091"	"-122.144644"
+<http://www.census.gov/tiger/2002/landmark/6001/238>	"Knowland Park"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/239>	"Anthony Chabot Regional Park"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/23>	"Tracy Pumping Plant"	"37.7962"	"-121.585683"
+<http://www.census.gov/tiger/2002/landmark/6001/240>	"Lake Chabot"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/241>	"Lincoln Playground Park"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/242>	"San Lorenzo High School"	"37.674891"	"-122.150995"
+<http://www.census.gov/tiger/2002/landmark/6001/243>	"Park"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/244>	"Cull Canyon Reservoir"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/245>	"Pleasanton Ridge Regional Park"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/246>	"Koopmann Lake"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/247>	"Shannon Park"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/248>	"Dublin High School"	"37.720965"	"-121.924975"
+<http://www.census.gov/tiger/2002/landmark/6001/249>	"Kolb Park"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/24>	"Delta Mendota Canal"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/250>	"Department of Motor Vehicles"	"37.680074"	"-121.907239"
+<http://www.census.gov/tiger/2002/landmark/6001/251>	"Pleasanton Tennis and Communit"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/252>	"Federal Correctional Instituti"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/253>	"East Bay Regional Park"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/254>	"Santa Rita Rehabilitation Ctr"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/255>	"Rose Pavillion Center"	"37.698718"	"-121.87446"
+<http://www.census.gov/tiger/2002/landmark/6001/256>	"Mission Plaza"	"37.677138"	"-121.875326"
+<http://www.census.gov/tiger/2002/landmark/6001/257>	"Las Positas Golf Course"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/258>	"Livermore Municipal Airport"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/259>	"Park and Ride"	"37.697643"	"-121.802548"
+<http://www.census.gov/tiger/2002/landmark/6001/261>	"May Nissen Park"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/262>	"Portola Park"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/267>	"Post Office"	"37.681405"	"-121.767068"
+<http://www.census.gov/tiger/2002/landmark/6001/269>	"Livermore High"	"37.681052"	"-121.76077"
+<http://www.census.gov/tiger/2002/landmark/6001/26>	"Lake"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/270>	"San Francisco Bay"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/273>	"Park and Ride"	"37.670924"	"-122.138588"
+<http://www.census.gov/tiger/2002/landmark/6001/274>	"McConaghy Park"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/275>	"Skywest Golf Course"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/278>	"Hayward City Hall"	"37.636514"	"-122.120537"
+<http://www.census.gov/tiger/2002/landmark/6001/279>	"Department of Motor Vehicles"	"37.552916"	"-122.007631"
+<http://www.census.gov/tiger/2002/landmark/6001/27>	"California Aqueduct"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/280>	"Chabot College"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/281>	"San Francisco Bay"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/285>	"Hayward Unified School Distric"	"37.656314"	"-122.094093"
+<http://www.census.gov/tiger/2002/landmark/6001/286>	"Public Works"	"37.655987"	"-122.094951"
+<http://www.census.gov/tiger/2002/landmark/6001/287>	"Post Office"	"37.65566"	"-122.095839"
+<http://www.census.gov/tiger/2002/landmark/6001/288>	"Courthouse"	"37.65743"	"-122.094782"
+<http://www.census.gov/tiger/2002/landmark/6001/289>	"County Building"	"37.657976"	"-122.096513"
+<http://www.census.gov/tiger/2002/landmark/6001/290>	"Kenneth Birchfield Memorial Pa"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/291>	"Dept of Motor Vehicles"	"37.658921"	"-122.086954"
+<http://www.census.gov/tiger/2002/landmark/6001/292>	"Southland Mall"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/293>	"Post Office"	"37.654534"	"-122.104072"
+<http://www.census.gov/tiger/2002/landmark/6001/295>	"Jackson Amador Center"	"37.652418"	"-122.090482"
+<http://www.census.gov/tiger/2002/landmark/6001/298>	"Gateway Plaza"	"37.648487"	"-122.090987"
+<http://www.census.gov/tiger/2002/landmark/6001/299>	"Southgate Park"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/2>	"San Francisco Bay"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/300>	"Kaiser Foundation Hospital"	"37.630557"	"-122.095897"
+<http://www.census.gov/tiger/2002/landmark/6001/302>	"Post Office"	"37.633405"	"-122.093291"
+<http://www.census.gov/tiger/2002/landmark/6001/304>	"De Anza Park"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/305>	"Post Office"	"37.670765"	"-122.0841"
+<http://www.census.gov/tiger/2002/landmark/6001/307>	"Museum"	"37.671287"	"-122.082006"
+<http://www.census.gov/tiger/2002/landmark/6001/30>	"Delta Mendota Canal"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/312>	"California State University Ha"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/313>	"Sulphur Creek Park"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/314>	"Hayward High"	"37.672048"	"-122.069507"
+<http://www.census.gov/tiger/2002/landmark/6001/315>	"California State University Ha"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/324>	"Newpark Plaza"	"37.522718"	"-122.000006"
+<http://www.census.gov/tiger/2002/landmark/6001/325>	"Southland Mall"	"37.650659"	"-122.103856"
+<http://www.census.gov/tiger/2002/landmark/6001/326>	"Mount Eden High"	"37.624116"	"-122.090143"
+<http://www.census.gov/tiger/2002/landmark/6001/327>	"Penke Park"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/32>	"Delta Mendota Canal"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/330>	"Warm Springs Plaza"	"37.492561"	"-121.92683"
+<http://www.census.gov/tiger/2002/landmark/6001/331>	"Washington Shopping Center"	"37.69193"	"-122.143188"
+<http://www.census.gov/tiger/2002/landmark/6001/332>	"Winton Plaza"	"37.652928"	"-122.110627"
+<http://www.census.gov/tiger/2002/landmark/6001/333>	"Dublin Place Center"	"37.707016"	"-121.934556"
+<http://www.census.gov/tiger/2002/landmark/6001/334>	"Village High School"	"37.656841"	"-121.876063"
+<http://www.census.gov/tiger/2002/landmark/6001/335>	"Santa Rita Rehabilitation Ctr"	"37.717599"	"-121.886575"
+<http://www.census.gov/tiger/2002/landmark/6001/336>	"Masonic Home"	"37.599062"	"-122.008279"
+<http://www.census.gov/tiger/2002/landmark/6001/33>	"US Naval Hospital"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/341>	"Alvarado Place Center"	"37.589653"	"-122.068847"
+<http://www.census.gov/tiger/2002/landmark/6001/342>	"Park and Ride"	"37.588683"	"-122.067334"
+<http://www.census.gov/tiger/2002/landmark/6001/343>	"Chamber of Commerce"	"37.593931"	"-122.045023"
+<http://www.census.gov/tiger/2002/landmark/6001/347>	"Newpark Mall"	"37.525511"	"-122.002828"
+<http://www.census.gov/tiger/2002/landmark/6001/348>	"Holiday Inn"	"37.596678"	"-122.057851"
+<http://www.census.gov/tiger/2002/landmark/6001/349>	"Cont High"	"37.614714"	"-122.02814"
+<http://www.census.gov/tiger/2002/landmark/6001/351>	"American Heritage Christian Hi"	"37.617651"	"-122.034939"
+<http://www.census.gov/tiger/2002/landmark/6001/352>	"Chapel of the Chimes Memorial"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/354>	"Verns Shopping Center"	"37.836374"	"-122.26388"
+<http://www.census.gov/tiger/2002/landmark/6001/357>	"Community Center"	"37.59027"	"-122.02145"
+<http://www.census.gov/tiger/2002/landmark/6001/358>	"Charles F Kennedy Park"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/35>	"Mud Creek"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/360>	"Union City Marketplace"	"37.588261"	"-122.022941"
+<http://www.census.gov/tiger/2002/landmark/6001/361>	"El Mercado Plaza"	"37.587703"	"-122.019582"
+<http://www.census.gov/tiger/2002/landmark/6001/364>	"Park and Ride"	"37.552278"	"-122.053718"
+<http://www.census.gov/tiger/2002/landmark/6001/366>	"Paseo Padre Center"	"37.574836"	"-122.04039"
+<http://www.census.gov/tiger/2002/landmark/6001/367>	"Newark Market Place"	"37.551881"	"-122.049101"
+<http://www.census.gov/tiger/2002/landmark/6001/369>	"K-Mart Center"	"37.543308"	"-122.026735"
+<http://www.census.gov/tiger/2002/landmark/6001/36>	"Courtyard by Marriot Motel"	"37.482311"	"-121.939347"
+<http://www.census.gov/tiger/2002/landmark/6001/370>	"Rosemont Center"	"37.550545"	"-122.048292"
+<http://www.census.gov/tiger/2002/landmark/6001/371>	"Park and Ride"	"37.549748"	"-122.046895"
+<http://www.census.gov/tiger/2002/landmark/6001/373>	"Raleys Center"	"37.549733"	"-122.050769"
+<http://www.census.gov/tiger/2002/landmark/6001/374>	"Town Fair Shopping Center"	"37.550348"	"-121.982327"
+<http://www.census.gov/tiger/2002/landmark/6001/379>	"Oldtown Center"	"37.539091"	"-122.034328"
+<http://www.census.gov/tiger/2002/landmark/6001/381>	"Neptune Park"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/386>	"Post Office"	"37.561829"	"-122.010106"
+<http://www.census.gov/tiger/2002/landmark/6001/388>	"Post Office"	"37.556237"	"-122.014056"
+<http://www.census.gov/tiger/2002/landmark/6001/38>	"Mission Peak Regional Preserve"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/390>	"Lakeshore Park Lake"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/391>	"Musick Park"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/392>	"Newark Square"	"37.541423"	"-122.026294"
+<http://www.census.gov/tiger/2002/landmark/6001/393>	"Chamber of Commerce"	"37.535185"	"-122.028293"
+<http://www.census.gov/tiger/2002/landmark/6001/396>	"Park and Ride"	"37.553175"	"-122.018313"
+<http://www.census.gov/tiger/2002/landmark/6001/398>	"Mission Hills Park"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/399>	"Ash Street Park"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/39>	"Plomosa Park"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/3>	"San Francisco Bay"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/400>	"Alameda Creek Quarries Regiona"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/401>	"Sundale Lucky Shopping Center"	"37.530017"	"-121.982743"
+<http://www.census.gov/tiger/2002/landmark/6001/402>	"Alameda Creek"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/403>	"Centerville Park"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/406>	"Gateway Plaza"	"37.554704"	"-121.983012"
+<http://www.census.gov/tiger/2002/landmark/6001/407>	"Town & Country Shopping Center"	"37.605234"	"-122.072609"
+<http://www.census.gov/tiger/2002/landmark/6001/408>	"Glenmoor Center"	"37.546347"	"-122.00239"
+<http://www.census.gov/tiger/2002/landmark/6001/40>	"Calaveras Reservoir"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/411>	"Los Arboles"	"37.535091"	"-121.998835"
+<http://www.census.gov/tiger/2002/landmark/6001/412>	"Mowry East Center"	"37.532482"	"-122.000935"
+<http://www.census.gov/tiger/2002/landmark/6001/413>	"John F Kennedy High"	"37.529121"	"-121.985538"
+<http://www.census.gov/tiger/2002/landmark/6001/415>	"Fremont Hub Center"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/416>	"Fremont Plaza"	"37.549754"	"-121.986869"
+<http://www.census.gov/tiger/2002/landmark/6001/417>	"The Crossroads"	"37.545122"	"-121.98267"
+<http://www.census.gov/tiger/2002/landmark/6001/418>	"Park Plaza Building"	"37.552639"	"-121.984815"
+<http://www.census.gov/tiger/2002/landmark/6001/419>	"Shamrock Village"	"37.706701"	"-121.931285"
+<http://www.census.gov/tiger/2002/landmark/6001/41>	"Fremont Memorial Park Cemetery"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/420>	"Fremont Adult School"	"37.538352"	"-121.990881"
+<http://www.census.gov/tiger/2002/landmark/6001/422>	"Parkway Golf Course"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/423>	"Calif School for the Blind"	"37.563967"	"-121.962887"
+<http://www.census.gov/tiger/2002/landmark/6001/424>	"Chamber of Commerce"	"37.55391"	"-121.97642"
+<http://www.census.gov/tiger/2002/landmark/6001/425>	"Washington Hospital"	"37.556519"	"-121.981404"
+<http://www.census.gov/tiger/2002/landmark/6001/426>	"Fremont Rapid Transit"	"37.558491"	"-121.979244"
+<http://www.census.gov/tiger/2002/landmark/6001/428>	"Buena Vista Park"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/429>	"Mission Valley Center"	"37.557388"	"-121.952769"
+<http://www.census.gov/tiger/2002/landmark/6001/42>	"North Livermore Park"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/430>	"Fremont Central Park"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/431>	"City Hall"	"37.54789"	"-121.976134"
+<http://www.census.gov/tiger/2002/landmark/6001/432>	"Court House"	"37.551013"	"-121.977674"
+<http://www.census.gov/tiger/2002/landmark/6001/433>	"Fremont City Administration Ct"	"37.551884"	"-121.982423"
+<http://www.census.gov/tiger/2002/landmark/6001/434>	"Lake Elizabeth"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/437>	"Swim Lagoon"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/438>	"Saint Rose Hospital"	"37.632204"	"-122.088154"
+<http://www.census.gov/tiger/2002/landmark/6001/439>	"Peralta Plaza"	"37.556886"	"-122.008923"
+<http://www.census.gov/tiger/2002/landmark/6001/43>	"Springtown Golf Course"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/442>	"Post Office"	"37.531951"	"-121.961141"
+<http://www.census.gov/tiger/2002/landmark/6001/443>	"Irvington Plaza Park"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/444>	"Hilton Hotel"	"37.5213"	"-121.990066"
+<http://www.census.gov/tiger/2002/landmark/6001/445>	"Eucalyptus Grove Park"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/446>	"Rockridge Shopping Center"	"37.834606"	"-122.252368"
+<http://www.census.gov/tiger/2002/landmark/6001/447>	"Newpark Mall"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/449>	"Irvington High"	"37.523882"	"-121.965414"
+<http://www.census.gov/tiger/2002/landmark/6001/451>	"Mission Peak Regional Preserve"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/453>	"Foothill High"	"37.669877"	"-121.91673"
+<http://www.census.gov/tiger/2002/landmark/6001/454>	"Castlewood Country Club"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/455>	"Hansen Park"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/456>	"Walnut Grove School"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/457>	"Amador Center"	"37.675725"	"-121.874313"
+<http://www.census.gov/tiger/2002/landmark/6001/458>	"Walnut Grove Park"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/459>	"Harvest Park School"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/45>	"Plaza 580"	"37.700551"	"-121.743948"
+<http://www.census.gov/tiger/2002/landmark/6001/460>	"Public Elementary School"	"37.771044"	"-122.28401"
+<http://www.census.gov/tiger/2002/landmark/6001/462>	"Patterson Reservoir"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/463>	"Amador Valley Community Park"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/465>	"Chamber of Commerce"	"37.663499"	"-121.875498"
+<http://www.census.gov/tiger/2002/landmark/6001/467>	"Delucchi Park"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/468>	"Oliver Corners Shopping Center"	"37.631612"	"-122.096682"
+<http://www.census.gov/tiger/2002/landmark/6001/469>	"Amador High School"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/46>	"U S Army Camp Parks"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/471>	"Fairway Park"	"37.619518"	"-122.036935"
+<http://www.census.gov/tiger/2002/landmark/6001/472>	"Alameda Creek Reservoir"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/473>	"Mission Shopping Center"	"37.531176"	"-121.919909"
+<http://www.census.gov/tiger/2002/landmark/6001/475>	"Mission San Jose Park"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/477>	"Mission San Jose High"	"37.543243"	"-121.93455"
+<http://www.census.gov/tiger/2002/landmark/6001/478>	"Park and Ride"	"37.546931"	"-121.936191"
+<http://www.census.gov/tiger/2002/landmark/6001/480>	"Sunol Regional Wilderness"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/481>	"Park and Ride"	"37.540257"	"-121.923543"
+<http://www.census.gov/tiger/2002/landmark/6001/483>	"Post Office"	"37.530666"	"-121.920465"
+<http://www.census.gov/tiger/2002/landmark/6001/484>	"Macarthur Broadway Shop Ctr"	"37.823447"	"-122.258128"
+<http://www.census.gov/tiger/2002/landmark/6001/485>	"Ohlone College"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/486>	"Mission Peak Regional Preserve"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/487>	"Mission Ranch Shopping Center"	"37.542204"	"-121.946606"
+<http://www.census.gov/tiger/2002/landmark/6001/488>	"Sunol Regional Wilderness"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/489>	"Sunol Regional Wilderness"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/48>	"Holiday Inn"	"37.704133"	"-121.73856"
+<http://www.census.gov/tiger/2002/landmark/6001/490>	"Orloff Park"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/493>	"Golf Course (Prop)"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/494>	"El Padro Park"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/495>	"Sycamore Grove Park"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/496>	"San Antonio Reservoir"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/497>	"Ohlone Regional Wilderness"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/498>	"Vallecitos Reservoir"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/49>	"Big Trees Park"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/4>	"San Francisco Bay"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/502>	"Mocho Park"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/503>	"The Village at Livermore"	"37.679489"	"-121.780812"
+<http://www.census.gov/tiger/2002/landmark/6001/504>	"Peppertree Plaza"	"37.677584"	"-121.78571"
+<http://www.census.gov/tiger/2002/landmark/6001/505>	"Livermore Arcade"	"37.680602"	"-121.77738"
+<http://www.census.gov/tiger/2002/landmark/6001/506>	"Valley Memorial Hospital"	"37.678377"	"-121.781241"
+<http://www.census.gov/tiger/2002/landmark/6001/507>	"Alameda County Fairgrounds"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/508>	"Hansen Park"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/50>	"Frick Lake"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/511>	"Chamber of Commerce"	"37.660457"	"-121.781028"
+<http://www.census.gov/tiger/2002/landmark/6001/512>	"Alameda Creek Quarries Regiona"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/513>	"Ravenswood Park"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/514>	"Bus Station"	"37.679716"	"-121.77123"
+<http://www.census.gov/tiger/2002/landmark/6001/515>	"Carnegie Park"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/516>	"Del Valle Cont High"	"37.678285"	"-121.766554"
+<http://www.census.gov/tiger/2002/landmark/6001/517>	"Independence Park"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/519>	"Park"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/51>	"Lawrence Livermore National La"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/520>	"City Hall"	"37.674295"	"-121.755708"
+<http://www.census.gov/tiger/2002/landmark/6001/521>	"Veterans Park"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/522>	"Veterans Affairs Med Ctr"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/523>	"Sunol Regional Wilderness"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/524>	"Ohlone Regional Wilderness"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/525>	"Ohlone Regional Wilderness"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/526>	"Ohlone Regional Wilderness"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/527>	"Ohlone Regional Wilderness"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/528>	"Ohlone Regional Wilderness"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/52>	"Sandia National Laboratories"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/530>	"Bethany Reservoir"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/531>	"Livermore Yacht Club"	"37.809848"	"-121.560232"
+<http://www.census.gov/tiger/2002/landmark/6001/532>	"Court House"	"37.75567"	"-122.253028"
+<http://www.census.gov/tiger/2002/landmark/6001/533>	"South Shore Shopping Center"	"37.755694"	"-122.249626"
+<http://www.census.gov/tiger/2002/landmark/6001/534>	"Tennyson High"	"37.642325"	"-122.066642"
+<http://www.census.gov/tiger/2002/landmark/6001/536>	"Lakeshore Park"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/537>	"Post Office"	"37.575436"	"-121.976756"
+<http://www.census.gov/tiger/2002/landmark/6001/538>	"Parkway Park"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/53>	"San Francisco Bay"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/540>	"Vallejo Mill Historical Park"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/541>	"Gomes Park"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/542>	"Ohlone Native American Cem"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/543>	"Vallejo Mill Park"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/544>	"Shinn Memorial Park"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/545>	"Knoll Park"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/546>	"Cedar Lawn Memorial Cemetery"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/547>	"Williams Historical Park"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/548>	"Wahington High"	"37.551393"	"-121.992957"
+<http://www.census.gov/tiger/2002/landmark/6001/549>	"Montclair Golf Course"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/54>	"Golden Gate Fields"	"37.885105"	"-122.311024"
+<http://www.census.gov/tiger/2002/landmark/6001/550>	"Livermore Muni Airport"	"37.696529"	"-121.819907"
+<http://www.census.gov/tiger/2002/landmark/6001/551>	"Newark Community Park"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/552>	"Mirabeau Park"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/553>	"Los Cerritos Community Park"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/555>	"American High"	"37.564411"	"-122.016902"
+<http://www.census.gov/tiger/2002/landmark/6001/556>	"Mayhews Landing Park"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/557>	"Civic Center Park"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/558>	"Plaza Park"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/559>	"Holy Ghost Cemetery"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/55>	"Memorial Park"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/561>	"Swiss Park"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/562>	"Merritt College"	"37.787918"	"-122.167905"
+<http://www.census.gov/tiger/2002/landmark/6001/563>	"Tillman Park"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/565>	"Bridgepoint Park"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/568>	"Montclair Golf Course"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/569>	"Mape Memorial Park"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/56>	"Summit Reservoir"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/570>	"Rix Park"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/571>	"Marshall Park"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/573>	"Lido Faire Shopping & Recreati"	"37.548112"	"-122.045273"
+<http://www.census.gov/tiger/2002/landmark/6001/578>	"Tennyson Park"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/579>	"Post Office"	"37.596546"	"-122.077377"
+<http://www.census.gov/tiger/2002/landmark/6001/57>	"J Hinkel Park"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/580>	"Sky Sailing Airport"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/581>	"Irvington Park"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/582>	"Coyote Hills Regional Park"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/584>	"College Heights"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/585>	"Charter Square"	"37.575616"	"-122.044919"
+<http://www.census.gov/tiger/2002/landmark/6001/587>	"Lincoln Sq Shopping Center"	"37.804527"	"-122.188605"
+<http://www.census.gov/tiger/2002/landmark/6001/588>	"Lakeshore Park"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/58>	"San Francisco Bay"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/594>	"Pleasanton Sports and Recreati"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/595>	"Newark Memorial High"	"37.520647"	"-122.002797"
+<http://www.census.gov/tiger/2002/landmark/6001/596>	"United Motors Assembly Plant"	"37.49925"	"-121.946365"
+<http://www.census.gov/tiger/2002/landmark/6001/597>	"Saint Josephs Cemetery"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/598>	"Mission San Jose Park"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/599>	"Vineyard Alternate High"	"37.671855"	"-121.793917"
+<http://www.census.gov/tiger/2002/landmark/6001/59>	"Public Elementary School"	"37.776061"	"-122.282133"
+<http://www.census.gov/tiger/2002/landmark/6001/5>	"Ohlone Regional Wilderness"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/601>	"Wente Park"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/602>	"Parkway Park"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/603>	"Centennial Park"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/604>	"Booster Park"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/605>	"Fremont Drag Strip"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/606>	"Hagemann Park"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/607>	"Marina Village Center"	"37.783739"	"-122.273511"
+<http://www.census.gov/tiger/2002/landmark/6001/608>	"Public Elementary School"	"37.787056"	"-122.286435"
+<http://www.census.gov/tiger/2002/landmark/6001/609>	"Irvington Square"	"37.519249"	"-121.953022"
+<http://www.census.gov/tiger/2002/landmark/6001/60>	"San Francisco Bay"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/610>	"Jack London Village"	"37.793328"	"-122.273563"
+<http://www.census.gov/tiger/2002/landmark/6001/611>	"Highland Square"	"37.772128"	"-122.214103"
+<http://www.census.gov/tiger/2002/landmark/6001/612>	"North Gate Com Park"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/614>	"Harvey Com Park"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/615>	"Nordvik Park"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/616>	"Fischer Park"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/617>	"Cont High"	"37.519372"	"-121.964833"
+<http://www.census.gov/tiger/2002/landmark/6001/618>	"Park Sierra Apartment"	"37.711294"	"-121.91161"
+<http://www.census.gov/tiger/2002/landmark/6001/61>	"San Francisco Bay"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/620>	"Park"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/621>	"Park"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/622>	"U S Army Camp Parks"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/623>	"Shoreline Park"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/624>	"Outer Harbor (Matson Terminal)"	"37.81367"	"-122.319088"
+<http://www.census.gov/tiger/2002/landmark/6001/625>	"De Anza Park"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/626>	"John F Kennedy Park"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/628>	"Encinal Yacht Club"	"37.782902"	"-122.264332"
+<http://www.census.gov/tiger/2002/landmark/6001/629>	"Cont High"	"37.669561"	"-122.124619"
+<http://www.census.gov/tiger/2002/landmark/6001/62>	"Oakland Inner Harbor"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/631>	"Lakeshore Park"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/632>	"Dolan Park"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/633>	"Holmes Park"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/634>	"Park and Ride"	"37.693476"	"-121.779848"
+<http://www.census.gov/tiger/2002/landmark/6001/636>	"California Aqueduct"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/637>	"Alamo Creek Park"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/638>	"Don Castro Lake"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/639>	"Hayward Air Terminal"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/63>	"City Hall"	"37.657556"	"-121.878727"
+<http://www.census.gov/tiger/2002/landmark/6001/640>	"Warm Springs Park"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/641>	"Vineyard Factory Stores"	"37.715432"	"-121.704786"
+<http://www.census.gov/tiger/2002/landmark/6001/642>	"Lone Tree Creek Park"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/644>	"Public Elementary School"	"37.743597"	"-122.249459"
+<http://www.census.gov/tiger/2002/landmark/6001/645>	"Woodstock Park"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/646>	"Shoreline Park"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/647>	"Alameda Park"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/648>	"Washington Park"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/649>	"Rittler Park"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/64>	"University Park"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/650>	"Lincoln Park"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/651>	"Krusi Park"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/652>	"Leydecker Park"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/653>	"Godfrey Park"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/654>	"Greenman Recreational Field"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/655>	"85th Avenue Mini Park"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/656>	"Oakland Alameda County Coliseu"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/657>	"Stonehurst Recreation Area"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/658>	"Sobrante Park"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/659>	"Home of Peace Cemetary"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/65>	"University Park"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/660>	"Foothill Meadows"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/661>	"Foothill Meadows"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/662>	"Lowell Park"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/663>	"Portview Park"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/664>	"Booth Memorial Hospital"	"37.793589"	"-122.221622"
+<http://www.census.gov/tiger/2002/landmark/6001/665>	"W D Wood Park"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/666>	"Montclair Golf Course"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/667>	"Piedmont Park"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/668>	"Mountain View Cemetery"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/669>	"Mtn View Cemetery"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/66>	"James Kenney Recreation Center"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/670>	"North Oakland Regional Sports"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/671>	"Park"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/672>	"Bushrod Park"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/673>	"Park"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/674>	"Park"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/675>	"Albany Hill Park"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/676>	"Middle School Park"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/677>	"Bowling Greens Park"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/678>	"Codornices Playground"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/679>	"Rose Gardens Park"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/67>	"Berkeley Aquatic Park"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/680>	"Claremont Canyon Regional Prsv"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/681>	"Garber Park"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/682>	"Claremont Canyon Regional Prsv"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/683>	"Claremont Canyon Regional Prsv"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/684>	"Allendale Recreation Center"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/685>	"Oakland Municipal Golf Links"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/686>	"Roosevelt Playground Park"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/687>	"Oyster Bay Regional Shoreline"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/688>	"Oyster Bay Regional Shoreline"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/689>	"Marina Golf Course"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/68>	"Berkeley Aquatic"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/690>	"Park"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/691>	"Washington Manor Park"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/692>	"Halcyon Park"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/693>	"Floresta Park"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/694>	"Cemetery"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/695>	"San Lorenzo Park"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/696>	"Meek Park"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/697>	"Cannery Park"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/698>	"Centennial Park"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/699>	"Hayward Regional Shoreline"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/69>	"Berkeley Aquatic Park"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/6>	"Ohlone Regional Wilderness"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/701>	"Cont High"	"37.63016"	"-122.102625"
+<http://www.census.gov/tiger/2002/landmark/6001/702>	"Mt Eden Park"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/703>	"Moreau Catholic High"	"37.643188"	"-122.059182"
+<http://www.census.gov/tiger/2002/landmark/6001/705>	"Holy Sepulchre Cemetery"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/706>	"Bidwell Park"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/707>	"Pleasanton Ridge Regional Park"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/708>	"Alvarado Park"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/709>	"Ohlone College"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/70>	"Holiday Inn"	"37.83858"	"-122.298198"
+<http://www.census.gov/tiger/2002/landmark/6001/710>	"Casa Verde Park"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/711>	"Mission Peak Regional Preserve"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/712>	"Saint Joseph High"	"37.534457"	"-121.919897"
+<http://www.census.gov/tiger/2002/landmark/6001/713>	"Mission San Jose de Guadalupe"	"37.533293"	"-121.919518"
+<http://www.census.gov/tiger/2002/landmark/6001/714>	"Birch Grove Park"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/715>	"Newark Sportsfield Park"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/716>	"Greenridge Park"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/717>	"Palomares Hills Park"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/718>	"Del Prado Park"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/719>	"Senior Citizen Center"	"37.652697"	"-121.88073"
+<http://www.census.gov/tiger/2002/landmark/6001/71>	"Berkeley Aquatic"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/720>	"Centennial Park"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/721>	"Sunol Regional Wilderness"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/722>	"Sunol Regional Wilderness"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/723>	"Ohlone Regional Wilderness"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/724>	"Sunol Regional Wilderness"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/725>	"Sunol Regional Wilderness"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/726>	"Ohlone Regional Wilderness"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/727>	"Ohlone Regional Wilderness"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/728>	"Ohlone Regional Wilderness"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/729>	"Ohlone Regional Wilderness"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/72>	"Park"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/730>	"Ohlone Regional Wilderness"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/731>	"Ohlone Regional Wilderness"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/732>	"Pleasanton Sports and Recreati"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/733>	"Granada High"	"37.674472"	"-121.788962"
+<http://www.census.gov/tiger/2002/landmark/6001/734>	"Oakknoll Pioneer Memorial Park"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/735>	"Pleasure Island Park"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/736>	"Holmwell Park"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/737>	"Max Baer Park"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/738>	"Jack Williams Park"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/739>	"Parkway Park"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/73>	"Live Oak Recreation Center"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/740>	"Sunset East Park"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/741>	"Robertson Park"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/742>	"Park"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/743>	"Stony Brook Park"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/744>	"Seven Hills Park"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/745>	"Arroyo Park"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/746>	"Masonic Home for Adults"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/747>	"Decoto Plaza"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/74>	"Civic Center"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/750>	"Fairway Greens Park"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/752>	"William Cann Memorial Park"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/753>	"Town Estates Park"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/754>	"San Andreas Park"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/755>	"Lowry Park"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/756>	"Contempo Park"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/757>	"Ruus Park"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/758>	"Hall Ranch Park"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/759>	"Hayward Regional Shoreline"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/75>	"Berkeley Repertory Theatre"	"37.870318"	"-122.270754"
+<http://www.census.gov/tiger/2002/landmark/6001/760>	"Mervin Morris Park"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/761>	"Del Rey Park"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/762>	"Mount Eden Cemetery"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/763>	"Rancho Arroyo Park"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/764>	"Longwood Park"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/765>	"Cherry Land Park"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/767>	"Palma Ceia Park"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/768>	"Weekes Community Park"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/769>	"Greenwood Park"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/76>	"Train Station"	"37.869727"	"-122.268666"
+<http://www.census.gov/tiger/2002/landmark/6001/770>	"Schafer Park"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/771>	"Tennyson Professional Building"	"37.631764"	"-122.068319"
+<http://www.census.gov/tiger/2002/landmark/6001/772>	"Centennial Center Botany Groun"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/773>	"Sorendale Park"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/774>	"Hayward Memorial Park"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/775>	"Spring Grove Park"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/776>	"Valle Vista Park"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/777>	"Lone Tree Cemetery"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/778>	"Green Belt Park"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/779>	"Old Highlands Park"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/780>	"Green Belt Park"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/781>	"East Avenue Park"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/782>	"Canyon View Park"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/783>	"Stony Brook Park"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/784>	"Oakhill Park"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/785>	"Adobe Park"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/786>	"Meadowlark Park"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/787>	"Valley Trails Park"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/788>	"Heatherlark Park"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/789>	"Fairways Golf Course"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/78>	"San Pablo Park"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/791>	"Wayside Park"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/793>	"Kottinger Village Park"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/794>	"McKinley Park"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/795>	"Kottinger Park"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/796>	"Vintage Hills Park"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/797>	"Tawny Park"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/798>	"Club House"	"37.639126"	"-121.812457"
+<http://www.census.gov/tiger/2002/landmark/6001/799>	"Dogwood Park"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/79>	"Emery High School"	"37.837041"	"-122.282718"
+<http://www.census.gov/tiger/2002/landmark/6001/7>	"Del Valle Reservoir"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/800>	"Saint Michaels Cemetery"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/801>	"Memory Gardens Cemetery"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/802>	"Sunken Gardens Park"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/803>	"Almond Park"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/804>	"Robert Livermore Park"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/806>	"Christensen Park"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/807>	"Bill Clark Park"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/808>	"Tex Spruiell Park"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/809>	"Club House"	"37.707278"	"-121.741149"
+<http://www.census.gov/tiger/2002/landmark/6001/80>	"Mission Peak Regional Preserve"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/810>	"Greenville North Park"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/811>	"Wattenburger Park"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/812>	"Madeira Park"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/813>	"Doolan Park"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/814>	"Vista Meadows Park"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/815>	"Roselawn Cemetery"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/816>	"Livermore Downs Park"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/817>	"Livermore Center"	"37.6877"	"-121.784039"
+<http://www.census.gov/tiger/2002/landmark/6001/819>	"Al Caffodio Park"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/81>	"Childrens Hospital"	"37.837386"	"-122.267609"
+<http://www.census.gov/tiger/2002/landmark/6001/820>	"Maitland R Henry Park"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/821>	"Emerald Glen Community Park"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/822>	"Public Elementary School"	"37.734451"	"-122.189089"
+<http://www.census.gov/tiger/2002/landmark/6001/823>	"Dougherty Hills Park"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/824>	"Stagecoach Park"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/825>	"Neighborhood Park"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/827>	"Dsrsd Pump Station"	"37.714619"	"-121.871507"
+<http://www.census.gov/tiger/2002/landmark/6001/828>	"Pleasanton Water Reservoir"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/829>	"Elementary School"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/82>	"Alameda County Fairgrounds"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/832>	"Arf Avenue Apartment"	"37.625727"	"-122.095561"
+<http://www.census.gov/tiger/2002/landmark/6001/833>	"Rancho Arroyo de la Alameda Ap"	"37.625678"	"-122.093815"
+<http://www.census.gov/tiger/2002/landmark/6001/834>	"Arbor Vine Dr Apartment"	"37.594755"	"-122.056342"
+<http://www.census.gov/tiger/2002/landmark/6001/835>	"Nantucket Cmn Apartment"	"37.573031"	"-122.038432"
+<http://www.census.gov/tiger/2002/landmark/6001/836>	"Bay Fair Mall"	"37.702082"	"-122.125395"
+<http://www.census.gov/tiger/2002/landmark/6001/837>	"Brookvale Shopping Center"	"37.566731"	"-122.02324"
+<http://www.census.gov/tiger/2002/landmark/6001/838>	"Castro Village"	"37.696558"	"-122.07553"
+<http://www.census.gov/tiger/2002/landmark/6001/839>	"College Sq Shopping Mall"	"37.847838"	"-122.252104"
+<http://www.census.gov/tiger/2002/landmark/6001/83>	"Civil Engineering Unit - Oakla"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/840>	"Dublin Plaza"	"37.706517"	"-121.936605"
+<http://www.census.gov/tiger/2002/landmark/6001/841>	"Dublin Village"	"37.705229"	"-121.921287"
+<http://www.census.gov/tiger/2002/landmark/6001/842>	"East Bay Gulleria"	"37.807827"	"-122.271652"
+<http://www.census.gov/tiger/2002/landmark/6001/843>	"Eastmont Mall Shopping Center"	"37.767099"	"-122.177589"
+<http://www.census.gov/tiger/2002/landmark/6001/844>	"Estudillo Shopping Center"	"37.728429"	"-122.140176"
+<http://www.census.gov/tiger/2002/landmark/6001/845>	"Center Square"	"37.558437"	"-122.007674"
+<http://www.census.gov/tiger/2002/landmark/6001/846>	"Foothill Square"	"37.741737"	"-122.150756"
+<http://www.census.gov/tiger/2002/landmark/6001/847>	"Fremont Center"	"37.535808"	"-121.965743"
+<http://www.census.gov/tiger/2002/landmark/6001/848>	"Fremont Fashion Center"	"37.553892"	"-121.977927"
+<http://www.census.gov/tiger/2002/landmark/6001/849>	"Hayward Air Terminal Airport"	"37.662531"	"-122.116826"
+<http://www.census.gov/tiger/2002/landmark/6001/84>	"Raimondi Park"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/850>	"Dublin Sports Grounds"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/851>	"Heritage Center"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/852>	"Alameda Park"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/853>	"McKinley Park"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/85>	"Outer Harbor (Sealand Terminal"	"37.816428"	"-122.316421"
+<http://www.census.gov/tiger/2002/landmark/6001/86>	"Park"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/87>	"Poplar Recreation Area"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/88>	"De Fremery Park"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/89>	"Park"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/8>	"Venados Camp"	"37.59355"	"-121.719484"
+<http://www.census.gov/tiger/2002/landmark/6001/90>	"Park"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/91>	"Park"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/92>	"Park"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/93>	"Park"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/94>	"Park"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/95>	"Park"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/96>	"California Highway Patrol"	"37.82506"	"-122.266614"
+<http://www.census.gov/tiger/2002/landmark/6001/97>	"Park"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/98>	"Park"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/99>	"Park"	NULL	NULL
+<http://www.census.gov/tiger/2002/landmark/6001/9>	"Univ of California Berkeley"	NULL	NULL
+?place	?name	?latitude	?longitude

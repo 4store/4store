@@ -1,0 +1,342 @@
+<?xml version="1.0"?>
+<rdf:RDF xmlns:fipscc="http://www.census.gov/tiger/2002/fips/class_code/"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">
+
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/fips/class_code/Class">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>FIPS Class</rdfs:label>
+	</rdf:Description>
+
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/fips/class_code/B">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>Post Offices/Postal Zones Not Corresponding To Other Locational Entities
+
+</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/fips/class_code/Class"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/fips/class_code/B1">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>3-digit ZIP Code Tabulation Area (approximated representation of the
+
+area covered by a 3-digit ZIP Code.</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/fips/class_code/B"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/fips/class_code/B2">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>5-digit ZIP Code Tabulation Area (approximated representation of the
+area covered by a 5-digit ZIP Code.</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/fips/class_code/B"/>
+	</rdf:Description>
+
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/fips/class_code/C">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>Incorporated Places</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/fips/class_code/Class"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/fips/class_code/C1">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>An incorporated place that is governmentally active, is not related to an
+Alaska Native village statistical area (ANVSA), and does not serve as a
+minor civil division (MCD) equivalent.</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/fips/class_code/C"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/fips/class_code/C2">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>Incorporated place that also serves as a minor civil division (MCD)
+equivalent because, although the place is coextensive with an MCD,
+the U.S. Census Bureau, in agreement with state officials, does not
+recognize that MCD for presenting census data because the MCD
+cannot provide governmental services (applies to Iowa and Ohio only).</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/fips/class_code/C"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/fips/class_code/C3">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>Incorporated place that is a consolidated city.</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/fips/class_code/C"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/fips/class_code/C5">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>Incorporated place that also serves as a minor civil division (MCD)
+equivalent because it is not part of any MCD or a county subdivision
+classified as Z5.</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/fips/class_code/C"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/fips/class_code/C6">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>Incorporated place that coincides with or approximates, an Alaska
+Native village statistical area (ANVSA).</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/fips/class_code/C"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/fips/class_code/C7">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>An incorporated place that is an independent city; that is, it also serves
+as a county equivalent because it is not part of any county and a minor
+civil division (MCD) equivalent because it is not part of any MCD.</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/fips/class_code/C"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/fips/class_code/C8">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>The portion ("balance") of a consolidated city that excludes the
+separately incorporated place(s) within that jurisdiction.</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/fips/class_code/C"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/fips/class_code/C9">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>An incorporated place whose government is operationally inactive and
+is not included in any other C subclass.</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/fips/class_code/C"/>
+	</rdf:Description>
+
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/fips/class_code/D">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>American Indian Reservations (AIRs)</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/fips/class_code/Class"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/fips/class_code/D1">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>Federally recognized American Indian reservation (AIR) that has
+associated off-reservation trust land.</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/fips/class_code/D"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/fips/class_code/D2">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>Federally recognized American Indian reservation (AIR) that does not
+have associated off-reservation trust lands.</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/fips/class_code/D"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/fips/class_code/D3">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>Federally recognized American Indian off-reservation trust land area
+without any associated American Indian reservation (AIR).</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/fips/class_code/D"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/fips/class_code/D4">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>State-recognized American Indian reservation (AIR).</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/fips/class_code/D"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/fips/class_code/D5">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>The off-reservation trust land portion of an American Indian entity with
+both a reservation and trust land.</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/fips/class_code/D"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/fips/class_code/D6">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>A statistical entity for a federally recognized American Indian tribe that
+does not have a reservation or identified off-reservation trust land
+specifically a Census 2000 tribal designated statistical area (TDSA),
+Census 2000 Oklahoma Tribal statistical area (OTSA), or a1990 tribal
+jurisdiction statistical area (TJSA) but excluding Alaska Native village
+statistical areas.</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/fips/class_code/D"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/fips/class_code/D7">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>Tribal Subdivision.</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/fips/class_code/D"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/fips/class_code/D8">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>The reservation portion of an American Indian entity with both a
+reservation and trust land.</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/fips/class_code/D"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/fips/class_code/D9">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>A statistical entity for a state recognized American Indian tribe not having
+a reservation specifically a state designated American Indian statistical
+area (SDAISA).</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/fips/class_code/D"/>
+	</rdf:Description>
+
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/fips/class_code/E">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>Alaska Native Areas (ANAs)</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/fips/class_code/Class"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/fips/class_code/E1">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>Alaska Native Village Statistical Area (ANVSA) that does not coincide
+with, or approximate, an incorporated place or census designated
+place (CDP).</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/fips/class_code/E"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/fips/class_code/E2">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>Alaska Native Village Statistical Area (ANVSA) that coincides with, or
+approximates, a census designated place (CDP).</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/fips/class_code/E"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/fips/class_code/E6">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>Alaska Native Village Statistical Area (ANVSA) that coincides with, or
+approximates, an incorporated place.</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/fips/class_code/E"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/fips/class_code/E7">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>An Alaskan Native Regional Corporation (ANRC).</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/fips/class_code/E"/>
+	</rdf:Description>
+
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/fips/class_code/F">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>Hawaiian Home Land</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/fips/class_code/Class"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/fips/class_code/F1">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>A Hawaiian home land, an area established by the Hawaiian Homes
+Commission Act of 1921 providing for lands held in trust by the State of
+Hawaii for the benefit of Native Hawaiians.</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/fips/class_code/F"/>
+	</rdf:Description>
+
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/fips/class_code/H">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>Counties and County Equivalents</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/fips/class_code/Class"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/fips/class_code/H1">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>An active county or statistically equivalent entity that does not qualify
+under subclass C7 or H6.</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/fips/class_code/H"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/fips/class_code/H4">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>A legally defined inactive or nonfunctioning county or statistically
+equivalent entity that does not qualify under subclass H6.</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/fips/class_code/H"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/fips/class_code/H5">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>Census areas in Alaska, a statistical county equivalent entity.</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/fips/class_code/H"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/fips/class_code/H6">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>A county or statistically equivalent entity that is areally coextensive or
+governmentally consolidated with an incorporated place, part of an
+incorporated place, or a consolidated city.</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/fips/class_code/H"/>
+	</rdf:Description>
+
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/fips/class_code/M">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>Federal Facilities</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/fips/class_code/Class"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/fips/class_code/M2">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>An installation (or part of an installation) of the U.S. Department of
+Defense or any branch thereof, or of the U.S. Coast Guard, that serves
+as a census designated place.</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/fips/class_code/M"/>
+	</rdf:Description>
+
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/fips/class_code/T">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>Active Minor Civil Divisions (MCDs)</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/fips/class_code/Class"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/fips/class_code/T1">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>Governmentally active minor civil division (MCD) that is not coextensive
+with an incorporated place.</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/fips/class_code/T"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/fips/class_code/T5">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>Governmentally active minor civil division (MCD) that is coextensive
+with an incorporated place.</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/fips/class_code/T"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/fips/class_code/T9">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>A minor civil division (MCD) whose government is inactive.</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/fips/class_code/T"/>
+	</rdf:Description>
+
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/fips/class_code/U">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>Unincorporated Places Except Those Associated With Facilities</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/fips/class_code/Class"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/fips/class_code/U1">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>Census designated place (CDP) with a name that is commonly
+recognized for the populated area, and designated as a populated place
+by the U.S. Geological Survey (USGS).</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/fips/class_code/U"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/fips/class_code/U2">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>Census designated place (CDP) with a name that is not commonly
+recognized for the populated area (e.g., a combination of the names of
+two or three commonly recognized communities, or a name that identifies
+the location of the CDP in relation to an adjacent incorporated place).</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/fips/class_code/U"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/fips/class_code/U9">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>A census designated place (CDP) that coincides with, or approximates,
+an Alaska Native Village Statistical Area (ANVSA).</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/fips/class_code/U"/>
+	</rdf:Description>
+
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/fips/class_code/Z">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>Inactive or Nonfunctioning County Divisions</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/fips/class_code/Class"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/fips/class_code/Z1">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>A minor civil division (MCD) that cannot provide general-purpose
+governmental services.</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/fips/class_code/Z"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/fips/class_code/Z2">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>An American Indian reservation and/or off-reservation trust land
+area that also serves as a primary division of a county or statistical
+equivalent entity.</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/fips/class_code/Z"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/fips/class_code/Z3">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>Unorganized territory identified by the U.S. Census Bureau as a minor
+civil division (MCD) equivalent for presenting statistical data.</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/fips/class_code/Z"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/fips/class_code/Z5">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>Census county division (CCD), census subarea (Alaska only), or census
+subdistrict (U.S. Virgin Islands only).</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/fips/class_code/Z"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/fips/class_code/Z6">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>Subbarrio (sub-MCD) in Puerto Rico.</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/fips/class_code/Z"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/fips/class_code/Z7">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>An incorporated place that the U.S. Census Bureau treats as a minor
+civil division (MCD) equivalent because it is not in any MCD or is
+coextensive with a legally established but nonfunctioning MCD that
+the U.S. Census Bureau does not recognize for statistical data presen-
+tation purposes, AND is located in a county whose MCDs cannot
+provide governmental services (Iowa, Louisiana, Nebraska, and North
+Carolina only).</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/fips/class_code/Z"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/fips/class_code/Z9">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>A pseudo-minor civil division (MCD) that consists of water area not
+assigned to any legal MCD.</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/fips/class_code/Z"/>
+	</rdf:Description>
+</rdf:RDF>

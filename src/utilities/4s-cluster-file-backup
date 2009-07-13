@@ -1,0 +1,25 @@
+#!/bin/sh
+#
+# This script assumes that backup server is named 'backup' or there is
+# a suitable alias in the SSH configuration and the backup server
+# needs a directory or symlink '4store' to store backup files in
+#
+# to restore one machine use e.g.
+#
+# cat kbname.machine.datestamp.tar.gz | ssh machine tar -x -C / -z -f - 
+#
+# NB ensure target directories /var/lib/4store and MySQL DB directory exist
+#
+SSH="ssh -c blowfish-cbc"
+if [ $# == 0 ] ; then
+  echo "Usage: $0 <kbname>"
+  exit;
+fi;
+logger -t $0 "'$*' by $USER"
+hosts=`cat /etc/4s-cluster`;
+datestamp=`date --iso`;
+for node in $hosts; do
+ echo "$node:";
+ $SSH $node "4s-file-backup $1" | $SSH backup "cat > 4store/$1.$node.$datestamp.tar.gz" &
+done
+wait

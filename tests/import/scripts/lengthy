@@ -1,0 +1,12 @@
+#!
+
+./test-create.sh --segments 4 $1
+./test-start.sh $1
+echo "# lengthy.nt bind"
+$PRECMD $TESTPATH/frontend/4s-import $1 $TESTPATH/../data/lengthy.nt
+$PRECMD $TESTPATH/frontend/4s-bind $1 all FS_BIND_SUBJECT FS_BIND_PREDICATE FS_BIND_OBJECT FS_BIND_BY_SUBJECT /dev/null /dev/null /dev/null /dev/null | sort
+echo "# lengthy.nt resolve"
+$PRECMD $TESTPATH/frontend/4s-resolve $1 32171C926503D599
+$PRECMD $TESTPATH/frontend/4s-resolve $1 38E5E6E1ED9DCB70
+$PRECMD $TESTPATH/frontend/4s-resolve $1 46C13502441B7F82
+./test-stop.sh $1

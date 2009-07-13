@@ -1,0 +1,2 @@
+#!/bin/sh
+ssh-keyscan -t rsa -f /etc/4s-cluster > /etc/ssh/ssh_known_hosts

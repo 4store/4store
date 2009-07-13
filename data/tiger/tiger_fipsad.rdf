@@ -1,0 +1,672 @@
+<?xml version="1.0"?>
+<rdf:RDF xmlns:fipsad="http://www.census.gov/tiger/2002/fips/area_description/"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/fips/area_description/Area">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>Area</rdfs:label>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/fips/area_description/State">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>State</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/fips/area_description/Area"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/fips/area_description/01">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>state or statistical equivalent of a state</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/fips/area_description/State"/>
+	</rdf:Description>
+
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/fips/area_description/County">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>County</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/fips/area_description/Area"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/fips/area_description/03">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>city and borough</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/fips/area_description/County"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/fips/area_description/04">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>borough</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/fips/area_description/County"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/fips/area_description/05">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>census area</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/fips/area_description/County"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/fips/area_description/06">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>county</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/fips/area_description/County"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/fips/area_description/07">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>district</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/fips/area_description/County"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/fips/area_description/08">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>independent city</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/fips/area_description/County"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/fips/area_description/09">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>independent city</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/fips/area_description/County"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/fips/area_description/10">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>island</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/fips/area_description/County"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/fips/area_description/11">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>island</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/fips/area_description/County"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/fips/area_description/12">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>municipality</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/fips/area_description/County"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/fips/area_description/13">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>municipio</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/fips/area_description/County"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/fips/area_description/14">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>legal county equivalent (used for the
+District of Columbia and Guam)</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/fips/area_description/County"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/fips/area_description/15">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>parish</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/fips/area_description/County"/>
+	</rdf:Description>
+
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/fips/area_description/MCD">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>Minor Civil Divisions/Census County Divisions</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/fips/area_description/Area"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/fips/area_description/19">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>reservation</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/fips/area_description/MCD"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/fips/area_description/20">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>barrio</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/fips/area_description/MCD"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/fips/area_description/21">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>borough</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/fips/area_description/MCD"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/fips/area_description/22">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>census county division</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/fips/area_description/MCD"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/fips/area_description/23">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>census subarea</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/fips/area_description/MCD"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/fips/area_description/24">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>census subdistrict</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/fips/area_description/MCD"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/fips/area_description/25">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>city</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/fips/area_description/MCD"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/fips/area_description/26">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>county</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/fips/area_description/MCD"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/fips/area_description/27">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>district (election magisterial, or municipal, or road)</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/fips/area_description/MCD"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/fips/area_description/28">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>district (assessment, election, magisterial, supervisors, parish governing authority, or municipal)</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/fips/area_description/MCD"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/fips/area_description/29">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>election precinct</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/fips/area_description/MCD"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/fips/area_description/30">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>election precinct</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/fips/area_description/MCD"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/fips/area_description/31">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>gore</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/fips/area_description/MCD"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/fips/area_description/32">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>grant</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/fips/area_description/MCD"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/fips/area_description/33">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>independent city</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/fips/area_description/MCD"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/fips/area_description/34">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>independent city</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/fips/area_description/MCD"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/fips/area_description/35">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>island</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/fips/area_description/MCD"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/fips/area_description/36">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>location</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/fips/area_description/MCD"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/fips/area_description/38">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>legal county subdivision equivalent for Arlington County, Virginia</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/fips/area_description/MCD"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/fips/area_description/39">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>plantation</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/fips/area_description/MCD"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/fips/area_description/40">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>legal county subdivision not defined, exists in territorial water areas in 14 states, Puerto Rico, and the U.S. Virgin Islands</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/fips/area_description/MCD"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/fips/area_description/41">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>barrio-pueblo</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/fips/area_description/MCD"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/fips/area_description/42">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>purchase</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/fips/area_description/MCD"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/fips/area_description/43">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>town</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/fips/area_description/MCD"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/fips/area_description/44">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>township</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/fips/area_description/MCD"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/fips/area_description/45">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>township</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/fips/area_description/MCD"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/fips/area_description/46">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>unorganized territory</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/fips/area_description/MCD"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/fips/area_description/47">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>village</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/fips/area_description/MCD"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/fips/area_description/49">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>charter township</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/fips/area_description/MCD"/>
+	</rdf:Description>
+
+
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/fips/area_description/SubMCD">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>Sub-Minor Civil Divisions (Sub-MCDs)</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/fips/area_description/Area"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/fips/area_description/51">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>subbarrio</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/fips/area_description/SubMCD"/>
+	</rdf:Description>
+
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/fips/area_description/Place">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>Places</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/fips/area_description/Area"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/fips/area_description/53">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>city and borough</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/fips/area_description/Place"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/fips/area_description/54">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>municipality</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/fips/area_description/Place"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/fips/area_description/55">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>comunidad</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/fips/area_description/Place"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/fips/area_description/56">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>borough</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/fips/area_description/Place"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/fips/area_description/57">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>census designated place</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/fips/area_description/Place"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/fips/area_description/58">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>city</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/fips/area_description/Place"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/fips/area_description/59">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>incorporated place</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/fips/area_description/Place"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/fips/area_description/60">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>town</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/fips/area_description/Place"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/fips/area_description/61">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>village</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/fips/area_description/Place"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/fips/area_description/62">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>zona urbana</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/fips/area_description/Place"/>
+	</rdf:Description>
+
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/fips/area_description/ConsolidatedCity">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>Consolidated Cities</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/fips/area_description/Area"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/fips/area_description/65">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>consolidated city</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/fips/area_description/ConsolidatedCity"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/fips/area_description/66">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>consolidated city</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/fips/area_description/ConsolidatedCity"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/fips/area_description/67">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>census region</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/fips/area_description/ConsolidatedCity"/>
+	</rdf:Description>
+
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/fips/area_description/Division">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>Divisions</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/fips/area_description/Area"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/fips/area_description/69">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>census division</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/fips/area_description/Division"/>
+	</rdf:Description>
+
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/fips/area_description/UrbanGrowthArea">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>Urban Growth Areas</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/fips/area_description/Area"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/fips/area_description/70">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>urban growth area</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/fips/area_description/UrbanGrowthArea"/>
+	</rdf:Description>
+
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/fips/area_description/MetropolitanArea">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>Metropolitan Areas</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/fips/area_description/Area"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/fips/area_description/71">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>consolidated metropolitan statistical area (CMSA)</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/fips/area_description/MetropolitanArea"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/fips/area_description/72">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>metropolitan statistical area (MSA)</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/fips/area_description/MetropolitanArea"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/fips/area_description/73">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>primary metropolitan statistical area (PMSA)</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/fips/area_description/MetropolitanArea"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/fips/area_description/74">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>New England county metropolitan area (NECMA)</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/fips/area_description/MetropolitanArea"/>
+	</rdf:Description>
+
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/fips/area_description/UrbanizedArea">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>Urbanized Areas</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/fips/area_description/Area"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/fips/area_description/75">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>urbanized area (UA)</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/fips/area_description/UrbanizedArea"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/fips/area_description/76">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>urban cluster (UC)</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/fips/area_description/UrbanizedArea"/>
+	</rdf:Description>
+
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/fips/area_description/AlaskaNativeRegionalCorporation">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>Alaska Native Regional Corporations</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/fips/area_description/Area"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/fips/area_description/77">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>Alaska Native Regional Corporation</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/fips/area_description/AlaskaNativeRegionalCorporation"/>
+	</rdf:Description>
+
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/fips/area_description/HawaiianHomeLand">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>Hawaiian Home Land</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/fips/area_description/Area"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/fips/area_description/78">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>Hawaiian home land</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/fips/area_description/HawaiianHomeLand"/>
+	</rdf:Description>
+
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/fips/area_description/AlaskaNativeVillageStatisticalArea">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>Alaska Native Village Statistical Areas</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/fips/area_description/Area"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/fips/area_description/79">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>Alaska Native Village Statistical Area</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/fips/area_description/AlaskaNativeVillageStatisticalArea"/>
+	</rdf:Description>
+
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/fips/area_description/AmericanIndianArea">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>American Indian Areas</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/fips/area_description/Area"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/fips/area_description/80">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>tribal designated statistical area</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/fips/area_description/AmericanIndianArea"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/fips/area_description/81">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>colony</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/fips/area_description/AmericanIndianArea"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/fips/area_description/82">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>community</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/fips/area_description/AmericanIndianArea"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/fips/area_description/83">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>joint use area</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/fips/area_description/AmericanIndianArea"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/fips/area_description/84">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>pueblo</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/fips/area_description/AmericanIndianArea"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/fips/area_description/85">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>rancheria</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/fips/area_description/AmericanIndianArea"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/fips/area_description/86">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>reservation</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/fips/area_description/AmericanIndianArea"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/fips/area_description/87">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>reserve</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/fips/area_description/AmericanIndianArea"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/fips/area_description/88">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>Oklahoma tribal statistical area</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/fips/area_description/AmericanIndianArea"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/fips/area_description/89">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>trust land entity only</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/fips/area_description/AmericanIndianArea"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/fips/area_description/90">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>joint use area OTSA</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/fips/area_description/AmericanIndianArea"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/fips/area_description/91">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>ranch</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/fips/area_description/AmericanIndianArea"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/fips/area_description/92">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>state designated American Indian statistical area</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/fips/area_description/AmericanIndianArea"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/fips/area_description/93">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>Indian village</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/fips/area_description/AmericanIndianArea"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/fips/area_description/94">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>village</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/fips/area_description/AmericanIndianArea"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/fips/area_description/95">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>Indian community</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/fips/area_description/AmericanIndianArea"/>
+	</rdf:Description>
+
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/fips/area_description/AmericanIndianTribalSubdivision">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>American Indian Tribal Subdivisions</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/fips/area_description/Area"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/fips/area_description/T1">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>area</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/fips/area_description/AmericanIndianTribalSubdivision"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/fips/area_description/T2">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>chapter</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/fips/area_description/AmericanIndianTribalSubdivision"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/fips/area_description/T3">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>community</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/fips/area_description/AmericanIndianTribalSubdivision"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/fips/area_description/T4">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>district</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/fips/area_description/AmericanIndianTribalSubdivision"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/fips/area_description/T5">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>district</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/fips/area_description/AmericanIndianTribalSubdivision"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/fips/area_description/T6">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>segment</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/fips/area_description/AmericanIndianTribalSubdivision"/>
+	</rdf:Description>
+
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/fips/area_description/RedistrictingEntity">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>Redistricting Entities</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/fips/area_description/Area"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/fips/area_description/C1">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>congressional district</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/fips/area_description/RedistrictingEntity"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/fips/area_description/C2">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>congressional district</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/fips/area_description/RedistrictingEntity"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/fips/area_description/C3">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>congressional district</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/fips/area_description/RedistrictingEntity"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/fips/area_description/C4">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>congressional district</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/fips/area_description/RedistrictingEntity"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/fips/area_description/C5">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>congressional district</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/fips/area_description/RedistrictingEntity"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/fips/area_description/LL">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>state legislative district-lower chamber</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/fips/area_description/RedistrictingEntity"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/fips/area_description/LU">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>state legislative district-upper chamber</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/fips/area_description/RedistrictingEntity"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/fips/area_description/V0">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>voting district</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/fips/area_description/RedistrictingEntity"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/fips/area_description/V1">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>voting district</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/fips/area_description/RedistrictingEntity"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/fips/area_description/V2">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>voting district</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/fips/area_description/RedistrictingEntity"/>
+	</rdf:Description>
+
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/fips/area_description/Miscellaneous">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>Miscellaneous</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/fips/area_description/Area"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/fips/area_description/P1">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>1 percent public-use microdata area</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/fips/area_description/Miscellaneous"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/fips/area_description/P5">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>5 percent public-use microdata area</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/fips/area_description/Miscellaneous"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/fips/area_description/S1">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>elementary school district</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/fips/area_description/Miscellaneous"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/fips/area_description/S2">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>secondary school district</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/fips/area_description/Miscellaneous"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/fips/area_description/S3">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>unified school district</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/fips/area_description/Miscellaneous"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/fips/area_description/S4">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>administrative area</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/fips/area_description/Miscellaneous"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/fips/area_description/S5">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>BIA school area</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/fips/area_description/Miscellaneous"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/fips/area_description/S6">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>DOD school area</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/fips/area_description/Miscellaneous"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/fips/area_description/S7">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>areas not coded to a school district</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/fips/area_description/Miscellaneous"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/fips/area_description/TZ">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>traffic analysis zone</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/fips/area_description/Miscellaneous"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/fips/area_description/Z3">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>ZIP code tabulation area (3-Digit)</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/fips/area_description/Miscellaneous"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://www.census.gov/tiger/2002/fips/area_description/Z5">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>ZIP code tabulation area (5-Digit)</rdfs:label>
+		<rdfs:subClassOf rdf:resource="http://www.census.gov/tiger/2002/fips/area_description/Miscellaneous"/>
+	</rdf:Description>
+</rdf:RDF>
