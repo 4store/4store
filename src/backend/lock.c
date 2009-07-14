@@ -32,7 +32,7 @@
 int fs_lock_kb(const char *kb)
 {
     char *fn = g_strdup_printf(FS_MD_FILE, kb);
-    int fd = open(fn, FS_O_NOATIME | O_RDONLY | O_CREAT);
+    int fd = open(fn, FS_O_NOATIME | O_RDONLY | O_CREAT, 0600);
     if (fd == -1) {
         fs_error(LOG_CRIT, "failed to open metadata file %s for locking: %s",
                  fn, strerror(errno));
