@@ -35,7 +35,7 @@ for $t (@tests) {
 		next;
 	}
 	unlink("$outdir/".$t);
-	system("FORMAT=ascii LANG=C scripts/$t $kb_name > $outdir/$t 2>$outdir/$t-errs");
+	system("FORMAT=ascii LANG=C TESTPATH=../../src scripts/$t $kb_name > $outdir/$t 2>$outdir/$t-errs");
 	if ($test) {
 		@diff = `diff exemplar/$t $outdir/$t 2>/dev/null`;
 		if (@diff) {
