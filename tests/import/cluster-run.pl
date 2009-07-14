@@ -49,7 +49,7 @@ for $t (@tests) {
 	$kb_name = $kb_prefix . $t;
 	$kb_name =~s/-/_/g;
 	printf(".... $t\r");
-	system("CLUSTER=yes FORMAT=ascii LANG=C scripts/$t $kb_name > $outdir/$t $errout");
+	system("CLUSTER=yes FORMAT=ascii LANG=C TESTPATH=../../src scripts/$t $kb_name > $outdir/$t $errout");
 	if ($test) {
 		@diff = `diff exemplar/$t $outdir/$t 2>/dev/null`;
 		if (@diff) {
