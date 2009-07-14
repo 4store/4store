@@ -14,7 +14,7 @@ function fail {
 }
 
 function libtest {
-	(gcc /tmp/configure-$$.o -l$1 -o /tmp/configure-$$.exe 2>/dev/null) && pass "$1 installed" || fail "no $1 devel system"
+	(gcc /tmp/configure-$$.o -l$1 $2 -o /tmp/configure-$$.exe 2>/dev/null) && pass "$1 installed" || fail "no $1 devel system"
 }
 
 cat > /tmp/configure-$$.c <<EOB
@@ -30,9 +30,9 @@ pkg-config --exists raptor && pass "raptor installed" || fail "no raptor library
 pkg-config --exists rasqal && pass "rasqal installed" || fail "no rasqal library"
 pkg-config --exists glib-2.0 && pass "glib2 installed" || fail "no glib2 devel system"
 test -e "`which pcre-config`" && pass "pcre installed" || fail "no pcre devel system installed"
-libtest "readline"
 libtest "ncurses"
 libtest "termcap"
+libtest "readline" "-lncurses"
 pkg-config --exists avahi-glib avahi-client && pass "avahi installed" || optfail "no avahi, will build without cluster support"
 
 rm -f /tmp/configure-$$.*
