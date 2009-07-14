@@ -350,9 +350,11 @@ void fsp_serve (const char *kb_name, fsp_backend *backend, int daemon, float dis
   uint16_t port = FS_DEFAULT_PORT;
   fs_backend *original = NULL;
   char cport[6];
-  int on = 1, srv, err;
+  int on = 1, off = 0, srv, err;
   
   default_hints(&hints);
+  /* what we'll do is set IPv6 here and turn off IPV6-only on hosts where it's the default */
+  hints.ai_family = AF_INET6;
   hints.ai_flags = AI_PASSIVE;
 
   /* we need access to these elsewhere */
@@ -377,6 +379,9 @@ void fsp_serve (const char *kb_name, fsp_backend *backend, int daemon, float dis
       return;
     }
 
+    if (setsockopt(srv, IPPROTO_IPV6, IPV6_V6ONLY, &off, sizeof(off)) == -1) {
+      kb_error(LOG_WARNING, "setsockopt IPV6_V6ONLY ON failed");
+    }
     if (setsockopt(srv, SOL_SOCKET, SO_REUSEADDR, &on, sizeof(on)) == -1) {
       kb_error(LOG_WARNING, "setsockopt SO_REUSEADDR failed");
     }

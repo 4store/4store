@@ -257,7 +257,7 @@ static void create_services (AvahiClient *client, fsp_mdns_state *ms)
   AvahiEntryGroup* avahi_group = avahi_entry_group_new(client,
                                                        group_callback, ms);
   avahi_error = avahi_entry_group_add_service(avahi_group, AVAHI_IF_UNSPEC,
-                                              AVAHI_PROTO_INET, 0,
+                                              AVAHI_PROTO_UNSPEC, 0,
                                               ms->service, "_4store._tcp", NULL,
                                               NULL, ms->port,
                                               ms->kb_name, ms->segments, NULL);
