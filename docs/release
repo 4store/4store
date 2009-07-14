@@ -1,0 +1,7 @@
+To make a tarball release:
+
+Make sure your git tree is in sync.
+Delete any old tarballs in the tree.
+$ git tag -a 'vx.y.z' -m "Version x.y.z"
+$ git push --tags
+$ ./make-tarball.sh
