@@ -714,6 +714,7 @@ static void http_query_widget(client_ctxt *ctxt)
    "PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>\n"
    "\nSELECT * WHERE {\n ?s ?p ?o\n} LIMIT 10\n"
    "</textarea><br>\n"
+   "<em>Soft limit</em> <input type=\"text\" name=\"soft-limit\">\n"
    "<input type=\"submit\" value=\"Execute\"><input type=\"reset\">\n"
    "</form>\n");
 
