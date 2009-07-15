@@ -294,6 +294,7 @@ static int fs_commit(fs_backend *be, fs_segment seg, int force_trans)
 		/* this is potentially expensive, we could just truncate the list
 		 * files here */
 		fs_list_unlink(be->ptrees[i].pend);
+		fs_list_close(be->ptrees[i].pend);
 		be->ptrees[i].pend = NULL;
 	    }
 	}

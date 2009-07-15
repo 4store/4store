@@ -105,13 +105,10 @@ int fs_res_import_commit(fs_backend *be, int seg, int account)
     }
     double then = fs_time();
 
-    for (int i=0; i<res_pos; i++) {
-	if (res_buffer[i].rid == FS_RID_NULL) {
-	    g_free(res_buffer[i].lex);
-	    continue;
-	}
-    }
     fs_rhash_put_multi(be->res, res_buffer, res_pos);
+    for (int i=0; i<res_pos; i++) {
+	g_free(res_buffer[i].lex);
+    }
 
     res_pos = 0;
 
