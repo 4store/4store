@@ -706,6 +706,9 @@ int fsp_bind_limit (fsp_link *link,
     *result = calloc(1, sizeof(fs_rid_vector *));
   } else {
     int count = length / (8 * cols);
+    if (count == limit) {
+      (link->hit_limits)++;
+    }
 
     *result = calloc(cols, sizeof(fs_rid_vector *));
     for (k = 0; k < cols; ++k) {
@@ -806,6 +809,9 @@ int fsp_reverse_bind_all (fsp_link *link,
       matches++;
     } else {
       int count = length / (8 * cols);
+      if (count == limit) {
+        (link->hit_limits)++;
+      }
       for (k = 0; k < cols; ++k) {
         fs_rid_vector *v = fs_rid_vector_new(count);
         memcpy(v->data, content, count * 8);
@@ -919,6 +925,9 @@ int fsp_bind_limit_all (fsp_link *link,
       matches++;
     } else {
       int count = length / (8 * cols);
+      if (count == limit) {
+        (link->hit_limits)++;
+      }
       for (k = 0; k < cols; ++k) {
         fs_rid_vector *v = fs_rid_vector_new(count);
         memcpy(v->data, content, count * 8);
@@ -1531,6 +1540,9 @@ int fsp_bind_limit_many (fsp_link *link,
       matches++;
     } else {
       int count = length / (8 * cols);
+      if (count == limit) {
+        (link->hit_limits)++;
+      }
 
       for (k = 0; k < cols; ++k) {
         fs_rid_vector *v = fs_rid_vector_new(count);

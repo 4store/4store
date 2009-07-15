@@ -195,6 +195,16 @@ const char *fsp_kb_name(fsp_link *link)
   return link->kb_name;
 }
 
+int fsp_hit_limits(fsp_link *link)
+{
+  return link->hit_limits;
+}
+
+void fsp_hit_limits_reset(fsp_link *link)
+{
+  link->hit_limits = 0;
+}
+
 fsp_hash_enum fsp_hash_type(fsp_link *link)
 {
   return link->hash_type;

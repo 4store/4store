@@ -1496,7 +1496,17 @@ fs_row *fs_query_fetch_row(fs_query *q)
 
 nextrow: ;
     const int rows = q->length;
-    if (q->row >= rows || (q->limit >= 0 && q->rows_output >= q->limit)) {
+    if (q->limit >= 0 && q->rows_output >= q->limit) {
+	fs_error(LOG_ERR, "hit soft limit %d times", fsp_hit_limits(q->link));
+	return NULL;
+    }
+    if (q->row >= rows) {
+	if (fsp_hit_limits(q->link)) {
+	    fs_error(LOG_ERR, "hit soft limit %d times", fsp_hit_limits(q->link));
+	    char *msg = g_strdup_printf("hit complexity limit %d times, increasing soft limit may give more results", fsp_hit_limits(q->link));
+	    q->warnings = g_slist_prepend(q->warnings, msg);
+	    fs_query_add_freeable(q, msg);
+	}
 	return NULL;
     }
 

@@ -268,6 +268,9 @@ void fsp_serve (const char *kb_name, fsp_backend *implementation, int daemon, fl
 
 const char *fsp_kb_name(fsp_link *link);
 
+int fsp_hit_limits(fsp_link *link);
+void fsp_hit_limits_reset(fsp_link *link);
+
 typedef enum {
   FS_HASH_UNKNOWN,
   FS_HASH_MD5,

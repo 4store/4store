@@ -258,10 +258,12 @@ fs_query *fs_query_execute(fs_query_state *qs, fsp_link *link, raptor_uri *bu, c
         return NULL;
     }
 
+    fsp_hit_limits_reset(link);
+
+#ifndef HAVE_LAQRS
     while (isspace(*query)) {
         query++;
     }
-#ifndef HAVE_LAQRS
     if (!strncasecmp(query, "EXPLAIN", 7)) {
         query += 7;
         flags |= FS_QUERY_EXPLAIN;

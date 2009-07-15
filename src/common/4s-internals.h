@@ -42,6 +42,7 @@ struct fsp_link_struct {
   long long tics[FS_MAX_SEGMENTS];
   GStaticMutex mutex[FS_MAX_SEGMENTS];
   const char *features;
+  int hit_limits;
 #ifdef USE_AVAHI
   void *avahi_browser;
   void *avahi_client;
