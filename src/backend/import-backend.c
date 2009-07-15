@@ -275,22 +275,22 @@ int fs_quad_import_commit(fs_backend *be, int seg, int flags, int account)
 		    char label[256];
 		    snprintf(label, 255, "pl-%016llx", pred);
 		    for (int t=0; t<be->ptree_length; t++) {
-			if (pred == be->ptrees[t].pred) {
-			    if (!be->ptrees[t].pend) {
+			if (pred == be->ptrees_priv[t].pred) {
+			    if (!be->ptrees_priv[t].pend) {
 				char label[256];
 				snprintf(label, 255, "pl-%016llx", pred);
-				be->ptrees[t].pend = fs_list_open(be, label, sizeof(fs_rid) * 4, O_CREAT | O_TRUNC | O_RDWR);
+				be->ptrees_priv[t].pend = fs_list_open(be, label, sizeof(fs_rid) * 4, O_CREAT | O_TRUNC | O_RDWR);
 			    }
-			    pl = be->ptrees[t].pend;
+			    pl = be->ptrees_priv[t].pend;
 			}
 		    }
 		    if (!pl) {
-			fs_backend_open_ptree(be, pred, O_CREAT);
+			fs_backend_open_ptree(be, pred);
 			int id = fs_list_add(be->predicates, &pred);
 			char label[256];
 			snprintf(label, 255, "pl-%016llx", pred);
 			pl = fs_list_open(be, label, sizeof(fs_rid) * 4, O_CREAT | O_TRUNC | O_RDWR);
-			be->ptrees[id].pend = pl;
+			be->ptrees_priv[id].pend = pl;
 		    }
 		    last_pred = pred;
 		}
@@ -308,17 +308,14 @@ int fs_quad_import_commit(fs_backend *be, int seg, int flags, int account)
 		const fs_rid pred = quad_buffer[i].quad[2];
 		if (last_pred != pred) {
 		    pt = NULL;
-		    for (int t=0; t<be->ptree_length; t++) {
-			if (pred == be->ptrees[t].pred) {
-			    if (pass == 0) pt = be->ptrees[t].ptree_s;
-			    else pt = be->ptrees[t].ptree_o;
-			}
-		    }
+
+
+		    pt = fs_backend_get_ptree(be, pred, pass);
 		    if (!pt) {
-			fs_backend_open_ptree(be, pred, O_CREAT);
+			fs_backend_open_ptree(be, pred);
 			int id = fs_list_add(be->predicates, &pred);
-			if (pass == 0) pt = be->ptrees[id].ptree_s;
-			else pt = be->ptrees[id].ptree_o;
+			if (pass == 0) pt = be->ptrees_priv[id].ptree_s;
+			else pt = be->ptrees_priv[id].ptree_o;
 		    }
 		    last_pred = pred;
 		}
@@ -420,30 +417,24 @@ static int remove_by_search(fs_backend *be, fs_rid model, fs_index_node model_id
     fs_rid pred;
     fs_rid_set_rewind(preds);
     while ((pred = fs_rid_set_next(preds)) != FS_RID_NULL) {
-	for (int i=0; i<be->ptree_length; i++) {
-	    if (be->ptrees[i].pred == pred) {
-		fs_tbchain_it *it =
-		    fs_tbchain_new_iterator(be->model_list, model_id);
-		fs_rid triple[3];
-		while (fs_tbchain_it_next(it, triple)) {
-		    if (triple[1] == pred) {
-			fs_rid spair[2] = { model, triple[2] };
-			if (fs_ptree_remove(be->ptrees[i].ptree_s,
-			    triple[0], spair)) {
-			    fs_error(LOG_ERR, "failed to remove known quad %016llx %016llx %016llx %016llx from s index", model, triple[0], triple[1], triple[2]);
-			    errors++;
-			}
-			fs_rid opair[2] = { model, triple[0] };
-			if (fs_ptree_remove(be->ptrees[i].ptree_o,
-			    triple[2], opair)) {
-			    fs_error(LOG_ERR, "failed to remove known quad %016llx %016llx %016llx %016llx from o index", model, triple[0], triple[1], triple[2]);
-			    errors++;
-			}
-		    }
-		}
+	fs_ptree *sfp = fs_backend_get_ptree(be, pred, 0);
+	fs_ptree *ofp = fs_backend_get_ptree(be, pred, 1);
 
-		/* we've found the matching ptree for this predicate */
-		break;
+	fs_tbchain_it *it =
+	    fs_tbchain_new_iterator(be->model_list, model_id);
+	fs_rid triple[3];
+	while (fs_tbchain_it_next(it, triple)) {
+	    if (triple[1] == pred) {
+		fs_rid spair[2] = { model, triple[2] };
+		if (fs_ptree_remove(sfp, triple[0], spair)) {
+		    fs_error(LOG_ERR, "failed to remove known quad %016llx %016llx %016llx %016llx from s index", model, triple[0], triple[1], triple[2]);
+		    errors++;
+		}
+		fs_rid opair[2] = { model, triple[0] };
+		if (fs_ptree_remove(ofp, triple[2], opair)) {
+		    fs_error(LOG_ERR, "failed to remove known quad %016llx %016llx %016llx %016llx from o index", model, triple[0], triple[1], triple[2]);
+		    errors++;
+		}
 	    }
 	}
     }
@@ -525,17 +516,19 @@ int fs_delete_models(fs_backend *be, int seg, fs_rid_vector *mvec)
 
     if (todo->length) {
         for (int i=0; i<be->ptree_length; i++) {
-    	for (int j=0; j<todo->length; j++) {
-    	    fs_rid pair[2] = { todo->data[j], FS_RID_NULL };
-    	    /* if nothing is removed from the s index, we can skip the
-                   o index */
-    	    /* if we had a remove function that took a list of model
-    	       rids we could be more efficient here, but really we'd
-    	       like to use a model list where possible  */
-    	    if (!fs_ptree_remove_all(be->ptrees[i].ptree_s, pair)) {
-    		fs_ptree_remove_all(be->ptrees[i].ptree_o, pair);
-    	    }
-    	}
+	    fs_backend_ptree_limited_open(be, i);
+	    for (int j=0; j<todo->length; j++) {
+		fs_rid pair[2] = { todo->data[j], FS_RID_NULL };
+		/* if nothing is removed from the s index, we can skip the
+		       o index */
+		/* if we had a remove function that took a list of model
+		   rids we could be more efficient here, but really we'd
+		   like to use a model list where possible  */
+
+		if (!fs_ptree_remove_all(be->ptrees_priv[i].ptree_s, pair)) {
+		    fs_ptree_remove_all(be->ptrees_priv[i].ptree_o, pair);
+		}
+	    }
         }
     }
 

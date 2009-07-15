@@ -170,7 +170,7 @@ fs_ptree *fs_ptree_open_filename(const char *filename, int flags, fs_ptable *cha
     pt->flags = flags;
     if (pt->fd == -1) {
         fs_error(LOG_ERR, "cannot open ptree file '%s': %s", filename, strerror(errno));
-
+        free(pt);
         return NULL;
     }
     pt->filename = g_strdup(filename);
