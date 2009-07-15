@@ -54,21 +54,16 @@ static fs_ptree_it *fs_backend_get_matches(fs_backend *be, fs_rid quad[4], int f
     fs_rid pk;
     fs_rid pair[2];
 
-    for (int i=0; i<be->ptree_length; i++) {
-	if (be->ptrees[i].pred == quad[2]) {
-	    if (flags & FS_BIND_BY_SUBJECT) {
-		pt = be->ptrees[i].ptree_s;
-		pk = quad[1];
-		pair[0] = quad[0];
-		pair[1] = quad[3];
-	    } else {
-		pt = be->ptrees[i].ptree_o;
-		pk = quad[3];
-		pair[0] = quad[0];
-		pair[1] = quad[1];
-	    }
-	    break;
-	}
+    if (flags & FS_BIND_BY_SUBJECT) {
+	pt = fs_backend_get_ptree(be, quad[2], 0);
+	pk = quad[1];
+	pair[0] = quad[0];
+	pair[1] = quad[3];
+    } else {
+	pt = fs_backend_get_ptree(be, quad[2], 1);
+	pk = quad[3];
+	pair[0] = quad[0];
+	pair[1] = quad[1];
     }
 
     if (!pt) return NULL;
@@ -217,8 +212,9 @@ fs_rid_vector **fs_bind(fs_backend *be, fs_segment segment, unsigned int tobind,
 	ret[0] = fs_rid_vector_new(length);
 	int outpos = 0;
 	for (int i=0; i<length; i++) {
-	    if (fs_ptree_count(be->ptrees[i].ptree_s) > 0) {
-		ret[0]->data[outpos++] = be->ptrees[i].pred;
+	    fs_backend_ptree_limited_open(be, i);
+	    if (fs_ptree_count(be->ptrees_priv[i].ptree_s) > 0) {
+		ret[0]->data[outpos++] = be->ptrees_priv[i].pred;
 	    }
 	}
 	ret[0]->length = outpos;
@@ -311,11 +307,12 @@ fs_error(LOG_INFO, "bind() branch");
 #endif
 	    const int ml = mvl ? mvl : 1;
 	    for (int p=0; p<be->ptree_length && count<limit; p++) {
-		fs_ptree *pt = be->ptrees[p].ptree_s;
+		fs_backend_ptree_limited_open(be, p); 
+		fs_ptree *pt = be->ptrees_priv[p].ptree_s;
 		if (!pt) continue;
 		for (int m=0; m<ml; m++) {
 		    fs_rid quad[4] = { FS_RID_NULL, FS_RID_NULL,
-				       be->ptrees[p].pred, FS_RID_NULL };
+				       be->ptrees_priv[p].pred, FS_RID_NULL };
 		    fs_rid mrid;
 		    if (mvl) mrid = mv->data[m];
 		    else mrid = FS_RID_NULL;
@@ -399,7 +396,8 @@ fs_error(LOG_INFO, "bind() branch");
 	    const int ml = mvl ? mvl : 1;
 	    const int ol = ovl ? ovl : 1;
 	    for (int p=0; p<be->ptree_length && count<limit; p++) {
-		fs_ptree *pt = be->ptrees[p].ptree_s;
+                fs_backend_ptree_limited_open(be, p);
+		fs_ptree *pt = be->ptrees_priv[p].ptree_s;
 		if (!pt) continue;
 		for (int s=0; s<svl && count<limit; s++) {
 		    fs_rid pk = sv->data[s];
@@ -411,7 +409,7 @@ fs_error(LOG_INFO, "bind() branch");
 			    fs_ptree_it *it = fs_ptree_search(pt, pk, pair);
 			    while (it && fs_ptree_it_next(it, pair) && count<limit) {
 				const fs_rid quad[4] =
-				    { pair[0], pk, be->ptrees[p].pred, pair[1] };
+				    { pair[0], pk, be->ptrees_priv[p].pred, pair[1] };
 				if (!bind_same(quad, tobind)) continue;
 				count++;
 				bind_results(quad, tobind, ret);
@@ -428,7 +426,8 @@ fs_error(LOG_INFO, "bind() branch");
 	    const int ml = mvl ? mvl : 1;
 	    const int sl = svl ? svl : 1;
 	    for (int p=0; p<be->ptree_length && count<limit; p++) {
-		fs_ptree *pt = be->ptrees[p].ptree_o;
+                fs_backend_ptree_limited_open(be, p);
+		fs_ptree *pt = be->ptrees_priv[p].ptree_o;
 		if (!pt) continue;
 		for (int o=0; o<ovl && count<limit; o++) {
 		    fs_rid pk = ov->data[o];
@@ -440,7 +439,7 @@ fs_error(LOG_INFO, "bind() branch");
 			    fs_ptree_it *it = fs_ptree_search(pt, pk, pair);
 			    while (it && fs_ptree_it_next(it, pair) && count<limit) {
 				const fs_rid quad[4] =
-				    { pair[0], pair[1], be->ptrees[p].pred, pk };
+				    { pair[0], pair[1], be->ptrees_priv[p].pred, pk };
 				if (!bind_same(quad, tobind)) continue;
 				count++;
 				bind_results(quad, tobind, ret);
@@ -789,7 +788,7 @@ fs_data_size fs_get_data_size(fs_backend *be, int seg)
 {
     fs_data_size ret;
 
-    if (!be->ptrees) {
+    if (!be->ptrees_priv) {
 	fs_error(LOG_WARNING, "list unavailable");
 	fs_data_size errret = { 0, 0, 0, 0, 0 };
 
@@ -798,8 +797,9 @@ fs_data_size fs_get_data_size(fs_backend *be, int seg)
     ret.quads_s = 0;
     ret.quads_sr = 0;
     for (int i=0; i<be->ptree_length; i++) {
-	ret.quads_s += fs_ptree_count(be->ptrees[i].ptree_s);
-	ret.quads_sr += fs_ptree_count(be->ptrees[i].ptree_o);
+	fs_backend_ptree_limited_open(be, i);
+	ret.quads_s += fs_ptree_count(be->ptrees_priv[i].ptree_s);
+	ret.quads_sr += fs_ptree_count(be->ptrees_priv[i].ptree_o);
     }
     ret.quads_o = -1;
     ret.resources = fs_rhash_count(be->res);

@@ -16,6 +16,8 @@ struct ptree_ref {
     fs_list *pend;
 };
 
+#define FS_MAX_OPEN_PTREES 300
+
 struct _fs_backend {
     const char *db_name;
     fs_metadata *md;
@@ -35,7 +37,12 @@ struct _fs_backend {
     int pended_import;
     int ptree_size;
     int ptree_length;
-    struct ptree_ref *ptrees;
+    struct ptree_ref *ptrees_priv;
+    int ptree_open_flags;
+    int ptree_open_count;
+    int open_ptrees[FS_MAX_OPEN_PTREES];
+    int open_ptrees_newest;
+    int open_ptrees_oldest;
     fs_import_timing in_time[FS_MAX_SEGMENTS];
     fs_query_timing out_time[FS_MAX_SEGMENTS];
     int checked_transaction;

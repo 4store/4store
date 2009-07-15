@@ -103,7 +103,7 @@ fs_backend *fs_backend_init(const char *db_name, int flags)
 
     ret->segments = fs_metadata_get_int(ret->md, FS_MD_SEGMENTS, 0);
     const int version = fs_metadata_get_int(ret->md, FS_MD_VERSION, 0);
-    if (version == -1) { 
+    if (version == -1) {
 	fs_error(LOG_CRIT, "cannot find number of segments in KB %s", db_name);
 
 	return NULL;
@@ -161,8 +161,8 @@ fs_segment fs_backend_get_segment(fs_backend *be)
 void fs_backend_fini(fs_backend *be)
 {
     if (!be) return;
-  
-    fs_backend_cleanup_files(be); 
+
+    fs_backend_cleanup_files(be);
     fs_backend_close_files(be, be->segment);
     fs_metadata_close(be->md);
     g_free((void *)be->hash);
@@ -254,6 +254,32 @@ int fs_start_import(fs_backend *be, int seg)
     return errs;
 }
 
+void fs_backend_ptree_limited_open(fs_backend *be, int n)
+{
+    if (be->ptrees_priv[n].ptree_s) return;
+
+    if (be->ptree_open_count >= FS_MAX_OPEN_PTREES) {
+	int toclose = be->open_ptrees_oldest++;
+	if (be->open_ptrees_oldest >= FS_MAX_OPEN_PTREES)
+	    be->open_ptrees_oldest = 0;
+
+	if (be->ptrees_priv[toclose].ptree_s)
+	    fs_ptree_close(be->ptrees_priv[toclose].ptree_s);
+	be->ptrees_priv[toclose].ptree_s = NULL;
+	if (be->ptrees_priv[toclose].ptree_o)
+	    fs_ptree_close(be->ptrees_priv[toclose].ptree_o);
+	be->ptrees_priv[toclose].ptree_o = NULL;
+	be->ptree_open_count--;
+    }
+
+    be->ptrees_priv[n].ptree_s = fs_ptree_open(be, be->ptrees_priv[n].pred, 's', be->ptree_open_flags | O_RDWR, be->pairs);
+    be->ptrees_priv[n].ptree_o = fs_ptree_open(be, be->ptrees_priv[n].pred, 'o', be->ptree_open_flags | O_RDWR, be->pairs);
+    be->open_ptrees[be->open_ptrees_newest++] = n;
+    if (be->open_ptrees_newest >= FS_MAX_OPEN_PTREES)
+	be->open_ptrees_newest = 0;
+    be->ptree_open_count++;
+}
+
 static int fs_commit(fs_backend *be, fs_segment seg, int force_trans)
 {
     fs_rid_set *rs = NULL;
@@ -272,30 +298,32 @@ static int fs_commit(fs_backend *be, fs_segment seg, int force_trans)
 
 	fs_rid quad[4];
 	for (int i=0; i<be->ptree_length; i++) {
-	    if (be->ptrees[i].pend) {
+	    if (be->ptrees_priv[i].pend) {
+
+		fs_backend_ptree_limited_open(be, i);
 		/* TODO we might want to sort here, to improve locality and
 		 * uniq */
 
 		/* insert into s tree */
-		fs_list_flush(be->ptrees[i].pend);
-		fs_list_rewind(be->ptrees[i].pend);
-		while (fs_list_next_value(be->ptrees[i].pend, quad)) {
+		fs_list_flush(be->ptrees_priv[i].pend);
+		fs_list_rewind(be->ptrees_priv[i].pend);
+		while (fs_list_next_value(be->ptrees_priv[i].pend, quad)) {
 		    fs_rid pair[2] = { quad[0], quad[3] };
-		    fs_ptree_add(be->ptrees[i].ptree_s, quad[1], pair, 0);
+		    fs_ptree_add(be->ptrees_priv[i].ptree_s, quad[1], pair, 0);
 		}
 
 		/* insert into o tree */
-		fs_list_rewind(be->ptrees[i].pend);
-		while (fs_list_next_value(be->ptrees[i].pend, quad)) {
+		fs_list_rewind(be->ptrees_priv[i].pend);
+		while (fs_list_next_value(be->ptrees_priv[i].pend, quad)) {
 		    fs_rid pair[2] = { quad[0], quad[1] };
-		    fs_ptree_add(be->ptrees[i].ptree_o, quad[3], pair, 0);
+		    fs_ptree_add(be->ptrees_priv[i].ptree_o, quad[3], pair, 0);
 		}
 
 		/* this is potentially expensive, we could just truncate the list
 		 * files here */
-		fs_list_unlink(be->ptrees[i].pend);
-		fs_list_close(be->ptrees[i].pend);
-		be->ptrees[i].pend = NULL;
+		fs_list_unlink(be->ptrees_priv[i].pend);
+		fs_list_close(be->ptrees_priv[i].pend);
+		be->ptrees_priv[i].pend = NULL;
 	    }
 	}
 
@@ -386,35 +414,52 @@ int fs_backend_model_set_usage(fs_backend *be, int seg, fs_rid model, fs_index_n
     return ret;
 }
 
+struct ptree_ref *fs_backend_ptree_ref(fs_backend *be, int n)
+{
+    if (n >= be->ptree_length) {
+	fs_error(LOG_ERR, "attempt to access ptree %d beyond length %d\n", n, be->ptree_length);
+	return NULL;
+    }
+
+    if (be->ptrees_priv[n].ptree_s) {
+	/* already open, good */
+	return &be->ptrees_priv[n];
+    } else {
+	/* needs to be opened */
+	fs_backend_ptree_limited_open(be, n);
+	return &be->ptrees_priv[n];
+    }
+}
+
 fs_ptree *fs_backend_get_ptree(fs_backend *be, fs_rid pred, int object)
 {
     for (int t=0; t<be->ptree_length; t++) {
-	if (pred == be->ptrees[t].pred) {
-	    if (object == 0) return be->ptrees[t].ptree_s;
-	    else return be->ptrees[t].ptree_o;
+	if (pred == be->ptrees_priv[t].pred) {
+	    struct ptree_ref *ref = fs_backend_ptree_ref(be, t);
+	    if (object == 0) return ref->ptree_s;
+	    else return ref->ptree_o;
 	}
     }
 
     return NULL;
 }
 
-int fs_backend_open_ptree(fs_backend *be, fs_rid pred, int flags)
+int fs_backend_open_ptree(fs_backend *be, fs_rid pred)
 {
     if (be->ptree_length == be->ptree_size) {
 	be->ptree_size *= 2;
-	be->ptrees = realloc(be->ptrees, be->ptree_size * sizeof(struct ptree_ref));
-	if (!be->ptrees) {
+	be->ptrees_priv = realloc(be->ptrees_priv, be->ptree_size * sizeof(struct ptree_ref));
+	if (!be->ptrees_priv) {
 	    fs_error(LOG_CRIT, "realloc failed");
 	}
     }
 
-    be->ptrees[be->ptree_length].pred = pred;
-    be->ptrees[be->ptree_length].ptree_s =
-		    fs_ptree_open(be, pred, 's', flags | O_RDWR, be->pairs);
-    be->ptrees[be->ptree_length].ptree_o =
-		    fs_ptree_open(be, pred, 'o', flags | O_RDWR, be->pairs);
-    be->ptrees[be->ptree_length].pend = NULL;
-    be->approx_size += fs_ptree_count(be->ptrees[be->ptree_length].ptree_s);
+    be->ptrees_priv[be->ptree_length].ptree_s = NULL;
+    be->ptrees_priv[be->ptree_length].ptree_o = NULL;
+    be->ptrees_priv[be->ptree_length].pred = pred;
+    fs_backend_ptree_limited_open(be, be->ptree_length);
+    be->ptrees_priv[be->ptree_length].pend = NULL;
+    be->approx_size += fs_ptree_count(be->ptrees_priv[be->ptree_length].ptree_s);
 
     return (be->ptree_length)++;
 }
@@ -476,7 +521,8 @@ int fs_backend_open_files_intl(fs_backend *be, fs_segment seg, int flags, int fi
 	} else {
 	    be->ptree_size = length;
 	}
-	be->ptrees = calloc(be->ptree_size, sizeof(struct ptree_ref));
+	be->ptree_open_flags = flags;
+	be->ptrees_priv = calloc(be->ptree_size, sizeof(struct ptree_ref));
 	fs_list_rewind(be->predicates);
 	be->pairs = fs_ptable_open(be, "pairs", flags | O_RDWR);
 	if (!be->pairs) {
@@ -485,7 +531,7 @@ int fs_backend_open_files_intl(fs_backend *be, fs_segment seg, int flags, int fi
 	    return 1;
 	}
 	while (fs_list_next_value(be->predicates, &pred)) {
-	    fs_backend_open_ptree(be, pred, flags);
+	    fs_backend_open_ptree(be, pred);
 	}
     }
 
@@ -500,9 +546,9 @@ int fs_backend_open_files_intl(fs_backend *be, fs_segment seg, int flags, int fi
 int fs_backend_cleanup_files(fs_backend *be)
 {
     for (int i=0; i<be->ptree_length; i++) {
-	if (be->ptrees[i].pend) {
-	    fs_list_unlink(be->ptrees[i].pend);
-	    be->ptrees[i].pend = NULL;
+	if (be->ptrees_priv[i].pend) {
+	    fs_list_unlink(be->ptrees_priv[i].pend);
+	    be->ptrees_priv[i].pend = NULL;
 	}
     }
 
@@ -522,13 +568,14 @@ int fs_backend_unlink_indexes(fs_backend *be, fs_segment seg)
     }
 
     for (int i=0; i<be->ptree_length; i++) {
-	fs_ptree_unlink(be->ptrees[i].ptree_s);
-	fs_ptree_close(be->ptrees[i].ptree_s);
-	fs_ptree_unlink(be->ptrees[i].ptree_o);
-	fs_ptree_close(be->ptrees[i].ptree_o);
-	be->ptrees[i].pred = 0LL;
-	be->ptrees[i].ptree_s = NULL;
-	be->ptrees[i].ptree_o = NULL;
+	fs_backend_ptree_limited_open(be, i);
+	fs_ptree_unlink(be->ptrees_priv[i].ptree_s);
+	fs_ptree_close(be->ptrees_priv[i].ptree_s);
+	fs_ptree_unlink(be->ptrees_priv[i].ptree_o);
+	fs_ptree_close(be->ptrees_priv[i].ptree_o);
+	be->ptrees_priv[i].pred = 0LL;
+	be->ptrees_priv[i].ptree_s = NULL;
+	be->ptrees_priv[i].ptree_o = NULL;
     }
 
     be->ptree_length = 0;
@@ -602,14 +649,17 @@ int fs_backend_close_files(fs_backend *be, fs_segment seg)
 	be->pending_insert = NULL;
     }
     for (int i=0; i<be->ptree_length; i++) {
-	fs_ptree_close(be->ptrees[i].ptree_s);
-	fs_ptree_close(be->ptrees[i].ptree_o);
-	be->ptrees[i].pred = 0LL;
-	be->ptrees[i].ptree_s = NULL;
-	be->ptrees[i].ptree_o = NULL;
+        if (be->ptrees_priv[i].ptree_s)
+	    fs_ptree_close(be->ptrees_priv[i].ptree_s);
+        if (be->ptrees_priv[i].ptree_o)
+	    fs_ptree_close(be->ptrees_priv[i].ptree_o);
+	be->ptrees_priv[i].pred = 0LL;
+	be->ptrees_priv[i].ptree_s = NULL;
+	be->ptrees_priv[i].ptree_o = NULL;
     }
-    free(be->ptrees);
-    be->ptrees = NULL;
+    be->ptree_open_count = 0;
+    free(be->ptrees_priv);
+    be->ptrees_priv = NULL;
     be->ptree_length = 0;
     be->ptree_size = 0;
     if (be->predicates) {

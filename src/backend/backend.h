@@ -33,7 +33,8 @@ int fs_backend_need_reload();
 #define fs_backend_open_files(b, s, fl, fi) fs_backend_open_files_intl(b, s, fl, fi, __FILE__, __LINE__)
 int fs_backend_open_files_intl(fs_backend *be, fs_segment seg, int flags, int files, char *file, int line);
 int fs_backend_unlink_indexes(fs_backend *be, fs_segment seg);
-int fs_backend_open_ptree(fs_backend *be, fs_rid pred, int flags);
+void fs_backend_ptree_limited_open(fs_backend *be, int n);
+int fs_backend_open_ptree(fs_backend *be, fs_rid pred);
 int fs_backend_close_files(fs_backend *be, fs_segment seg);
 int fs_backend_cleanup_files(fs_backend *be);
 struct _fs_ptree *fs_backend_get_ptree(fs_backend *be, fs_rid pred, int object);
