@@ -211,21 +211,26 @@ static void http_header(client_ctxt *ctxt, const char *code, const char *mimetyp
   http_send(ctxt, "\r\n");
 }
 
-static void http_error(client_ctxt *ctxt, const char *error)
+static void http_code(client_ctxt *ctxt, const char *code)
 {
-  http_send(ctxt, "HTTP/1.0 "); http_send(ctxt, error); http_send(ctxt, "\r\n");
+  http_send(ctxt, "HTTP/1.0 "); http_send(ctxt, code); http_send(ctxt, "\r\n");
   http_send(ctxt, "Server: 4s-httpd/" GIT_REV "\r\n");
   http_send(ctxt, "Content-Type: text/html; charset=UTF-8\r\n");
   http_send(ctxt, "\r\n");
   http_send(ctxt, "<!DOCTYPE HTML PUBLIC \"-//IETF//DTD HTML 2.0//EN\">\n");
   http_send(ctxt, "<html><head><title>");
-  http_send(ctxt, error); http_send(ctxt, "</title></head>\n");
+  http_send(ctxt, code); http_send(ctxt, "</title></head>\n");
   http_send(ctxt, "<body><h1>");
-  http_send(ctxt, error);
+  http_send(ctxt, code);
   http_send(ctxt, "</h1>\n<p>This is a 4store SPARQL server.</p>");
   http_send(ctxt, "<p>4store " GIT_REV "</p>");
   http_send(ctxt, "</body></html>\n");
+}
+
+static void http_error(client_ctxt *ctxt, const char *error)
+{
   fs_error(LOG_INFO, "HTTP error, returning status %s", error);
+  http_code(ctxt, error);
 }
 
 static void http_redirect(client_ctxt *ctxt, const char *to)
@@ -433,11 +438,12 @@ static void http_post_data(client_ctxt *ctxt, char *model, const char *content_t
   http_import_queue_remove(ctxt);
 
   if (error_count == -1) {
+    fs_error(LOG_ERR, "import_stream_finish didn't complete successfully");
     http_error(ctxt, "500 server problem while importing");
   } else if (error_count > 0) {
     http_error(ctxt, "400 RDF parser reported errors");
   } else {
-    http_error(ctxt, "200 added successfully");
+    http_code(ctxt, "200 added successfully");
   }
   http_close(ctxt);
 }
@@ -479,11 +485,12 @@ static void http_put_finished(client_ctxt *ctxt, const char *msg)
   if (msg) {
     http_error(ctxt, msg);
   } else if (error_count == -1) {
+    fs_error(LOG_ERR, "import_stream_finish didn't complete successfully");
     http_error(ctxt, "500 server problem while importing");
   } else if (error_count > 0) {
     http_error(ctxt, "400 RDF parser reported errors");
   } else {
-    http_error(ctxt, "201 imported successfully");
+    http_code(ctxt, "201 imported successfully");
   }
   http_close(ctxt);
 }
