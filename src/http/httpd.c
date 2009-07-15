@@ -228,6 +228,21 @@ static void http_error(client_ctxt *ctxt, const char *error)
   fs_error(LOG_INFO, "HTTP error, returning status %s", error);
 }
 
+static void http_redirect(client_ctxt *ctxt, const char *to)
+{
+  http_send(ctxt, "HTTP/1.0 301 Moved permanently\r\n");
+  http_send(ctxt, "Server: 4s-httpd/" GIT_REV "\r\n");
+  http_send(ctxt, "Location: "); http_send(ctxt, to); http_send(ctxt, "\r\n");
+  http_send(ctxt, "Content-Type: text/html; charset=UTF-8\r\n");
+  http_send(ctxt, "\r\n");
+  http_send(ctxt, "<!DOCTYPE HTML PUBLIC \"-//IETF//DTD HTML 2.0//EN\">\n");
+  http_send(ctxt, "<html><body><p>See <a href=\"");
+  http_send(ctxt, to);
+  http_send(ctxt, "\">"); http_send(ctxt, to); http_send(ctxt, "</a>\n");
+  http_send(ctxt, "<p>4store " GIT_REV "</p>");
+  http_send(ctxt, "</body></html>\n");
+}
+
 static void client_free(client_ctxt *ctxt)
 {
   if (ctxt->watchdog) {
@@ -770,14 +785,23 @@ static void http_get_request(client_ctxt *ctxt, gchar *url, gchar *protocol)
       http_error(ctxt, "500 SPARQL protocol error");
       http_close(ctxt);
     }
+  } else if (!strcmp(path, "/sparql")) {
+    http_redirect(ctxt, "/sparql/");
+    http_close(ctxt);
   } else if (!strcmp(path, "/status/")) {
     http_status_report(ctxt);
+  } else if (!strcmp(path, "/status")) {
+    http_redirect(ctxt, "/status/");
+    http_close(ctxt);
   } else if (!strcmp(path, "/status/size/")) {
     http_size_report(ctxt);
   } else if (!strcmp(path, "/description/")) {
     http_service_description(ctxt);
   } else if (!strcmp(path, "/test/")) {
     http_query_widget(ctxt);
+  } else if (!strcmp(path, "/test")) {
+    http_redirect(ctxt, "/test/");
+    http_close(ctxt);
   } else {
     http_error(ctxt, "404 Not found");
     http_close(ctxt);
