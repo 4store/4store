@@ -225,6 +225,7 @@ static void http_error(client_ctxt *ctxt, const char *error)
   http_send(ctxt, "</h1>\n<p>This is a 4store SPARQL server.</p>");
   http_send(ctxt, "<p>4store " GIT_REV "</p>");
   http_send(ctxt, "</body></html>\n");
+  fs_error(LOG_INFO, "HTTP error, returning status %s", error);
 }
 
 static void client_free(client_ctxt *ctxt)
