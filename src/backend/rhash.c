@@ -207,6 +207,7 @@ int fs_rhash_close(fs_rhash *rh)
     fclose(rh->lex_f);
     if (rh->locked) flock(rh->fd, LOCK_UN);
     close(rh->fd);
+    g_free(rh->filename);
     free(rh);
 
     return 0;
