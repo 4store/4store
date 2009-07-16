@@ -586,7 +586,6 @@ static int compress_bcd(const char *in, char *out)
     if (out) {
         memset(out, 0, INLINE_STR_LEN);
     }
-else { printf("not writing...\n"); }
     int outpos = 0;
     for (const char *inp = in; *inp; inp++) {
         switch (*inp) {
