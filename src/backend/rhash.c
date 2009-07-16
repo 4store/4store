@@ -15,7 +15,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 #ifndef __APPLE__
-#define _XOPEN_SOURCE 500
+#define _XOPEN_SOURCE 600
 #endif
 #include <stdlib.h>
 #include <fcntl.h>
@@ -50,28 +50,13 @@ struct rhash_header {
     uint32_t size;          // size of hashtable in buckets,
                             //    must be power of two
     uint32_t count;         // number of resources in hashtable
-    uint32_t search_dist;   // offset to scant to in table for match
+    uint32_t search_dist;   // offset to scan to in table for match
     uint32_t bucket_size;   // number of entries per bucket
     uint32_t revision;      // revision of the strucure
-                            // rev=0: 33 byte, semi-packed entries
                             // rev=1: 32 byte, packed entries
     char padding[488];      // allign to a block
 } FS_PACKED;
  
-struct _fs_rhash {
-    uint32_t size;
-    uint32_t count;
-    uint32_t search_dist;
-    uint32_t bucket_size;
-    uint32_t revision;
-    int fd;
-    char *filename;
-    FILE *lex_f;
-    char *lex_filename;
-    int flags;
-    int locked;
-};
-
 #define INLINE_STR_LEN 15
 
 typedef struct _fs_rhash_entry {
@@ -83,6 +68,21 @@ typedef struct _fs_rhash_entry {
     } FS_PACKED val;
     char disp;          // disposition of data - lex file or inline
 } FS_PACKED fs_rhash_entry;
+
+struct _fs_rhash {
+    uint32_t size;
+    uint32_t count;
+    uint32_t search_dist;
+    uint32_t bucket_size;
+    uint32_t revision;
+    int fd;
+    fs_rhash_entry *entries;
+    char *filename;
+    FILE *lex_f;
+    char *lex_filename;
+    int flags;
+    int locked;
+};
 
 static fs_rhash *global_sort_rh = NULL;
 
@@ -100,6 +100,23 @@ fs_rhash *fs_rhash_open(fs_backend *be, const char *label, int flags)
     g_free(filename);
 
     return rh;
+}
+
+void fs_rhash_ensure_size(fs_rhash *rh)
+{
+    /* skip if we're read-only */
+    if (!(rh->flags & (O_WRONLY | O_RDWR))) return;
+
+    const off_t len = sizeof(struct rhash_header) + ((off_t) rh->size) * ((off_t) rh->bucket_size) * sizeof(fs_rhash_entry);
+
+    /* FIXME should use fallocate where it has decent performance,
+       in order to avoid fragmentation */
+
+    unsigned char byte = 0;
+    /* write one past the end to avoid possibility of overwriting the last RID */
+    if (pwrite(rh->fd, &byte, sizeof(byte), len) == -1) {
+        fs_error(LOG_ERR, "couldn't pre-allocate for '%s': %s", rh->filename, strerror(errno));
+    }
 }
 
 fs_rhash *fs_rhash_open_filename(const char *filename, int flags)
@@ -140,12 +157,11 @@ fs_rhash *fs_rhash_open_filename(const char *filename, int flags)
     } else {
         mode = "r";
     }
-    off_t file_length = lseek(rh->fd, 0, SEEK_END);
-    lseek(rh->fd, 0, SEEK_SET);
+    const off_t file_length = lseek(rh->fd, 0, SEEK_END);
     if ((flags & O_TRUNC) || file_length == 0) {
         fs_rhash_write_header(rh);
     } else {
-        read(rh->fd, &header, sizeof(header));
+        pread(rh->fd, &header, sizeof(header), 0);
         if (header.id != FS_RHASH_ID) {
             fs_error(LOG_ERR, "%s does not appear to be a rhash file", rh->filename);
 
@@ -159,6 +175,13 @@ fs_rhash *fs_rhash_open_filename(const char *filename, int flags)
             rh->bucket_size = 1;
         }
         rh->revision = header.revision;
+    }
+    fs_rhash_ensure_size(rh);
+    const size_t len = sizeof(header) + ((size_t) rh->size) * ((size_t) rh->bucket_size) * sizeof(fs_rhash_entry);
+    rh->entries = mmap(NULL, len, PROT_READ | PROT_WRITE, MAP_SHARED, rh->fd, 0) + sizeof(header);
+    if (rh->entries == MAP_FAILED) {
+        fs_error(LOG_ERR, "failed to mmap rhash file “%s”: %s", rh->filename, strerror(errno));
+        return NULL;
     }
     rh->lex_f = fopen(rh->lex_filename, mode);
     if (!rh->lex_f) {
@@ -209,6 +232,8 @@ int fs_rhash_close(fs_rhash *rh)
     }
     fclose(rh->lex_f);
     if (rh->locked) flock(rh->fd, LOCK_UN);
+    const size_t len = sizeof(struct rhash_header) + ((size_t) rh->size) * ((size_t) rh->bucket_size) * sizeof(fs_rhash_entry);
+    munmap(rh->entries - sizeof(struct rhash_header), len);
     close(rh->fd);
     g_free(rh->filename);
     free(rh);
@@ -218,45 +243,37 @@ int fs_rhash_close(fs_rhash *rh)
 
 int fs_rhash_put(fs_rhash *rh, fs_resource *res)
 {
-    unsigned long long entry = FS_RHASH_ENTRY(rh, res->rid);
+    int entry = FS_RHASH_ENTRY(rh, res->rid);
     if (entry >= rh->size * rh->bucket_size) {
-        fs_error(LOG_CRIT, "tried to write into rhash '%s' with bad entry number %lld", rh->filename, entry);
-
+        fs_error(LOG_CRIT, "tried to write into rhash '%s' with bad entry number %d", rh->filename, entry);
         return 1;
     }
-    fs_rhash_entry buffer[rh->search_dist];
-    fs_rhash_entry e;
-    memset(buffer, 0, sizeof(buffer));
-    int read_len = pread(rh->fd, buffer, sizeof(buffer),
-                         sizeof(struct rhash_header) + entry * sizeof(e));
-    if (read_len == -1) {
-        fs_error(LOG_CRIT, "read from %s failed: %s", rh->filename,
-                 strerror(errno));
-
-        return 1;
-    }
-    for (int i=0; 1; i++) {
+    fs_rhash_entry *buffer = rh->entries + entry;
+    int new = -1;
+    for (int i= 0; i < rh->search_dist && entry + i < rh->size * rh->bucket_size; i++) {
         if (buffer[i].rid == res->rid) {
-            /* resource is allready there, we're done */
+            /* resource is already there, we're done */
             // TODO could check for collision
 
             return 0;
-        } else if (buffer[i].rid == 0) {
-            break;
+        } else if (buffer[i].rid == 0 && new == -1) {
+            new = entry + i;
         }
-        if (i == rh->search_dist || entry == rh->size * rh->bucket_size - 1) {
-	    /* hash overfull, grow */
-            if (double_size(rh)) {
-                fs_error(LOG_CRIT, "failed to correctly double size of rhash");
-            }
-
-            return fs_rhash_put(rh, res);
-        }
-        entry++;
     }
-    if (entry >= rh->size * rh->bucket_size) {
+    if (new == -1) {
+        /* hash overfull, grow */
+        if (double_size(rh)) {
+            fs_error(LOG_CRIT, "failed to correctly double size of rhash");
+            return 1;
+        }
+
+        return fs_rhash_put(rh, res);
+    }
+    if (new >= rh->size * rh->bucket_size) {
         fs_error(LOG_CRIT, "writing RID %016llx past end of rhash '%s'", res->rid, rh->filename);
     }
+
+    fs_rhash_entry e;
     e.rid = res->rid;
     e.attr = res->attr;
     memset(&e.val.str, 0, INLINE_STR_LEN);
@@ -288,13 +305,7 @@ int fs_rhash_put(fs_rhash *rh, fs_resource *res)
         }
         e.val.offset = pos;
     }
-    if (pwrite(rh->fd, &e, sizeof(e), sizeof(struct rhash_header) +
-               entry * sizeof(e)) == -1) {
-        fs_error(LOG_CRIT, "write to %s failed: %s", rh->filename,
-                 strerror(errno));
-
-        return 1;
-    }
+    rh->entries[new] = e;
     rh->count++;
 
     return 0;
@@ -319,44 +330,36 @@ static int double_size(fs_rhash *rh)
     long int oldsize = rh->size;
     long int errs = 0;
 
+    fs_error(LOG_INFO, "doubling rhash (%s)", rh->filename);
+
     rh->size *= 2;
+    fs_rhash_ensure_size(rh);
+    const size_t oldlen = sizeof(struct rhash_header) + ((size_t) oldsize) * ((size_t) rh->bucket_size) * sizeof(fs_rhash_entry);
+    const size_t newlen = sizeof(struct rhash_header) + ((size_t) rh->size) * ((size_t) rh->bucket_size) * sizeof(fs_rhash_entry);
+    munmap(rh->entries - sizeof(struct rhash_header), oldlen);
+    rh->entries = mmap(NULL, newlen, PROT_READ | PROT_WRITE, MAP_SHARED, rh->fd, 0) + sizeof(struct rhash_header);
+    if (rh->entries == MAP_FAILED) {
+        fs_error(LOG_ERR, "failed to re-mmap rhash file “%s”: %s", rh->filename, strerror(errno));
+        return -1;
+    }
+
     fs_rhash_entry blank;
     memset(&blank, 0, sizeof(blank));
-    fs_rhash_entry buffer_lo[rh->bucket_size];
     fs_rhash_entry buffer_hi[rh->bucket_size];
 
     for (long int i=0; i<oldsize * rh->bucket_size; i += rh->bucket_size) {
-        memset(buffer_lo, 0, sizeof(buffer_lo));
         memset(buffer_hi, 0, sizeof(buffer_hi));
-        if (pread(rh->fd, &buffer_lo, sizeof(buffer_lo),
-                   sizeof(struct rhash_header) +
-                   i * sizeof(fs_rhash_entry)) == -1) {
-            fs_error(LOG_CRIT, "bucket read error in '%s': %s", rh->filename,
-                     strerror(errno));
-        }
+        fs_rhash_entry * const from = rh->entries + i;
         for (int j=0; j < rh->bucket_size; j++) {
-            if (buffer_lo[j].rid == 0) continue;
-            long int entry = FS_RHASH_ENTRY(rh, buffer_lo[j].rid);
+            if (from[j].rid == 0) continue;
+
+            long int entry = FS_RHASH_ENTRY(rh, from[j].rid);
             if (entry >= oldsize * rh->bucket_size) {
-                buffer_hi[j] = buffer_lo[j];
-                buffer_lo[j] = blank;
+                buffer_hi[j] = from[j];
+                from[j] = blank;
             }
         }
-        if (pwrite(rh->fd, &buffer_lo, sizeof(buffer_lo),
-                   sizeof(struct rhash_header) +
-                   i * sizeof(fs_rhash_entry)) == -1) {
-            fs_error(LOG_CRIT, "failed to write rhash '%s' bucket: %s",
-                     rh->filename, strerror(errno));
-            errs++;
-        }
-        if (pwrite(rh->fd, &buffer_hi, sizeof(buffer_hi),
-                   sizeof(struct rhash_header) +
-                   (oldsize * rh->bucket_size + i) *
-                   sizeof(fs_rhash_entry)) == -1) {
-            fs_error(LOG_CRIT, "failed to write rhash '%s' bucket: %s",
-                     rh->filename, strerror(errno));
-            errs++;
-        }
+        memcpy(from + (oldsize * rh->bucket_size), buffer_hi, sizeof(buffer_hi));
     }
     fs_rhash_write_header(rh);
 
@@ -423,44 +426,17 @@ static inline int get_entry(fs_rhash *rh, fs_rhash_entry *e, fs_resource *res)
 
 static int fs_rhash_get_intl(fs_rhash *rh, fs_resource *res)
 {
-    int entry = FS_RHASH_ENTRY(rh, res->rid);
-    fs_rhash_entry e;
+    const int entry = FS_RHASH_ENTRY(rh, res->rid);
+    fs_rhash_entry *buffer = rh->entries + entry;
 
-    /* special case for handling common small block read case - one medium
-       read rather than N small ones */
-    if (rh->search_dist == FS_RHASH_DEFAULT_SEARCH_DIST) {
-        fs_rhash_entry buffer[FS_RHASH_DEFAULT_SEARCH_DIST];
-        const int ret = pread(rh->fd, buffer, sizeof(buffer), sizeof(struct rhash_header) + entry * sizeof(fs_rhash_entry));
-        if (ret == -1) {
-            fs_error(LOG_CRIT, "pread from %s failed: %s", rh->filename, strerror(errno));
+    for (int k = 0; k < rh->search_dist; ++k) {
+        if (buffer[k].rid == res->rid) {
+            return get_entry(rh, &buffer[k], res);
         }
-        for (int i=0; i<ret/sizeof(fs_rhash_entry); i++) {
-            if (buffer[i].rid == res->rid) {
-                return get_entry(rh, &buffer[i], res);
-            }
-        }
-        fs_error(LOG_WARNING, "resource %016llx not found in § 0x%x-0x%x of %s", res->rid, (int)FS_RHASH_ENTRY(rh, res->rid), entry-1, rh->filename);
-        res->lex = g_strdup_printf("¡resource %llx not found!", res->rid);
-        res->attr = 0;
-
-        return 1;
     }
 
-    for (int i=0; i<rh->search_dist; i++) {
-        if (pread(rh->fd, &e, sizeof(e), sizeof(struct rhash_header) + entry * sizeof(e)) == -1) {
-            fs_error(LOG_CRIT, "read from %s failed: %s", rh->filename, strerror(errno));
-
-            return 1;
-        }
-        if (e.rid == res->rid) {
-            return get_entry(rh, &e, res);
-        }
-        entry++;
-        if (entry == rh->size * rh->bucket_size) break;
-    }
-
-    fs_error(LOG_WARNING, "resource %llx not found in § 0x%x-0x%x of %s", res->rid, (int)FS_RHASH_ENTRY(rh, res->rid), entry-1, rh->filename);
-    res->lex = g_strdup_printf("resource %llx not found", res->rid);
+    fs_error(LOG_WARNING, "resource %016llx not found in § 0x%x-0x%x of %s", res->rid, entry, entry + rh->search_dist - 1, rh->filename);
+    res->lex = g_strdup_printf("¡resource %llx not found!", res->rid);
     res->attr = 0;
 
     return 1;
