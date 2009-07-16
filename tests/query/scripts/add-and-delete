@@ -5,10 +5,13 @@ $TESTPATH/frontend/4s-query $1 '
 SELECT ?p ?o
 WHERE { <foo:a> ?p ?o }' | sort
 $TESTPATH/frontend/4s-import $1 -m http://example.com/nasty.ttl $TESTPATH/../data/nasty.ttl 1>&2 > /dev/null
-echo "# after insert"
+echo "# BCD test"
 $TESTPATH/frontend/4s-query $1 '
 SELECT ?p ?o
 WHERE { <foo:a> ?p ?o }' | sort
+$TESTPATH/frontend/4s-query $1 '
+SELECT ?o WHERE { ?z <test:bcd> ?o } ORDER BY ?o'
+echo "# after insert"
 $TESTPATH/frontend/4s-delete-model $1 http://example.com/nasty.ttl 1>&2 > /dev/null
 echo "# after delete"
 $TESTPATH/frontend/4s-query $1 '

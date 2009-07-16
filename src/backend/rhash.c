@@ -89,6 +89,9 @@ static fs_rhash *global_sort_rh = NULL;
 static int double_size(fs_rhash *rh);
 int fs_rhash_write_header(fs_rhash *rh);
 
+static int compress_bcd(const char *in, char *out);
+static char *uncompress_bcd(unsigned char *bcd);
+
 fs_rhash *fs_rhash_open(fs_backend *be, const char *label, int flags)
 {
     char *filename = g_strdup_printf(FS_RHASH, fs_backend_get_kb(be),
@@ -260,6 +263,11 @@ int fs_rhash_put(fs_rhash *rh, fs_resource *res)
     if (strlen(res->lex) <= INLINE_STR_LEN) {
         strncpy(e.val.str, res->lex, INLINE_STR_LEN);
         e.disp = 'i';
+    } else if (compress_bcd(res->lex, NULL) == 0) {
+        if (compress_bcd(res->lex, e.val.str)) {
+            fs_error(LOG_ERR, "failed to compress '%s' as BCD", res->lex);
+        }
+        e.disp = 'N';
     } else {
         if (fseek(rh->lex_f, 0, SEEK_END) == -1) {
             fs_error(LOG_CRIT, "failed to fseek to end of '%s': %s",
@@ -379,6 +387,8 @@ static inline int get_entry(fs_rhash *rh, fs_rhash_entry *e, fs_resource *res)
         res->lex = malloc(INLINE_STR_LEN+1);
         res->lex[INLINE_STR_LEN] = '\0';
         res->lex = memcpy(res->lex, e->val.str, INLINE_STR_LEN);
+    } else if (e->disp == 'N') {
+        res->lex = uncompress_bcd((unsigned char *)e->val.str);
     } else if (e->disp == 'f') {
         int32_t lex_len;
         if (fseek(rh->lex_f, e->val.offset, SEEK_SET) == -1) {
@@ -506,65 +516,17 @@ void fs_rhash_print(fs_rhash *rh, FILE *out, int verbosity)
     } 
     fs_rhash_entry e;
     int entry = 0, entries = 0, show_next = 0;
-    char *lex;
 
     lseek(rh->fd, sizeof(struct rhash_header), SEEK_SET);
     while (read(rh->fd, &e, sizeof(e)) == sizeof(e)) {
         if (e.rid) {
             char *ent_str = g_strdup_printf("%08d.%02d", entry / rh->bucket_size, entry % rh->bucket_size);
-            lex = NULL;
-            if (e.disp == 'i') {
-                lex = malloc(INLINE_STR_LEN+1);
-                lex[INLINE_STR_LEN] = '\0';
-                lex = memcpy(lex, e.val.str, INLINE_STR_LEN);
-            } else if (e.disp == 'f') {
-                int32_t lex_len;
-                if (fseek(rh->lex_f, e.val.offset, SEEK_SET) == -1) {
-                    fprintf(out, "ERROR: seek error reading lexical store '%s': %s\n", rh->lex_filename, strerror(errno));
-                }
-                if (fread(&lex_len, sizeof(lex_len), 1, rh->lex_f) == 0) {
-                    if (feof(rh->lex_f)) {
-                        fprintf(out, "ERROR: tried to read off end of lexical file '%s'\n", rh->lex_filename);
-                    } else {
-                        fprintf(out, "ERROR: read error from lexical store '%s', offset %lld: %s\n", rh->lex_filename, (long long)e.val.offset, strerror(errno));
-                    }
-                    continue;
-                }
-
-                lex = malloc(lex_len + 1);
-
-                if (fread(lex, sizeof(char), lex_len, rh->lex_f) < lex_len) {
-                    fprintf(out, "ERROR: partial read error from lexical store '%s'\n", rh->lex_filename);
-                    lex[0] = '\0';
-                }
-                lex[lex_len] = '\0';
-            } else {
-                lex = strdup("???");
-                fprintf(out, "ERROR: unknown disposition: %c", e.disp);
-            }
-            if (FS_IS_URI(e.rid)) {
-                if (e.attr != FS_RID_NULL) {
-                    fprintf(out, "ERROR: entry %8d, %016llx, URI, but attr is not RID_NULL\n", entry, e.rid);
-                    show_next = 1;
-                }
-                if (e.rid != fs_hash_uri(lex)) {
-                    fprintf(out, "ERROR: entry %s, hash %016llx does not match stored RID %016llx\n", ent_str, fs_hash_uri(lex), e.rid);
-                    show_next = 1;
-                }
-            } else {
-                if (e.attr == FS_RID_NULL) {
-                    fprintf(out, "ERROR: entry %s, %016llx, Literal, but attr is RID_NULL\n", ent_str, e.rid);
-                    show_next = 1;
-                }
-                if (e.rid != fs_hash_literal(lex, e.attr)) {
-                    fprintf(out, "ERROR: entry %s, hash %016llx does not match stored RID %016llx\n", ent_str, fs_hash_literal(lex, e.attr), e.rid);
-                    show_next = 1;
-                }
-            }
-            if (verbosity > 1 || show_next) fprintf(out, "%s %016llx %016llx %c %10lld %s\n", ent_str, e.rid, e.attr, e.disp, e.disp == 'f' ? (long long)e.val.offset : 0, lex);
+            fs_resource res = { .lex = NULL };
+            get_entry(rh, &e, &res);
+            if (verbosity > 1 || show_next) fprintf(out, "%s %016llx %016llx %c %10lld %s\n", ent_str, e.rid, e.attr, e.disp, e.disp == 'f' ? (long long)e.val.offset : 0, res.lex);
             entries++;
             show_next = 0;
-            free(lex);
+            free(res.lex);
             g_free(ent_str);
         }
         entry++;
@@ -579,6 +541,167 @@ void fs_rhash_print(fs_rhash *rh, FILE *out, int verbosity)
 int fs_rhash_count(fs_rhash *rh)
 {
     return rh->count;
+}
+
+/* literal storage compression functions */
+
+enum bcd {
+    bcd_nul = 0,
+    bcd_1,
+    bcd_2,
+    bcd_3,
+    bcd_4,
+    bcd_5,
+    bcd_6,
+    bcd_7,
+    bcd_8,
+    bcd_9,
+    bcd_0,
+    bcd_dot,
+    bcd_plus,
+    bcd_minus,
+    bcd_e
+};
+
+static const char bcd_map[16] = {
+    '\0', '1', '2', '3', '4', '5', '6', '7',
+    '8', '9', '0', '.', '+', '-', 'e', '?'
+};
+
+static inline void write_bcd(char *out, int pos, int val)
+{
+    out += pos / 2;
+    const int offset = (pos % 2) * 4;
+    *out |= (val << offset);
+}
+
+static int compress_bcd(const char *in, char *out)
+{
+    if (strlen(in) > INLINE_STR_LEN * 2) {
+        /* too long */
+        return 1;
+    }
+
+    /* zero output buffer */
+    if (out) {
+        memset(out, 0, INLINE_STR_LEN);
+    }
+else { printf("not writing...\n"); }
+    int outpos = 0;
+    for (const char *inp = in; *inp; inp++) {
+        switch (*inp) {
+        case '1':
+            if (out) {
+                write_bcd(out, outpos, bcd_1);
+                outpos++;
+            }
+            break;
+        case '2':
+            if (out) {
+                write_bcd(out, outpos, bcd_2);
+                outpos++;
+            }
+            break;
+        case '3':
+            if (out) {
+                write_bcd(out, outpos, bcd_3);
+                outpos++;
+            }
+            break;
+        case '4':
+            if (out) {
+                write_bcd(out, outpos, bcd_4);
+                outpos++;
+            }
+            break;
+        case '5':
+            if (out) {
+                write_bcd(out, outpos, bcd_5);
+                outpos++;
+            }
+            break;
+        case '6':
+            if (out) {
+                write_bcd(out, outpos, bcd_6);
+                outpos++;
+            }
+            break;
+        case '7':
+            if (out) {
+                write_bcd(out, outpos, bcd_7);
+                outpos++;
+            }
+            break;
+        case '8':
+            if (out) {
+                write_bcd(out, outpos, bcd_8);
+                outpos++;
+            }
+            break;
+        case '9':
+            if (out) {
+                write_bcd(out, outpos, bcd_9);
+                outpos++;
+            }
+            break;
+        case '0':
+            if (out) {
+                write_bcd(out, outpos, bcd_0);
+                outpos++;
+            }
+            break;
+        case '.':
+            if (out) {
+                write_bcd(out, outpos, bcd_dot);
+                outpos++;
+            }
+            break;
+        case '+':
+            if (out) {
+                write_bcd(out, outpos, bcd_plus);
+                outpos++;
+            }
+            break;
+        case '-':
+            if (out) {
+                write_bcd(out, outpos, bcd_minus);
+                outpos++;
+            }
+            break;
+        case 'e':
+            if (out) {
+                write_bcd(out, outpos, bcd_e);
+                outpos++;
+            }
+            break;
+        default:
+            /* character we can't handle */
+            return 1;
+        }
+    }
+
+    /* worked OK */
+    return 0;
+}
+
+static char *uncompress_bcd(unsigned char *bcd)
+{
+    char *out = calloc(INLINE_STR_LEN*2 + 1, sizeof(char));
+
+    for (int inpos = 0; inpos < INLINE_STR_LEN*2; inpos++) {
+        unsigned int code = bcd[inpos/2];
+        if (inpos % 2 == 0) {
+            code &= 15;
+        } else {
+            code >>= 4;
+        }
+        if (code == bcd_nul) {
+            break;
+        }
+        out[inpos] = bcd_map[code];
+    }
+
+    return out;
 }
 
 /* vi:set expandtab sts=4 sw=4: */
