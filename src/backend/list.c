@@ -254,7 +254,7 @@ int fs_list_next_sorted(fs_list *l, void *out)
             chunk_length += (l->chunk_end[c] - l->chunk_pos[c]) / l->width;
         }
         if (chunk_length != l->offset) {
-            fs_error(LOG_ERR, "length(chunks) = %lld, length(list) = %lld, not sorting", chunk_length, l->offset);
+            fs_error(LOG_ERR, "length(chunks) = %lld, length(list) = %lld, not sorting", chunk_length, (long long)l->offset);
             free(l->chunk_pos);
             free(l->chunk_end);
 
