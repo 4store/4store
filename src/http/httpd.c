@@ -731,7 +731,7 @@ static void http_query_widget(client_ctxt *ctxt)
   http_send(ctxt, fsp_kb_name(fsplink));
   http_send(ctxt, "</h2>\n");
 
-  http_send(ctxt, "<form action=\"/sparql/\" method=\"post\">\n"
+  http_send(ctxt, "<form action=\"../sparql/\" method=\"post\">\n"
    "<textarea name=\"query\" cols=\"80\" rows=\"18\">\n"
    "PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>\n"
    "PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>\n"
@@ -793,12 +793,12 @@ static void http_get_request(client_ctxt *ctxt, gchar *url, gchar *protocol)
       http_close(ctxt);
     }
   } else if (!strcmp(path, "/sparql")) {
-    http_redirect(ctxt, "/sparql/");
+    http_redirect(ctxt, "sparql/");
     http_close(ctxt);
   } else if (!strcmp(path, "/status/")) {
     http_status_report(ctxt);
   } else if (!strcmp(path, "/status")) {
-    http_redirect(ctxt, "/status/");
+    http_redirect(ctxt, "status/");
     http_close(ctxt);
   } else if (!strcmp(path, "/status/size/")) {
     http_size_report(ctxt);
@@ -807,7 +807,7 @@ static void http_get_request(client_ctxt *ctxt, gchar *url, gchar *protocol)
   } else if (!strcmp(path, "/test/")) {
     http_query_widget(ctxt);
   } else if (!strcmp(path, "/test")) {
-    http_redirect(ctxt, "/test/");
+    http_redirect(ctxt, "test/");
     http_close(ctxt);
   } else {
     http_error(ctxt, "404 Not found");
