@@ -37,10 +37,10 @@
 
 /* number of rows in the chunk that will be sorted, CHUNK_SIZE has to
  * be a multiple of the page size */
-//#define CHUNK_SIZE (131072*4096)
+#define CHUNK_SIZE (131072*4096)
 /* use smaller size to test chunk sorting on small lists */
 //#define CHUNK_SIZE (4096)
-#define CHUNK_SIZE (4096*1024)
+//#define CHUNK_SIZE (4096*1024)
 
 enum sort_state { unsorted, chunk_sorted, sorted };
 
