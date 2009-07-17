@@ -83,4 +83,29 @@ int quad_sort_by_object(const void *va, const void *vb)
     return 0;
 }
 
+int quad_sort_by_mspo(const void *va, const void *vb)
+{
+    const fs_rid *a = va;
+    const fs_rid *b = vb;
+
+    if (a[0] != b[0]) {
+        if (a[0] < b[0]) return -1;
+        if (a[0] > b[0]) return 1;
+    }
+    if (a[1] != b[1]) {
+        if (a[1] < b[1]) return -1;
+        if (a[1] > b[1]) return 1;
+    }
+    if (a[2] != b[2]) {
+        if (a[2] < b[2]) return -1;
+        if (a[2] > b[2]) return 1;
+    }
+    if (a[3] != b[3]) {
+        if (a[3] < b[3]) return -1;
+        if (a[3] > b[3]) return 1;
+    }
+
+    return 0;
+}
+
 /* vi:set expandtab sts=4 sw=4: */

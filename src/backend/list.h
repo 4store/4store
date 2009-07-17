@@ -24,10 +24,14 @@ int32_t fs_list_add(fs_list *l, const void *data);
 
 void fs_list_rewind(fs_list *l);
 int fs_list_next_value(fs_list *l, void *out);
+int fs_list_next_sorted(fs_list *l, void *out);
 
 int fs_list_get(fs_list *l, int32_t pos, void *data);
 
 int fs_list_length(fs_list *l);
+
+int fs_list_sort(fs_list *l, int (*comp)(const void *, const void *));
+int fs_list_sort_chunked(fs_list *l, int (*comp)(const void *, const void *));
 
 void fs_list_print(fs_list *l, FILE *out, int verbosity);
 

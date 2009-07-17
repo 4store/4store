@@ -10,7 +10,7 @@ LIB_OBJS = chain.o bucket.o list.o tlist.o rhash.o mhash.o sort.o \
 HEADERS = tree.h chain.h bucket.h list.h sort.h lock.h backend-intl.h \
 	  metadata.h tlist.h tbchain.h
 BINS = 4s-backend
-TESTS = bctest bcdump listdump rhashtest rhashdump mhashtest mhashdump ptreetest ptreedump ptreebind ptabletest tbchaintest tbchaindump
+TESTS = bctest bcdump listdump rhashtest rhashdump mhashtest mhashdump ptreetest ptreedump ptreebind ptabletest tbchaintest tbchaindump listtest
 
 all: $(BINS) $(TESTS)
 
@@ -40,6 +40,7 @@ mhashtest: mhashtest.c backend.o query-backend.o lib4storage.a ../common/lib4sto
 ptreetest: ptreetest.o backend.o ../common/timing.o lib4storage.a ../common/lib4store.a
 ptabletest: ptabletest.o backend.o ../common/timing.o lib4storage.a ../common/lib4store.a
 tbchaintest: tbchaintest.o backend.o ../common/timing.o lib4storage.a ../common/lib4store.a
+listtest: listtest.o backend.o ../common/timing.o lib4storage.a ../common/lib4store.a
 
 bcdump: bcdump.o backend.o ../common/timing.o lib4storage.a ../common/lib4store.a
 treedump: treedump.o backend.o ../common/timing.o lib4storage.a ../common/lib4store.a

@@ -25,6 +25,7 @@
 #include <string.h>
 #include <errno.h>
 #include <glib.h>
+#include <sys/mman.h>
 #include <sys/file.h>
 
 #include "list.h"
@@ -34,7 +35,14 @@
 
 #define LIST_BUFFER_SIZE 256
 
-#define FS_SORT_BUFFER_SIZE 2000000
+/* number of rows in the chunk that will be sorted, CHUNK_SIZE has to
+ * be a multiple of the page size */
+//#define CHUNK_SIZE (131072*4096)
+/* use smaller size to test chunk sorting on small lists */
+//#define CHUNK_SIZE (4096)
+#define CHUNK_SIZE (4096*1024)
+
+enum sort_state { unsorted, chunk_sorted, sorted };
 
 struct _fs_list {
     int fd;
@@ -43,6 +51,13 @@ struct _fs_list {
     char *filename;
     int buffer_pos;
     void *buffer;
+    enum sort_state sort;
+    int chunks;
+    long long count;
+    int (*sort_func)(const void *, const void *);
+    off_t *chunk_pos;
+    off_t *chunk_end;
+    void *map;
 };
 
 fs_list *fs_list_open(fs_backend *be, const char *label, size_t width, int flags)
@@ -56,8 +71,15 @@ fs_list *fs_list_open(fs_backend *be, const char *label, size_t width, int flags
 
 fs_list *fs_list_open_filename(const char *filename, size_t width, int flags)
 {
+    if (CHUNK_SIZE % width != 0) {
+        fs_error(LOG_CRIT, "width of %s (%lld) does no go into %lld", filename,
+                 (long long)width, (long long)CHUNK_SIZE);
+
+        return NULL;
+    }
     fs_list *l = calloc(1, sizeof(fs_list));
     l->filename = g_strdup(filename);
+    l->sort = unsorted;
     l->fd = open(filename, FS_O_NOATIME | flags, FS_FILE_MODE);
     if (l->fd == -1) {
         fs_error(LOG_ERR, "failed to open list file '%s': %s", l->filename, strerror(errno));
@@ -199,6 +221,80 @@ void fs_list_rewind(fs_list *l)
     lseek(l->fd, 0, SEEK_SET);
 }
 
+int fs_list_next_sorted(fs_list *l, void *out)
+{
+    if (!l) {
+        fprintf(out, "NULL list\n");
+
+        return 0;
+    }
+
+    switch (l->sort) {
+    case unsorted:
+        fs_error(LOG_WARNING, "tried to call %s on unsorted list", __func__);
+    case sorted:
+        return fs_list_next_value(l, out);
+    case chunk_sorted:
+        break;
+    }
+
+    /* initialise if this is the first time were called */
+    if (!l->chunk_pos) {
+        l->count = 0;
+        l->chunks = (l->offset * l->width) / CHUNK_SIZE + 1;
+        l->chunk_pos = calloc(l->chunks, sizeof(off_t));
+        l->chunk_end = calloc(l->chunks, sizeof(off_t));
+        for (int c=0; c<l->chunks; c++) {
+            l->chunk_pos[c] = c * CHUNK_SIZE;
+            l->chunk_end[c] = (c+1) * CHUNK_SIZE;
+        }
+        l->chunk_end[l->chunks - 1] = l->offset * l->width;
+        long long int chunk_length = 0;
+        for (int c=0; c<l->chunks; c++) {
+            chunk_length += (l->chunk_end[c] - l->chunk_pos[c]) / l->width;
+        }
+        if (chunk_length != l->offset) {
+            fs_error(LOG_ERR, "length(chunks) = %lld, length(list) = %lld, not sorting", chunk_length, l->offset);
+            free(l->chunk_pos);
+            free(l->chunk_end);
+
+            return 1;
+        }
+        l->map = mmap(NULL, l->offset * l->width, PROT_READ,
+                     MAP_FILE | MAP_SHARED, l->fd, 0);
+    }
+
+    int best_c = -1;
+    for (int c=0; c < l->chunks; c++) {
+        if (l->chunk_pos[c] >= l->chunk_end[c]) {
+            continue;
+        }
+        if (best_c == -1 || l->sort_func(l->map + l->chunk_pos[c],
+            l->map + l->chunk_pos[best_c]) < 0) {
+            best_c = c;
+        }
+    }
+    if (best_c == -1) {
+        for (int c=0; c<l->chunks; c++) {
+            if (l->chunk_pos[c] != l->chunk_end[c]) {
+                fs_error(LOG_ERR, "chunk %d was not sorted to end", c);
+            }
+        }
+        if (l->count != l->offset) {
+            fs_error(LOG_ERR, "failed to find low row after %lld/%lld rows", (long long)l->count, (long long)l->offset);
+        }
+
+        return 0;
+    }
+
+    memcpy(out, l->map + l->chunk_pos[best_c], l->width);
+    l->chunk_pos[best_c] += l->width;
+
+    (l->count)++;
+
+    return 1;
+}
+
 int fs_list_next_value(fs_list *l, void *out)
 {
     if (!l) {
@@ -235,10 +331,26 @@ void fs_list_print(fs_list *l, FILE *out, int verbosity)
         fprintf(out, "   (%d buffered)\n", l->buffer_pos);
     }
     fprintf(out, "  width %zd bytes\n", l->width);
+    fprintf(out, "  sort state: ");
+    switch (l->sort) {
+    case unsorted:
+        fprintf(out, "unsorted\n");
+        break;
+    case chunk_sorted:
+        fprintf(out, "chunk sorted (%lld chunks)\n",
+                (long long)(l->offset * l->width) / CHUNK_SIZE + 1);
+        break;
+    case sorted:
+        fprintf(out, "sorted\n");
+        break;
+    }
     if (verbosity > 0) {
         char buffer[l->width];
         lseek(l->fd, 0, SEEK_SET);
         for (int i=0; i<l->offset; i++) {
+            if (l->sort == chunk_sorted && i>0 && i % (CHUNK_SIZE/l->width) == 0) {
+                fprintf(out, "--- sort chunk boundary ----\n");
+            }
             memset(buffer, 0, l->width);
             int ret = read(l->fd, buffer, l->width);
             if (ret == -1) {
@@ -248,11 +360,11 @@ void fs_list_print(fs_list *l, FILE *out, int verbosity)
             }
             if (l->width % sizeof(fs_rid) == 0) {
                 volatile fs_rid *row = (fs_rid *)buffer;
-                printf("%08x", i);
+                fprintf(out, "%08x", i);
                 for (int j=0; j<l->width / sizeof(fs_rid); j++) {
-                    printf(" %016llx", row[j]);
+                    fprintf(out, " %016llx", row[j]);
                 }
-                printf("\n");
+                fprintf(out, "\n");
             }
         }
     }
@@ -267,6 +379,65 @@ int fs_list_truncate(fs_list *l)
     }
     l->offset = 0;
     l->buffer_pos = 0;
+
+    return 0;
+}
+
+static int fs_list_sort_chunk(fs_list *l, off_t start, off_t length, int (*comp)(const void *, const void *))
+{
+    /* map the file so we can access it efficiently */
+    void *map = mmap(NULL, length * l->width, PROT_READ | PROT_WRITE,
+                     MAP_FILE | MAP_SHARED, l->fd, start * l->width);
+    if (map == (void *)-1) {
+        fs_error(LOG_ERR, "failed to map '%s', %lld+%lld for sort: %s",
+                 l->filename, (long long)start * l->width,
+                 (long long)length * l->width, strerror(errno));
+
+        return 1;
+    }
+
+    qsort(map, length, l->width, comp);
+
+    munmap(map, length * l->width);
+
+    return 0;
+}
+
+int fs_list_sort(fs_list *l, int (*comp)(const void *, const void *))
+{
+    /* make sure it's flushed to disk */
+    fs_list_flush(l);
+    l->sort_func = comp;
+
+    if (fs_list_sort_chunk(l, 0, l->offset, comp)) {
+        return 1;
+    }
+    l->sort = sorted;
+
+    return 0;
+}
+
+int fs_list_sort_chunked(fs_list *l, int (*comp)(const void *, const void *))
+{
+    /* make sure it's flushed to disk */
+    fs_list_flush(l);
+    l->sort_func = comp;
+
+    for (int c=0; c < l->offset; c += CHUNK_SIZE/l->width) {
+        off_t length = l->offset - c;
+        if (length > CHUNK_SIZE/l->width) length = CHUNK_SIZE/l->width;
+        int ret = fs_list_sort_chunk(l, c, length, comp);
+        if (ret) {
+            fs_error(LOG_ERR, "chunked sort failed at chunk %ld", c / (CHUNK_SIZE/l->width));
+
+            return ret;
+        }
+    }
+    if (l->offset <= CHUNK_SIZE/l->width) {
+        l->sort = sorted;
+    } else {
+        l->sort = chunk_sorted;
+    }
 
     return 0;
 }
