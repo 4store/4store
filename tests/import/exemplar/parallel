@@ -2,12 +2,12 @@
 # waiting for import to finish
 # size of result
   seg   quads (s)  quads (sr)      models   resources
-    0      166225          +0           3       31607
+    0      166225          +0           3       31608
     1      165708          +0           3       31691
     2      164908          +0           3       31531
     3      166509          +0           3       31702
 
-TOTAL      663350          +0           3      126531
+TOTAL      663350          +0           3      126532
 # distinct predicates by object
 ----Predicate---  
 C01DC4248327EBE1  
