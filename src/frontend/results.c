@@ -1497,7 +1497,6 @@ fs_row *fs_query_fetch_row(fs_query *q)
 nextrow: ;
     const int rows = q->length;
     if (q->limit >= 0 && q->rows_output >= q->limit) {
-	fs_error(LOG_ERR, "hit soft limit %d times", fsp_hit_limits(q->link));
 	return NULL;
     }
     if (q->row >= rows) {
