@@ -24,6 +24,7 @@
 #include <string.h>
 #include <glib.h>
 #include <rasqal.h>
+#include <math.h>
 
 #include "query-datatypes.h"
 #include "common/4store.h"
@@ -31,6 +32,8 @@
 #include "common/params.h"
 #include "common/hash.h"
 #include "common/error.h"
+
+#define CONST_2to63 9223372036854775808.0
 
 int main(int argc, char *argv[])
 {
@@ -65,15 +68,8 @@ int main(int argc, char *argv[])
 	exit(2);
     }
 
-    int quads_o = 0;
-    if (sz.quads_o != -1) {
-        printf("%5s%12s%12s%12s%12s\n", "seg","quads (s)","quads (sr)",
-               "quads (o)", "resources");
-        quads_o = 1;
-    } else {
-        printf("%5s%12s%12s%12s%12s\n", "seg","quads (s)","quads (sr)",
-               "models", "resources");
-    }
+    printf("%5s%12s%12s%12s%12s\n", "seg","quads (s)","quads (sr)",
+           "models", "resources");
 
     const int segments = fsp_link_segments(link);
     for (fs_segment seg = 0; seg < segments; ++seg) {
@@ -84,24 +80,18 @@ int main(int argc, char *argv[])
 	} else {
            printf("%5d%12lld%+12lld%12lld%12lld\n", seg,
                   sz.quads_s, sz.quads_sr - sz.quads_s,
-                  quads_o ? sz.quads_o : sz.models_s, sz.resources);
+                  sz.models_s, sz.resources);
 	   total.quads_s += sz.quads_s;
 	   total.quads_sr += sz.quads_sr;
-	   total.quads_o += sz.quads_o;
            if (sz.models_s > total.models_s) total.models_s = sz.models_s;
 	   total.resources += sz.resources;
 	}
    }
     printf("\n");
-    if (quads_o) {
-        printf("%5s%12lld%+12lld%+12lld%12lld\n",
-               "TOTAL", total.quads_s, (total.quads_sr - total.quads_s),
-               (total.quads_o-total.quads_s), total.resources);
-    } else {
-        printf("%5s%12lld%+12lld%12lld%12lld\n",
-               "TOTAL", total.quads_s, (total.quads_sr - total.quads_s),
-               total.models_s, total.resources);
-    }
+    printf("%5s%12lld%+12lld%12lld%12lld\n",
+           "TOTAL", total.quads_s, (total.quads_sr - total.quads_s),
+           total.models_s, total.resources);
+    printf("\ncollision probability ≅ %.2Lf%%\n", 100.0 * (1.0 - expl(-(total.resources * (total.resources-1.0) / (2.0 * CONST_2to63)))));
 
     fsp_close_link(link);
 }
