@@ -82,7 +82,10 @@ if ($pid = fork()) {
 				print("] $t\n");
 				$passes++;
 			}
+		} else {
+			print("[PROC] $t\n");
 		}
+
 	}
 	print("Tests completed: passed $passes/".($fails+$passes)." ($fails fails)\n");
 	$ret = kill 15, $pid;

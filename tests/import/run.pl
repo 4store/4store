@@ -95,6 +95,8 @@ for $t (@tests) {
 				unlink("$outdir/$t-errs");
 			}
 		}
+	} else {
+		print("[PROC] $t\n");
 	}
 	system("../../src/utilities/4s-backend-destroy $kb_name 2>/dev/null") if $destroy;
 }

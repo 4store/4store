@@ -92,6 +92,9 @@ int fs_rhash_write_header(fs_rhash *rh);
 static int compress_bcd(const char *in, char *out);
 static char *uncompress_bcd(unsigned char *bcd);
 
+static int compress_bcdate(const char *in, char *out);
+static char *uncompress_bcdate(unsigned char *bcd);
+
 fs_rhash *fs_rhash_open(fs_backend *be, const char *label, int flags)
 {
     char *filename = g_strdup_printf(FS_RHASH, fs_backend_get_kb(be),
@@ -285,6 +288,11 @@ int fs_rhash_put(fs_rhash *rh, fs_resource *res)
             fs_error(LOG_ERR, "failed to compress '%s' as BCD", res->lex);
         }
         e.disp = 'N';
+    } else if (compress_bcdate(res->lex, NULL) == 0) {
+        if (compress_bcdate(res->lex, e.val.str)) {
+            fs_error(LOG_ERR, "failed to compress '%s' as BCDate", res->lex);
+        }
+        e.disp = 'D';
     } else {
         if (fseek(rh->lex_f, 0, SEEK_END) == -1) {
             fs_error(LOG_CRIT, "failed to fseek to end of '%s': %s",
@@ -392,6 +400,8 @@ static inline int get_entry(fs_rhash *rh, fs_rhash_entry *e, fs_resource *res)
         res->lex = memcpy(res->lex, e->val.str, INLINE_STR_LEN);
     } else if (e->disp == 'N') {
         res->lex = uncompress_bcd((unsigned char *)e->val.str);
+    } else if (e->disp == 'D') {
+        res->lex = uncompress_bcdate((unsigned char *)e->val.str);
     } else if (e->disp == 'f') {
         int32_t lex_len;
         if (fseek(rh->lex_f, e->val.offset, SEEK_SET) == -1) {
@@ -544,6 +554,30 @@ static const char bcd_map[16] = {
     '8', '9', '0', '.', '+', '-', 'e', '?'
 };
 
+enum bcdate {
+    bcdate_nul = 0,
+    bcdate_1,
+    bcdate_2,
+    bcdate_3,
+    bcdate_4,
+    bcdate_5,
+    bcdate_6,
+    bcdate_7,
+    bcdate_8,
+    bcdate_9,
+    bcdate_0,
+    bcdate_colon,
+    bcdate_plus,
+    bcdate_minus,
+    bcdate_T,
+    bcdate_Z
+};
+
+static const char bcdate_map[16] = {
+    '\0', '1', '2', '3', '4', '5', '6', '7',
+    '8', '9', '0', ':', '+', '-', 'T', 'Z'
+};
+
 static inline void write_bcd(char *out, int pos, int val)
 {
     out += pos / 2;
@@ -659,6 +693,120 @@ static int compress_bcd(const char *in, char *out)
     return 0;
 }
 
+static int compress_bcdate(const char *in, char *out)
+{
+    if (strlen(in) > INLINE_STR_LEN * 2) {
+        /* too long */
+        return 1;
+    }
+
+    /* zero output buffer */
+    if (out) {
+        memset(out, 0, INLINE_STR_LEN);
+    }
+    int outpos = 0;
+    for (const char *inp = in; *inp; inp++) {
+        switch (*inp) {
+        case '1':
+            if (out) {
+                write_bcd(out, outpos, bcdate_1);
+                outpos++;
+            }
+            break;
+        case '2':
+            if (out) {
+                write_bcd(out, outpos, bcdate_2);
+                outpos++;
+            }
+            break;
+        case '3':
+            if (out) {
+                write_bcd(out, outpos, bcdate_3);
+                outpos++;
+            }
+            break;
+        case '4':
+            if (out) {
+                write_bcd(out, outpos, bcdate_4);
+                outpos++;
+            }
+            break;
+        case '5':
+            if (out) {
+                write_bcd(out, outpos, bcdate_5);
+                outpos++;
+            }
+            break;
+        case '6':
+            if (out) {
+                write_bcd(out, outpos, bcdate_6);
+                outpos++;
+            }
+            break;
+        case '7':
+            if (out) {
+                write_bcd(out, outpos, bcdate_7);
+                outpos++;
+            }
+            break;
+        case '8':
+            if (out) {
+                write_bcd(out, outpos, bcdate_8);
+                outpos++;
+            }
+            break;
+        case '9':
+            if (out) {
+                write_bcd(out, outpos, bcdate_9);
+                outpos++;
+            }
+            break;
+        case '0':
+            if (out) {
+                write_bcd(out, outpos, bcdate_0);
+                outpos++;
+            }
+            break;
+        case ':':
+            if (out) {
+                write_bcd(out, outpos, bcdate_colon);
+                outpos++;
+            }
+            break;
+        case '+':
+            if (out) {
+                write_bcd(out, outpos, bcdate_plus);
+                outpos++;
+            }
+            break;
+        case '-':
+            if (out) {
+                write_bcd(out, outpos, bcdate_minus);
+                outpos++;
+            }
+            break;
+        case 'T':
+            if (out) {
+                write_bcd(out, outpos, bcdate_T);
+                outpos++;
+            }
+            break;
+        case 'Z':
+            if (out) {
+                write_bcd(out, outpos, bcdate_Z);
+                outpos++;
+            }
+            break;
+        default:
+            /* character we can't handle */
+            return 1;
+        }
+    }
+
+    /* worked OK */
+    return 0;
+}
+
 static char *uncompress_bcd(unsigned char *bcd)
 {
     char *out = calloc(INLINE_STR_LEN*2 + 1, sizeof(char));
@@ -674,6 +822,26 @@ static char *uncompress_bcd(unsigned char *bcd)
             break;
         }
         out[inpos] = bcd_map[code];
+    }
+
+    return out;
+}
+
+static char *uncompress_bcdate(unsigned char *bcd)
+{
+    char *out = calloc(INLINE_STR_LEN*2 + 1, sizeof(char));
+
+    for (int inpos = 0; inpos < INLINE_STR_LEN*2; inpos++) {
+        unsigned int code = bcd[inpos/2];
+        if (inpos % 2 == 0) {
+            code &= 15;
+        } else {
+            code >>= 4;
+        }
+        if (code == bcdate_nul) {
+            break;
+        }
+        out[inpos] = bcdate_map[code];
     }
 
     return out;

@@ -42,3 +42,11 @@
 <test:data> <test:bcd> "01234567890123456789012345678901" .
 <test:data> <test:bcd> "012345678901234567890123456789012" .
 <test:data> <test:bcd> "23.0e999999999999999999999999"^^xsd:float .
+# coded as BC Dates
+<test:data> <test:bcdate> "1969-05-23T23:05:00Z"^^xsd:dateTime .
+<test:data> <test:bcdate> "2009-07-17T01:23:45+10:00"^^xsd:dateTime .
+<test:data> <test:bcdate> "ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ" .
+<test:data> <test:bcdate> "Z2345678T2345678:::::::--+++TZ" .
+# not coded as dates
+<test:data> <test:bcdate> "1969-05-23"^^xsd:dateTime .
+<test:data> <test:bcdate> "2009-07-17/2009-07-18"^^xsd:dateRange .
