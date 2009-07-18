@@ -26,7 +26,12 @@
 #include <unistd.h>
 #include <glib.h>
 
+#define SERVICE_TYPE "_4store._tcp"
+
+#ifndef USE_DNS_SD
 #ifndef USE_AVAHI
+
+/* fallback if there's no MDNS library */
 
 void fsp_avahi_setup_frontend (fsp_link *link)
 {
@@ -49,6 +54,7 @@ void fsp_avahi_cleanup_frontend (fsp_link *link)
   return;
 }
 
+
 void fsp_avahi_setup_backend (uint16_t port, const char *kb_name, int segments)
 {
   /* this version used when USE_AVAHI is not defined */
@@ -56,7 +62,169 @@ void fsp_avahi_setup_backend (uint16_t port, const char *kb_name, int segments)
   return;
 }
 
-#else
+#endif
+#endif
+
+#ifndef USE_AVAHI
+#ifdef USE_DNS_SD
+
+#include <errno.h>
+#include <dns_sd.h>
+#include <limits.h>
+#include <net/if.h>
+#include <sys/select.h>
+
+#include "error.h"
+
+#ifndef HOST_NAME_MAX
+#define HOST_NAME_MAX _POSIX_HOST_NAME_MAX
+#endif
+
+static int found = 0;
+
+/* Use apple-type DNS-SD library */
+
+static char *get_txt_string(const unsigned char *txt, int txtlen, char *key)
+{
+    int pos = 0;
+    while (pos < txtlen) {
+        int len = txt[pos++];
+        if (strncmp((char *)txt+pos, key, strlen(key)) == 0) {
+            char *ret = malloc(len - strlen(key));
+            strncpy(ret, (char *)txt+pos + strlen(key) + 1, len - strlen(key) - 1);
+            ret[len - strlen(key) - 1] = '\0';
+
+            return ret;
+        }
+    }
+
+    return NULL;
+}
+
+static void resolve_reply
+    (DNSServiceRef sdRef, DNSServiceFlags flags, uint32_t interface_index,
+     DNSServiceErrorType error_code, const char *fullname,
+     const char *hosttarget, uint16_t noport, uint16_t txt_len,
+     const unsigned char *txt, void *context)
+{
+    fsp_link *link = context;
+    int port = ntohs(noport);
+
+    char *kb = get_txt_string(txt, txt_len, "kb");
+    if (strcmp(link->kb_name, kb) != 0) {
+        fs_error(LOG_ERR, "got mismatched KB name from mDNS");
+
+        return;
+    }
+    free(kb);
+    char *segments_str = get_txt_string(txt, txt_len, "segments");
+    int segments = atoi(segments_str);
+    free(segments_str);
+//printf("@@ adding %s:%d (%d)\n", hosttarget, port, segments);
+    found += fsp_add_backend(link, hosttarget, port, segments);
+}
+
+static void browse_reply
+    (DNSServiceRef ref, DNSServiceFlags flags, uint32_t interfaceIndex,
+     DNSServiceErrorType errorCode, const char *service_name,
+     const char *regtype, const char *domain, void *context)
+{
+    fsp_link *link = context;
+
+    char *dashpos = strchr(service_name, '-');
+    if (dashpos && strcmp(dashpos+1, link->kb_name) == 0) {
+        DNSServiceRef ref;
+        if (DNSServiceResolve(&ref, 0, 0, service_name, regtype, domain,
+                            resolve_reply, context) != kDNSServiceErr_NoError) {
+            fs_error(LOG_ERR, "failed to resolve %s: %s", service_name,
+                     strerror(errno));
+
+            return;
+        }
+        const int rfd = DNSServiceRefSockFD(ref);
+        fd_set resp_fds;
+        FD_ZERO(&resp_fds);
+        FD_SET(rfd, &resp_fds);
+        struct timeval timeout = { .tv_sec = 2, .tv_usec = 0 };
+        int sel = select(rfd+1, &resp_fds, NULL, NULL, &timeout);
+        if (sel == 1) {
+            DNSServiceProcessResult(ref);
+        } else if (sel == -1) {
+            fs_error(LOG_ERR, "select failed: %s", strerror(errno));
+        } else if (sel == 0) {
+            fs_error(LOG_INFO, "timed out waiting for DNS response");
+        }
+        DNSServiceRefDeallocate(ref);
+    }
+}
+
+void fsp_avahi_setup_frontend(fsp_link *link)
+{
+  DNSServiceRef ref;
+
+  if (DNSServiceBrowse(&ref, 0, 0, SERVICE_TYPE, NULL, browse_reply, link) !=
+      kDNSServiceErr_NoError) {
+    fs_error(LOG_ERR, "failed to browse for "SERVICE_TYPE": %s",
+	     strerror(errno));
+
+    return;
+  }
+
+  const int bfd = DNSServiceRefSockFD(ref);
+  fd_set browse_fds;
+  do {
+    FD_ZERO(&browse_fds);
+    FD_SET(bfd, &browse_fds);
+    struct timeval timeout = { .tv_sec = 2, .tv_usec = 0 };
+    int sel = select(bfd+1, &browse_fds, NULL, NULL, &timeout);
+    if (sel == 1) {
+      DNSServiceProcessResult(ref);
+    } else if (sel == -1) {
+      fs_error(LOG_ERR, "select faild: %s", strerror(errno));
+    } else if (sel == 0) {
+      fs_error(LOG_INFO, "timed out waiting for mDNS response");
+      break;
+    }
+  } while (link->segments == 0 || found < link->segments);
+
+  return;
+}
+
+int fsp_avahi_retry_frontend (fsp_link *link, int msecs)
+{
+  return 1;
+}
+
+void fsp_avahi_cleanup_frontend (fsp_link *link)
+{
+  return;
+}
+
+void fsp_avahi_setup_backend(uint16_t port, const char *kb_name, int segments)
+{
+  char host_name[HOST_NAME_MAX + 1];
+  gethostname(host_name, HOST_NAME_MAX);
+
+  char *service = g_strdup_printf("%s-%s", host_name, kb_name);
+  unsigned char kblen = 3 + strlen(kb_name);
+  char *segs = g_strdup_printf("segments=%d", segments);
+  char *txt_record = g_strdup_printf("%ckb=%s%c%s", kblen, kb_name, (char)strlen(segs), segs);
+
+  DNSServiceRef ref;
+  if (DNSServiceRegister(&ref, 0, 0, service, SERVICE_TYPE, NULL, NULL, htons(port), strlen(txt_record), txt_record, NULL, NULL) != kDNSServiceErr_NoError) {
+    fs_error(LOG_ERR, "failed to register mDNS advert: %s", strerror(errno));
+  }
+  g_free(service);
+  g_free(segs);
+  g_free(txt_record);
+ 
+  return;
+}
+
+#endif
+#endif
+
+#ifdef USE_AVAHI
 
 #include <net/if.h>
 #include <avahi-client/client.h>
@@ -200,7 +368,7 @@ void fsp_avahi_setup_frontend (fsp_link *link)
 
   AvahiServiceBrowser *avahi_browser = 
         avahi_service_browser_new(avahi_client, AVAHI_IF_UNSPEC,
-                                  AVAHI_PROTO_UNSPEC, "_4store._tcp", NULL, 0,
+                                  AVAHI_PROTO_UNSPEC, SERVICE_TYPE, NULL, 0,
                                   browse_callback, (void *) link);
   if (!avahi_browser) {
     link_error(LOG_WARNING, "while creating Avahi browser: %s",
@@ -258,7 +426,7 @@ static void create_services (AvahiClient *client, fsp_mdns_state *ms)
                                                        group_callback, ms);
   avahi_error = avahi_entry_group_add_service(avahi_group, AVAHI_IF_UNSPEC,
                                               AVAHI_PROTO_UNSPEC, 0,
-                                              ms->service, "_4store._tcp", NULL,
+                                              ms->service, SERVICE_TYPE, NULL,
                                               NULL, ms->port,
                                               ms->kb_name, ms->segments, NULL);
 
@@ -353,3 +521,5 @@ void fsp_avahi_setup_backend (uint16_t port, const char *kb_name,
 }
 
 #endif
+
+/* vi:set expandtab sts=4 sw=4: */

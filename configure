@@ -33,6 +33,6 @@ test -e "`which pcre-config`" && pass "pcre installed" || fail "no pcre devel sy
 libtest "ncurses"
 libtest "termcap"
 libtest "readline" "-lncurses"
-pkg-config --exists avahi-glib avahi-client && pass "avahi installed" || optfail "no avahi, will build without cluster support"
+pkg-config --exists avahi-glib avahi-client && pass "avahi installed" || ( test -e /usr/include/dns_sd.h && pass "dns_sd installed" || optfail "no mDNS library, will build without cluster support" )
 
 rm -f /tmp/configure-$$.*

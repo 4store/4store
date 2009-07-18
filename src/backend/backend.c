@@ -548,6 +548,7 @@ int fs_backend_cleanup_files(fs_backend *be)
     for (int i=0; i<be->ptree_length; i++) {
 	if (be->ptrees_priv[i].pend) {
 	    fs_list_unlink(be->ptrees_priv[i].pend);
+	    fs_list_close(be->ptrees_priv[i].pend);
 	    be->ptrees_priv[i].pend = NULL;
 	}
     }
