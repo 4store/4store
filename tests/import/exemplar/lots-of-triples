@@ -1,12 +1,12 @@
 # import
 # size of result
   seg   quads (s)  quads (sr)      models   resources
-    0      166231          +0           3       31610
-    1      165708          +0           3       31693
-    2      164908          +0           3       31532
-    3      166509          +0           3       31706
+    0      162374          +0           3       31610
+    1      161740          +0           3       31693
+    2      161166          +0           3       31532
+    3      162596          +0           3       31706
 
-TOTAL      663356          +0           3      126541
+TOTAL      647876          +0           3      126541
 
 collision probability ≅ 0.00%
 # distinct predicates by object
