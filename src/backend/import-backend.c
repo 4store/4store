@@ -13,9 +13,8 @@
 
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
-/*
- *  Copyright (C) 2006 Steve Harris for Garlik
+
+    Copyright (C) 2006 Steve Harris for Garlik
  */
 
 #include <stdlib.h>
@@ -150,7 +149,15 @@ int fs_quad_import(fs_backend *be, int seg, int flags, int count, fs_rid buffer[
 	    quad_buffer[quad_pos].quad[3] = buffer[i][3];
 	}
 	if (quad_pos == QUAD_BUF_SIZE) {
-	    be->pended_import = 1;
+	    if (!be->pended_import) {
+		be->pended_import = 1;
+		for (int pend=0; pend < FS_PENDED_LISTS; pend++) {
+		    char label[256];
+		    snprintf(label, 255, "pl-%1x", pend);
+		    be->pended[pend] = fs_list_open(be, label,
+			sizeof(fs_rid) * 4, O_CREAT | O_TRUNC | O_RDWR);
+		}
+	    }
 	    int ret = fs_quad_import_commit(be, seg, flags, 0);
 	    if (ret) {
 		fs_error(LOG_CRIT, "quad commit failed");
@@ -243,58 +250,31 @@ int fs_quad_import_commit(fs_backend *be, int seg, int flags, int account)
 
     TIME(NULL);
 
-    for (int pass=0; pass<2; pass++) {
-	if (pass == 0) {
-	    qsort(quad_buffer, quad_pos, sizeof(struct q_buf), qbuf_sort_ps);
-	    for (int i=1; i<quad_pos; i++) {
-		if (quad_buffer[i].quad[0] == quad_buffer[i-1].quad[0] &&
-		    quad_buffer[i].quad[1] == quad_buffer[i-1].quad[1] &&
-		    quad_buffer[i].quad[2] == quad_buffer[i-1].quad[2] &&
-		    quad_buffer[i].quad[3] == quad_buffer[i-1].quad[3]) {
-		    quad_buffer[i].skip = 1;
-		}
-	    }
-	} else {
-	    /* only need one pass if we're pending */
-	    if (be->pended_import) continue;
+    if (be->pended_import) {
+	for (int i=0; i<quad_pos; i++) {
+	    if (quad_buffer[i].skip) continue;
 
-	    qsort(quad_buffer, quad_pos, sizeof(struct q_buf), qbuf_sort_po);
+	    const fs_rid pred = quad_buffer[i].quad[2];
+	    const int pend_list = (pred >> 40) % FS_PENDED_LISTS;
+	    fs_list_add(be->pended[pend_list], quad_buffer[i].quad);
 	}
-	if (be->pended_import) {
-	    fs_list *pl = NULL;
-	    fs_rid last_pred = FS_RID_NULL;
-	    for (int i=0; i<quad_pos; i++) {
-		if (quad_buffer[i].skip) continue;
-
-		const fs_rid pred = quad_buffer[i].quad[2];
-		if (pred != last_pred) {
-		    pl = NULL;
-		    char label[256];
-		    snprintf(label, 255, "pl-%016llx", pred);
-		    for (int t=0; t<be->ptree_length; t++) {
-			if (pred == be->ptrees_priv[t].pred) {
-			    if (!be->ptrees_priv[t].pend) {
-				char label[256];
-				snprintf(label, 255, "pl-%016llx", pred);
-				be->ptrees_priv[t].pend = fs_list_open(be, label, sizeof(fs_rid) * 4, O_CREAT | O_TRUNC | O_RDWR);
-			    }
-			    pl = be->ptrees_priv[t].pend;
-			}
+    } else {
+	for (int pass=0; pass<2; pass++) {
+	    if (pass == 0) {
+		qsort(quad_buffer, quad_pos, sizeof(struct q_buf),
+		      qbuf_sort_ps);
+		for (int i=1; i<quad_pos; i++) {
+		    if (quad_buffer[i].quad[0] == quad_buffer[i-1].quad[0] &&
+			quad_buffer[i].quad[1] == quad_buffer[i-1].quad[1] &&
+			quad_buffer[i].quad[2] == quad_buffer[i-1].quad[2] &&
+			quad_buffer[i].quad[3] == quad_buffer[i-1].quad[3]) {
+			quad_buffer[i].skip = 1;
 		    }
-		    if (!pl) {
-			fs_backend_open_ptree(be, pred);
-			int id = fs_list_add(be->predicates, &pred);
-			char label[256];
-			snprintf(label, 255, "pl-%016llx", pred);
-			pl = fs_list_open(be, label, sizeof(fs_rid) * 4, O_CREAT | O_TRUNC | O_RDWR);
-			be->ptrees_priv[id].pend = pl;
-		    }
-		    last_pred = pred;
 		}
-
-		fs_list_add(pl, quad_buffer[i].quad);
+	    } else {
+		qsort(quad_buffer, quad_pos, sizeof(struct q_buf),
+		      qbuf_sort_po);
 	    }
-	} else {
 	    const int force = pass == 1 ? 1 : 0;
 	    fs_rid last_pred = FS_RID_NULL;
 	    fs_ptree *pt = NULL;
@@ -305,8 +285,6 @@ int fs_quad_import_commit(fs_backend *be, int seg, int flags, int account)
 		const fs_rid pred = quad_buffer[i].quad[2];
 		if (last_pred != pred) {
 		    pt = NULL;
-
-
 		    pt = fs_backend_get_ptree(be, pred, pass);
 		    if (!pt) {
 			fs_backend_open_ptree(be, pred);
@@ -416,6 +394,18 @@ static int remove_by_search(fs_backend *be, fs_rid model, fs_index_node model_id
     while ((pred = fs_rid_set_next(preds)) != FS_RID_NULL) {
 	fs_ptree *sfp = fs_backend_get_ptree(be, pred, 0);
 	fs_ptree *ofp = fs_backend_get_ptree(be, pred, 1);
+	if (!sfp && !ofp) {
+	    fs_error(LOG_CRIT, "failed to get ptrees for pred %016llx", pred);
+	    continue;
+	}
+	if (!sfp) {
+	    fs_error(LOG_CRIT, "failed to get s ptree for pred %016llx", pred);
+	    continue;
+	}
+	if (!ofp) {
+	    fs_error(LOG_CRIT, "failed to get o ptree for pred %016llx", pred);
+	    continue;
+	}
 
 	fs_tbchain_it *it =
 	    fs_tbchain_new_iterator(be->model_list, model_id);

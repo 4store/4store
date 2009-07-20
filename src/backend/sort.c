@@ -108,4 +108,32 @@ int quad_sort_by_mspo(const void *va, const void *vb)
     return 0;
 }
 
+#define SORT(n) if (a[n] != b[n]) { if (a[n] < b[n]) return -1; if (a[n] > b[n]) return 1; }
+
+int quad_sort_by_psmo(const void *va, const void *vb)
+{
+    const fs_rid *a = va;
+    const fs_rid *b = vb;
+
+    SORT(2);
+    SORT(1);
+    SORT(0);
+    SORT(3);
+
+    return 0;
+}
+
+int quad_sort_by_poms(const void *va, const void *vb)
+{
+    const fs_rid *a = va;
+    const fs_rid *b = vb;
+
+    SORT(2);
+    SORT(3);
+    SORT(0);
+    SORT(1);
+
+    return 0;
+}
+
 /* vi:set expandtab sts=4 sw=4: */

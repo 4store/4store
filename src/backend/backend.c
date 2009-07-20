@@ -43,6 +43,23 @@
  * index files */
 static volatile int need_reload = 0;
 
+struct ptree_ref *fs_backend_ptree_ref(fs_backend *be, int n);
+
+static guint rid_hash(gconstpointer p)
+{
+    const fs_rid *r = p;
+
+    return (guint)*r;
+}
+
+static gboolean rid_equal(gconstpointer va, gconstpointer vb)
+{
+    const fs_rid *a = va;
+    const fs_rid *b = vb;
+
+    return *a == *b;
+}
+
 int fs_backend_need_reload()
 {
     if (need_reload) {
@@ -275,6 +292,9 @@ void fs_backend_ptree_limited_open(fs_backend *be, int n)
     be->ptrees_priv[n].ptree_s = fs_ptree_open(be, be->ptrees_priv[n].pred, 's', be->ptree_open_flags | O_RDWR, be->pairs);
     be->ptrees_priv[n].ptree_o = fs_ptree_open(be, be->ptrees_priv[n].pred, 'o', be->ptree_open_flags | O_RDWR, be->pairs);
     be->open_ptrees[be->open_ptrees_newest++] = n;
+    fs_rid *rid = g_malloc(sizeof(fs_rid));
+    *rid = be->ptrees_priv[n].pred;
+    g_hash_table_insert(be->rid_id_map, rid, (gpointer)n);
     if (be->open_ptrees_newest >= FS_MAX_OPEN_PTREES)
 	be->open_ptrees_newest = 0;
     be->ptree_open_count++;
@@ -297,34 +317,56 @@ static int fs_commit(fs_backend *be, fs_segment seg, int force_trans)
 	/* push out pending data */
 
 	fs_rid quad[4];
-	for (int i=0; i<be->ptree_length; i++) {
-	    if (be->ptrees_priv[i].pend) {
+	fs_rid pred = FS_RID_NULL;
+	fs_ptree *current_tree = NULL;
+	for (int i=0; i<FS_PENDED_LISTS; i++) {
+	    fs_list_flush(be->pended[i]);
 
-		fs_backend_ptree_limited_open(be, i);
-		/* TODO we might want to sort here, to improve locality and
-		 * uniq */
-
-		/* insert into s tree */
-		fs_list_flush(be->ptrees_priv[i].pend);
-		fs_list_rewind(be->ptrees_priv[i].pend);
-		while (fs_list_next_value(be->ptrees_priv[i].pend, quad)) {
-		    fs_rid pair[2] = { quad[0], quad[3] };
-		    fs_ptree_add(be->ptrees_priv[i].ptree_s, quad[1], pair, 0);
+	    /* process S ptrees */
+	    fs_list_rewind(be->pended[i]);
+	    fs_list_sort_chunked(be->pended[i], quad_sort_by_psmo);
+	    while (fs_list_next_sort_uniqed(be->pended[i], quad)) {
+		if (quad[2] != pred) {
+		    pred = quad[2];
+		    current_tree = fs_backend_get_ptree(be, pred, 0);
+		    if (!current_tree) {
+			/* it's a new ptree pair */
+			int n = fs_backend_open_ptree(be, pred);
+			struct ptree_ref *r = fs_backend_ptree_ref(be, n);
+			current_tree = r->ptree_s;
+			fs_list_add(be->predicates, &pred);
+		    }
+		    if (!current_tree) {
+			fs_error(LOG_CRIT, "failed to create ptree for %016llx",
+				 pred);
+		    }
 		}
-
-		/* insert into o tree */
-		fs_list_rewind(be->ptrees_priv[i].pend);
-		while (fs_list_next_value(be->ptrees_priv[i].pend, quad)) {
-		    fs_rid pair[2] = { quad[0], quad[1] };
-		    fs_ptree_add(be->ptrees_priv[i].ptree_o, quad[3], pair, 0);
-		}
-
-		/* this is potentially expensive, we could just truncate the list
-		 * files here */
-		fs_list_unlink(be->ptrees_priv[i].pend);
-		fs_list_close(be->ptrees_priv[i].pend);
-		be->ptrees_priv[i].pend = NULL;
+		fs_rid pair[2] = { quad[0], quad[3] };
+		fs_ptree_add(current_tree, quad[1], pair, 0);
 	    }
+
+	    /* process O ptrees */
+	    pred = FS_RID_NULL;
+	    current_tree = NULL;
+	    fs_list_rewind(be->pended[i]);
+	    fs_list_sort_chunked(be->pended[i], quad_sort_by_poms);
+	    while (fs_list_next_sort_uniqed(be->pended[i], quad)) {
+		if (quad[2] != pred) {
+		    pred = quad[2];
+		    current_tree = fs_backend_get_ptree(be, pred, 1);
+		    if (!current_tree) {
+			fs_error(LOG_CRIT, "failed to get ptree for %016llx",
+				 pred);
+		    }
+		}
+		fs_rid pair[2] = { quad[0], quad[1] };
+		fs_ptree_add(current_tree, quad[3], pair, 0);
+	    }
+
+	    /* cleanup pended lists */
+	    fs_list_unlink(be->pended[i]);
+	    fs_list_close(be->pended[i]);
+	    be->pended[i] = NULL;
 	}
 
 	be->pended_import = 0;
@@ -433,15 +475,16 @@ struct ptree_ref *fs_backend_ptree_ref(fs_backend *be, int n)
 
 fs_ptree *fs_backend_get_ptree(fs_backend *be, fs_rid pred, int object)
 {
-    for (int t=0; t<be->ptree_length; t++) {
-	if (pred == be->ptrees_priv[t].pred) {
-	    struct ptree_ref *ref = fs_backend_ptree_ref(be, t);
-	    if (object == 0) return ref->ptree_s;
-	    else return ref->ptree_o;
-	}
+    long int id = (long int)g_hash_table_lookup(be->rid_id_map, &pred);
+    /* if the the lookup function returns 0, it could mean item 0, or that it's
+     * not there */
+    if (id == 0 &&
+        (be->ptree_length == 0 || be->ptrees_priv[id].pred != pred)) {
+	return NULL;
     }
-
-    return NULL;
+    struct ptree_ref *ref = fs_backend_ptree_ref(be, id);
+    if (object == 0) return ref->ptree_s;
+    return ref->ptree_o;
 }
 
 int fs_backend_open_ptree(fs_backend *be, fs_rid pred)
@@ -458,7 +501,6 @@ int fs_backend_open_ptree(fs_backend *be, fs_rid pred)
     be->ptrees_priv[be->ptree_length].ptree_o = NULL;
     be->ptrees_priv[be->ptree_length].pred = pred;
     fs_backend_ptree_limited_open(be, be->ptree_length);
-    be->ptrees_priv[be->ptree_length].pend = NULL;
     be->approx_size += fs_ptree_count(be->ptrees_priv[be->ptree_length].ptree_s);
 
     return (be->ptree_length)++;
@@ -530,6 +572,8 @@ int fs_backend_open_files_intl(fs_backend *be, fs_segment seg, int flags, int fi
 
 	    return 1;
 	}
+	be->rid_id_map = g_hash_table_new_full(rid_hash, rid_equal, g_free,
+					       NULL);
 	while (fs_list_next_value(be->predicates, &pred)) {
 	    fs_backend_open_ptree(be, pred);
 	}
@@ -545,11 +589,11 @@ int fs_backend_open_files_intl(fs_backend *be, fs_segment seg, int flags, int fi
 
 int fs_backend_cleanup_files(fs_backend *be)
 {
-    for (int i=0; i<be->ptree_length; i++) {
-	if (be->ptrees_priv[i].pend) {
-	    fs_list_unlink(be->ptrees_priv[i].pend);
-	    fs_list_close(be->ptrees_priv[i].pend);
-	    be->ptrees_priv[i].pend = NULL;
+    for (int i=0; i<FS_PENDED_LISTS; i++) {
+	if (be->pended[i]) {
+	    fs_list_unlink(be->pended[i]);
+	    fs_list_close(be->pended[i]);
+	    be->pended[i] = NULL;
 	}
     }
 
@@ -667,6 +711,8 @@ int fs_backend_close_files(fs_backend *be, fs_segment seg)
 	fs_list_close(be->predicates);
     }
     be->predicates = NULL;
+    g_hash_table_destroy(be->rid_id_map);
+    be->rid_id_map = NULL;
     be->segment = -1;
 
     return 0;
