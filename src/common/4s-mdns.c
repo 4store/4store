@@ -120,8 +120,17 @@ static void resolve_reply
     char *segments_str = get_txt_string(txt, txt_len, "segments");
     int segments = atoi(segments_str);
     free(segments_str);
+    int oldfound = found;
+    /* sometimes we get these odd looking .members.mac.com addresses on OSX,
+     * they don't seem to work, so lets skip them */
+    if (!strstr(hosttarget, ".members.mac.com")) {
 //printf("@@ adding %s:%d (%d)\n", hosttarget, port, segments);
-    found += fsp_add_backend(link, hosttarget, port, segments);
+        found += fsp_add_backend(link, hosttarget, port, segments);
+    }
+    /* if the address we got didn't help then try again */
+    if (oldfound == found) {
+        link->try_dns_again = 1;
+    }
 }
 
 static void browse_reply
@@ -143,16 +152,23 @@ static void browse_reply
         }
         const int rfd = DNSServiceRefSockFD(ref);
         fd_set resp_fds;
+        retry:;
+        link->try_dns_again = 0;
         FD_ZERO(&resp_fds);
         FD_SET(rfd, &resp_fds);
-        struct timeval timeout = { .tv_sec = 2, .tv_usec = 0 };
+        struct timeval timeout = { .tv_sec = 10, .tv_usec = 0 };
         int sel = select(rfd+1, &resp_fds, NULL, NULL, &timeout);
         if (sel == 1) {
             DNSServiceProcessResult(ref);
         } else if (sel == -1) {
             fs_error(LOG_ERR, "select failed: %s", strerror(errno));
         } else if (sel == 0) {
-            fs_error(LOG_INFO, "timed out waiting for DNS response");
+            fs_error(LOG_INFO, "waiting for mDNS response");
+        } else {
+            fs_error(LOG_ERR, "select returned %d", sel);
+        }
+        if (link->try_dns_again) {
+            goto retry;
         }
         DNSServiceRefDeallocate(ref);
     }
