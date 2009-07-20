@@ -35,6 +35,7 @@
 <local:stripes>	<http://xmlns.com/foaf/0.1/name>	"Mark Thompson"
 <local:stripes>	<http://xmlns.com/foaf/0.1/nick>	"Stripes"
 <mailto:steve@example.net>	<http://www.w3.org/1999/02/22-rdf-syntax-ns#type>	<http://xmlns.com/foaf/0.1/Person>
+<mailto:steve@example.net>	<http://www.w3.org/1999/02/22-rdf-syntax-ns#type>	<http://xmlns.com/foaf/0.1/Person>
 <mailto:steve@example.net>	<http://www.w3.org/2000/01/rdf-schema#seeAlso>	<http://triplestore.aktors.org/resolve/?resource=http%3A%2F%2Fwww.ecs.soton.ac.uk%2Finfo%2F%23person-00384>
 <mailto:steve@example.net>	<http://xmlns.com/foaf/0.1/currentProject>	<local:akt>
 <mailto:steve@example.net>	<http://xmlns.com/foaf/0.1/depiction>	<http://www.linuxdj.com/audio/lad/contrib/zkm_meeting_2003/photos/steve_harris.jpg>
@@ -50,6 +51,7 @@
 <mailto:steve@example.net>	<http://xmlns.com/foaf/0.1/knows>	<local:libby>
 <mailto:steve@example.net>	<http://xmlns.com/foaf/0.1/knows>	<local:nick>
 <mailto:steve@example.net>	<http://xmlns.com/foaf/0.1/knows>	<local:stripes>
+<mailto:steve@example.net>	<http://xmlns.com/foaf/0.1/mbox_sha1sum>	"44bc4fed584a2d1ac8fc55206db67656165d67fd"
 <mailto:steve@example.net>	<http://xmlns.com/foaf/0.1/mbox_sha1sum>	"44bc4fed584a2d1ac8fc55206db67656165d67fd"
 <mailto:steve@example.net>	<http://xmlns.com/foaf/0.1/name>	"Steve Harris"
 <mailto:steve@example.net>	<http://xmlns.com/foaf/0.1/nick>	"swh"
