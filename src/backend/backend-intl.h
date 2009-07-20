@@ -17,7 +17,7 @@ struct ptree_ref {
 
 #define FS_MAX_OPEN_PTREES 300
 
-#define FS_PENDED_LISTS 4
+#define FS_PENDED_LISTS 16
 
 struct _fs_backend {
     const char *db_name;
