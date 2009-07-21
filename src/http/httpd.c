@@ -846,6 +846,13 @@ static void http_post_request(client_ctxt *ctxt, gchar *url, gchar *protocol)
 
   url_decode(url);
   if (!strcmp(url, "/sparql/")) {
+    const char *form_type = g_hash_table_lookup(ctxt->headers, "content-type");
+    if (strcasecmp(form_type, "application/x-www-form-urlencoded")) {
+      http_error(ctxt, "400 4store only implements application/x-www-form-urlencoded");
+      http_close(ctxt);
+      return;
+    }
+
     const char *length = g_hash_table_lookup(ctxt->headers, "content-length");
     ctxt->bytes_left = atol(length);
 
@@ -911,6 +918,13 @@ static void http_post_request(client_ctxt *ctxt, gchar *url, gchar *protocol)
     g_free(form);
 
   } else if (!strcmp(url, "/data/")) {
+    const char *form_type = g_hash_table_lookup(ctxt->headers, "content-type");
+    if (strcasecmp(form_type, "application/x-www-form-urlencoded")) {
+      http_error(ctxt, "400 4store only implements application/x-www-form-urlencoded");
+      http_close(ctxt);
+      return;
+    }
+
     const char *length = g_hash_table_lookup(ctxt->headers, "content-length");
     ctxt->bytes_left = atol(length);
 
