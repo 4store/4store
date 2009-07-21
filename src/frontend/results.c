@@ -1539,7 +1539,11 @@ nextrow: ;
         g_static_mutex_lock (&cache_mutex);
         if (res_l1_cache) g_hash_table_foreach_steal(res_l1_cache, cache_dump, NULL);
 
-	for (int row=q->row; row < q->row + RESOURCE_LOOKUP_BUFFER && row < rows; row++) {
+        int lookup_buffer_size = RESOURCE_LOOKUP_BUFFER;
+        if (q->limit > 0 && q->limit < RESOURCE_LOOKUP_BUFFER) {
+            lookup_buffer_size = q->limit * 2;
+        }
+	for (int row=q->row; row < q->row + lookup_buffer_size && row < rows; row++) {
 	    for (int col=0; col < q->num_vars; col++) {
 		fs_rid rid;
 		if (row < q->b[col].vals->length) {
@@ -1560,7 +1564,7 @@ nextrow: ;
         if (q->pending) {
             resolve_precache_all(q->link, q->pending, q->segments);
         }
-	q->lastrow = q->row + RESOURCE_LOOKUP_BUFFER;
+	q->lastrow = q->row + lookup_buffer_size;
     }
 
     const int row = q->ordering ? q->ordering[q->row] : q->row;
