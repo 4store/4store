@@ -28,8 +28,7 @@
 
 #define SERVICE_TYPE "_4store._tcp"
 
-#ifndef USE_DNS_SD
-#ifndef USE_AVAHI
+#if !defined(USE_DNS_SD) && !defined(USE_AVAHI)
 
 /* fallback if there's no MDNS library */
 
@@ -63,10 +62,8 @@ void fsp_avahi_setup_backend (uint16_t port, const char *kb_name, int segments)
 }
 
 #endif
-#endif
 
-#ifndef USE_AVAHI
-#ifdef USE_DNS_SD
+#if !defined(USE_AVAHI) && defined(USE_DNS_SD)
 
 #include <errno.h>
 #include <dns_sd.h>
@@ -82,7 +79,7 @@ void fsp_avahi_setup_backend (uint16_t port, const char *kb_name, int segments)
 
 static int found = 0;
 
-/* Use apple-type DNS-SD library */
+/* Use apple-style DNS-SD library */
 
 static char *get_txt_string(const unsigned char *txt, int txtlen, char *key)
 {
@@ -120,6 +117,7 @@ static void resolve_reply
     char *segments_str = get_txt_string(txt, txt_len, "segments");
     int segments = atoi(segments_str);
     free(segments_str);
+//printf("@@ resolved %s:%d (%d)\n", hosttarget, port, segments);
     int oldfound = found;
     /* sometimes we get these odd looking .members.mac.com addresses on OSX,
      * they don't seem to work, so lets skip them */
@@ -142,6 +140,7 @@ static void browse_reply
 
     char *dashpos = strchr(service_name, '-');
     if (dashpos && strcmp(dashpos+1, link->kb_name) == 0) {
+//printf("@@ found service_name=%s\n", service_name);
         DNSServiceRef ref;
         if (DNSServiceResolve(&ref, 0, 0, service_name, regtype, domain,
                             resolve_reply, context) != kDNSServiceErr_NoError) {
@@ -202,6 +201,7 @@ void fsp_avahi_setup_frontend(fsp_link *link)
       break;
     }
   } while (link->segments == 0 || found < link->segments);
+  DNSServiceRefDeallocate(ref);
 
   return;
 }
@@ -237,7 +237,6 @@ void fsp_avahi_setup_backend(uint16_t port, const char *kb_name, int segments)
   return;
 }
 
-#endif
 #endif
 
 #ifdef USE_AVAHI

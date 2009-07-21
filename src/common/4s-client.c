@@ -554,7 +554,7 @@ fsp_link* fsp_open_link (const char *name, char *password, int readonly)
   }
 
 #if defined(USE_AVAHI) || defined(USE_DNS_SD)
-  fsp_avahi_setup_frontend (link);
+  fsp_avahi_setup_frontend(link);
   if (link->servers < 1) {
     free(link);
     link = NULL;
