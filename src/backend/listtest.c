@@ -31,7 +31,7 @@ int main()
     fs_list *l = fs_list_open_filename(filename, sizeof(fs_rid) * 4, O_CREAT | O_TRUNC | O_RDWR);
     srand(time(NULL));
     for (int i=0; i<100; i++) {
-        fs_rid quad[4] = { i, i, i, i };
+        fs_rid quad[4] = { i+23, i+23, i+23, i+23 };
         fs_list_add(l, quad);
     }
     fs_list_flush(l);
@@ -46,7 +46,26 @@ int main()
         if (i > 99) {
             printf("ERROR got more than 100 items from list\n");
         }
-        if (quad[0] != i || quad[1] != i || quad[2] != i || quad[3] != i) {
+        if (quad[0] != i+23 || quad[1] != i+23 || quad[2] != i+23 || quad[3] != i+23) {
+            printf("ERORR found %016llx %016llx %016llx %016llx, expecting all %ds\n",
+                   quad[0], quad[1], quad[2], quad[3], i);
+        }
+    }
+    fs_list_rewind(l);
+    if (fs_list_sort_chunked(l, quad_sort_by_mspo)) {
+        printf("failed to sort list");
+    }
+    for (int i=0; 1; i++) {
+        fs_rid quad[4] = { 0, 0, 0, 0 };
+        int got = fs_list_next_sort_uniqed(l, quad);
+        if (!got && i < 100) {
+            printf("ERROR got %d, less than 100 items from list\n", i);
+        }
+        if (!got) break;
+        if (i > 99) {
+            printf("ERROR got more than 100 items from list\n");
+        }
+        if (quad[0] != i+23 || quad[1] != i+23 || quad[2] != i+23 || quad[3] != i+23) {
             printf("ERORR found %016llx %016llx %016llx %016llx, expecting all %ds\n",
                    quad[0], quad[1], quad[2], quad[3], i);
         }
@@ -69,8 +88,8 @@ int main()
     fs_rid quad[4];
     fs_list_rewind(l);
     fs_rid last = 0LL;
-    while (fs_list_next_sorted(l, quad)) {
-        if (last > quad[0]) {
+    while (fs_list_next_sort_uniqed(l, quad)) {
+        if (last >= quad[0]) {
             printf("found %016llx after %016llx, not sorted\n", quad[0], last);
         }
         last = quad[0];

@@ -24,7 +24,7 @@ int32_t fs_list_add(fs_list *l, const void *data);
 
 void fs_list_rewind(fs_list *l);
 int fs_list_next_value(fs_list *l, void *out);
-int fs_list_next_sorted(fs_list *l, void *out);
+int fs_list_next_sort_uniqed(fs_list *l, void *out);
 
 int fs_list_get(fs_list *l, int32_t pos, void *data);
 

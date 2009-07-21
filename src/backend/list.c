@@ -58,6 +58,7 @@ struct _fs_list {
     off_t *chunk_pos;
     off_t *chunk_end;
     void *map;
+    void *last;
 };
 
 fs_list *fs_list_open(fs_backend *be, const char *label, size_t width, int flags)
@@ -221,7 +222,8 @@ void fs_list_rewind(fs_list *l)
     lseek(l->fd, 0, SEEK_SET);
 }
 
-int fs_list_next_sorted(fs_list *l, void *out)
+/* return the next item from a sorted list, uniqs as well */
+int fs_list_next_sort_uniqed(fs_list *l, void *out)
 {
     if (!l) {
         fprintf(out, "NULL list\n");
@@ -232,8 +234,10 @@ int fs_list_next_sorted(fs_list *l, void *out)
     switch (l->sort) {
     case unsorted:
         fs_error(LOG_WARNING, "tried to call %s on unsorted list", __func__);
-    case sorted:
         return fs_list_next_value(l, out);
+    case sorted:
+        // this doesn't uniq, so we should use it unless we have to
+        //return fs_list_next_value(l, out);
     case chunk_sorted:
         break;
     }
@@ -256,14 +260,18 @@ int fs_list_next_sorted(fs_list *l, void *out)
         if (chunk_length != l->offset) {
             fs_error(LOG_ERR, "length(chunks) = %lld, length(list) = %lld, not sorting", chunk_length, (long long)l->offset);
             free(l->chunk_pos);
+            l->chunk_pos = NULL;
             free(l->chunk_end);
+            l->chunk_end = NULL;
 
             return 1;
         }
+        l->last = calloc(1, l->width);
         l->map = mmap(NULL, l->offset * l->width, PROT_READ,
                      MAP_FILE | MAP_SHARED, l->fd, 0);
     }
 
+again:;
     int best_c = -1;
     for (int c=0; c < l->chunks; c++) {
         if (l->chunk_pos[c] >= l->chunk_end[c]) {
@@ -284,15 +292,32 @@ int fs_list_next_sorted(fs_list *l, void *out)
             fs_error(LOG_ERR, "failed to find low row after %lld/%lld rows", (long long)l->count, (long long)l->offset);
         }
 
+        free(l->chunk_pos);
+        l->chunk_pos = NULL;
+        free(l->chunk_end);
+        l->chunk_end = NULL;
+        free(l->last);
+        l->last = NULL;
+        munmap(l->map, l->offset * l->width);
+        l->map = NULL;
+
         return 0;
     }
 
-    memcpy(out, l->map + l->chunk_pos[best_c], l->width);
-    l->chunk_pos[best_c] += l->width;
+    if (bcmp(l->last, l->map + l->chunk_pos[best_c], l->width) == 0) {
+        /* it's a duplicate */
+        l->chunk_pos[best_c] += l->width;
+        (l->count)++;
 
-    (l->count)++;
+        goto again;
+    } else {
+        memcpy(out, l->map + l->chunk_pos[best_c], l->width);
+        memcpy(l->last, l->map + l->chunk_pos[best_c], l->width);
+        l->chunk_pos[best_c] += l->width;
+        (l->count)++;
 
-    return 1;
+        return 1;
+    }
 }
 
 int fs_list_next_value(fs_list *l, void *out)
