@@ -227,6 +227,22 @@ static void http_code(client_ctxt *ctxt, const char *code)
   http_send(ctxt, "</body></html>\n");
 }
 
+static void http_404(client_ctxt *ctxt, const char *url)
+{
+  fs_error(LOG_INFO, "HTTP 404 for %s", url);
+  http_send(ctxt, "HTTP/1.0 404 Not found\r\n");
+  http_send(ctxt, "Server: 4s-httpd/" GIT_REV "\r\n");
+  http_send(ctxt, "Content-Type: text/html; charset=UTF-8\r\n");
+  http_send(ctxt, "\r\n");
+  http_send(ctxt, "<!DOCTYPE HTML PUBLIC \"-//IETF//DTD HTML 2.0//EN\">\n");
+  http_send(ctxt, "<html><head><title>Not found</title></head>\n");
+  http_send(ctxt, "<body><h1>Not found</h1>\n");
+  http_send(ctxt, "<p>This is a 4store SPARQL server.</p>");
+  http_send(ctxt, "<p>Check <a href=\"/status/\">the status page</a>.</p>");
+  http_send(ctxt, "<p>4store " GIT_REV "</p>");
+  http_send(ctxt, "</body></html>\n");
+}
+
 static void http_error(client_ctxt *ctxt, const char *error)
 {
   fs_error(LOG_INFO, "HTTP error, returning status %s", error);
@@ -810,7 +826,7 @@ static void http_get_request(client_ctxt *ctxt, gchar *url, gchar *protocol)
     http_redirect(ctxt, "test/");
     http_close(ctxt);
   } else {
-    http_error(ctxt, "404 Not found");
+    http_404(ctxt, url);
     http_close(ctxt);
   }
 }
@@ -988,9 +1004,8 @@ static void http_post_request(client_ctxt *ctxt, gchar *url, gchar *protocol)
       http_close(ctxt);
     }
     g_free(form);
-
   } else {
-    http_error(ctxt, "404 Not found");
+    http_404(ctxt, url);
     http_close(ctxt);
   }
 }
