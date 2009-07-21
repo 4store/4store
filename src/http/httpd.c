@@ -860,7 +860,10 @@ static void http_post_request(client_ctxt *ctxt, gchar *url, gchar *protocol)
     gchar *buffer = form;
 
     for (gsize read = 0; ctxt->bytes_left > 0; buffer += read, ctxt->bytes_left -= read) {
-      GIOStatus result = g_io_channel_read_chars(ctxt->ioch, buffer, ctxt->bytes_left, &read, NULL);
+      GIOStatus result;
+      do {
+        result = g_io_channel_read_chars(ctxt->ioch, buffer, ctxt->bytes_left, &read, NULL);
+      } while (result == G_IO_STATUS_AGAIN);
       if (result !=  G_IO_STATUS_NORMAL) {
         fs_error(LOG_ERR, "unexpected IO status during POST request");
         g_free(form);
@@ -922,7 +925,10 @@ static void http_post_request(client_ctxt *ctxt, gchar *url, gchar *protocol)
     gchar *buffer = form;
 
     for (gsize read = 0; ctxt->bytes_left > 0; buffer += read, ctxt->bytes_left -= read) {
-      GIOStatus result = g_io_channel_read_chars(ctxt->ioch, buffer, ctxt->bytes_left, &read, NULL);
+      GIOStatus result;
+      do {
+        result = g_io_channel_read_chars(ctxt->ioch, buffer, ctxt->bytes_left, &read, NULL);
+      } while (result == G_IO_STATUS_AGAIN);
       if (result !=  G_IO_STATUS_NORMAL) {
         fs_error(LOG_ERR, "unexpected IO status during POST request");
         g_free(form);
