@@ -47,6 +47,9 @@ struct fsp_link_struct {
   void *avahi_browser;
   void *avahi_client;
 #endif
+#ifdef USE_DNS_SD
+  int try_dns_again;
+#endif
 };
 
 /* common functions */
