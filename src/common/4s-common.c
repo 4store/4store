@@ -25,6 +25,7 @@
 #include <string.h>
 #include <syslog.h>
 #include <stdarg.h>
+#include <errno.h>
 
 #include "error.h"
 
@@ -76,7 +77,7 @@ int fsp_ver_fixup (fsp_link *link, int sock)
   int err = recv(sock, header, FS_HEADER, MSG_WAITALL);
 
   if (err < 0) {
-    fs_error(LOG_ERR, "recv header from socket failed");
+    fs_error(LOG_ERR, "recv header from socket failed, %s", strerror(errno));
     return -1;
   } else if (err == 0) {
     return -1;
@@ -158,7 +159,7 @@ unsigned char *message_recv(int sock,
 
   err= recv(sock, header, FS_HEADER, MSG_WAITALL);
   if (err < 0) {
-    fs_error(LOG_ERR, "recv header from socket failed");
+    fs_error(LOG_ERR, "recv header from socket failed, %s", strerror(errno));
     return NULL;
   } else if (err == 0) {
     return NULL;
@@ -180,7 +181,7 @@ unsigned char *message_recv(int sock,
     int count = recv(sock, p, len, 0);
 
     if (count <= 0) {
-      fs_error(LOG_ERR, "recv body from socket failed");
+      fs_error(LOG_ERR, "recv body from socket failed, %s", strerror(errno));
       break;
     }
     p+= count;
