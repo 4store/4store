@@ -188,6 +188,7 @@ int fs_import_stream_start(fsp_link *link, const char *model_uri, const char *mi
     parse_data.model = g_strdup(model_uri);
     parse_data.model_hash = fs_hash_uri(model_uri);
     parse_data.count_trip = 0;
+    parse_data.count_err = 0;
     parse_data.last_count = 0;
     parse_data.has_o_index = has_o_index;
 
