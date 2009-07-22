@@ -8,9 +8,9 @@ LDFLAGS = $(ldfdarwin) $(ldflinux) `pkg-config --libs raptor glib-2.0 $(avahi)`
 LIB_OBJS = chain.o bucket.o list.o tlist.o rhash.o mhash.o sort.o \
 	   lock.o metadata.o disk-space.o ptree.o ptable.o tbchain.o
 HEADERS = tree.h chain.h bucket.h list.h sort.h lock.h backend-intl.h \
-	  metadata.h tlist.h tbchain.h
+	  metadata.h tlist.h tbchain.h prefix-trie.h
 BINS = 4s-backend
-TESTS = bctest bcdump listdump rhashtest rhashdump mhashtest mhashdump ptreetest ptreedump ptreebind ptabletest tbchaintest tbchaindump listtest
+TESTS = bctest bcdump listdump rhashtest rhashdump mhashtest mhashdump ptreetest ptreedump ptreebind ptabletest tbchaintest tbchaindump listtest prefix-trie-test
 
 all: $(BINS) $(TESTS)
 
@@ -41,6 +41,7 @@ ptreetest: ptreetest.o backend.o ../common/timing.o lib4storage.a ../common/lib4
 ptabletest: ptabletest.o backend.o ../common/timing.o lib4storage.a ../common/lib4store.a
 tbchaintest: tbchaintest.o backend.o ../common/timing.o lib4storage.a ../common/lib4store.a
 listtest: listtest.o backend.o ../common/timing.o lib4storage.a ../common/lib4store.a
+prefix-trie-test: prefix-trie.o prefix-trie-test.o ../common/lib4store.a
 
 bcdump: bcdump.o backend.o ../common/timing.o lib4storage.a ../common/lib4store.a
 treedump: treedump.o backend.o ../common/timing.o lib4storage.a ../common/lib4store.a
