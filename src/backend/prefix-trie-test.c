@@ -3,7 +3,7 @@
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation; either version 2 of the License, or
+ *  the Free Software Foundation; either version 3 of the License, or
  *  (at your option) any later version.
  *
  *  This program is distributed in the hope that it will be useful,
@@ -19,7 +19,7 @@
 
 #include "prefix-trie.h"
 
-#define CODE(x) printf("code("x") = %d\n", fs_prefix_trie_get_code(t, x))
+#define CODE(x) code = fs_prefix_trie_get_code(t, x, &plen); printf("code("x") = %d [%s]%s\n", code, code ? pr[code-1].prefix : "", x+plen)
 
 int main()
 {
@@ -35,25 +35,57 @@ int main()
     fs_prefix_trie_add_string(t, "http://www.xxx.com/xxxx/yyyy");
     fs_prefix_trie_add_string(t, "http://www.xxx.com/xxxx/zzzz");
 
-    fs_prefix_trie_print(t);
+    //fs_prefix_trie_print(t);
 
     printf("best prefixes:\n");
-    fs_prefix *pr = fs_prefix_trie_get_prefixes(t);
-    for (int row=0; row<FS_PREFIXES; row++) {
+    fs_prefix *pr = fs_prefix_trie_get_prefixes(t, 16);
+    for (int row=0; row<16; row++) {
         if (pr[row].score == 0) break;
         printf("%d\t%s\n", pr[row].score, pr[row].prefix);
         fs_prefix_trie_add_code(t, pr[row].prefix, row + 1);
     }
     printf("retreived prefixes:\n");
-    for (int row=0; row<FS_PREFIXES; row++) {
+    for (int row=0; row<16; row++) {
         if (pr[row].score == 0) break;
-        int code = fs_prefix_trie_get_code(t, pr[row].prefix);
+        int code = fs_prefix_trie_get_code(t, pr[row].prefix, NULL);
         printf("%d\t%s\n", code, pr[row].prefix);
     }
     free(pr);
     printf("tests:\n");
-    CODE("http://baaaaaa.com/");
-    CODE("http://foo.com/");
+    int plen, code;
+    CODE("http://www.baaaaaa.com/");
+    CODE("http://www.foo.com/");
+    CODE("http://www.xyz.com/");
+    CODE("file://");
+
+    char junk[128];
+    junk[127] = '\0';
+    for (int i=0; i<200; i++) {
+        for (int c=0; c<127; c++) {
+            junk[c] = (rand() % 64) + 64;
+        }
+        if (fs_prefix_trie_add_string(t, junk)) {
+            printf("add failed\n");
+            break;
+        }
+    }
+
+    printf("next two blocks of text should match:\n");
+    fs_prefix_trie_reset(t);
+    fs_prefix_trie_print(t);
+
+    for (int i=0; i<200; i++) {
+        for (int c=0; c<127; c++) {
+            junk[c] = (rand() % 64) + 64;
+        }
+        if (fs_prefix_trie_add_string(t, junk)) {
+            printf("add failed\n");
+            break;
+        }
+    }
+
+    fs_prefix_trie_reset(t);
+    fs_prefix_trie_print(t);
 
     return 0;
 }

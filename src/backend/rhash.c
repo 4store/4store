@@ -29,6 +29,8 @@
 
 #include "backend.h"
 #include "rhash.h"
+#include "list.h"
+#include "prefix-trie.h"
 #include "common/params.h"
 #include "common/hash.h"
 #include "common/error.h"
@@ -36,6 +38,7 @@
 #define FS_RHASH_DEFAULT_LENGTH        65536
 #define FS_RHASH_DEFAULT_SEARCH_DIST      32
 #define FS_RHASH_DEFAULT_BUCKET_SIZE      16
+#define FS_MAX_PREFIXES                  256
 
 #define FS_RHASH_ID 0x4a585230
 
@@ -44,6 +47,13 @@
 #define FS_PACKED __attribute__((__packed__))
 
 #define FS_RHASH_ENTRY(rh, rid) (((uint64_t)(rid >> 10) & ((uint64_t)(rh->size - 1)))*rh->bucket_size)
+
+#define DISP_I_UTF8         'i'
+#define DISP_I_NUMBER       'N'
+#define DISP_I_DATE         'D'
+#define DISP_I_PREFIX       'p'
+#define DISP_F_UTF8         'f'
+#define DISP_F_PREFIX       'P'
 
 struct rhash_header {
     int32_t id;             // "JXR0"
@@ -61,7 +71,10 @@ struct rhash_header {
 
 typedef struct _fs_rhash_entry {
     fs_rid rid;
-    fs_rid attr;        // attribute value, lang tag or datatype
+    union {
+        fs_rid attr;    // attribute value, lang tag or datatype
+        unsigned char pstr[8]; // prefix code + first 7 chars
+    } FS_PACKED aval;
     union {
         int64_t offset; // offset in lex file
         char str[INLINE_STR_LEN];   // inline string data
@@ -82,6 +95,17 @@ struct _fs_rhash {
     char *lex_filename;
     int flags;
     int locked;
+    fs_prefix_trie *ptrie;
+    fs_prefix_trie *prefixes;
+    int prefix_count;
+    char *prefix_strings[FS_MAX_PREFIXES];
+    fs_list *prefix_file;
+};
+
+/* this is much wider than it needs to be to match fs_list requirements */
+struct prefix_file_line {
+    uint32_t code;
+    char     prefix[512-4];
 };
 
 static fs_rhash *global_sort_rh = NULL;
@@ -161,6 +185,19 @@ fs_rhash *fs_rhash_open_filename(const char *filename, int flags)
         mode = "r";
     }
     const off_t file_length = lseek(rh->fd, 0, SEEK_END);
+    rh->prefixes = fs_prefix_trie_new();
+    rh->ptrie = fs_prefix_trie_new();
+    char *prefix_filename = g_strdup_printf("%s.prefixes", rh->filename);
+    rh->prefix_file = fs_list_open_filename(prefix_filename,
+                                            sizeof(struct prefix_file_line), flags);
+    g_free(prefix_filename);
+    struct prefix_file_line pre;
+    fs_list_rewind(rh->prefix_file);
+    while (fs_list_next_value(rh->prefix_file, &pre)) {
+        fs_prefix_trie_add_code(rh->prefixes, pre.prefix, pre.code);
+        rh->prefix_strings[pre.code] = g_strdup(pre.prefix);
+        (rh->prefix_count)++;
+    }
     if ((flags & O_TRUNC) || file_length == 0) {
         fs_rhash_write_header(rh);
     } else {
@@ -181,7 +218,8 @@ fs_rhash *fs_rhash_open_filename(const char *filename, int flags)
     }
     fs_rhash_ensure_size(rh);
     const size_t len = sizeof(header) + ((size_t) rh->size) * ((size_t) rh->bucket_size) * sizeof(fs_rhash_entry);
-    rh->entries = mmap(NULL, len, PROT_READ | PROT_WRITE, MAP_SHARED, rh->fd, 0) + sizeof(header);
+    rh->entries = mmap(NULL, len, PROT_READ | PROT_WRITE, MAP_SHARED, rh->fd, 0)
+                + sizeof(header);
     if (rh->entries == MAP_FAILED) {
         fs_error(LOG_ERR, "failed to mmap rhash file “%s”: %s", rh->filename, strerror(errno));
         return NULL;
@@ -233,7 +271,9 @@ int fs_rhash_close(fs_rhash *rh)
     if (rh->flags & (O_WRONLY | O_RDWR)) {
         fs_rhash_write_header(rh);
     }
+
     fclose(rh->lex_f);
+    fs_list_close(rh->prefix_file);
     if (rh->locked) flock(rh->fd, LOCK_UN);
     const size_t len = sizeof(struct rhash_header) + ((size_t) rh->size) * ((size_t) rh->bucket_size) * sizeof(fs_rhash_entry);
     munmap(rh->entries - sizeof(struct rhash_header), len);
@@ -278,29 +318,85 @@ int fs_rhash_put(fs_rhash *rh, fs_resource *res)
 
     fs_rhash_entry e;
     e.rid = res->rid;
-    e.attr = res->attr;
+    e.aval.attr = res->attr;
     memset(&e.val.str, 0, INLINE_STR_LEN);
     if (strlen(res->lex) <= INLINE_STR_LEN) {
         strncpy(e.val.str, res->lex, INLINE_STR_LEN);
-        e.disp = 'i';
+        e.disp = DISP_I_UTF8;
     } else if (compress_bcd(res->lex, NULL) == 0) {
         if (compress_bcd(res->lex, e.val.str)) {
             fs_error(LOG_ERR, "failed to compress '%s' as BCD", res->lex);
         }
-        e.disp = 'N';
+        e.disp = DISP_I_NUMBER;
     } else if (compress_bcdate(res->lex, NULL) == 0) {
         if (compress_bcdate(res->lex, e.val.str)) {
             fs_error(LOG_ERR, "failed to compress '%s' as BCDate", res->lex);
         }
-        e.disp = 'D';
+        e.disp = DISP_I_DATE;
+    } else if (FS_IS_URI(res->rid) &&
+               fs_prefix_trie_get_code(rh->prefixes, res->lex, NULL)) {
+        int length = 0;
+        int code = fs_prefix_trie_get_code(rh->prefixes, res->lex, &length);
+        char *suffix = (res->lex)+length;
+        const int suffix_len = strlen(suffix);
+        e.aval.pstr[0] = (char)code;
+        if (suffix_len > 22) {
+            /* even with prefix, won't fit inline */
+            long pos = ftell(rh->lex_f);
+            if (fwrite(&suffix_len, sizeof(suffix_len), 1, rh->lex_f) == 0) {
+                fs_error(LOG_CRIT, "failed writing to lexical file “%s”",
+                         rh->lex_filename);
+
+                return 1;
+            }
+            if (fputs(suffix, rh->lex_f) == EOF || fputc('\0', rh->lex_f) == EOF) {
+                fs_error(LOG_CRIT, "failed writing to lexical file “%s”",
+                         rh->lex_filename);
+            }
+            e.val.offset = pos;
+            e.disp = DISP_F_PREFIX;
+        } else {
+            strncpy((char *)(e.aval.pstr)+1, suffix, 7);
+            if (suffix_len > 7) {
+                strncpy((char *)e.val.str, suffix+7, INLINE_STR_LEN);
+            }
+            e.disp = DISP_I_PREFIX;
+        }
     } else {
+        /* needs to go into external file */
+        if (rh->ptrie && FS_IS_URI(res->rid)) {
+            if (fs_prefix_trie_add_string(rh->ptrie, res->lex)) {
+                /* add_string failed, prefix trie is probably full */
+                fs_prefix *pre = fs_prefix_trie_get_prefixes(rh->ptrie, 32);
+                int num = 0;
+                struct prefix_file_line pfl;
+                for (int i=0; i<32; i++) {
+                    if (pre[i].score == 0 || rh->prefix_count == FS_MAX_PREFIXES) {
+                        break;
+                    }
+                    num++;
+                    rh->prefix_strings[rh->prefix_count] = strdup(pre[i].prefix);
+                    fs_prefix_trie_add_code(rh->prefixes, pre[i].prefix,
+                                            rh->prefix_count);
+                    fs_error(LOG_INFO, "adding prefix %d <%s>", rh->prefix_count, pre[i].prefix);
+                    pfl.code = rh->prefix_count;
+                    strcpy(pfl.prefix, pre[i].prefix);
+                    fs_list_add(rh->prefix_file, &pfl);
+                    (rh->prefix_count)++;
+                }
+                free(pre);
+                fs_prefix_trie_free(rh->ptrie);
+                rh->ptrie = fs_prefix_trie_new();
+            }
+        }
+
         if (fseek(rh->lex_f, 0, SEEK_END) == -1) {
             fs_error(LOG_CRIT, "failed to fseek to end of '%s': %s",
                 rh->filename, strerror(errno));
         }
         long pos = ftell(rh->lex_f);
         int len = strlen(res->lex);
-        e.disp = 'f';
+        e.disp = DISP_F_UTF8;
         if (fwrite(&len, sizeof(len), 1, rh->lex_f) == 0) {
             fs_error(LOG_CRIT, "failed writing to lexical file “%s”",
                      rh->lex_filename);
@@ -394,15 +490,27 @@ int fs_rhash_put_multi(fs_rhash *rh, fs_resource *res, int count)
 
 static inline int get_entry(fs_rhash *rh, fs_rhash_entry *e, fs_resource *res)
 {
-    if (e->disp == 'i') {
+    if (e->disp == DISP_I_UTF8) {
         res->lex = malloc(INLINE_STR_LEN+1);
         res->lex[INLINE_STR_LEN] = '\0';
         res->lex = memcpy(res->lex, e->val.str, INLINE_STR_LEN);
-    } else if (e->disp == 'N') {
+    } else if (e->disp == DISP_I_NUMBER) {
         res->lex = uncompress_bcd((unsigned char *)e->val.str);
-    } else if (e->disp == 'D') {
+    } else if (e->disp == DISP_I_DATE) {
         res->lex = uncompress_bcdate((unsigned char *)e->val.str);
-    } else if (e->disp == 'f') {
+    } else if (e->disp == DISP_I_PREFIX) {
+        if (e->aval.pstr[0] >= rh->prefix_count) {
+            res->lex = malloc(128);
+            sprintf(res->lex, "¡bad prefix %d (max %d) !", e->aval.pstr[0], rh->prefix_count - 1);
+        } else {
+            int plen = strlen(rh->prefix_strings[e->aval.pstr[0]]);
+            res->lex = calloc(23 + plen, sizeof(char));
+            strcpy(res->lex, rh->prefix_strings[e->aval.pstr[0]]);
+            strncpy((res->lex) + plen, (char *)(e->aval.pstr)+1, 7);
+            strncat((res->lex) + plen, e->val.str, 15);
+            res->attr = 0;
+        }
+    } else if (e->disp == DISP_F_UTF8) {
         int32_t lex_len;
         if (fseek(rh->lex_f, e->val.offset, SEEK_SET) == -1) {
             fs_error(LOG_ERR, "seek error reading lexical store '%s': %s", rh->lex_filename, strerror(errno));
@@ -424,12 +532,39 @@ static inline int get_entry(fs_rhash *rh, fs_rhash_entry *e, fs_resource *res)
             return 1;
         }
         res->lex[lex_len] = '\0';
+    } else if (e->disp == DISP_F_PREFIX) {
+        char *prefix = rh->prefix_strings[e->aval.pstr[0]];
+        int prefix_len = strlen(prefix);
+        int32_t lex_len;
+        if (fseek(rh->lex_f, e->val.offset, SEEK_SET) == -1) {
+            fs_error(LOG_ERR, "seek error reading lexical store '%s': %s", rh->lex_filename, strerror(errno));
+
+            return 1;
+        }
+        if (fread(&lex_len, sizeof(lex_len), 1, rh->lex_f) == 0) {
+            fs_error(LOG_ERR, "read error from lexical store '%s', offset %lld: %s", rh->lex_filename, (long long)e->val.offset, strerror(errno));
+
+            return 1;
+        }
+
+        int suffix_len = lex_len;
+        lex_len += prefix_len;
+        res->lex = malloc(lex_len + 1);
+        strcpy(res->lex, prefix);
+
+        if (fread((res->lex) + prefix_len, sizeof(char), suffix_len, rh->lex_f) < suffix_len) {
+            fs_error(LOG_ERR, "partial read error from lexical store '%s'", rh->lex_filename);
+            res->lex[0] = '\0';
+
+            return 1;
+        }
+        res->lex[lex_len] = '\0';
     } else {
         res->lex = g_strdup_printf("error: unknown disposition: %c", e->disp);
 
         return 1;
     }
-    res->attr = e->attr;
+    res->attr = e->aval.attr;
 
     return 0;
 }
@@ -490,6 +625,9 @@ void fs_rhash_print(fs_rhash *rh, FILE *out, int verbosity)
         return;
     }
 
+    int disp_freq[128];
+    memset(disp_freq, 0, 128);
+
     if (verbosity == 0) {
         fprintf(out, "%s\n", rh->filename);
         fprintf(out, "size:     %d (buckets)\n", rh->size);
@@ -509,7 +647,8 @@ void fs_rhash_print(fs_rhash *rh, FILE *out, int verbosity)
             char *ent_str = g_strdup_printf("%08d.%02d", entry / rh->bucket_size, entry % rh->bucket_size);
             fs_resource res = { .lex = NULL };
             get_entry(rh, &e, &res);
-            if (verbosity > 1 || show_next) fprintf(out, "%s %016llx %016llx %c %10lld %s\n", ent_str, e.rid, e.attr, e.disp, e.disp == 'f' ? (long long)e.val.offset : 0, res.lex);
+            if (verbosity > 1 || show_next) fprintf(out, "%s %016llx %016llx %c %10lld %s\n", ent_str, e.rid, e.aval.attr, e.disp, e.disp == DISP_F_UTF8 ? (long long)e.val.offset : 0, res.lex);
+            disp_freq[(int)e.disp]++;
             entries++;
             show_next = 0;
             free(res.lex);
@@ -521,6 +660,12 @@ void fs_rhash_print(fs_rhash *rh, FILE *out, int verbosity)
     if (rh->count != entries) {
         fprintf(out, "ERROR: entry count in header %d != count from scan %d\n",
                 rh->count, entries);
+    }
+    fprintf(out, "Disposition frequencies:\n");
+    for (int d=0; d<128; d++) {
+        if (disp_freq[d] > 0) {
+            fprintf(out, "%c: %8d\n", d, disp_freq[d]);
+        }
     }
 }
 

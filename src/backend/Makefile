@@ -6,7 +6,7 @@ CFLAGS = -Wall -g -std=gnu99 -O2 -I.. -DGIT_REV=\"$(gitrev)\" `pkg-config --cfla
 LDFLAGS = $(ldfdarwin) $(ldflinux) `pkg-config --libs raptor glib-2.0 $(avahi)`
 
 LIB_OBJS = chain.o bucket.o list.o tlist.o rhash.o mhash.o sort.o \
-	   lock.o metadata.o disk-space.o ptree.o ptable.o tbchain.o
+	   lock.o metadata.o disk-space.o ptree.o ptable.o tbchain.o prefix-trie.o
 HEADERS = tree.h chain.h bucket.h list.h sort.h lock.h backend-intl.h \
 	  metadata.h tlist.h tbchain.h prefix-trie.h
 BINS = 4s-backend

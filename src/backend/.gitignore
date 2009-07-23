@@ -14,3 +14,4 @@ rhashtest
 tbchaindump
 tbchaintest
 listtest
+prefix-trie-test
