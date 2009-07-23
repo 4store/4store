@@ -235,9 +235,9 @@ int fs_list_next_sort_uniqed(fs_list *l, void *out)
     case unsorted:
         fs_error(LOG_WARNING, "tried to call %s on unsorted list", __func__);
         return fs_list_next_value(l, out);
+
     case sorted:
-        // this doesn't uniq, so we should use it unless we have to
-        //return fs_list_next_value(l, out);
+        /* could use fs_list_next_value(l, out) but it will cause duplicates */
     case chunk_sorted:
         break;
     }

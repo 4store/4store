@@ -518,6 +518,9 @@ static void http_put_request(client_ctxt *ctxt, gchar *url, gchar *protocol)
   if (!strncmp(url, "/sparql/", 8)) {
     url += 8;
     url_decode(url);
+  } else if (!strncmp(url, "/data/", 6)) { /* we want to move people towards /data/ */
+    url += 6;
+    url_decode(url);
   } else if (!strncmp(url, "/", 1)) {
     http_error(ctxt, "403 forbidden - invalid URI");
     http_close(ctxt);
@@ -863,14 +866,14 @@ static void http_post_request(client_ctxt *ctxt, gchar *url, gchar *protocol)
   url_decode(url);
   if (!strcmp(url, "/sparql/")) {
     const char *form_type = g_hash_table_lookup(ctxt->headers, "content-type");
-    if (strcasecmp(form_type, "application/x-www-form-urlencoded")) {
+    if (!form_type || strcasecmp(form_type, "application/x-www-form-urlencoded")) {
       http_error(ctxt, "400 4store only implements application/x-www-form-urlencoded");
       http_close(ctxt);
       return;
     }
 
     const char *length = g_hash_table_lookup(ctxt->headers, "content-length");
-    ctxt->bytes_left = atol(length);
+    ctxt->bytes_left = length ? atol(length) : 0;
 
     if (ctxt->bytes_left == 0) {
       http_error(ctxt, "500 SPARQL protocol error, empty");
@@ -935,14 +938,14 @@ static void http_post_request(client_ctxt *ctxt, gchar *url, gchar *protocol)
 
   } else if (!strcmp(url, "/data/")) {
     const char *form_type = g_hash_table_lookup(ctxt->headers, "content-type");
-    if (strcasecmp(form_type, "application/x-www-form-urlencoded")) {
+    if (!form_type || strcasecmp(form_type, "application/x-www-form-urlencoded")) {
       http_error(ctxt, "400 4store only implements application/x-www-form-urlencoded");
       http_close(ctxt);
       return;
     }
 
     const char *length = g_hash_table_lookup(ctxt->headers, "content-length");
-    ctxt->bytes_left = atol(length);
+    ctxt->bytes_left = length ? atol(length) : 0;
 
     if (ctxt->bytes_left == 0) {
       http_error(ctxt, "500 SPARQL REST protocol error, empty");

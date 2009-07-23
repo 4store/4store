@@ -276,7 +276,7 @@ void fs_backend_ptree_limited_open(fs_backend *be, int n)
     if (be->ptrees_priv[n].ptree_s) return;
 
     if (be->ptree_open_count >= FS_MAX_OPEN_PTREES) {
-	int toclose = be->open_ptrees_oldest++;
+	int toclose = be->open_ptrees[be->open_ptrees_oldest++];
 	if (be->open_ptrees_oldest >= FS_MAX_OPEN_PTREES)
 	    be->open_ptrees_oldest = 0;
 
