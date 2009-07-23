@@ -124,7 +124,7 @@ int fs_prefix_trie_add_string(fs_prefix_trie *t, const char *str)
         /* if we couldn't fit it in anywhere, make space */
         if (edge == -1) {
             if (lowest_edge == -1) {
-                fs_error(LOG_ERR, "unable to fit string at depth %d", pos-str);
+                fs_error(LOG_ERR, "unable to fit string at depth %ld", pos-str);
 
                 return 1;
             }
@@ -201,7 +201,6 @@ int fs_prefix_trie_add_code(fs_prefix_trie *t, const char *str, int code)
             }
         }
         if (edge == -1) {
-printf("@@ no room for '%s' at depth %d\n", str, pos-str);
             return 1;
         }
         if (*(pos+1) == '\0') t->nodes[n].code = code;
@@ -246,7 +245,9 @@ static void fs_prefix_trie_get_prefixes_intl(fs_prefix_trie *t, int max,
                 }
             }
             /* if there's a less effective one in the list, replace */
-            if (!lowest_row != -1 && lowest_score < last_score) {
+            if (lowest_row != -1 && lowest_score < last_score) {
+#warning remove
+if (lowest_row < 0 || lowest_row >= max) fs_error(LOG_ERR, "lowest row out of range %d, [%d, %d]", lowest_row, 0, max);
                 pr[lowest_row].score = last_score;
                 strncpy(pr[lowest_row].prefix, current, FS_MAX_PREFIX_LENGTH);
             }
@@ -254,6 +255,9 @@ static void fs_prefix_trie_get_prefixes_intl(fs_prefix_trie *t, int max,
         }
         current[depth] = t->nodes[node].label[e];
         current[depth+1] = '\0';
+        if (depth >= FS_MAX_PREFIX_LENGTH - 1) {
+            return;
+        }
         fs_prefix_trie_get_prefixes_intl(t, max, current, pr, score, t->nodes[node].edge[e], depth+1);
     }
 }
@@ -288,7 +292,7 @@ fs_prefix *fs_prefix_trie_get_prefixes(fs_prefix_trie *t, int max)
             if (li < lj) {
                 continue;
             }
-            /* if lower scpring prefix is much longer, we still want it */
+            /* if lower scoring prefix is much longer, we still want it */
             if (li > lj + 8) {
                 continue;
             }
