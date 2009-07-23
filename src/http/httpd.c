@@ -518,6 +518,9 @@ static void http_put_request(client_ctxt *ctxt, gchar *url, gchar *protocol)
   if (!strncmp(url, "/sparql/", 8)) {
     url += 8;
     url_decode(url);
+  } else if (!strncmp(url, "/data/", 6)) { /* we want to move people towards /data/ */
+    url += 6;
+    url_decode(url);
   } else if (!strncmp(url, "/", 1)) {
     http_error(ctxt, "403 forbidden - invalid URI");
     http_close(ctxt);
