@@ -13,10 +13,11 @@ struct ptree_ref {
     fs_rid pred;
     fs_ptree *ptree_s;
     fs_ptree *ptree_o;
-    fs_list *pend;
 };
 
 #define FS_MAX_OPEN_PTREES 300
+
+#define FS_PENDED_LISTS 16
 
 struct _fs_backend {
     const char *db_name;
@@ -38,6 +39,8 @@ struct _fs_backend {
     int ptree_size;
     int ptree_length;
     struct ptree_ref *ptrees_priv;
+    fs_list *pended[FS_PENDED_LISTS];
+    GHashTable *rid_id_map;
     int ptree_open_flags;
     int ptree_open_count;
     int open_ptrees[FS_MAX_OPEN_PTREES];
