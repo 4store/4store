@@ -397,29 +397,39 @@ int fs_rhash_put(fs_rhash *rh, fs_resource *res)
         }
 
         /* check to see if there's any milage in compressing */
-        const int lex_len = strlen(res->lex);
+        int32_t lex_len = strlen(res->lex);
         /* grow z buffer if neccesary */
         if (rh->z_buffer_size < lex_len * 1.01 + 12) {
-            while (rh->z_buffer_size < lex_len * 1.01 + 12) {
+            while (rh->z_buffer_size < (lex_len * 1.01 + 12)) {
                 rh->z_buffer_size *= 2;
             }
             free(rh->z_buffer);
             rh->z_buffer = malloc(rh->z_buffer_size);
+            if (!rh->z_buffer) {
+                fs_error(LOG_CRIT, "failed to allocate z buffer (%d bytes)", rh->z_buffer_size);
+            }
         }
-        int compsize = rh->z_buffer_size;
+        unsigned long compsize = rh->z_buffer_size;
         char *data = res->lex;
-        int data_len = lex_len;
+        int32_t data_len = lex_len;
         char disp = DISP_F_UTF8;
         /* if the lex string is more than 100 chars long, try compressing it */
         if (lex_len > 100) {
-            if (compress((Bytef *)rh->z_buffer, (uLongf *)&compsize, (Bytef *)res->lex, (uLong)lex_len) == Z_OK) {
+            int ret = compress((Bytef *)rh->z_buffer, &compsize, (Bytef *)res->lex, (unsigned long)lex_len);
+            if (ret == Z_OK) {
                 if (compsize && compsize < lex_len - 4) {
                     data = rh->z_buffer;
                     data_len = compsize;
                     disp = DISP_F_ZCOMP;
                 }
             } else {
-                fs_error(LOG_ERR, "zlib error: %s", strerror(errno));
+                if (ret == Z_MEM_ERROR) {
+                    fs_error(LOG_ERR, "zlib error: out of memory");
+                } else if (ret == Z_BUF_ERROR) {
+                    fs_error(LOG_ERR, "zlib error: buffer error");
+                } else {
+                    fs_error(LOG_ERR, "zlib error %d", ret);
+                }
             }
         }
         if (fseek(rh->lex_f, 0, SEEK_END) == -1) {
@@ -632,12 +642,13 @@ static inline int get_entry(fs_rhash *rh, fs_rhash_entry *e, fs_resource *res)
 
             return 1;
         }
-        int uncomp_len = lex_len;
+        unsigned long uncomp_len = lex_len;
+        unsigned long dlen = data_len;
         int ret;
-        ret = uncompress((Bytef *)res->lex, (uLongf *)&uncomp_len, (Bytef *)rh->z_buffer, (uLong)data_len);
+        ret = uncompress((Bytef *)res->lex, &uncomp_len, (Bytef *)rh->z_buffer, dlen);
         if (ret == Z_OK) {
-            if (uncomp_len != lex_len-1) {
-                fs_error(LOG_ERR, "soething went wrong in decompression");
+            if (uncomp_len != lex_len) {
+                fs_error(LOG_ERR, "something went wrong in decompression");
             }
             res->lex[lex_len] = '\0';
         } else {
@@ -646,9 +657,11 @@ static inline int get_entry(fs_rhash *rh, fs_rhash_entry *e, fs_resource *res)
             } else if (ret == Z_BUF_ERROR) {
                 fs_error(LOG_ERR, "zlib error: buffer error");
             } else {
-                fs_error(LOG_ERR, "zlib error %d", ret);
+                fs_error(LOG_ERR, "zlib error %d, uncomp_len = %d (%d), comp_len = %d", ret, (int)uncomp_len, (int)lex_len, (int)dlen);
             }
             res->lex[0] = '\0';
+
+            return 1;
         }
     } else {
         res->lex = g_strdup_printf("error: unknown disposition: %c", e->disp);

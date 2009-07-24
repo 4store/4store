@@ -105,9 +105,14 @@ int main(int argc, char *argv[])
       } else if (FS_IS_LITERAL(attr)) {
         char *lang = get_attr(link, attr);
         printf("%016llX: %s@%s\n", rid, lex, lang);
+      } else {
+	printf("ERROR: Some sort of irregular literal\n");
+        printf("%016llX: %s\n", rid, lex);
       }
     } else if (FS_IS_BNODE(rid)) {
       printf("%016llX: _:b%llu\n", rid, FS_BNODE_NUM(rid));
+    } else {
+      printf("ERROR: Unknown resource type\n");
     }
   }
 
