@@ -526,6 +526,9 @@ fs_query *fs_query_execute(fs_query_state *qs, fsp_link *link, raptor_uri *bu, c
 	    if (explain) {
 		printf("%d bindings (%d)\n", fs_binding_length(q->b), ret);
 	    }
+            if (q->block == 0 && fs_binding_length(q->b) == 0) {
+                q->boolean = 0;
+            }
             if (ret == 0) {
                 for (int var=0; q->b[var].name; var++) {
                     if (q->b[var].appears == i) {
