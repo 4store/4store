@@ -23,6 +23,7 @@
 #include <unistd.h>
 #include <glib.h>
 #include <string.h>
+#include <zlib.h>
 #include <sys/types.h>
 #include <sys/mman.h>
 #include <sys/file.h>
@@ -54,6 +55,7 @@
 #define DISP_I_PREFIX       'p'
 #define DISP_F_UTF8         'f'
 #define DISP_F_PREFIX       'P'
+#define DISP_F_ZCOMP        'Z'
 
 struct rhash_header {
     int32_t id;             // "JXR0"
@@ -100,6 +102,8 @@ struct _fs_rhash {
     int prefix_count;
     char *prefix_strings[FS_MAX_PREFIXES];
     fs_list *prefix_file;
+    char *z_buffer;
+    int z_buffer_size;
 };
 
 /* this is much wider than it needs to be to match fs_list requirements */
@@ -170,6 +174,8 @@ fs_rhash *fs_rhash_open_filename(const char *filename, int flags)
 
         return NULL;
     }
+    rh->z_buffer_size = 1024;
+    rh->z_buffer = malloc(rh->z_buffer_size);
     rh->filename = g_strdup(filename);
     rh->size = FS_RHASH_DEFAULT_LENGTH;
     rh->search_dist = FS_RHASH_DEFAULT_SEARCH_DIST;
@@ -390,20 +396,54 @@ int fs_rhash_put(fs_rhash *rh, fs_resource *res)
             }
         }
 
+        /* check to see if there's any milage in compressing */
+        const int lex_len = strlen(res->lex);
+        /* grow z buffer if neccesary */
+        if (rh->z_buffer_size < lex_len * 1.01 + 12) {
+            while (rh->z_buffer_size < lex_len * 1.01 + 12) {
+                rh->z_buffer_size *= 2;
+            }
+            free(rh->z_buffer);
+            rh->z_buffer = malloc(rh->z_buffer_size);
+        }
+        int compsize = rh->z_buffer_size;
+        char *data = res->lex;
+        int data_len = lex_len;
+        char disp = DISP_F_UTF8;
+        /* if the lex string is more than 100 chars long, try compressing it */
+        if (lex_len > 100) {
+            if (compress((Bytef *)rh->z_buffer, (uLongf *)&compsize, (Bytef *)res->lex, (uLong)lex_len) == Z_OK) {
+                if (compsize && compsize < lex_len - 4) {
+                    data = rh->z_buffer;
+                    data_len = compsize;
+                    disp = DISP_F_ZCOMP;
+                }
+            } else {
+                fs_error(LOG_ERR, "zlib error: %s", strerror(errno));
+            }
+        }
         if (fseek(rh->lex_f, 0, SEEK_END) == -1) {
             fs_error(LOG_CRIT, "failed to fseek to end of '%s': %s",
                 rh->filename, strerror(errno));
         }
         long pos = ftell(rh->lex_f);
-        int len = strlen(res->lex);
-        e.disp = DISP_F_UTF8;
-        if (fwrite(&len, sizeof(len), 1, rh->lex_f) == 0) {
+        e.disp = disp;
+        if (fwrite(&data_len, sizeof(data_len), 1, rh->lex_f) == 0) {
             fs_error(LOG_CRIT, "failed writing to lexical file “%s”",
                      rh->lex_filename);
 
             return 1;
         }
-        if (fputs(res->lex, rh->lex_f) == EOF || fputc('\0', rh->lex_f) == EOF) {
+        if (disp == DISP_F_ZCOMP) {
+            /* write the length of the uncompressed string too */
+            if (fwrite(&lex_len, sizeof(lex_len), 1, rh->lex_f) == 0) {
+                fs_error(LOG_CRIT, "failed writing to lexical file “%s”",
+                         rh->lex_filename);
+
+                return 1;
+            }
+        }
+        if (fwrite(data, data_len, 1, rh->lex_f) == EOF || fputc('\0', rh->lex_f) == EOF) {
             fs_error(LOG_CRIT, "failed writing to lexical file “%s”",
                      rh->lex_filename);
         }
@@ -559,6 +599,57 @@ static inline int get_entry(fs_rhash *rh, fs_rhash_entry *e, fs_resource *res)
             return 1;
         }
         res->lex[lex_len] = '\0';
+    } else if (e->disp == DISP_F_ZCOMP) {
+        int32_t data_len;
+        int32_t lex_len;
+        if (fseek(rh->lex_f, e->val.offset, SEEK_SET) == -1) {
+            fs_error(LOG_ERR, "seek error reading lexical store '%s': %s", rh->lex_filename, strerror(errno));
+
+            return 1;
+        }
+        if (fread(&data_len, sizeof(data_len), 1, rh->lex_f) == 0) {
+            fs_error(LOG_ERR, "read error from lexical store '%s', offset %lld: %s", rh->lex_filename, (long long)e->val.offset, strerror(errno));
+
+            return 1;
+        }
+        if (fread(&lex_len, sizeof(lex_len), 1, rh->lex_f) == 0) {
+            fs_error(LOG_ERR, "read error from lexical store '%s', offset %lld: %s", rh->lex_filename, (long long)e->val.offset, strerror(errno));
+
+            return 1;
+        }
+
+        if (rh->z_buffer_size < data_len) {
+            while (rh->z_buffer_size < data_len) {
+                rh->z_buffer_size *= 2;
+            }
+            free(rh->z_buffer);
+            rh->z_buffer = malloc(rh->z_buffer_size);
+        }
+        res->lex = malloc(lex_len + 1);
+        if (fread(rh->z_buffer, sizeof(char), data_len, rh->lex_f) < data_len) {
+            fs_error(LOG_ERR, "partial read error from lexical store '%s'", rh->lex_filename);
+            res->lex = strdup("¡read error!");
+
+            return 1;
+        }
+        int uncomp_len = lex_len;
+        int ret;
+        ret = uncompress((Bytef *)res->lex, (uLongf *)&uncomp_len, (Bytef *)rh->z_buffer, (uLong)data_len);
+        if (ret == Z_OK) {
+            if (uncomp_len != lex_len-1) {
+                fs_error(LOG_ERR, "soething went wrong in decompression");
+            }
+            res->lex[lex_len] = '\0';
+        } else {
+            if (ret == Z_MEM_ERROR) {
+                fs_error(LOG_ERR, "zlib error: out of memory");
+            } else if (ret == Z_BUF_ERROR) {
+                fs_error(LOG_ERR, "zlib error: buffer error");
+            } else {
+                fs_error(LOG_ERR, "zlib error %d", ret);
+            }
+            res->lex[0] = '\0';
+        }
     } else {
         res->lex = g_strdup_printf("error: unknown disposition: %c", e->disp);
 
@@ -647,7 +738,11 @@ void fs_rhash_print(fs_rhash *rh, FILE *out, int verbosity)
             char *ent_str = g_strdup_printf("%08d.%02d", entry / rh->bucket_size, entry % rh->bucket_size);
             fs_resource res = { .lex = NULL };
             get_entry(rh, &e, &res);
-            if (verbosity > 1 || show_next) fprintf(out, "%s %016llx %016llx %c %10lld %s\n", ent_str, e.rid, e.aval.attr, e.disp, e.disp == DISP_F_UTF8 ? (long long)e.val.offset : 0, res.lex);
+            if (e.disp == DISP_F_UTF8 || e.disp == DISP_F_PREFIX || e.disp == DISP_F_ZCOMP) {
+                if (verbosity > 1 || show_next) fprintf(out, "%s %016llx %016llx %c %10lld %s\n", ent_str, e.rid, e.aval.attr, e.disp, (long long)e.val.offset, res.lex);
+            } else {
+                if (verbosity > 1 || show_next) fprintf(out, "%s %016llx %016llx %c %s\n", ent_str, e.rid, e.aval.attr, e.disp, res.lex);
+            }
             disp_freq[(int)e.disp]++;
             entries++;
             show_next = 0;

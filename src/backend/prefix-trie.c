@@ -124,7 +124,7 @@ int fs_prefix_trie_add_string(fs_prefix_trie *t, const char *str)
         /* if we couldn't fit it in anywhere, make space */
         if (edge == -1) {
             if (lowest_edge == -1) {
-                fs_error(LOG_ERR, "unable to fit string at depth %ld", pos-str);
+                fs_error(LOG_ERR, "unable to fit string at depth %ld", (long int)(pos-str));
 
                 return 1;
             }
@@ -246,8 +246,6 @@ static void fs_prefix_trie_get_prefixes_intl(fs_prefix_trie *t, int max,
             }
             /* if there's a less effective one in the list, replace */
             if (lowest_row != -1 && lowest_score < last_score) {
-#warning remove
-if (lowest_row < 0 || lowest_row >= max) fs_error(LOG_ERR, "lowest row out of range %d, [%d, %d]", lowest_row, 0, max);
                 pr[lowest_row].score = last_score;
                 strncpy(pr[lowest_row].prefix, current, FS_MAX_PREFIX_LENGTH);
             }

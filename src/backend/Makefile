@@ -3,7 +3,7 @@ include ../rev.mk
 include ../darwin.mk
 
 CFLAGS = -Wall -g -std=gnu99 -O2 -I.. -DGIT_REV=\"$(gitrev)\" `pkg-config --cflags raptor glib-2.0`
-LDFLAGS = $(ldfdarwin) $(ldflinux) `pkg-config --libs raptor glib-2.0 $(avahi)`
+LDFLAGS = $(ldfdarwin) $(ldflinux) -lz `pkg-config --libs raptor glib-2.0 $(avahi)`
 
 LIB_OBJS = chain.o bucket.o list.o tlist.o rhash.o mhash.o sort.o \
 	   lock.o metadata.o disk-space.o ptree.o ptable.o tbchain.o prefix-trie.o
