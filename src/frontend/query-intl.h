@@ -29,7 +29,8 @@ struct _fs_query_state {
 struct _fs_query {
     fs_query_state *qs;
     fsp_link *link;
-    fs_binding *b;
+    fs_binding *b;			/* master binding table */
+    fs_binding *bb[FS_MAX_BLOCKS];	/* per block binding table */
     int segments;
     int num_vars;			/* number of projected variables */
     int expressions;			/* number of projected expressions */
@@ -51,9 +52,8 @@ struct _fs_query {
     int errors;				/* number of parse/execution errors */
     fs_row *resrow;
     fs_p_vector blocks[FS_MAX_BLOCKS];
+    int parent_block[FS_MAX_BLOCKS];
     int union_group[FS_MAX_BLOCKS];
-    int block_pri_var[FS_MAX_BLOCKS];	/* primary variable for block */
-    int block_depends[FS_MAX_BLOCKS];	/* primary variable for block */
     raptor_sequence *constraints[FS_MAX_BLOCKS];
     int flags;
     fs_rid_vector **pending;

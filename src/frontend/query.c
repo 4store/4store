@@ -51,7 +51,6 @@
 static void graph_pattern_walk(fsp_link *link, rasqal_graph_pattern *p, fs_query *q, int optional, int pass, int uni);
 static int fs_handle_query_triple(fs_query *q, int block, rasqal_triple *t);
 static int fs_handle_query_triple_multi(fs_query *q, int block, int count, rasqal_triple *t[]);
-static void fs_query_block_deps(fs_query *q);
 static fs_rid const_literal_to_rid(fs_query *q, rasqal_literal *l, fs_rid *attr);
 static void check_variables(fs_query *q, rasqal_expression *e);
 static void filter_optimise_disjunct_equality(fs_query *q,
@@ -328,9 +327,6 @@ fs_query *fs_query_execute(fs_query_state *qs, fsp_link *link, raptor_uri *bu, c
     }
 #endif
 
-    for (int i=0; i < FS_MAX_BLOCKS; i++) {
-	q->block_pri_var[i] = -1;
-    }
     q->link = link;
     q->segments = fsp_link_segments(link);
     q->base = bu;
@@ -444,7 +440,7 @@ fs_query *fs_query_execute(fs_query_state *qs, fsp_link *link, raptor_uri *bu, c
     graph_pattern_walk(link, pattern, q, 0, 0, 0);
     graph_pattern_walk(link, pattern, q, 0, 1, 0);
 
-    /* if we have more than one variable that has been prebund we need to
+    /* if we have more than one variable that has been prebound we need to
      * compute the combinatorial cross product of thier values so the we
      * correctly enumerate the possibiliities during execution. Fun. */ 
     int bound_variables = 0;
@@ -489,6 +485,7 @@ fs_query *fs_query_execute(fs_query_state *qs, fsp_link *link, raptor_uri *bu, c
     }
 #endif
 
+    q->bb[0] = q->b;
     for (int i=0; i <= q->block; i++) {
 	if (i > 0) {
             if (q->union_group[i] != 0) {
@@ -573,6 +570,11 @@ fs_query *fs_query_execute(fs_query_state *qs, fsp_link *link, raptor_uri *bu, c
                 break;
             }
 	}
+        if (i > 0) {
+printf("block join %d X %d\n", q->parent_block[i], i);
+            fs_binding_merge(q, i, q->bb[i], q->bb[q->parent_block[i]], flags);
+fs_binding_print(q->bb[0], stdout);
+        }
     }
 
     if (explain) {
@@ -594,7 +596,6 @@ fs_query *fs_query_execute(fs_query_state *qs, fsp_link *link, raptor_uri *bu, c
 	q->pending[i] = fs_rid_vector_new(0);
     }
 
-    fs_query_block_deps(q);
     if (q->flags & FS_BIND_DISTINCT) {
 	for (int i=0; q->b[i].name; i++) {
 	    if (q->b[i].proj || q->b[i].selected) {
@@ -704,13 +705,6 @@ static void assign_slot(fs_query *q, rasqal_literal *l, int block)
 	}
 	if (vb->appears == -1) {
 	    vb->appears = block;
-	}
-	int col = vb - q->b;
-	if (q->block_pri_var[block] == -1 && vb->appears == block) {
-	    q->block_pri_var[block] = col;
-	}
-	if (q->b[col].depends == -1) {
-	    q->b[col].depends = q->block_pri_var[block];
 	}
     }
 }
@@ -864,7 +858,7 @@ static void graph_pattern_walk(fsp_link *link, rasqal_graph_pattern *pattern,
     if (op == RASQAL_GRAPH_PATTERN_OPERATOR_OPTIONAL) {
 	if (pass == 0) return;
 	(q->block)++;
-	q->block_depends[q->block] = block;
+        q->parent_block[q->block] = block;
 	block = q->block;
     } else if (op == RASQAL_GRAPH_PATTERN_OPERATOR_UNION) {
 	if (pass == 0) return;
@@ -878,8 +872,8 @@ static void graph_pattern_walk(fsp_link *link, rasqal_graph_pattern *pattern,
     } else if (uni) {
 	if (pass == 0) return;
 	(q->block)++;
-	q->block_depends[q->block] = block;
         q->union_group[q->block] = q->unions;
+        q->parent_block[q->block] = block;
 	block = q->block;
     } else if (op == RASQAL_GRAPH_PATTERN_OPERATOR_BASIC ||
 	op == RASQAL_GRAPH_PATTERN_OPERATOR_GROUP ||
@@ -1260,7 +1254,9 @@ static int process_results(fs_query *q, int block, fs_binding *oldb,
 	    fs_rid_vector_free(results[col]);
 	}
         free(results);
-        fs_binding_merge(q, block, oldb, b, varnames, numbindings, flags);
+        /* we don't want the merge to try and do the OPTINAL etc. logic yet */
+        int mergeflags = flags & (FS_BIND_DISTINCT);
+        fs_binding_merge(q, block, oldb, b, mergeflags);
     } else {
         if (!(flags & (FS_BIND_OPTIONAL | FS_BIND_UNION))) {
             q->boolean = 0;
@@ -1280,11 +1276,19 @@ static int fs_handle_query_triple(fs_query *q, int block, rasqal_triple *t)
     slot[3] = fs_rid_vector_new(0);
     int ret = 0;
 
-    fs_binding *b = q->b;
+    fs_binding *b;
+    if (!q->bb[block]) {
+        /* copy the binding table from the parent block */
+        q->bb[block] = fs_binding_copy(q->bb[q->parent_block[block]]);
+    }
+    b = q->bb[block];
     int tobind = q->flags;
 
     const int explain = tobind & FS_QUERY_EXPLAIN;
+#if 0
     const int optional = tobind & FS_BIND_OPTIONAL;
+#endif
+    const int optional = 0;
     const int union_block = optional ? 0 : block;
 
     char *varnames[4] = { NULL, NULL, NULL, NULL };
@@ -1640,40 +1644,6 @@ int fs_bind_slot(fs_query *q, int block, fs_binding *b,
     }
 
     return 0;
-}
-
-/* ensure that no variables are non NULL in OPTIONAL/UNION
-   blocks where there are NULL bindings */
-void fs_query_block_deps(fs_query *q)
-{
-    const int length = fs_binding_length(q->b);
-    for (int row=0; row<length; row++) {
-        for (int i=0; i<q->num_vars; i++) {
-            /* check for dependencies between columns */
-            if (q->b[i].depends == i && q->b[i].appears > 0 && q->union_group[q->b[i].appears] == 0) {
-                if (q->block_depends[q->b[i].appears] > 0) {
-                    if (q->b[q->block_pri_var[q->block_depends[q->b[i].appears]]].vals->data[row] == FS_RID_NULL) {
-                        q->b[i].vals->data[row] = FS_RID_NULL;
-                    }
-                }
-                for (int j=0; q->b[j].name; j++) {
-                    /* set the principle var to null if any of its dependents
-                     * are null */
-                    if (q->b[j].depends == i && q->b[j].bound &&
-                            q->b[j].vals->data[row] == FS_RID_NULL) {
-                        q->b[i].vals->data[row] = FS_RID_NULL;
-                        break;
-                    }
-                }
-            }
-        }
-        for (int i=0; i<q->num_vars; i++) {
-            if (q->b[i].appears > 0 && q->b[q->b[i].depends].bound &&
-                q->b[q->b[i].depends].vals->data[row] == FS_RID_NULL) {
-                q->b[i].vals->data[row] = FS_RID_NULL;
-            }
-        }
-    }
 }
 
 double fs_query_start_time(fs_query *q)

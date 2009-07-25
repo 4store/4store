@@ -642,8 +642,6 @@ static int apply_constraints(fs_query *q, int row)
 	    if (result.valid & fs_valid_bit(FS_V_TYPE_ERROR) || !result.in) {
 		if (block == 0) {
 		    return 0;
-		} else {
-		    q->b[q->block_pri_var[block]].vals->data[row] = FS_RID_NULL;
 		}
 	    }
 	}

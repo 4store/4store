@@ -191,6 +191,25 @@ void fs_binding_clear_vector(fs_binding *b, const char *name)
     }
 }
 
+fs_binding *fs_binding_copy(fs_binding *b)
+{
+#ifdef DEBUG_BINDING
+    printf("@@ copy_and_clear()\n");
+#endif
+    fs_binding *b2 = fs_binding_new();
+
+    memcpy(b2, b, sizeof(fs_binding) * FS_BINDING_MAX_VARS);
+    for (int i=0; 1; i++) {
+        if (!b[i].name) {
+            break;
+        }
+        b[i].name = g_strdup(b2[i].name);
+        b[i].vals = fs_rid_vector_copy(b2[i].vals);
+        b[i].ubs = fs_rid_vector_copy(b2[i].ubs);
+    }
+
+    return b2;
+}
 fs_binding *fs_binding_copy_and_clear(fs_binding *b)
 {
 #ifdef DEBUG_BINDING
@@ -649,7 +668,7 @@ void fs_binding_truncate(fs_binding *b, int length)
 
 /* perform the cross product on two binding tables */
 
-void fs_binding_merge(fs_query *q, int block, fs_binding *from, fs_binding *to, char *vars[], int num_vars, int flags)
+void fs_binding_merge(fs_query *q, int block, fs_binding *from, fs_binding *to, int flags)
 {
     fs_binding *inter_f = NULL; /* the intersecting column */
     fs_binding *inter_t = NULL; /* the intersecting column */
