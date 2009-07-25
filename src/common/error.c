@@ -24,8 +24,12 @@
 #include <sys/types.h>
 #include <unistd.h>
 #include <glib.h>
+#include <string.h>
 #ifdef __GLIBC__
 #include <execinfo.h>
+#endif
+#ifdef __APPLE__
+#include <dlfcn.h>
 #endif
 
 #include "error.h"
@@ -51,6 +55,22 @@ void fs_error_intl(int severity, char *file, int line, const char *kb, const cha
 	    fsp_log(severity, " %d: %s", k, symbols[k]);
         }
         free(symbols);
+    }
+#endif
+#ifdef __APPLE__
+    if (severity == LOG_CRIT) {
+        Dl_info info;
+        void **frame = __builtin_frame_address(0);
+        void **bp = *frame;
+        void *ip = frame[1];
+        int f = 1;
+
+        while (bp && ip && dladdr(ip, &info)) {
+            fsp_log(severity, "% 2d: %p <%s+%u> %s", f++, ip, info.dli_sname, (unsigned int)(ip - info.dli_saddr), basename((char *)info.dli_fname));
+            if (info.dli_sname && !strcmp(info.dli_sname, "main")) break;
+            ip = bp[1];
+            bp = bp[0];
+        }
     }
 #endif
 }
