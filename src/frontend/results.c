@@ -36,6 +36,8 @@
 
 #define RESOURCE_LOOKUP_BUFFER 1800
 
+#define DEBUG_FILTER 1
+
 /* glib 2.x headers must match the architecture we're building. If the size of a pointer
  * is smaller in the provided glibconfig.h than in our target architecture, the resulting typedef
  * should be invalid, preventing the user from building a 4store that won't work properly at runtime
@@ -174,7 +176,7 @@ static fs_value literal_to_value(fs_query *q, int row, int block, rasqal_literal
 	case RASQAL_LITERAL_VARIABLE:
 	    {
 		char *name = (char *)l->value.variable->name;
-		fs_binding *b = fs_binding_get(q->b, name);
+		fs_binding *b = fs_binding_get(q->bb[block], name);
 #if 0
 if (!b->bound_in_block[block]) {
 fs_error(LOG_INFO, "%s not bib %d .. %d appears %d", name, block, b->bound_in_block[block], b->appears);
@@ -213,6 +215,10 @@ fs_value fs_expression_eval(fs_query *q, int row, int block, rasqal_expression *
 {
     if (!e) {
 	return fs_value_rid(FS_RID_NULL);
+    }
+    if (block == -1) {
+        fs_error(LOG_CRIT, "block was -1, changing to 0");
+        block = 0;
     }
 
     switch (e->op) {
@@ -356,7 +362,7 @@ fs_value fs_expression_eval(fs_query *q, int row, int block, rasqal_expression *
         }
 
         case RASQAL_EXPR_COUNT: {
-            fs_value v = fs_value_integer(fs_binding_length(q->b));
+            fs_value v = fs_value_integer(fs_binding_length(q->bb[block]));
             return v;
         }
 
@@ -629,7 +635,7 @@ static int apply_constraints(fs_query *q, int row)
 	    if (!e) continue;
 
 	    fs_value v = fs_expression_eval(q, row, block, e);
-#if 0
+#ifdef DEBUG_FILTER
 	    rasqal_expression_print(e, stdout);
 	    printf(" -> ");
 	    fs_value_print(v);
@@ -642,7 +648,13 @@ static int apply_constraints(fs_query *q, int row)
 	    if (result.valid & fs_valid_bit(FS_V_TYPE_ERROR) || !result.in) {
 		if (block == 0) {
 		    return 0;
-		}
+		} else {
+                    for (int c=0; q->bb[0][c].name; c++) {
+                        if (q->bb[0][c].appears == block) {
+                            q->bb[0][c].vals->data[row] = FS_RID_NULL;
+                        }
+                    }
+                }
 	    }
 	}
     }
@@ -1407,11 +1419,11 @@ static void output_testcase(fs_query *q, int flags, FILE *out)
     if (q->num_vars > 0) {
 	fprintf(out, "   rs:resultVariable ");
 	for (int i=0; i<q->num_vars; i++) {
-	    if (!q->b[i].proj) {
+	    if (!q->bb[0][i].proj) {
 		continue;
 	    }
 	    if (i > 0) fprintf(out, ", ");
-	    fprintf(out, "\"%s\"", q->b[i].name);
+	    fprintf(out, "\"%s\"", q->bb[0][i].name);
 	}
     } else {
         /* apply the filters until we find one that matches or run out of
@@ -1441,7 +1453,7 @@ static void output_testcase(fs_query *q, int flags, FILE *out)
 
 	    if (count++ > 0) fprintf(out, " ;\n");
 
-	    fprintf(out, "      rs:binding [ rs:variable \"%s\" ;\n", q->b[c].name);
+	    fprintf(out, "      rs:binding [ rs:variable \"%s\" ;\n", q->bb[0][c].name);
 	    switch (row[c].type) {
 		case FS_TYPE_NONE:
 		    break;
@@ -1479,7 +1491,7 @@ fs_row *fs_query_fetch_header_row(fs_query *q)
     if (!q->resrow) {
 	q->resrow = calloc(q->num_vars + 1, sizeof(fs_row));
 	for (int col=0; col < q->num_vars; col++) {
-	    q->resrow[col].name = q->b[col].name;
+	    q->resrow[col].name = q->bb[0][col].name;
 	}
     }
 
@@ -1511,7 +1523,7 @@ fs_row *fs_query_fetch_row(fs_query *q)
         if (q->row > 0) return NULL;
 
         for (int i=0; i<q->num_vars; i++) {
-            fs_value val = fs_expression_eval(q, q->row, -1, q->b[i].expression);
+            fs_value val = fs_expression_eval(q, q->row, 0, q->bb[0][i].expression);
             fs_value_to_row(q, val, q->resrow+i);
         }
         q->row++;
@@ -1572,11 +1584,11 @@ nextrow: ;
 	for (int row=q->row; row < q->row + lookup_buffer_size && row < rows; row++) {
 	    for (int col=0; col < q->num_vars; col++) {
 		fs_rid rid;
-		if (row < q->b[col].vals->length) {
+		if (row < q->bb[0][col].vals->length) {
                     if (q->ordering) {
-                        rid = q->b[col].vals->data[q->ordering[row]];
+                        rid = q->bb[0][col].vals->data[q->ordering[row]];
                     } else {
-                        rid = q->b[col].vals->data[row];
+                        rid = q->bb[0][col].vals->data[row];
                     }
 		} else {
 		    rid = FS_RID_NULL;
@@ -1610,11 +1622,11 @@ nextrow: ;
     int repeat_row = 1;
     for (int i=0; i<q->num_vars; i++) {
         fs_rid last_rid = q->resrow[i].rid;
-	q->resrow[i].rid = q->b[i].bound && row < q->b[i].vals->length ?
-                           q->b[i].vals->data[row] : FS_RID_NULL;
+	q->resrow[i].rid = q->bb[0][i].bound && row < q->bb[0][i].vals->length ?
+                           q->bb[0][i].vals->data[row] : FS_RID_NULL;
         if (last_rid != q->resrow[i].rid) repeat_row = 0;
-        if (q->b[i].expression) {
-            fs_value val = fs_expression_eval(q, q->row, -1, q->b[i].expression);
+        if (q->bb[0][i].expression) {
+            fs_value val = fs_expression_eval(q, q->row, 0, q->bb[0][i].expression);
             fs_value_to_row(q, val, q->resrow+i);
         } else {
             fs_resource r;

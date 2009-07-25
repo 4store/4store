@@ -87,9 +87,16 @@ int fs_opt_is_const(fs_binding *b, rasqal_literal *l, int block)
 	case RASQAL_LITERAL_VARIABLE: {
 	    char *vname = (char *)l->value.variable->name;
 	    fs_binding *bv = fs_binding_get(b, vname);
+#if 0
+#warning think we dont need this anymore
+remove block arg if so
             /* We have to make sure that the variable is bound inside this
              * UNION branch */
 	    if (bv && bv->bound == 1 && (!block || bv->bound_in_block[block])) {
+		return 1;
+	    }
+#endif
+	    if (bv && bv->bound == 1) {
 		return 1;
 	    }
 	    return 0;
@@ -137,7 +144,7 @@ static char *var_name(rasqal_literal *l)
     return NULL;
 }
 
-int fs_optimise_triple_pattern(fs_query_state *qs, fs_query *q, rasqal_triple *patt[], int length, int start)
+int fs_optimise_triple_pattern(fs_query_state *qs, fs_query *q, int block, rasqal_triple *patt[], int length, int start)
 {
     if (length - start < 2 || q->opt_level < 1) {
 	return 1;
@@ -165,7 +172,7 @@ int fs_optimise_triple_pattern(fs_query_state *qs, fs_query *q, rasqal_triple *p
 	if (!pbuf[i]) {
 	    continue;
 	}
-	if (fs_bind_freq(qs, q, pbuf[i]) == 1) {
+	if (fs_bind_freq(qs, q, block, pbuf[i]) == 1) {
 	    patt[append_pos++] = pbuf[i];
 	    pbuf[i] = NULL;
 	}
@@ -174,7 +181,7 @@ int fs_optimise_triple_pattern(fs_query_state *qs, fs_query *q, rasqal_triple *p
 	if (!pbuf[i]) {
 	    continue;
 	}
-	if (fs_opt_is_const(q->b, pbuf[i]->subject, 0) && fs_opt_is_const(q->b, pbuf[i]->predicate, 0)) {
+	if (fs_opt_is_const(q->bb[block], pbuf[i]->subject, 0) && fs_opt_is_const(q->bb[block], pbuf[i]->predicate, 0)) {
 	    patt[append_pos++] = pbuf[i];
 	    pbuf[i] = NULL;
 	}
@@ -183,7 +190,7 @@ int fs_optimise_triple_pattern(fs_query_state *qs, fs_query *q, rasqal_triple *p
 	if (!pbuf[i]) {
 	    continue;
 	}
-	if (fs_opt_is_const(q->b, pbuf[i]->object, 0) && fs_opt_is_const(q->b, pbuf[i]->predicate, 0)) {
+	if (fs_opt_is_const(q->bb[block], pbuf[i]->object, 0) && fs_opt_is_const(q->bb[block], pbuf[i]->predicate, 0)) {
 	    patt[append_pos++] = pbuf[i];
 	    pbuf[i] = NULL;
 	}
@@ -192,7 +199,7 @@ int fs_optimise_triple_pattern(fs_query_state *qs, fs_query *q, rasqal_triple *p
 	if (!pbuf[i]) {
 	    continue;
 	}
-	if (fs_opt_is_const(q->b, pbuf[i]->subject, 0)) {
+	if (fs_opt_is_const(q->bb[block], pbuf[i]->subject, 0)) {
 	    patt[append_pos++] = pbuf[i];
 	    pbuf[i] = NULL;
 	}
@@ -201,7 +208,7 @@ int fs_optimise_triple_pattern(fs_query_state *qs, fs_query *q, rasqal_triple *p
 	if (!pbuf[i]) {
 	    continue;
 	}
-	if (fs_opt_is_const(q->b, pbuf[i]->object, 0)) {
+	if (fs_opt_is_const(q->bb[block], pbuf[i]->object, 0)) {
 	    patt[append_pos++] = pbuf[i];
 	    pbuf[i] = NULL;
 	}
@@ -210,7 +217,7 @@ int fs_optimise_triple_pattern(fs_query_state *qs, fs_query *q, rasqal_triple *p
 	if (!pbuf[i]) {
 	    continue;
 	}
-	if (fs_opt_is_const(q->b, pbuf[i]->predicate, 0)) {
+	if (fs_opt_is_const(q->bb[block], pbuf[i]->predicate, 0)) {
 	    patt[append_pos++] = pbuf[i];
 	    pbuf[i] = NULL;
 	}
@@ -219,7 +226,7 @@ int fs_optimise_triple_pattern(fs_query_state *qs, fs_query *q, rasqal_triple *p
 	if (!pbuf[i]) {
 	    continue;
 	}
-	if (fs_opt_is_const(q->b, pbuf[i]->origin, 0)) {
+	if (fs_opt_is_const(q->bb[block], pbuf[i]->origin, 0)) {
 	    patt[append_pos++] = pbuf[i];
 	    pbuf[i] = NULL;
 	}
@@ -242,13 +249,13 @@ int fs_optimise_triple_pattern(fs_query_state *qs, fs_query *q, rasqal_triple *p
     if (var_name(patt[start]->subject) && var_name(patt[start+1]->subject) &&
         !var_name(patt[start]->predicate) &&
         !var_name(patt[start]->object) &&
-        fs_opt_num_vals(q->b, patt[start]->predicate) == 1 &&
-        fs_opt_num_vals(q->b, patt[start]->origin) == 0 &&
-        fs_opt_num_vals(q->b, patt[start+1]->origin) == 0) {
+        fs_opt_num_vals(q->bb[block], patt[start]->predicate) == 1 &&
+        fs_opt_num_vals(q->bb[block], patt[start]->origin) == 0 &&
+        fs_opt_num_vals(q->bb[block], patt[start+1]->origin) == 0) {
         char *svname = var_name(patt[start]->subject);
         int count = 1;
         while (start+count < length &&
-               !fs_opt_is_const(q->b, patt[start+count]->subject, 0) &&
+               !fs_opt_is_const(q->bb[block], patt[start+count]->subject, 0) &&
                !strcmp(svname, var_name(patt[start+count]->subject)) &&
                !var_name(patt[start+count]->object) &&
                !var_name(patt[start+count]->predicate)) {
@@ -262,8 +269,8 @@ int fs_optimise_triple_pattern(fs_query_state *qs, fs_query *q, rasqal_triple *p
     }
 
     if (length - start > 1) {
-        int freq_a = fs_bind_freq(qs, q, patt[start]);
-        int freq_b = fs_bind_freq(qs, q, patt[start+1]);
+        int freq_a = fs_bind_freq(qs, q, block, patt[start]);
+        int freq_b = fs_bind_freq(qs, q, block, patt[start+1]);
         /* the 2nd is cheaper than the 1st, then swap them */
         if (freq_b < freq_a) {
             rasqal_triple *tmp = patt[start];
@@ -275,7 +282,7 @@ int fs_optimise_triple_pattern(fs_query_state *qs, fs_query *q, rasqal_triple *p
     return 1;
 }
 
-static int calc_freq(fs_query *q, GHashTable *freq, rasqal_literal *pri, rasqal_literal *sec)
+static int calc_freq(fs_query *q, int block, GHashTable *freq, rasqal_literal *pri, rasqal_literal *sec)
 {
     int ret = 0;
 
@@ -285,8 +292,8 @@ static int calc_freq(fs_query *q, GHashTable *freq, rasqal_literal *pri, rasqal_
     fs_rid_vector *sv = fs_rid_vector_new(1);
     sv->length = 0;
     pv->length = 0;
-    fs_bind_slot(q, -1, q->b, pri, pv, &junk, &vname, 1);
-    if (sec) fs_bind_slot(q, -1, q->b, sec, sv, &junk, &vname, 1);
+    fs_bind_slot(q, -1, q->bb[block], pri, pv, &junk, &vname, 1);
+    if (sec) fs_bind_slot(q, -1, q->bb[block], sec, sv, &junk, &vname, 1);
     fs_quad_freq fd;
     fd.pri = pv->data[0];
     if (sec) {
@@ -314,32 +321,32 @@ static int calc_freq(fs_query *q, GHashTable *freq, rasqal_literal *pri, rasqal_
     return ret;
 }
 
-int fs_bind_freq(fs_query_state *qs, fs_query *q, rasqal_triple *t)
+int fs_bind_freq(fs_query_state *qs, fs_query *q, int block, rasqal_triple *t)
 {
     int ret = 100;
     char dir = '?';
 
-    if (!fs_opt_is_const(q->b, t->subject, 0) && !fs_opt_is_const(q->b, t->predicate, 0) &&
-        !fs_opt_is_const(q->b, t->object, 0) && !fs_opt_is_const(q->b, t->origin, 0)) {
+    if (!fs_opt_is_const(q->bb[block], t->subject, 0) && !fs_opt_is_const(q->bb[block], t->predicate, 0) &&
+        !fs_opt_is_const(q->bb[block], t->object, 0) && !fs_opt_is_const(q->bb[block], t->origin, 0)) {
         ret = INT_MAX;
-    } else if (!fs_opt_is_const(q->b, t->subject, 0) &&
-               !fs_opt_is_const(q->b, t->object, 0)) {
+    } else if (!fs_opt_is_const(q->bb[block], t->subject, 0) &&
+               !fs_opt_is_const(q->bb[block], t->object, 0)) {
         ret = INT_MAX - 100;
-    } else if (qs->freq_s && fs_opt_num_vals(q->b, t->subject) == 1 &&
-               fs_opt_num_vals(q->b, t->predicate) == 1) {
+    } else if (qs->freq_s && fs_opt_num_vals(q->bb[block], t->subject) == 1 &&
+               fs_opt_num_vals(q->bb[block], t->predicate) == 1) {
         dir = 's';
-        ret = calc_freq(q, qs->freq_s, t->subject, t->predicate);
-    } else if (qs->freq_o && fs_opt_num_vals(q->b, t->object) == 1 &&
-               fs_opt_num_vals(q->b, t->predicate) == 1) {
+        ret = calc_freq(q, block, qs->freq_s, t->subject, t->predicate);
+    } else if (qs->freq_o && fs_opt_num_vals(q->bb[block], t->object) == 1 &&
+               fs_opt_num_vals(q->bb[block], t->predicate) == 1) {
         dir = 'o';
-        ret = calc_freq(q, qs->freq_o, t->object, t->predicate) +
+        ret = calc_freq(q, block, qs->freq_o, t->object, t->predicate) +
                 q->segments * 50;
-    } else if (qs->freq_s && fs_opt_num_vals(q->b, t->subject) == 1) {
+    } else if (qs->freq_s && fs_opt_num_vals(q->bb[block], t->subject) == 1) {
         dir = 's';
-        ret = calc_freq(q, qs->freq_s, t->subject, NULL);
-    } else if (qs->freq_o && fs_opt_num_vals(q->b, t->object) == 1) {
+        ret = calc_freq(q, block, qs->freq_s, t->subject, NULL);
+    } else if (qs->freq_o && fs_opt_num_vals(q->bb[block], t->object) == 1) {
         dir = 'o';
-        ret = calc_freq(q, qs->freq_s, t->object, NULL) +
+        ret = calc_freq(q, block, qs->freq_s, t->object, NULL) +
                 q->segments * 50;
     }
 #if 0

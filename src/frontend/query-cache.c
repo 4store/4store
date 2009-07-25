@@ -129,6 +129,7 @@ int fs_bind_cache_wrapper(fs_query_state *qs, fs_query *q, int all,
     int ret;
 
     skip_cache:
+
     if (all) {
         ret = fsp_bind_limit_all(q->link, flags, rids[0], rids[1], rids[2], rids[3], result, offset, limit);
     } else {

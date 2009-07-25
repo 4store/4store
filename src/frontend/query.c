@@ -300,7 +300,7 @@ fs_query *fs_query_execute(fs_query_state *qs, fsp_link *link, raptor_uri *bu, c
         fs_error(LOG_ERR, "failed to initialise query system");
 
         return NULL;
-   }
+    }
 
     fs_query *q = calloc(1, sizeof(fs_query));
     if (getenv("SHOW_TIMING")) {
@@ -418,14 +418,14 @@ fs_query *fs_query_execute(fs_query_state *qs, fsp_link *link, raptor_uri *bu, c
     } else {
 	q->num_vars = raptor_sequence_size(vars);
     }
-    q->b = fs_binding_new(q->num_vars);
+    q->bb[0] = fs_binding_new(q->num_vars);
 
     for (int i=0; i < q->num_vars; i++) {
 	rasqal_variable *v = raptor_sequence_get_at(vars, i);
-	fs_binding_add(q->b, (char *)v->name, FS_RID_NULL, 1);
+	fs_binding_add(q->bb[0], (char *)v->name, FS_RID_NULL, 1);
 #ifdef HAVE_LAQRS
         if (v->expression) {
-            fs_binding_set_expression(q->b, (char *)v->name, v->expression);
+            fs_binding_set_expression(q->bb[0], (char *)v->name, v->expression);
             q->expressions++;
         }
 #endif
@@ -446,32 +446,32 @@ fs_query *fs_query_execute(fs_query_state *qs, fsp_link *link, raptor_uri *bu, c
     int bound_variables = 0;
     int combinations = 1;
     int comb_factor[q->num_vars];
-    for (int i=0; q->b[i].name; i++) {
+    for (int i=0; q->bb[0][i].name; i++) {
         comb_factor[i] = 0;
     }
-    for (int i=0; q->b[i].name; i++) {
-        if (q->b[i].bound) {
+    for (int i=0; q->bb[0][i].name; i++) {
+        if (q->bb[0][i].bound) {
             bound_variables++;
             comb_factor[i] = combinations;
-            combinations *= q->b[i].vals->length;
+            combinations *= q->bb[0][i].vals->length;
         }
     }
     if (bound_variables > 1) {
-        for (int i=0; q->b[i].name; i++) {
+        for (int i=0; q->bb[0][i].name; i++) {
             if (!comb_factor[i]) {
                 continue;
             }
             fs_rid_vector *newv = fs_rid_vector_new(0);
-            for (int j=q->b[i].ubs->length; j<combinations; j++) {
-                fs_rid_vector_append(q->b[i].ubs, 0);
+            for (int j=q->bb[0][i].ubs->length; j<combinations; j++) {
+                fs_rid_vector_append(q->bb[0][i].ubs, 0);
             }
             for (int j=0; j<combinations; j++) {
-                if (q->b[i].vals->length > 0) {
-                    fs_rid_vector_append(newv, q->b[i].vals->data[(j / comb_factor[i]) % q->b[i].vals->length]);
+                if (q->bb[0][i].vals->length > 0) {
+                    fs_rid_vector_append(newv, q->bb[0][i].vals->data[(j / comb_factor[i]) % q->bb[0][i].vals->length]);
                 }
             }
-            fs_rid_vector_free(q->b[i].vals);
-            q->b[i].vals = newv;
+            fs_rid_vector_free(q->bb[0][i].vals);
+            q->bb[0][i].vals = newv;
         }
     }
 
@@ -485,22 +485,12 @@ fs_query *fs_query_execute(fs_query_state *qs, fsp_link *link, raptor_uri *bu, c
     }
 #endif
 
-    q->bb[0] = q->b;
     for (int i=0; i <= q->block; i++) {
-	if (i > 0) {
-            if (q->union_group[i] != 0) {
-                q->flags |= FS_BIND_UNION;
-                q->flags &= ~FS_BIND_OPTIONAL;
-            } else {
-                q->flags &= ~FS_BIND_UNION;
-                q->flags |= FS_BIND_OPTIONAL;
-            }
-	} else {
-            q->flags &= ~FS_BIND_OPTIONAL;
-            q->flags &= ~FS_BIND_UNION;
+        if (!q->bb[i]) {
+            q->bb[i] = fs_binding_copy(q->bb[q->parent_block[i]]);
         }
 	for (int j=0; j<q->blocks[i].length; j++) {
-	    int chunk = fs_optimise_triple_pattern(q->qs, q,
+	    int chunk = fs_optimise_triple_pattern(q->qs, q, i,
 	       (rasqal_triple **)(q->blocks[i].data), q->blocks[i].length, j);
 	    /* execute triple pattern query */
 	    if (explain) {
@@ -513,12 +503,6 @@ fs_query *fs_query_execute(fs_query_state *qs, fsp_link *link, raptor_uri *bu, c
                         rasqal_triple_print(q->blocks[i].data[j+k], stdout);
                     }
 		}
-                if (q->flags & FS_BIND_UNION) {
-                    printf(" UNION");
-                }
-                if (q->flags & FS_BIND_OPTIONAL) {
-                    printf(" OPTIONAL");
-                }
                 if (q->flags & FS_BIND_DISTINCT) {
                     printf(" DISTINCT");
                 }
@@ -542,24 +526,25 @@ fs_query *fs_query_execute(fs_query_state *qs, fsp_link *link, raptor_uri *bu, c
                 j += chunk-1;
             }
 	    if (explain) {
-		printf("%d bindings (%d)\n", fs_binding_length(q->b), ret);
+		printf("%d bindings (%d)\n", fs_binding_length(q->bb[i]), ret);
 	    }
-            if (q->block == 0 && fs_binding_length(q->b) == 0) {
+#warning suspect
+            if (q->block == 0 && ret == 0) {
                 q->boolean = 0;
             }
             if (ret == 0) {
-                for (int var=0; q->b[var].name; var++) {
-                    if (q->b[var].appears == i) {
-                        fs_rid_vector_free(q->b[var].vals);
-                        q->b[var].vals = NULL;
-                        fs_rid_vector_free(q->b[var].ubs);
-                        q->b[var].ubs = NULL;
-                        q->b[var].vals = fs_rid_vector_new(fs_binding_length(q->b));
-                        q->b[var].ubs = fs_rid_vector_new(fs_binding_length(q->b));
-                        q->b[var].bound = 1;
-                        for (int r=0; r<q->b[var].vals->length; r++) {
-                            q->b[var].vals->data[r] = FS_RID_NULL;
-                            q->b[var].ubs->data[r] = 0;
+                for (int var=0; q->bb[i][var].name; var++) {
+                    if (q->bb[0][var].appears == i) {
+                        fs_rid_vector_free(q->bb[i][var].vals);
+                        q->bb[i][var].vals = NULL;
+                        fs_rid_vector_free(q->bb[i][var].ubs);
+                        q->bb[i][var].ubs = NULL;
+                        q->bb[i][var].vals = fs_rid_vector_new(fs_binding_length(q->bb[i]));
+                        q->bb[i][var].ubs = fs_rid_vector_new(fs_binding_length(q->bb[i]));
+                        q->bb[i][var].bound = 1;
+                        for (int r=0; r<q->bb[i][var].vals->length; r++) {
+                            q->bb[i][var].vals->data[r] = FS_RID_NULL;
+                            q->bb[i][var].ubs->data[r] = 0;
                         }
                     }
                 }
@@ -570,10 +555,26 @@ fs_query *fs_query_execute(fs_query_state *qs, fsp_link *link, raptor_uri *bu, c
                 break;
             }
 	}
-        if (i > 0) {
-printf("block join %d X %d\n", q->parent_block[i], i);
-            fs_binding_merge(q, i, q->bb[i], q->bb[q->parent_block[i]], flags);
-fs_binding_print(q->bb[0], stdout);
+    }
+
+    /* run through the blocks in reverse order to do the joins */
+    for (int i=q->block; i>=0; i--) {
+        int start = i > 1 ? i : 1;
+        for (int j=start; j<=q->block; j++) {
+            if (q->parent_block[j] == i) {
+//printf("@@ block join %d X %d\n", i, j);
+                if (q->union_group[i] != 0) {
+                    q->flags |= FS_BIND_UNION;
+                    q->flags &= ~FS_BIND_OPTIONAL;
+                } else {
+                    q->flags &= ~FS_BIND_UNION;
+                    q->flags |= FS_BIND_OPTIONAL;
+                }
+                fs_binding_merge(q, i, q->bb[j], q->bb[i], q->flags);
+                //fs_binding_merge(q, i, q->bb[i], q->bb[q->parent_block[i]], flags);
+#warning needed
+                //fs_binding_free(q->bb[j]);
+            }
         }
     }
 
@@ -597,24 +598,24 @@ fs_binding_print(q->bb[0], stdout);
     }
 
     if (q->flags & FS_BIND_DISTINCT) {
-	for (int i=0; q->b[i].name; i++) {
-	    if (q->b[i].proj || q->b[i].selected) {
-		q->b[i].sort = 1;
+	for (int i=0; q->bb[0][i].name; i++) {
+	    if (q->bb[0][i].proj || q->bb[0][i].selected) {
+		q->bb[0][i].sort = 1;
 	    } else {
-		q->b[i].sort = 0;
+		q->bb[0][i].sort = 0;
 	    }
 	}
-	fs_binding_sort(q->b);
-	fs_binding_uniq(q->b);
+	fs_binding_sort(q->bb[0]);
+	fs_binding_uniq(q->bb[0]);
     }
 
     /* this is neccesary because the DISTINCT phase may have
      * reduced the length of the projected columns */
     q->length = 0;
     for (int col=0; col < q->num_vars; col++) {
-        if (!q->b[col].proj) continue;
-        if (q->b[col].vals->length > q->length) {
-            q->length = q->b[col].vals->length;
+        if (!q->bb[0][col].proj) continue;
+        if (q->bb[0][col].vals->length > q->length) {
+            q->length = q->bb[0][col].vals->length;
         }
     }
 
@@ -629,7 +630,7 @@ fs_binding_print(q->bb[0], stdout);
 
     if (q->num_vars == 0) {
 	/* ASK or similar */
-        q->length = fs_binding_length(q->b);
+        q->length = fs_binding_length(q->bb[0]);
         if (q->boolean && q->length == 0) q->length = 1;
         q->boolean = 0;
 
@@ -637,10 +638,10 @@ fs_binding_print(q->bb[0], stdout);
     }
 
     if (q->flags & FS_QUERY_COUNT) {
-        fs_binding_free(q->b);
-        q->b = fs_binding_new();
+        fs_binding_free(q->bb[0]);
+        q->bb[0] = fs_binding_new();
         q->num_vars = 1;
-        fs_binding_add(q->b, "count", 0, 1);
+        fs_binding_add(q->bb[0], "count", 0, 1);
     }
 
     if (rasqal_query_get_order_condition(q->rq, 0)) {
@@ -654,7 +655,7 @@ void fs_query_free(fs_query *q)
 {
     if (q) {
         if (q->rq) rasqal_free_query(q->rq);
-	fs_binding_free(q->b);
+	fs_binding_free(q->bb[0]);
 	if (q->resrow) free(q->resrow);
 	if (q->ordering) free(q->ordering);
         if (q->pending) {
@@ -682,7 +683,7 @@ void fs_query_free(fs_query *q)
 
 static void assign_slot(fs_query *q, rasqal_literal *l, int block)
 {
-    if (!q->b) {
+    if (!q->bb[0]) {
 	fs_error(LOG_ERR, "NULL binding");
 
 	return;
@@ -696,9 +697,9 @@ static void assign_slot(fs_query *q, rasqal_literal *l, int block)
 	    free(tmp);
 	    l->value.variable->type = RASQAL_VARIABLE_TYPE_NORMAL;
 	}
-	fs_binding *vb = fs_binding_get(q->b, vname);
+	fs_binding *vb = fs_binding_get(q->bb[0], vname);
 	if (!vb) {
-	    vb = fs_binding_add(q->b, vname, FS_RID_NULL, 0);
+	    vb = fs_binding_add(q->bb[0], vname, FS_RID_NULL, 0);
 	}
 	if (!vb->need_val && vb->appears != -1) {
 	    vb->need_val = 1;
@@ -713,7 +714,7 @@ static void check_variables(fs_query *q, rasqal_expression *e)
 {
     if (e->literal && e->literal->type == RASQAL_LITERAL_VARIABLE) {
 	rasqal_variable *v = e->literal->value.variable;
-	fs_binding *b = fs_binding_get(q->b, (char *)v->name);
+	fs_binding *b = fs_binding_get(q->bb[0], (char *)v->name);
 	if (b) {
             b->need_val = 1;
             b->selected = 1;
@@ -829,7 +830,7 @@ static int filter_optimise(fs_query *q, rasqal_expression *e, int block)
     int retval = 0;
     filter_optimise_disjunct_equality(q, e, block, &name, res);
     if (res->length) {
-        fs_binding *b = fs_binding_get(q->b, name);
+        fs_binding *b = fs_binding_get(q->bb[0], name);
         if (!b) {
             fs_error(LOG_ERR, "no binding for %s", name);
 
@@ -1276,12 +1277,12 @@ static int fs_handle_query_triple(fs_query *q, int block, rasqal_triple *t)
     slot[3] = fs_rid_vector_new(0);
     int ret = 0;
 
-    fs_binding *b;
-    if (!q->bb[block]) {
-        /* copy the binding table from the parent block */
-        q->bb[block] = fs_binding_copy(q->bb[q->parent_block[block]]);
+    fs_binding *b = q->bb[block];
+    if (!b) {
+        fs_error(LOG_ERR, "binding block is NULL");
+
+        return 1;
     }
-    b = q->bb[block];
     int tobind = q->flags;
 
     const int explain = tobind & FS_QUERY_EXPLAIN;
@@ -1378,9 +1379,7 @@ static int fs_handle_query_triple(fs_query *q, int block, rasqal_triple *t)
     }
 
     /* there are no constant terms in the subject or object slot, so we
-     * need to bind_all. We used to (before r872) enumerate the possibilities
-     * at this stage, but I can no longer see why that would be a
-     * good idea, and iters had the wrong value in it */
+     * need to bind_all. */
     int numbindings = 0;
 
     if (bind_pattern(q, block, oldb, t, slot, varnames, &numbindings, &tobind)) {
@@ -1421,12 +1420,17 @@ static int fs_handle_query_triple_multi(fs_query *q, int block, int count, rasqa
     slot[3] = fs_rid_vector_new(0);
     int ret = 0;
 
-    fs_binding *b = q->b;
+    fs_binding *b = q->bb[block];
     int tobind = q->flags;
 
     const int explain = tobind & FS_QUERY_EXPLAIN;
+#if 0
     const int optional = tobind & FS_BIND_OPTIONAL;
     const int union_block = optional ? 0 : block;
+#endif
+#warning needs looking at
+    const int optional = 0;
+    const int union_block = 0;
 
     char *varnames[4] = { NULL, NULL, NULL, NULL };
     if (!optional) fs_binding_clear_used_all(b);

@@ -29,7 +29,6 @@ struct _fs_query_state {
 struct _fs_query {
     fs_query_state *qs;
     fsp_link *link;
-    fs_binding *b;			/* master binding table */
     fs_binding *bb[FS_MAX_BLOCKS];	/* per block binding table */
     int segments;
     int num_vars;			/* number of projected variables */
