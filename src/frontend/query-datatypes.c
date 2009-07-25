@@ -296,6 +296,7 @@ fs_rid fs_binding_get_val(fs_binding *b, const char *name, int idx, int *bound)
     for (i=0; 1; i++) {
 	if (!b[i].name) break;
 	if (!strcmp(b[i].name, name)) {
+            if (!b[i].need_val) return FS_RID_GONE;
 	    if (bound) *bound = b[i].bound;
 	    if (!*bound) {
 		return FS_RID_NULL;

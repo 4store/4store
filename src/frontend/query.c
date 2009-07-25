@@ -343,6 +343,9 @@ fs_query *fs_query_execute(fs_query_state *qs, fsp_link *link, raptor_uri *bu, c
 #endif
 	q->construct = 1;
     }
+    if (verb == RASQAL_QUERY_VERB_DESCRIBE) {
+        q->describe = 1;
+    }
     if (rasqal_query_get_order_condition(rq, 0)) {
         q->order = 1;
     }
@@ -392,6 +395,24 @@ fs_query *fs_query_execute(fs_query_state *qs, fsp_link *link, raptor_uri *bu, c
 	    check_cons_slot(q, vars, t->predicate);
 	    check_cons_slot(q, vars, t->object);
 	}
+    } else if (q->describe) {
+        raptor_sequence *desc = rasqal_query_get_describe_sequence(rq);
+        vars = raptor_new_sequence(NULL, NULL);
+        for (int i=0; 1; i++) {
+            rasqal_literal *l = raptor_sequence_get_at(desc, i);
+            if (!l) break;
+            switch (l->type) {
+            case RASQAL_LITERAL_URI:
+                /* we'll deal with these later */
+                break;
+            case RASQAL_LITERAL_VARIABLE:
+                raptor_sequence_push(vars, l->value.variable);
+                break;
+            default:
+                fs_error(LOG_ERR, "unexpected literal type");
+                break;
+            }
+        }
     } else {
 	vars = rasqal_query_get_bound_variable_sequence(rq);
     }
@@ -416,7 +437,7 @@ fs_query *fs_query_execute(fs_query_state *qs, fsp_link *link, raptor_uri *bu, c
 
     rasqal_graph_pattern *pattern = rasqal_query_get_query_graph_pattern(rq);
     q->flags = flags;
-    if (q->construct || rasqal_query_get_distinct(rq)) {
+    if (q->construct || q->describe || rasqal_query_get_distinct(rq)) {
 	q->flags |= FS_BIND_DISTINCT;
     }
 
@@ -896,12 +917,6 @@ skip_assign:
 	raptor_sequence *s =
 	    rasqal_graph_pattern_get_constraint_sequence(pattern);
 	if (s) {
-	    if (q->constraints[block]) {
-		raptor_sequence_join(q->constraints[block], s);
-	    } else {
-		q->constraints[block] = s;
-	    }
-
 	    for (int c=0; 1; c++) {
 		rasqal_expression *e = raptor_sequence_get_at(s, c);
 		if (!e) break;
@@ -911,6 +926,12 @@ skip_assign:
                     /* stop us from trying to evaluate this expression later */
                     raptor_sequence_set_at(s, c, NULL);
                 }
+	    }
+
+	    if (q->constraints[block]) {
+		raptor_sequence_join(q->constraints[block], s);
+	    } else {
+		q->constraints[block] = s;
 	    }
 	}
 	for (int c=0; 1; c++) {

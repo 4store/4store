@@ -226,6 +226,9 @@ fs_value fs_expression_eval(fs_query *q, int row, int block, rasqal_expression *
 
 	case RASQAL_EXPR_EQ:
 	case RASQAL_EXPR_STR_EQ:
+#ifdef HAVE_RASQAL_WORLD
+	case RASQAL_EXPR_SAMETERM:
+#endif
 	    return fn_equal(q, fs_expression_eval(q, row, block, e->arg1),
 			    fs_expression_eval(q, row, block, e->arg2));
 
@@ -618,10 +621,12 @@ static int apply_constraints(fs_query *q, int row)
 {
     for (int block=q->block; block >= 0; block--) {
 	if (!(q->constraints[block])) continue;
-	for (int c=0; 1; c++) {
+        /* expressions that have been optimised out will be replaces with NULL,
+         * so we have to be careful here */
+	for (int c=0; c<raptor_sequence_size(q->constraints[block]); c++) {
 	    rasqal_expression *e =
 		raptor_sequence_get_at(q->constraints[block], c);
-	    if (!e) break;
+	    if (!e) continue;
 
 	    fs_value v = fs_expression_eval(q, row, block, e);
 #if 0
@@ -903,6 +908,27 @@ static char *xml_escape(const char *from, int len)
     return to;
 }
 
+
+static void handle_describe(fs_query *q, const char *type, FILE *output)
+{
+    //if (!q->boolean) return;
+
+    raptor_sequence *desc = rasqal_query_get_describe_sequence(q->rq);
+    for (int i=0; 1; i++) {
+        rasqal_literal *l = raptor_sequence_get_at(desc, i);
+        if (!l) break;
+        if (l->type == RASQAL_LITERAL_URI) {
+            fs_rid uri = fs_hash_uri((char *)raptor_uri_as_string(l->value.uri));
+printf("@@ %016llx\n", uri);
+        }
+    }
+
+    fs_row *row;
+    while ((row = fs_query_fetch_row(q))) {
+printf("@@ %016llx\n", row[0].rid);
+    }
+}
+
 static void handle_construct(fs_query *q, const char *type, FILE *output)
 {
     const int cols = fs_query_get_columns(q);
@@ -1043,6 +1069,8 @@ static void output_sparql(fs_query *q, int flags, FILE *out)
     int cols = fs_query_get_columns(q);
     if (q->construct) {
         handle_construct(q, "rdfxml", out);
+    } else if (q->describe) {
+        handle_describe(q, "rdfxml", out);
     } else {
 	/* XML output */
 
