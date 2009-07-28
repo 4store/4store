@@ -27,6 +27,7 @@
 #include "query.h"
 #include "query-intl.h"
 #include "filter.h"
+#include "debug.h"
 #include "common/hash.h"
 #include "common/error.h"
 #include "common/rdf-constants.h"
@@ -35,8 +36,6 @@
 #define CACHE_MASK (CACHE_SIZE-1)
 
 #define RESOURCE_LOOKUP_BUFFER 1800
-
-//#define DEBUG_FILTER 1
 
 /* glib 2.x headers must match the architecture we're building. If the size of a pointer
  * is smaller in the provided glibconfig.h than in our target architecture, the resulting typedef

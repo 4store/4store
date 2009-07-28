@@ -41,6 +41,8 @@ decimal.o: decimal.h
 
 query.o: debug.h
 
+results.o: debug.h
+
 query-datatypes.o: debug.h
 
 4s-import: 4s-import.o import.o ../common/lib4store.a

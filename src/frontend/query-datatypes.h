@@ -29,7 +29,7 @@ typedef struct _fs_binding {
 typedef struct _fs_query fs_query;
 typedef struct _fs_query_state fs_query_state;
 
-typedef enum { FS_INNER, FS_LEFT } fs_join_type;
+typedef enum { FS_NONE, FS_INNER, FS_LEFT, FS_UNION } fs_join_type;
 
 fs_binding *fs_binding_new();
 int fs_binding_set_expression(fs_binding *b, const char *name, rasqal_expression *ex);
@@ -53,7 +53,7 @@ void fs_binding_clear_used_all(fs_binding *b);
 void fs_binding_set_used(fs_binding *b, const char *name);
 void fs_binding_copy_row_unused(fs_binding *b1, int row, int count, fs_binding *b2);
 void fs_binding_union(fs_query *q, fs_binding *a, fs_binding *b);
-void fs_binding_merge(fs_query *q, int block, fs_binding *from, fs_binding *to, int flags);
+void fs_binding_merge(fs_query *q, int block, fs_binding *from, fs_binding *to);
 fs_binding *fs_binding_join(fs_query *q, fs_binding *a, fs_binding *b, fs_join_type);
 void fs_binding_print(fs_binding *b, FILE *out);
 void fs_binding_sort(fs_binding *b);

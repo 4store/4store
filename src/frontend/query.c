@@ -487,7 +487,7 @@ fs_query *fs_query_execute(fs_query_state *qs, fsp_link *link, raptor_uri *bu, c
 
     for (int i=0; i <= q->block; i++) {
 #if DEBUG_MERGE
-printf("Processing B%d\n", i);
+printf("Processing B%d, parent is B%d\n", i, q->parent_block[i]);
 #endif
         if (!q->bb[i]) {
             q->bb[i] = fs_binding_copy(q->bb[q->parent_block[i]]);
@@ -531,7 +531,6 @@ printf("Processing B%d\n", i);
 	    if (explain) {
 		printf("%d bindings (%d)\n", fs_binding_length(q->bb[i]), ret);
 	    }
-#warning suspect
             if (q->block == 0 && ret == 0) {
                 q->boolean = 0;
             }
@@ -554,7 +553,7 @@ printf("Processing B%d\n", i);
                 break;
             }
 	}
-#ifdef DEBUG_MERGE > 1
+#if DEBUG_MERGE > 1
 printf("table after processing B%d:\n", i);
 fs_binding_print(q->bb[i], stdout);
 printf("\n");
@@ -570,12 +569,14 @@ printf("\n");
                 if (first_in_union == 0) {
                     first_in_union = j;
                 } else {
-#ifdef DEBUG_MERGE
-                    printf("B%d = B%d UNION B%d\n", first_in_union, first_in_union, j);
-#endif
                     fs_binding_union(q, q->bb[first_in_union], q->bb[j]);
                     fs_binding_free(q->bb[j]);
                     q->bb[j] = NULL;
+#ifdef DEBUG_MERGE
+                    printf("B%d = B%d UNION B%d\n", first_in_union, first_in_union, j);
+                    fs_binding_print(q->bb[first_in_union], stdout);
+                    printf("\n");
+#endif
                 }
             }
         }
@@ -592,20 +593,10 @@ printf("\n");
                 continue;
             }
             if (q->parent_block[j] == i) {
-                if (q->union_group[i]) {
-                    /* It's a UNION, just join */
+                if (q->union_group[j]) {
+                    /* It's a UNION, inner join */
 #ifdef DEBUG_MERGE
                     printf("block join B%d [X] B%d\n", i, j);
-#endif
-#if 0
-                if (q->union_group[i] != 0) {
-                    q->flags |= FS_BIND_UNION;
-                    q->flags &= ~FS_BIND_OPTIONAL;
-printf("UNION group %d\n", q->union_group[i]);
-                } else {
-                    q->flags &= ~FS_BIND_UNION;
-                    q->flags |= FS_BIND_OPTIONAL;
-                }
 #endif
                     fs_binding *nb = fs_binding_join(q, q->bb[i], q->bb[j], FS_INNER);
                     fs_binding_free(q->bb[i]);
@@ -904,43 +895,41 @@ static int filter_optimise(fs_query *q, rasqal_expression *e, int block)
 }
 
 static void graph_pattern_walk(fsp_link *link, rasqal_graph_pattern *pattern,
-	fs_query *q, int block, const int pass, int uni)
+	fs_query *q, int parent, const int pass, int uni)
 {
     if (!pattern) {
 	return;
     }
+
+    int union_sub = 0;
 
     int op = rasqal_graph_pattern_get_operator(pattern);
 
     if (op == RASQAL_GRAPH_PATTERN_OPERATOR_OPTIONAL) {
 	if (pass == 0) return;
 	(q->block)++;
-        q->parent_block[q->block] = block;
-	block = q->block;
+        q->parent_block[q->block] = parent;
+        q->join_type[q->block] = FS_LEFT;
     } else if (op == RASQAL_GRAPH_PATTERN_OPERATOR_UNION) {
 	if (pass == 0) return;
         (q->unions)++;
-        for (int index=0; 1; index++) {
-            rasqal_graph_pattern *sgp =
-                        rasqal_graph_pattern_get_sub_graph_pattern(pattern, index);
-            if (!sgp) break;
-            graph_pattern_walk(link, sgp, q, block, pass, 1);
-        }
+        union_sub = 1;
     } else if (uni) {
 	if (pass == 0) return;
 	(q->block)++;
         q->union_group[q->block] = q->unions;
-        q->parent_block[q->block] = block;
-	block = q->block;
+        q->parent_block[q->block] = parent;
+        q->join_type[q->block] = FS_UNION;
     } else if (op == RASQAL_GRAPH_PATTERN_OPERATOR_BASIC ||
 	op == RASQAL_GRAPH_PATTERN_OPERATOR_GROUP ||
         op == RASQAL_GRAPH_PATTERN_OPERATOR_GRAPH) {
+printf("@@ BASIC/GRAPH\n");
         /* do nothing */
     } else {
 	fs_error(LOG_ERR, "GP operator %d not supported treating as BGP", op);
     }
 
-    if (block == 0 && pass == 1) {
+    if (q->block == 0 && pass == 1) {
 	goto skip_assign;
     }
 
@@ -948,20 +937,25 @@ static void graph_pattern_walk(fsp_link *link, rasqal_graph_pattern *pattern,
 	rasqal_triple *t = rasqal_graph_pattern_get_triple(pattern, i);
 	if (!t) break;
 
+printf("ADD ");
+rasqal_triple_print(t, stdout);
+printf("to B%d\n", q->block);
 	fs_p_vector_append(q->blocks+q->block, (void *)t);
-	assign_slot(q, t->origin, block);
-	assign_slot(q, t->subject, block);
-	assign_slot(q, t->predicate, block);
-	assign_slot(q, t->object, block);
+	assign_slot(q, t->origin, q->block);
+	assign_slot(q, t->subject, q->block);
+	assign_slot(q, t->predicate, q->block);
+	assign_slot(q, t->object, q->block);
     }
 
-skip_assign:
+skip_assign:;
 
+    const int this_block = q->block;
+    /* descend into next level down */
     for (int index=0; 1; index++) {
-	rasqal_graph_pattern *sgp =
-		    rasqal_graph_pattern_get_sub_graph_pattern(pattern, index);
-	if (!sgp) break;
-	graph_pattern_walk(link, sgp, q, block, pass, 0);
+        rasqal_graph_pattern *sgp =
+                    rasqal_graph_pattern_get_sub_graph_pattern(pattern, index);
+        if (!sgp) break;
+        graph_pattern_walk(link, sgp, q, this_block, pass, union_sub);
     }
 
     if (pass == 1) {
@@ -973,16 +967,16 @@ skip_assign:
 		if (!e) break;
 
 		check_variables(q, e);
-		if (filter_optimise(q, e, block)) {
+		if (filter_optimise(q, e, q->block)) {
                     /* stop us from trying to evaluate this expression later */
                     raptor_sequence_set_at(s, c, NULL);
                 }
 	    }
 
-	    if (q->constraints[block]) {
-		raptor_sequence_join(q->constraints[block], s);
+	    if (q->constraints[q->block]) {
+		raptor_sequence_join(q->constraints[this_block], s);
 	    } else {
-		q->constraints[block] = s;
+		q->constraints[this_block] = s;
 	    }
 	}
 	for (int c=0; 1; c++) {
@@ -1300,9 +1294,7 @@ static int process_results(fs_query *q, int block, fs_binding *oldb,
 	    fs_rid_vector_free(results[col]);
 	}
         free(results);
-        /* we don't want the merge to try and do the OPTINAL etc. logic yet */
-        int mergeflags = flags & (FS_BIND_DISTINCT);
-        fs_binding_merge(q, block, oldb, b, mergeflags);
+        fs_binding_merge(q, block, oldb, b);
     } else {
         if (!(flags & (FS_BIND_OPTIONAL | FS_BIND_UNION))) {
             q->boolean = 0;
@@ -1330,14 +1322,14 @@ static int fs_handle_query_triple(fs_query *q, int block, rasqal_triple *t)
     }
     int tobind = q->flags;
 
+#ifdef DEBUG_MERGE
+    const int explain = 1;
+#else
     const int explain = tobind & FS_QUERY_EXPLAIN;
-#if 0
-    const int optional = tobind & FS_BIND_OPTIONAL;
 #endif
-    const int optional = 0;
 
     char *varnames[4] = { NULL, NULL, NULL, NULL };
-    if (!optional) fs_binding_clear_used_all(b);
+    fs_binding_clear_used_all(b);
     fs_binding *oldb = fs_binding_copy_and_clear(b);
     fs_rid_vector **results = NULL;
 
@@ -1458,15 +1450,9 @@ static int fs_handle_query_triple_multi(fs_query *q, int block, int count, rasqa
     int tobind = q->flags;
 
     const int explain = tobind & FS_QUERY_EXPLAIN;
-#if 0
-    const int optional = tobind & FS_BIND_OPTIONAL;
-    const int union_block = optional ? 0 : block;
-#endif
-#warning needs looking at
-    const int optional = 0;
 
     char *varnames[4] = { NULL, NULL, NULL, NULL };
-    if (!optional) fs_binding_clear_used_all(b);
+    fs_binding_clear_used_all(b);
     fs_binding *oldb = fs_binding_copy_and_clear(b);
     fs_rid_vector **results = NULL;
 

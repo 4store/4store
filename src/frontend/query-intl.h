@@ -51,6 +51,7 @@ struct _fs_query {
     int errors;				/* number of parse/execution errors */
     fs_row *resrow;
     fs_p_vector blocks[FS_MAX_BLOCKS];
+    fs_join_type join_type[FS_MAX_BLOCKS];
     int parent_block[FS_MAX_BLOCKS];
     int union_group[FS_MAX_BLOCKS];
     raptor_sequence *constraints[FS_MAX_BLOCKS];

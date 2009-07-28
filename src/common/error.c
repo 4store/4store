@@ -25,6 +25,7 @@
 #include <unistd.h>
 #include <glib.h>
 #include <string.h>
+#include <libgen.h>
 #ifdef __GLIBC__
 #include <execinfo.h>
 #endif
