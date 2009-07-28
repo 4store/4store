@@ -70,7 +70,7 @@ int fs_opt_num_vals(fs_binding *b, rasqal_literal *l)
 }
 
 /* returns true if the expression can be hashed */
-int fs_opt_is_const(fs_binding *b, rasqal_literal *l, int block)
+int fs_opt_is_const(fs_binding *b, rasqal_literal *l)
 {
     if (!l) return 0;
 
@@ -181,7 +181,7 @@ int fs_optimise_triple_pattern(fs_query_state *qs, fs_query *q, int block, rasqa
 	if (!pbuf[i]) {
 	    continue;
 	}
-	if (fs_opt_is_const(q->bb[block], pbuf[i]->subject, 0) && fs_opt_is_const(q->bb[block], pbuf[i]->predicate, 0)) {
+	if (fs_opt_is_const(q->bb[block], pbuf[i]->subject) && fs_opt_is_const(q->bb[block], pbuf[i]->predicate)) {
 	    patt[append_pos++] = pbuf[i];
 	    pbuf[i] = NULL;
 	}
@@ -190,7 +190,7 @@ int fs_optimise_triple_pattern(fs_query_state *qs, fs_query *q, int block, rasqa
 	if (!pbuf[i]) {
 	    continue;
 	}
-	if (fs_opt_is_const(q->bb[block], pbuf[i]->object, 0) && fs_opt_is_const(q->bb[block], pbuf[i]->predicate, 0)) {
+	if (fs_opt_is_const(q->bb[block], pbuf[i]->object) && fs_opt_is_const(q->bb[block], pbuf[i]->predicate)) {
 	    patt[append_pos++] = pbuf[i];
 	    pbuf[i] = NULL;
 	}
@@ -199,7 +199,7 @@ int fs_optimise_triple_pattern(fs_query_state *qs, fs_query *q, int block, rasqa
 	if (!pbuf[i]) {
 	    continue;
 	}
-	if (fs_opt_is_const(q->bb[block], pbuf[i]->subject, 0)) {
+	if (fs_opt_is_const(q->bb[block], pbuf[i]->subject)) {
 	    patt[append_pos++] = pbuf[i];
 	    pbuf[i] = NULL;
 	}
@@ -208,7 +208,7 @@ int fs_optimise_triple_pattern(fs_query_state *qs, fs_query *q, int block, rasqa
 	if (!pbuf[i]) {
 	    continue;
 	}
-	if (fs_opt_is_const(q->bb[block], pbuf[i]->object, 0)) {
+	if (fs_opt_is_const(q->bb[block], pbuf[i]->object)) {
 	    patt[append_pos++] = pbuf[i];
 	    pbuf[i] = NULL;
 	}
@@ -217,7 +217,7 @@ int fs_optimise_triple_pattern(fs_query_state *qs, fs_query *q, int block, rasqa
 	if (!pbuf[i]) {
 	    continue;
 	}
-	if (fs_opt_is_const(q->bb[block], pbuf[i]->predicate, 0)) {
+	if (fs_opt_is_const(q->bb[block], pbuf[i]->predicate)) {
 	    patt[append_pos++] = pbuf[i];
 	    pbuf[i] = NULL;
 	}
@@ -226,7 +226,7 @@ int fs_optimise_triple_pattern(fs_query_state *qs, fs_query *q, int block, rasqa
 	if (!pbuf[i]) {
 	    continue;
 	}
-	if (fs_opt_is_const(q->bb[block], pbuf[i]->origin, 0)) {
+	if (fs_opt_is_const(q->bb[block], pbuf[i]->origin)) {
 	    patt[append_pos++] = pbuf[i];
 	    pbuf[i] = NULL;
 	}
@@ -255,7 +255,7 @@ int fs_optimise_triple_pattern(fs_query_state *qs, fs_query *q, int block, rasqa
         char *svname = var_name(patt[start]->subject);
         int count = 1;
         while (start+count < length &&
-               !fs_opt_is_const(q->bb[block], patt[start+count]->subject, 0) &&
+               !fs_opt_is_const(q->bb[block], patt[start+count]->subject) &&
                !strcmp(svname, var_name(patt[start+count]->subject)) &&
                !var_name(patt[start+count]->object) &&
                !var_name(patt[start+count]->predicate)) {
@@ -326,11 +326,11 @@ int fs_bind_freq(fs_query_state *qs, fs_query *q, int block, rasqal_triple *t)
     int ret = 100;
     char dir = '?';
 
-    if (!fs_opt_is_const(q->bb[block], t->subject, 0) && !fs_opt_is_const(q->bb[block], t->predicate, 0) &&
-        !fs_opt_is_const(q->bb[block], t->object, 0) && !fs_opt_is_const(q->bb[block], t->origin, 0)) {
+    if (!fs_opt_is_const(q->bb[block], t->subject) && !fs_opt_is_const(q->bb[block], t->predicate) &&
+        !fs_opt_is_const(q->bb[block], t->object) && !fs_opt_is_const(q->bb[block], t->origin)) {
         ret = INT_MAX;
-    } else if (!fs_opt_is_const(q->bb[block], t->subject, 0) &&
-               !fs_opt_is_const(q->bb[block], t->object, 0)) {
+    } else if (!fs_opt_is_const(q->bb[block], t->subject) &&
+               !fs_opt_is_const(q->bb[block], t->object)) {
         ret = INT_MAX - 100;
     } else if (qs->freq_s && fs_opt_num_vals(q->bb[block], t->subject) == 1 &&
                fs_opt_num_vals(q->bb[block], t->predicate) == 1) {

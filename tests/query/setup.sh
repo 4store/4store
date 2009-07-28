@@ -13,5 +13,7 @@ fi
 if [ -x /usr/bin/pkill ] ; then
 	pkill -f "^../../src/backend/4s-backend\ $kb\$"
 else
-	killall 4s-backend
+	for pid in `ps uwwx | grep "4s-backend $kb" | awk '{print $2}'`; do
+		kill $pid 2> /dev/null
+	done
 fi

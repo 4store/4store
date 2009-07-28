@@ -1,7 +1,7 @@
-execute: triple(variable(a), uri<http://www.w3.org/2000/01/rdf-schema#label>, string("No Such Avenue")) UNION DISTINCT LIMIT 998
+execute: triple(variable(a), uri<http://www.w3.org/2000/01/rdf-schema#label>, string("No Such Avenue")) DISTINCT LIMIT 998
 NNNNo (_,?,_[fee49d12fd66dd2d],_[3318fb213ddcaf0b]) -> 0
 0 bindings (0)
-execute: triple(variable(a), uri<http://www.w3.org/2000/01/rdf-schema#label>, string("Escobar St")) UNION DISTINCT LIMIT 998
+execute: triple(variable(a), uri<http://www.w3.org/2000/01/rdf-schema#label>, string("Escobar St")) DISTINCT LIMIT 998
 NNNNo (_,?,_[fee49d12fd66dd2d],_[59a881aa69407eaf]) -> 2
 2 bindings (2)
 ?a

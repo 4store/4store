@@ -35,6 +35,7 @@
 #include "filter-datatypes.h"
 #include "order.h"
 #include "import.h"
+#include "debug.h"
 #include "common/4store.h"
 #include "common/datatypes.h"
 #include "common/params.h"
@@ -347,8 +348,10 @@ fs_query *fs_query_execute(fs_query_state *qs, fsp_link *link, raptor_uri *bu, c
     }
 
     int explain = flags & FS_QUERY_EXPLAIN;
-
+#ifdef DEBUG_MERGE
+    explain = 1;
     //rasqal_query_print(rq, stdout);
+#endif
 
 #if 0
     /* This implements FROM, in a dumb and dangerous way, could be enabled by
@@ -462,9 +465,6 @@ fs_query *fs_query_execute(fs_query_state *qs, fsp_link *link, raptor_uri *bu, c
                 continue;
             }
             fs_rid_vector *newv = fs_rid_vector_new(0);
-            for (int j=q->bb[0][i].ubs->length; j<combinations; j++) {
-                fs_rid_vector_append(q->bb[0][i].ubs, 0);
-            }
             for (int j=0; j<combinations; j++) {
                 if (q->bb[0][i].vals->length > 0) {
                     fs_rid_vector_append(newv, q->bb[0][i].vals->data[(j / comb_factor[i]) % q->bb[0][i].vals->length]);
@@ -486,6 +486,9 @@ fs_query *fs_query_execute(fs_query_state *qs, fsp_link *link, raptor_uri *bu, c
 #endif
 
     for (int i=0; i <= q->block; i++) {
+#if DEBUG_MERGE
+printf("Processing B%d\n", i);
+#endif
         if (!q->bb[i]) {
             q->bb[i] = fs_binding_copy(q->bb[q->parent_block[i]]);
         }
@@ -537,14 +540,10 @@ fs_query *fs_query_execute(fs_query_state *qs, fsp_link *link, raptor_uri *bu, c
                     if (q->bb[0][var].appears == i) {
                         fs_rid_vector_free(q->bb[i][var].vals);
                         q->bb[i][var].vals = NULL;
-                        fs_rid_vector_free(q->bb[i][var].ubs);
-                        q->bb[i][var].ubs = NULL;
                         q->bb[i][var].vals = fs_rid_vector_new(fs_binding_length(q->bb[i]));
-                        q->bb[i][var].ubs = fs_rid_vector_new(fs_binding_length(q->bb[i]));
                         q->bb[i][var].bound = 1;
                         for (int r=0; r<q->bb[i][var].vals->length; r++) {
                             q->bb[i][var].vals->data[r] = FS_RID_NULL;
-                            q->bb[i][var].ubs->data[r] = 0;
                         }
                     }
                 }
@@ -555,28 +554,87 @@ fs_query *fs_query_execute(fs_query_state *qs, fsp_link *link, raptor_uri *bu, c
                 break;
             }
 	}
+#ifdef DEBUG_MERGE > 1
+printf("table after processing B%d:\n", i);
+fs_binding_print(q->bb[i], stdout);
+printf("\n");
+#endif
     }
 
-    /* run through the blocks in reverse order to do the joins */
+    /* perform all the UNIONs */
+    int first_in_union;
+    for (int i=q->unions; i>0; i--) {
+        first_in_union = 0;
+        for (int j=1; j<=q->block; j++) {
+            if (q->union_group[j] == i) {
+                if (first_in_union == 0) {
+                    first_in_union = j;
+                } else {
+#ifdef DEBUG_MERGE
+                    printf("B%d = B%d UNION B%d\n", first_in_union, first_in_union, j);
+#endif
+                    fs_binding_union(q, q->bb[first_in_union], q->bb[j]);
+                    fs_binding_free(q->bb[j]);
+                    q->bb[j] = NULL;
+                }
+            }
+        }
+    }
+
+    /* run through the blocks in the correct order to do the joins */
     for (int i=q->block; i>=0; i--) {
+        if (!q->bb[i]) {
+            continue;
+        }
         int start = i > 1 ? i : 1;
         for (int j=start; j<=q->block; j++) {
+            if (!q->bb[j]) {
+                continue;
+            }
             if (q->parent_block[j] == i) {
-//printf("@@ block join %d X %d\n", i, j);
+                if (q->union_group[i]) {
+                    /* It's a UNION, just join */
+#ifdef DEBUG_MERGE
+                    printf("block join B%d [X] B%d\n", i, j);
+#endif
+#if 0
                 if (q->union_group[i] != 0) {
                     q->flags |= FS_BIND_UNION;
                     q->flags &= ~FS_BIND_OPTIONAL;
+printf("UNION group %d\n", q->union_group[i]);
                 } else {
                     q->flags &= ~FS_BIND_UNION;
                     q->flags |= FS_BIND_OPTIONAL;
                 }
-                fs_binding_merge(q, i, q->bb[j], q->bb[i], q->flags);
-                //fs_binding_merge(q, i, q->bb[i], q->bb[q->parent_block[i]], flags);
-#warning needed
-                //fs_binding_free(q->bb[j]);
+#endif
+                    fs_binding *nb = fs_binding_join(q, q->bb[i], q->bb[j], FS_INNER);
+                    fs_binding_free(q->bb[i]);
+                    q->bb[i] = nb;
+                    fs_binding_free(q->bb[j]);
+                    q->bb[j] = NULL;
+                } else {
+                    /* It's an OPTIONAL, left join */
+#ifdef DEBUG_MERGE
+                    printf("block join B%d =X] B%d\n", i, j);
+#endif
+                    fs_binding *nb = fs_binding_join(q, q->bb[i], q->bb[j], FS_LEFT);
+                    fs_binding_free(q->bb[i]);
+                    q->bb[i] = nb;
+                    fs_binding_free(q->bb[j]);
+                    q->bb[j] = NULL;
+                }
             }
         }
     }
+#ifdef DEBUG_MERGE
+printf("table after final joins:\n");
+fs_binding_print(q->bb[0], stdout);
+printf("\n");
+#endif
+
+#ifdef DEBUG_MERGE
+    explain = flags & FS_QUERY_EXPLAIN;
+#endif
 
     if (explain) {
         double start_time = q->start_time;
@@ -837,8 +895,6 @@ static int filter_optimise(fs_query *q, rasqal_expression *e, int block)
             return 0;
         }
         fs_rid_vector_append_vector(b->vals, res);
-        for (int i=0; i<res->length; i++) res->data[i] = 0;
-        fs_rid_vector_append_vector(b->ubs, res);
         b->bound = 1;
         retval = 1;
     }
@@ -1202,7 +1258,6 @@ static int process_results(fs_query *q, int block, fs_binding *oldb,
         if (!results[0]) {
             for (int i=0; oldb[i].name; i++) {
                 fs_rid_vector_append_vector(b[i].vals, oldb[i].vals);
-                fs_rid_vector_append_vector(b[i].ubs, oldb[i].ubs);
                 b[i].bound |= oldb[i].bound;
             }
             free(results);
@@ -1236,16 +1291,6 @@ static int process_results(fs_query *q, int block, fs_binding *oldb,
                 if (!bv) {
                     fs_error(LOG_CRIT, "unmatched variable name '%s'", varnames[col]);
                     continue;
-                }
-                if (q->union_group[block] > 0 &&
-                    q->union_group[bv->appears] > 0) {
-                    for (int r=0; results[col] && r<results[col]->length; r++) {
-                        fs_rid_vector_append(bv->ubs, block);
-                    }
-                } else {
-                    for (int r=0; results[col] && r<results[col]->length; r++) {
-                        fs_rid_vector_append(bv->ubs, 0);
-                    }
                 }
 		fs_binding_add_vector(b, varnames[col], results[col]);
                 ret += results[col] ? results[col]->length : 0;
@@ -1290,7 +1335,6 @@ static int fs_handle_query_triple(fs_query *q, int block, rasqal_triple *t)
     const int optional = tobind & FS_BIND_OPTIONAL;
 #endif
     const int optional = 0;
-    const int union_block = optional ? 0 : block;
 
     char *varnames[4] = { NULL, NULL, NULL, NULL };
     if (!optional) fs_binding_clear_used_all(b);
@@ -1299,7 +1343,7 @@ static int fs_handle_query_triple(fs_query *q, int block, rasqal_triple *t)
 
     /* if theres a patterns with lots of bindings for the subject and one
      * predicate we can bind_many it */
-    if (fs_opt_is_const(oldb, t->subject, union_block) &&
+    if (fs_opt_is_const(oldb, t->subject) &&
         (fs_opt_num_vals(oldb, t->subject) <= fs_opt_num_vals(oldb, t->object) ||
         (t->predicate->type == RASQAL_LITERAL_URI &&
          !strcmp((char *)raptor_uri_as_string(t->predicate->value.uri), RDF_TYPE)))) {
@@ -1317,22 +1361,12 @@ static int fs_handle_query_triple(fs_query *q, int block, rasqal_triple *t)
 	    return 0;
 	}
 
-        char *scope = NULL;
-        if (slot[1]->length > 0) {
-            fs_bind_cache_wrapper(q->qs, q, 0, tobind | FS_BIND_BY_SUBJECT,
-                     slot, &results, -1, q->order ? -1 : q->soft_limit);
-            scope = "mmmm";
-        } else {
-            /* by unbinding things bound in UNION blocks we've made it not
-             * possible to bind many anymore */
-            fs_bind_cache_wrapper(q->qs, q, 1, tobind | FS_BIND_BY_SUBJECT,
-                     slot, &results, -1, q->order ? -1 : q->soft_limit);
-            scope = "UUUU";
-        }
+        fs_bind_cache_wrapper(q->qs, q, 0, tobind | FS_BIND_BY_SUBJECT,
+                 slot, &results, -1, q->order ? -1 : q->soft_limit);
 	if (explain) {
 	    char desc[4][DESC_SIZE];
 	    desc_action(tobind, slot, desc);
-	    printf("%ss (%s,%s,%s,%s) -> %d\n", scope, desc[0], desc[1], desc[2], desc[3], results ? (results[0] ? results[0]->length : -1) : -2);
+	    printf("mmmms (%s,%s,%s,%s) -> %d\n", desc[0], desc[1], desc[2], desc[3], results ? (results[0] ? results[0]->length : -1) : -2);
 	}
 
         ret = process_results(q, block, oldb, b, tobind, results, varnames, numbindings, slot);
@@ -1345,7 +1379,7 @@ static int fs_handle_query_triple(fs_query *q, int block, rasqal_triple *t)
 
     /* if theres a patterns with lots of bindings for the object and one
      * predicate we can bind_many it */
-    if (fs_opt_is_const(oldb, t->object, union_block)) {
+    if (fs_opt_is_const(oldb, t->object)) {
 	int numbindings = 0;
 	tobind |= FS_BIND_OBJECT;
 
@@ -1430,7 +1464,6 @@ static int fs_handle_query_triple_multi(fs_query *q, int block, int count, rasqa
 #endif
 #warning needs looking at
     const int optional = 0;
-    const int union_block = 0;
 
     char *varnames[4] = { NULL, NULL, NULL, NULL };
     if (!optional) fs_binding_clear_used_all(b);
@@ -1439,11 +1472,11 @@ static int fs_handle_query_triple_multi(fs_query *q, int block, int count, rasqa
 
     /* check the patterns are all of the form { ?s <const> <const> . } */
     for (int i=0; i<count; i++) {
-        if (fs_opt_is_const(oldb, t[i]->subject, union_block)) {
+        if (fs_opt_is_const(oldb, t[i]->subject)) {
             fs_error(LOG_ERR, "bad const subject argument to fs_handle_query_triple_multi()");
             return 0;
         }
-        if (!fs_opt_is_const(oldb, t[i]->object, union_block) || !fs_opt_is_const(oldb, t[i]->predicate, union_block)) {
+        if (!fs_opt_is_const(oldb, t[i]->object) || !fs_opt_is_const(oldb, t[i]->predicate)) {
             fs_error(LOG_ERR, "bad non const object/predicate argument to fs_handle_query_triple_multi()");
             return 0;
         }

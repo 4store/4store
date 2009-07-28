@@ -36,7 +36,7 @@
 
 #define RESOURCE_LOOKUP_BUFFER 1800
 
-#define DEBUG_FILTER 1
+//#define DEBUG_FILTER 1
 
 /* glib 2.x headers must match the architecture we're building. If the size of a pointer
  * is smaller in the provided glibconfig.h than in our target architecture, the resulting typedef
@@ -176,6 +176,9 @@ static fs_value literal_to_value(fs_query *q, int row, int block, rasqal_literal
 	case RASQAL_LITERAL_VARIABLE:
 	    {
 		char *name = (char *)l->value.variable->name;
+#ifdef DEBUG_FILTER
+printf("getting value of ?%s, row %d from block %d\n", name, row, block);
+#endif
 		fs_binding *b = fs_binding_get(q->bb[block], name);
 #if 0
 if (!b->bound_in_block[block]) {
@@ -216,8 +219,8 @@ fs_value fs_expression_eval(fs_query *q, int row, int block, rasqal_expression *
     if (!e) {
 	return fs_value_rid(FS_RID_NULL);
     }
-    if (block == -1) {
-        fs_error(LOG_CRIT, "block was -1, changing to 0");
+    if (block < 0) {
+        fs_error(LOG_CRIT, "block was less than zero, changing to 0");
         block = 0;
     }
 
@@ -634,7 +637,8 @@ static int apply_constraints(fs_query *q, int row)
 		raptor_sequence_get_at(q->constraints[block], c);
 	    if (!e) continue;
 
-	    fs_value v = fs_expression_eval(q, row, block, e);
+#warning this should make be the correct block
+	    fs_value v = fs_expression_eval(q, row, 0, e);
 #ifdef DEBUG_FILTER
 	    rasqal_expression_print(e, stdout);
 	    printf(" -> ");

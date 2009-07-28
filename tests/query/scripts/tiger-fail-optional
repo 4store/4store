@@ -17,4 +17,5 @@ WHERE {
     ?join vocab:lat ?endlat .
     ?next vocab:start ?join .
   }
-}' | sed 's/_:b[^	]*/BNODE/g' | sort
+}
+ORDER BY ?endlong' | sed 's/_:b[^	]*/BNODE/g' | grep -v '^#'

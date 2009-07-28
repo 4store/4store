@@ -24,11 +24,8 @@
 
 #include "query-datatypes.h"
 #include "query-intl.h"
+#include "debug.h"
 #include "common/error.h"
-
-//#define DEBUG_MERGE 1
-//#define DEBUG_COMPARE 1
-//#define DEBUG_BINDING "ac"
 
 fs_binding *fs_binding_new()
 {
@@ -51,8 +48,6 @@ void fs_binding_free(fs_binding *b)
         b[i].name = NULL;
 	fs_rid_vector_free(b[i].vals);
         b[i].vals = NULL;
-	fs_rid_vector_free(b[i].ubs);
-        b[i].ubs = NULL;
     }
     memset(b, 0, sizeof(fs_binding));
     free(b);
@@ -144,18 +139,16 @@ fs_binding *fs_binding_add(fs_binding *b, const char *name, fs_rid val, int proj
 	    }
 	    b[i].name = g_strdup(name);
 	    if (val != FS_RID_NULL) {
-                if (b[i].vals || b[i].ubs) {
+                if (b[i].vals) {
                     fs_error(LOG_WARNING, "loosing pointer to rid_vector");
                 }
 		b[i].vals = fs_rid_vector_new_from_args(1, val);
-		b[i].ubs = fs_rid_vector_new_from_args(1, 0);
 		b[i].bound = 1;
 	    } else {
-                if (b[i].vals || b[i].ubs) {
+                if (b[i].vals) {
                     fs_error(LOG_WARNING, "loosing pointer to rid_vector");
                 }
 		b[i].vals = fs_rid_vector_new(0);
-		b[i].ubs = fs_rid_vector_new(0);
 	    }
 	    b[i].proj = projected;
 	    b[i].need_val = projected;
@@ -164,7 +157,6 @@ fs_binding *fs_binding_add(fs_binding *b, const char *name, fs_rid val, int proj
 	}
 	if (!strcmp(b[i].name, name)) {
 	    fs_rid_vector_append(b[i].vals, val);
-	    fs_rid_vector_append(b[i].ubs, 0);
 	    b[i].bound = 1;
 	    b[i].proj |= projected;
 	    b[i].need_val |= projected;
@@ -185,7 +177,6 @@ void fs_binding_clear_vector(fs_binding *b, const char *name)
 	if (!b[i].name) break;
 	if (!strcmp(b[i].name, name)) {
 	    b[i].vals->length = 0;
-	    b[i].ubs->length = 0;
 	    return;
 	}
     }
@@ -194,7 +185,7 @@ void fs_binding_clear_vector(fs_binding *b, const char *name)
 fs_binding *fs_binding_copy(fs_binding *b)
 {
 #ifdef DEBUG_BINDING
-    printf("@@ copy_and_clear()\n");
+    printf("@@ copy()\n");
 #endif
     fs_binding *b2 = fs_binding_new();
 
@@ -205,11 +196,11 @@ fs_binding *fs_binding_copy(fs_binding *b)
         }
         b[i].name = g_strdup(b2[i].name);
         b[i].vals = fs_rid_vector_copy(b2[i].vals);
-        b[i].ubs = fs_rid_vector_copy(b2[i].ubs);
     }
 
     return b2;
 }
+
 fs_binding *fs_binding_copy_and_clear(fs_binding *b)
 {
 #ifdef DEBUG_BINDING
@@ -225,8 +216,6 @@ fs_binding *fs_binding_copy_and_clear(fs_binding *b)
         b[i].name = g_strdup(b2[i].name);
         b[i].vals = fs_rid_vector_new(b2[i].vals->size);
         b[i].vals->length = 0;
-        b[i].ubs = fs_rid_vector_new(b2[i].ubs->size);
-        b[i].ubs->length = 0;
 
         /* at this point we can clear the bound flag as
            shortcuts on variables bound to the empty
@@ -253,7 +242,6 @@ void fs_binding_clear(fs_binding *b)
         }
         b2[i].name = NULL;
         b[i].vals->length = 0;
-        b[i].ubs->length = 0;
         b[i].bound = 0;
     }
 }
@@ -421,22 +409,24 @@ void fs_binding_print(fs_binding *b, FILE *out)
 {
     int length = fs_binding_length(b);
 
+    fprintf(out, "    ");
     for (int c=0; b[c].name; c++) {
 	if (b[c].bound) {
-	    fprintf(out, " %20.20s", b[c].name);
+	    fprintf(out, " %16.16s", b[c].name);
 	} else {
-	    fprintf(out, " %13.13s", b[c].name);
+	    fprintf(out, " %12.12s", b[c].name);
 	}
     }
     fprintf(out, "\n");
+    fprintf(out, "row");
     for (int c=0; b[c].name; c++) {
 	if (b[c].bound) {
-	    fprintf(out, " u       %c%c%c%c A%02d D%02d",
+	    fprintf(out, "     %c%c%c%c A%02d D%02d",
 		    b[c].proj ? 'p' : '-', b[c].used ? 'u' : '-',
 		    b[c].need_val ? 'n' : '-', b[c].bound ? 'b' : '-',
 		    b[c].appears, b[c].depends);
 	} else {
-	    fprintf(out, "   %c%c%c A%02d D%02d",
+	    fprintf(out, "  %c%c%c A%02d D%02d",
 		    b[c].proj ? 'p' : '-', b[c].used ? 'u' : '-',
 		    b[c].need_val ? 'n' : '-', 
 		    b[c].appears, b[c].depends);
@@ -444,29 +434,35 @@ void fs_binding_print(fs_binding *b, FILE *out)
     }
     fprintf(out, "\n");
     for (int r=0; r<length; r++) {
+        fprintf(out, "%3d", r);
 	for (int c=0; b[c].name; c++) {
 	    if (b[c].bound) {
 		if (r < b[c].vals->length && b[c].vals->data[r] == FS_RID_NULL) {
-		    fprintf(out, " 0%19s", "null");
+                    fprintf(out, " %16s", "null");
 		} else {
-		    fprintf(out, "%2x %18llx", r < b[c].ubs->length ?(int)(b[c].ubs->data[r]) : 0, r < b[c].vals->length ? b[c].vals->data[r] : -1);
+                    fprintf(out, " %016llx", r < b[c].vals->length ? b[c].vals->data[r] : -1);
 		}
 	    } else {
-		fprintf(out, "%14s", "null");
+		fprintf(out, "%13s", "null");
 	    }
 	}
 	fprintf(out, "\n");
+#if !defined(DEBUG_MERGE) || DEBUG_MERGE < 2
 	if (length > 25 && r > 20 && (length - r) > 2) {
 
 	    fprintf(out, "...\n");
 	    r = length - 3;
 	}
+#endif
     }
 }
 
 /* q should be set when joining */
 static int binding_row_compare(fs_query *q, fs_binding *b1, fs_binding *b2, int p1, int p2, int length1, int length2, int flags)
 {
+    if (p1 >= length1 && p2 >= length2) {
+        return 0;
+    }
     if (p1 >= length1) {
 #ifdef DEBUG_COMPARE
         printf("CMP from past end\n");
@@ -503,17 +499,6 @@ static int binding_row_compare(fs_query *q, fs_binding *b1, fs_binding *b2, int 
             printf("CMP %llx < %llx\n", b1[i].vals->data[p1], b2[i].vals->data[p2]);
 #endif
 	    return -1;
-	}
-	/* if the variables have been bound in different union blocks then they
-	 * don't match */
-	int u1 = 0, u2 = 0;
-        if (b1[i].ubs && b1[i].ubs->length > p1) u1 = b1[i].ubs->data[p1];
-        if (b2[i].ubs && b2[i].ubs->length > p2) u2 = b2[i].ubs->data[p2];
-	if (u1 != u2 && q && q->union_group[u1] == q->union_group[u2]) {
-#ifdef DEBUG_COMPARE
-            printf("CMP union different %llx != %llx\n", b1[i].ubs->data[p1], b2[i].ubs->data[p2]);
-#endif
-	    return 2;
 	}
     }
 
@@ -666,6 +651,7 @@ void fs_binding_truncate(fs_binding *b, int length)
     }
 }
 
+#if 0
 /* perform the cross product on two binding tables */
 
 void fs_binding_merge_old(fs_query *q, int block, fs_binding *from, fs_binding *to, int flags)
@@ -677,7 +663,7 @@ void fs_binding_merge_old(fs_query *q, int block, fs_binding *from, fs_binding *
 	from[i].sort = 0;
 	to[i].sort = 0;
     }
-#if DEBUG_MERGE > 2
+#if DEBUG_MERGE > 1
     printf("@@ block %d\n", block);
 #endif
     int used_first_in_union = 0;
@@ -772,11 +758,11 @@ void fs_binding_merge_old(fs_query *q, int block, fs_binding *from, fs_binding *
 	}
 	if (to+i == inter_t || to[i].used || to[i].bound) {
 	    /* do nothing */
-#ifdef DEBUG_MERGE
+#if DEBUG_MERGE > 1
     printf("@@ preserve %s\n", to[i].name);
 #endif
 	} else if (from[i].bound && (!bound_in_this_union || !to[i].bound)) {
-#ifdef DEBUG_MERGE
+#if DEBUG_MERGE > 1
     printf("@@ replace %s\n", from[i].name);
 #endif
 	    to[i].bound = 1;
@@ -802,8 +788,10 @@ void fs_binding_merge_old(fs_query *q, int block, fs_binding *from, fs_binding *
     }
 
 #ifdef DEBUG_MERGE
+#if DEBUG_MERGE > 1
     printf("old: %d bindings\n", fs_binding_length(from));
     fs_binding_print(from, stdout);
+#endif
     printf("new: %d bindings\n", fs_binding_length(to));
     fs_binding_print(to, stdout);
 #endif
@@ -972,6 +960,15 @@ if (fpos < 20) {
     printf("result: %d bindings\n", fs_binding_length(to));
     fs_binding_print(to, stdout);
 #endif
+}
+#endif
+
+/* UNION b onto a, returns a with b appended */
+void fs_binding_union(fs_query *q, fs_binding *a, fs_binding *b)
+{
+    for (int c=0; a[c].name && b[c].name; c++) {
+        fs_rid_vector_append_vector(a[c].vals, b[c].vals);
+    }
 }
 
 void fs_binding_merge(fs_query *q, int block, fs_binding *from, fs_binding *to, int flags)
@@ -998,6 +995,7 @@ void fs_binding_merge(fs_query *q, int block, fs_binding *from, fs_binding *to, 
         if (from[i].used) used++;
         if (first_in_union && from[i].used) {
 	    used_first_in_union++;
+printf("@@ UNION hackery?\n");
         }
 
 #if DEBUG_MERGE > 2
@@ -1025,38 +1023,27 @@ void fs_binding_merge(fs_query *q, int block, fs_binding *from, fs_binding *to, 
 	for (int i=0; 1; i++) {
 	    if (!from[i].name) break;
 	    if (to[i].bound && !from[i].bound) {
-                if (from[i].vals && from[i].ubs) {
+                if (from[i].vals) {
                     fs_rid_vector_free(from[i].vals);
-                    fs_rid_vector_free(from[i].ubs);
                 }
 		from[i].vals = fs_rid_vector_new(length_f);
 		for (int d=0; d<length_f; d++) {
 		    from[i].vals->data[d] = FS_RID_NULL;
 		}
-		from[i].ubs = fs_rid_vector_new(length_f);
-		for (int d=0; d<length_f; d++) {
-		    from[i].ubs->data[d] = 0;
-		}
 		from[i].bound = 1;
 	    }
 	    if (!from[i].bound) continue;
 	    if (!to[i].bound) {
-                if (to[i].vals && to[i].ubs) {
+                if (to[i].vals) {
                     fs_rid_vector_free(to[i].vals);
-                    fs_rid_vector_free(to[i].ubs);
                 }
 		to[i].vals = fs_rid_vector_new(length_t);
 		for (int d=0; d<length_t; d++) {
                     to[i].vals->data[d] = FS_RID_NULL;
                 }
-		to[i].ubs = fs_rid_vector_new(length_t);
-		for (int d=0; d<length_t; d++) {
-                    to[i].ubs->data[d] = 0;
-		}
 	    }
 	    to[i].bound_in_block[block] += from[i].bound_in_block[block];
 	    fs_rid_vector_append_vector(to[i].vals, from[i].vals);
-	    fs_rid_vector_append_vector(to[i].ubs, from[i].ubs);
 	    to[i].bound = 1;
 	}
 #ifdef DEBUG_MERGE
@@ -1078,25 +1065,20 @@ void fs_binding_merge(fs_query *q, int block, fs_binding *from, fs_binding *to, 
 	}
 	if (to+i == inter_t || to[i].used || to[i].bound) {
 	    /* do nothing */
-#ifdef DEBUG_MERGE
+#if DEBUG_MERGE > 1
     printf("@@ preserve %s\n", to[i].name);
 #endif
 	} else if (from[i].bound && (!bound_in_this_union || !to[i].bound)) {
-#ifdef DEBUG_MERGE
+#if DEBUG_MERGE > 1
     printf("@@ replace %s\n", from[i].name);
 #endif
 	    to[i].bound = 1;
-            if (to[i].vals || to[i].ubs) {
+            if (to[i].vals) {
                 fs_rid_vector_free(to[i].vals);
-                fs_rid_vector_free(to[i].ubs);
             }
 	    to[i].vals = fs_rid_vector_new(length_t);
 	    for (int d=0; d<length_t; d++) {
 		to[i].vals->data[d] = FS_RID_NULL;
-	    }
-	    to[i].ubs = fs_rid_vector_new(length_t);
-	    for (int d=0; d<length_t; d++) {
-		to[i].ubs->data[d] = 0;
 	    }
 	}
     }
@@ -1164,10 +1146,8 @@ if (fp < 20) {
 				}
 				if (from[c].bound && fp < from[c].vals->length) {
 				    to[c].vals->data[tp] = from[c].vals->data[fp];
-				    to[c].ubs->data[tp] = from[c].ubs->data[fp];
 				    if (to[c].vals->length <= tp) {
 					to[c].vals->length = tp+1;
-					to[c].ubs->length = tp+1;
 				    }
 				}
 			    }
@@ -1181,15 +1161,8 @@ if (fp < 20) {
 				if (!from[c].bound && !to[c].bound) continue;
 				if (from[c].bound && fp < from[c].vals->length) {
 				    fs_rid_vector_append(to[c].vals, from[c].vals->data[fp]);
-				    fs_rid_vector_append(to[c].ubs, from[c].ubs->data[fp]);
 				} else {
 				    fs_rid_vector_append(to[c].vals, to[c].vals->data[tp]);
-				    if (q->union_group[block] > 0 &&
-					q->union_group[block] == q->union_group[from[c].appears]) {
-					fs_rid_vector_append(to[c].ubs, block);
-				    } else {
-					fs_rid_vector_append(to[c].ubs, 0);
-				    }
 				}
 			    }
 			}
@@ -1265,10 +1238,8 @@ if (fpos < 20) {
 		if (!from[c].bound && !to[c].bound) continue;
 		if (from[c].bound && fpos < from[c].vals->length) {
 		    fs_rid_vector_append(to[c].vals, from[c].vals->data[fpos]);
-		    fs_rid_vector_append(to[c].ubs, from[c].ubs->data[fpos]);
 		} else {
 		    fs_rid_vector_append(to[c].vals, FS_RID_NULL);
-		    fs_rid_vector_append(to[c].ubs, 0);
 		}
 	    }
 	    fpos++;
@@ -1282,6 +1253,162 @@ if (fpos < 20) {
     printf("result: %d bindings\n", fs_binding_length(to));
     fs_binding_print(to, stdout);
 #endif
+}
+
+/* return a [X] b, or a =X] b */
+fs_binding *fs_binding_join(fs_query *q, fs_binding *a, fs_binding *b, fs_join_type join)
+{
+    fs_binding *c = fs_binding_copy(a);
+    int inter = 0;      /* do the tables intersect */
+
+    for (int i=0; a[i].name; i++) {
+	a[i].sort = 0;
+	b[i].sort = 0;
+	c[i].sort = 0;
+        c[i].vals->length = 0;
+    }
+    int used = 0;
+    for (int i=0; a[i].name; i++) {
+        if (a[i].bound || b[i].bound) {
+            c[i].bound = 1;
+        }
+	if (!a[i].bound || !b[i].bound) continue;
+        if (a[i].used) used++;
+
+	if (a[i].bound && b[i].bound) {
+	    inter = 1;
+	    a[i].sort = 1;
+	    b[i].sort = 1;
+#ifdef DEBUG_MERGE
+            printf("joining on %s\n", a[i].name);
+#endif
+	}
+    }
+
+    /* a and b bound variables do not intersect, we can just dump results */
+#warning not really sure this is correct
+    if (!inter) {
+	for (int i=0; a[i].name; i++) {
+            fs_rid_vector_append_vector(c[i].vals, a[i].vals);
+            fs_rid_vector_append_vector(c[i].vals, b[i].vals);
+	}
+#ifdef DEBUG_MERGE
+        printf("append all, result:\n");
+        fs_binding_print(c, stdout);
+#endif
+	return c;
+    }
+
+    int length_a = fs_binding_length(a);
+    int length_b = fs_binding_length(b);
+
+    /* sort the two sets of bindings so they can be merged linearly */
+    fs_binding_sort(a);
+    fs_binding_sort(b);
+
+#ifdef DEBUG_MERGE
+    printf("a: %d bindings\n", fs_binding_length(a));
+    fs_binding_print(a, stdout);
+    printf("b: %d bindings\n", fs_binding_length(b));
+    fs_binding_print(b, stdout);
+#endif
+
+    /* If were running in restricted mode, truncate the binding tables */
+    if (q->flags & FS_QUERY_RESTRICTED) {
+        int restricted = 0;
+        fs_binding_truncate(a, q->soft_limit);
+        if (length_a > fs_binding_length(a)) {
+            length_a = fs_binding_length(a);
+            restricted = 1;
+        }
+        fs_binding_truncate(b, q->soft_limit);
+        if (length_b > fs_binding_length(b)) {
+            length_b = fs_binding_length(b);
+            restricted = 1;
+        }
+        if (restricted) {
+            char *msg = "some results have been dropped to prevent overunning effort allocation";
+            q->warnings = g_slist_prepend(q->warnings, msg);
+        }
+    }
+
+    int apos = 0;
+    int bpos = 0;
+    int cmp;
+    while (apos < length_a) {
+        if (join == FS_INNER && bpos >= length_b) break;
+	cmp = binding_row_compare(q, a, b, apos, bpos, length_a, length_b, 0);
+#if DEBUG_MERGE > 1
+printf("@@ Ap=%d, Bp=%d, cmp=%d\n", apos, bpos, cmp);
+#endif
+        if (cmp == -1) {
+            /* A and B aren't compatible, A sorts lower, skip A */
+            if (join == FS_LEFT) {
+                for (int col=0; a[col].name; col++) {
+                    if (!c[col].need_val) {
+                        continue;
+                    } else if (a[col].bound) {
+#if DEBUG_MERGE > 1
+printf("@@ %s=%016llx\n", c[col].name, a[col].vals->data[apos]);
+#endif
+                        fs_rid_vector_append(c[col].vals, a[col].vals->data[apos]);
+                    } else {
+#if DEBUG_MERGE > 1
+printf("@@ %s=null\n", c[col].name);
+#endif
+                        fs_rid_vector_append(c[col].vals, FS_RID_NULL);
+                    }
+                }
+            }
+            apos++;
+        } else if (cmp == 0) {
+	    /* both rows match */
+            for (int col=0; a[col].name; col++) {
+                if (!c[col].need_val) {
+                    continue;
+                } else if (!a[col].bound && !b[col].bound) {
+#if DEBUG_MERGE > 1
+printf("@@ %s=null\n", c[col].name);
+#endif
+                    fs_rid_vector_append(c[col].vals, FS_RID_NULL);
+                } else if (a[col].bound) {
+#if DEBUG_MERGE > 1
+printf("@@ %s=%016llx\n", c[col].name, a[col].vals->data[apos]);
+#endif
+                    fs_rid_vector_append(c[col].vals, a[col].vals->data[apos]);
+                } else {
+#if DEBUG_MERGE > 1
+printf("@@ %s=%016llx\n", c[col].name, b[col].vals->data[bpos]);
+#endif
+                    fs_rid_vector_append(c[col].vals, b[col].vals->data[bpos]);
+                }
+            }
+            int cmp2 = binding_row_compare(q, a, b, apos+1, bpos+1, length_a, length_b, 0);
+            if (cmp2 == -1) {
+                apos++;
+            } else if (cmp2 == 0) {
+#warning this is probably incorrect
+                apos++;
+                bpos++;
+            } else if (cmp2 == +1) {
+                bpos++;
+            } else {
+                fs_error(LOG_ERR, "oh heck, we got cmp=%d, no idea what to do with that", cmp2);
+            }
+	} else if (cmp == +1) {
+            /* A and B aren't compatible, B sorts lower, skip B */
+            bpos++;
+	} else {
+            fs_error(LOG_ERR, "oh heck, we got cmp=%d, no idea what to do with that", cmp);
+        }
+    }
+
+#ifdef DEBUG_MERGE
+    printf("result: %d bindings\n", fs_binding_length(c));
+    fs_binding_print(c, stdout);
+#endif
+
+    return c;
 }
 
 /* vi:set expandtab sts=4 sw=4: */

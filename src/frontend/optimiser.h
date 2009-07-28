@@ -9,7 +9,7 @@
 int fs_opt_num_vals(fs_binding *b, rasqal_literal *l);
 
 /* returns true if the expression can be hashed */
-int fs_opt_is_const(fs_binding *b, rasqal_literal *l, int block);
+int fs_opt_is_const(fs_binding *b, rasqal_literal *l);
 
 /* sort a vector of triples into a good order to bind them, based on some
  * heuristics */
