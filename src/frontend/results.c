@@ -925,8 +925,9 @@ static char *xml_escape(const char *from, int len)
 static void handle_describe(fs_query *q, const char *type, FILE *output)
 {
     //if (!q->boolean) return;
-
+#ifdef HAVE_RASQAL_DESCRIBE
     raptor_sequence *desc = rasqal_query_get_describe_sequence(q->rq);
+
     for (int i=0; 1; i++) {
         rasqal_literal *l = raptor_sequence_get_at(desc, i);
         if (!l) break;
@@ -940,6 +941,7 @@ printf("@@ %016llx\n", uri);
     while ((row = fs_query_fetch_row(q))) {
 printf("@@ %016llx\n", row[0].rid);
     }
+#endif
 }
 
 static void handle_construct(fs_query *q, const char *type, FILE *output)
