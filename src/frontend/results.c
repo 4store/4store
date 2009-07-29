@@ -941,6 +941,8 @@ printf("@@ %016llx\n", uri);
     while ((row = fs_query_fetch_row(q))) {
 printf("@@ %016llx\n", row[0].rid);
     }
+#else
+    fprintf(output, "<?xml version=\"1.0\"?>\n<rdf:RDF xmlns:rdf=\"http://www.w3.org/1999/02/22-rdf-syntax-ns#\"><!-- sorry, DESCRIBE is not supported by this version of rasqal --></rdf:RDF>\n");
 #endif
 }
 
@@ -1073,7 +1075,7 @@ static void output_sparql(fs_query *q, int flags, FILE *out)
     if (!q) return;
 
     if (flags & FS_RESULT_FLAG_HEADERS) {
-	if (q->construct) {
+	if (q->construct || q->describe) {
 	    fprintf(out, "Content-Type: application/rdf+xml; charset=utf-8\r\n\r\n");
 	} else {
 	    fprintf(out, "Content-Type: application/sparql-results+xml\r\n\r\n");

@@ -420,6 +420,10 @@ fs_query *fs_query_execute(fs_query_state *qs, fsp_link *link, raptor_uri *bu, c
         }
 #else
         fs_error(LOG_INFO, "sorry, describe is not supported by your version of rasqal");
+	q->num_vars = 0;
+	q->boolean = 0;
+
+        return q;
 #endif
     } else {
 	vars = rasqal_query_get_bound_variable_sequence(rq);
