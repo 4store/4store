@@ -400,6 +400,7 @@ fs_query *fs_query_execute(fs_query_state *qs, fsp_link *link, raptor_uri *bu, c
 	    check_cons_slot(q, vars, t->object);
 	}
     } else if (q->describe) {
+#ifdef HAVE_RASQAL_DESCRIBE
         raptor_sequence *desc = rasqal_query_get_describe_sequence(rq);
         vars = raptor_new_sequence(NULL, NULL);
         for (int i=0; 1; i++) {
@@ -417,6 +418,9 @@ fs_query *fs_query_execute(fs_query_state *qs, fsp_link *link, raptor_uri *bu, c
                 break;
             }
         }
+#else
+        fs_error(LOG_INFO, "sorry, describe is not supported by your version of rasqal");
+#endif
     } else {
 	vars = rasqal_query_get_bound_variable_sequence(rq);
     }

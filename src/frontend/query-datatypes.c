@@ -724,8 +724,6 @@ void fs_binding_merge(fs_query *q, int block, fs_binding *from, fs_binding *to)
                     to[i].vals->data[d] = FS_RID_NULL;
                 }
 	    }
-#warning remove me?
-	    //q->bb[0][i].bound_in_block[block] = 1;
 	    fs_rid_vector_append_vector(to[i].vals, from[i].vals);
 	    to[i].bound = 1;
 	}
@@ -902,7 +900,6 @@ fs_binding *fs_binding_join(fs_query *q, fs_binding *a, fs_binding *b, fs_join_t
 	}
     }
 
-#warning not really sure this is correct
     /* a and b bound variables do not intersect, we can just dump results */
     if (!inter) {
         int length_a = fs_binding_length(a);
