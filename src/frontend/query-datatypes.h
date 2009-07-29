@@ -58,7 +58,8 @@ fs_binding *fs_binding_join(fs_query *q, fs_binding *a, fs_binding *b, fs_join_t
 void fs_binding_print(fs_binding *b, FILE *out);
 void fs_binding_sort(fs_binding *b);
 void fs_binding_uniq(fs_binding *b);
-
 void fs_binding_truncate(fs_binding *b, int length);
+
+fs_binding *fs_binding_apply_filters(fs_query *q, int block, fs_binding *b, raptor_sequence *c);
 
 #endif

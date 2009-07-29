@@ -109,6 +109,9 @@ static int resolve(fs_query *q, fs_rid rid, fs_resource *res)
 
     fs_rid_vector *r = fs_rid_vector_new(1);
     r->data[0] = rid;
+#ifdef DEBUG_FILTER
+printf("resolving %016llx\n", rid);
+#endif
     fsp_resolve(q->link, FS_RID_SEGMENT(rid, q->segments), r, res);
     fs_rid *trid = malloc(sizeof(fs_rid));
     fs_resource *tres = malloc(sizeof(fs_resource));
@@ -178,9 +181,10 @@ static fs_value literal_to_value(fs_query *q, int row, int block, rasqal_literal
 #ifdef DEBUG_FILTER
                 printf("getting value of ?%s, row %d from B%d\n", name, row, block);
 #endif
-		fs_binding *b = fs_binding_get(q->bb[0], name);
+		fs_binding *b = fs_binding_get(q->bt, name);
                 /* TODO this code needs to be tested when the parser handles
-                 * { FILTER() } correctly */
+                 * { FILTER() } correctly, but not block can be -1 if we dont
+                 * care about scope */
 #if 0
                 if (!b->bound_in_block[block]) {
 #ifdef DEBUG_FILTER
@@ -217,7 +221,7 @@ fs_value fs_expression_eval(fs_query *q, int row, int block, rasqal_expression *
 	return fs_value_rid(FS_RID_NULL);
     }
     if (block < 0) {
-        fs_error(LOG_CRIT, "block was less than zero, changing to 0");
+        fs_error(LOG_ERR, "block was less than zero, changing to 0");
         block = 0;
     }
 
@@ -653,9 +657,9 @@ static int apply_constraints(fs_query *q, int row)
 		    return 0;
                 }
                 /* TODO should check the bind types between here and B0 */
-                for (int c=0; q->bb[0][c].name; c++) {
-                    if (q->bb[0][c].appears == block) {
-                        q->bb[0][c].vals->data[row] = FS_RID_NULL;
+                for (int c=0; q->bt[c].name; c++) {
+                    if (q->bt[c].appears == block) {
+                        q->bt[c].vals->data[row] = FS_RID_NULL;
                     }
                 }
 	    }
@@ -1211,7 +1215,11 @@ static void output_text(fs_query *q, int flags, FILE *out)
     if (q->warnings) {
         GSList *it;
         for (it = q->warnings; it; it = it->next) {
-            fprintf(out, "# %s\n", (char *)it->data);
+            if (it->data) {
+                fprintf(out, "# %s\n", (char *)it->data);
+            } else {
+                fs_error(LOG_ERR, "found NULL warning");
+            }
         }
         g_slist_free(q->warnings);
         q->warnings = NULL;
@@ -1263,7 +1271,11 @@ static void output_text(fs_query *q, int flags, FILE *out)
     if (q->warnings) {
         GSList *it;
         for (it = q->warnings; it; it = it->next) {
-            fprintf(out, "# %s\n", (char *)it->data);
+            if (it->data) {
+                fprintf(out, "# %s\n", (char *)it->data);
+            } else {
+                fs_error(LOG_ERR, "found NULL warning");
+            }
         }
         g_slist_free(q->warnings);
         q->warnings = NULL;
@@ -1591,11 +1603,11 @@ nextrow: ;
 	for (int row=q->row; row < q->row + lookup_buffer_size && row < rows; row++) {
 	    for (int col=0; col < q->num_vars; col++) {
 		fs_rid rid;
-		if (row < q->bb[0][col].vals->length) {
+		if (row < q->bt[col].vals->length) {
                     if (q->ordering) {
-                        rid = q->bb[0][col].vals->data[q->ordering[row]];
+                        rid = q->bt[col].vals->data[q->ordering[row]];
                     } else {
-                        rid = q->bb[0][col].vals->data[row];
+                        rid = q->bt[col].vals->data[row];
                     }
 		} else {
 		    rid = FS_RID_NULL;
@@ -1624,15 +1636,14 @@ nextrow: ;
 	goto nextrow;
     }
 
-
     int repeat_row = 1;
     for (int i=0; i<q->num_vars; i++) {
         fs_rid last_rid = q->resrow[i].rid;
-	q->resrow[i].rid = q->bb[0][i].bound && row < q->bb[0][i].vals->length ?
-                           q->bb[0][i].vals->data[row] : FS_RID_NULL;
+	q->resrow[i].rid = q->bt[i].bound && row < q->bt[i].vals->length ?
+                           q->bt[i].vals->data[row] : FS_RID_NULL;
         if (last_rid != q->resrow[i].rid) repeat_row = 0;
-        if (q->bb[0][i].expression) {
-            fs_value val = fs_expression_eval(q, q->row, 0, q->bb[0][i].expression);
+        if (q->bt[i].expression) {
+            fs_value val = fs_expression_eval(q, q->row, 0, q->bt[i].expression);
             fs_value_to_row(q, val, q->resrow+i);
         } else {
             fs_resource r;

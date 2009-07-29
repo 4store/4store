@@ -434,7 +434,8 @@ fs_query *fs_query_execute(fs_query_state *qs, fsp_link *link, raptor_uri *bu, c
     } else {
 	q->num_vars = raptor_sequence_size(vars);
     }
-    q->bb[0] = fs_binding_new(q->num_vars);
+    q->bb[0] = fs_binding_new();
+    q->bt = q->bb[0];
 
     for (int i=0; i < q->num_vars; i++) {
 	rasqal_variable *v = raptor_sequence_get_at(vars, i);
@@ -586,7 +587,19 @@ printf("\n");
             if (q->union_group[j] == i) {
                 if (first_in_union == 0) {
                     first_in_union = j;
+                    if (q->constraints[j]) {
+                        fs_binding *old = q->bb[j];
+                        q->bb[j] = fs_binding_apply_filters(q, j, q->bb[j], q->constraints[j]);
+                        fs_binding_free(old);
+                        q->constraints[j] = NULL;
+                    }
                 } else {
+                    if (q->constraints[j]) {
+                        fs_binding *old = q->bb[j];
+                        q->bb[j] = fs_binding_apply_filters(q, j, q->bb[j], q->constraints[j]);
+                        fs_binding_free(old);
+                        q->constraints[j] = NULL;
+                    }
                     fs_binding_union(q, q->bb[first_in_union], q->bb[j]);
                     fs_binding_free(q->bb[j]);
                     q->bb[j] = NULL;
@@ -622,6 +635,7 @@ printf("\n");
                     fs_binding *nb = fs_binding_join(q, q->bb[i], q->bb[j], FS_INNER);
                     fs_binding_free(q->bb[i]);
                     q->bb[i] = nb;
+                    if (i == 0) q->bt = q->bb[i];
                     fs_binding_free(q->bb[j]);
                     q->bb[j] = NULL;
                 } else if (q->join_type[j] == FS_UNION) {
@@ -632,6 +646,7 @@ printf("\n");
                     fs_binding *nb = fs_binding_join(q, q->bb[i], q->bb[j], FS_INNER);
                     fs_binding_free(q->bb[i]);
                     q->bb[i] = nb;
+                    if (i == 0) q->bt = q->bb[i];
                     fs_binding_free(q->bb[j]);
                     q->bb[j] = NULL;
                 } else if (q->join_type[j] == FS_LEFT) {
@@ -642,6 +657,7 @@ printf("\n");
                     fs_binding *nb = fs_binding_join(q, q->bb[i], q->bb[j], FS_LEFT);
                     fs_binding_free(q->bb[i]);
                     q->bb[i] = nb;
+                    if (i == 0) q->bt = q->bb[i];
                     fs_binding_free(q->bb[j]);
                     q->bb[j] = NULL;
                 } else {
@@ -710,6 +726,7 @@ printf("\n");
     if (q->flags & FS_QUERY_COUNT) {
         fs_binding_free(q->bb[0]);
         q->bb[0] = fs_binding_new();
+        q->bt = q->bb[0];
         q->num_vars = 1;
         fs_binding_add(q->bb[0], "count", 0, 1);
     }

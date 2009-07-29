@@ -24,6 +24,7 @@
 
 #include "query-datatypes.h"
 #include "query-intl.h"
+#include "filter.h"
 #include "debug.h"
 #include "common/error.h"
 
@@ -1045,6 +1046,56 @@ printf("\n");
 #endif
 
     return c;
+}
+
+fs_binding *fs_binding_apply_filters(fs_query *q, int block, fs_binding *b, raptor_sequence *constr)
+{
+    fs_binding *ret = fs_binding_copy(b);
+    if (!constr) {
+        /* if there's no constriants then we don't need to do anything */
+
+        return ret;
+    }
+    for (int col=0; b[col].name; col++) {
+        ret[col].vals->length = 0;
+    }
+    int length = fs_binding_length(b);
+    fs_binding *restore = q->bt;
+    q->bt = b;
+    /* TODO should prefetch lexical vals here */
+    /* expressions that have been optimised out will be replaces with NULL,
+     * so we have to be careful here */
+    for (int row=0; row<length; row++) {
+        for (int c=0; c<raptor_sequence_size(constr); c++) {
+            rasqal_expression *e =
+                raptor_sequence_get_at(constr, c);
+            if (!e) continue;
+
+            fs_value v = fs_expression_eval(q, row, block, e);
+#ifdef DEBUG_FILTER
+            rasqal_expression_print(e, stdout);
+            printf(" -> ");
+            fs_value_print(v);
+            printf("\n");
+#endif
+            if (v.valid & fs_valid_bit(FS_V_TYPE_ERROR) && v.lex) {
+                q->warnings = g_slist_prepend(q->warnings, v.lex);
+            }
+            fs_value result = fn_ebv(v);
+            /* its EBV is not true, so we skip to the next one */
+            if (result.valid & fs_valid_bit(FS_V_TYPE_ERROR) || !result.in) {
+                continue;
+            }
+            for (int col=0; b[col].name; col++) {
+                if (b[col].bound) {
+                    fs_rid_vector_append(ret[col].vals, b[col].vals->data[row]);
+                }
+            }
+        }
+    }
+    q->bt = restore;
+
+    return ret;
 }
 
 /* vi:set expandtab sts=4 sw=4: */
