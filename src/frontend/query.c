@@ -250,6 +250,25 @@ int fs_query_fini(fs_query_state *qs)
     return 0;
 }
 
+static void tree_compact(fs_query *q)
+{
+    for (int block = 1; block <= q->block; block++) {
+        int parent = q->parent_block[block];
+        if (q->join_type[block] == FS_INNER &&
+            q->constraints[block] == NULL &&
+            q->constraints[parent] == NULL) {
+            /* if there's nothing special about this block, merge up */
+            fs_p_vector_append_vector(q->blocks+parent, q->blocks+block);
+            q->blocks[block].length = 0;
+            for (int j=1; j<=q->block; j++) {
+                if (q->parent_block[j] == block) {
+                    q->parent_block[j] = parent;
+                }
+            }
+        }
+    }
+}
+
 fs_query *fs_query_execute(fs_query_state *qs, fsp_link *link, raptor_uri *bu, const char *query, int flags, int opt_level, int soft_limit)
 {
     if (!qs) {
@@ -259,23 +278,6 @@ fs_query *fs_query_execute(fs_query_state *qs, fsp_link *link, raptor_uri *bu, c
     }
 
     fsp_hit_limits_reset(link);
-
-#ifndef HAVE_LAQRS
-    while (isspace(*query)) {
-        query++;
-    }
-    if (!strncasecmp(query, "EXPLAIN", 7)) {
-        query += 7;
-        flags |= FS_QUERY_EXPLAIN;
-        while (isspace(*query)) {
-            query++;
-        }
-    }
-    if (!strncasecmp(query, "COUNT", 5)) {
-        query += 5;
-        flags |= FS_QUERY_COUNT;
-    }
-#endif
 
 #ifdef HAVE_LAQRS
 #ifndef HAVE_RASQAL_WORLD
@@ -339,6 +341,9 @@ fs_query *fs_query_execute(fs_query_state *qs, fsp_link *link, raptor_uri *bu, c
     if (verb == RASQAL_QUERY_VERB_CONSTRUCT) {
 #endif
 	q->construct = 1;
+    }
+    if (verb == RASQAL_QUERY_VERB_ASK) {
+        q->ask = 1;
     }
     if (verb == RASQAL_QUERY_VERB_DESCRIBE) {
         q->describe = 1;
@@ -443,6 +448,8 @@ fs_query *fs_query_execute(fs_query_state *qs, fsp_link *link, raptor_uri *bu, c
     graph_pattern_walk(link, pattern, q, 0, 0, 0);
     graph_pattern_walk(link, pattern, q, 0, 1, 0);
 
+    tree_compact(q);
+
     /* if we have more than one variable that has been prebound we need to
      * compute the combinatorial cross product of thier values so the we
      * correctly enumerate the possibiliities during execution. Fun. */ 
@@ -489,6 +496,9 @@ fs_query *fs_query_execute(fs_query_state *qs, fsp_link *link, raptor_uri *bu, c
 #if DEBUG_MERGE
 printf("Processing B%d, parent is B%d\n", i, q->parent_block[i]);
 #endif
+        if (q->blocks[i].length == 0) {
+            continue;
+        }
         if (!q->bb[i]) {
             q->bb[i] = fs_binding_copy(q->bb[q->parent_block[i]]);
         }
@@ -531,7 +541,7 @@ printf("Processing B%d, parent is B%d\n", i, q->parent_block[i]);
 	    if (explain) {
 		printf("%d bindings (%d)\n", fs_binding_length(q->bb[i]), ret);
 	    }
-            if (q->block == 0 && ret == 0) {
+            if (q->block < 2 && ret == 0) {
                 q->boolean = 0;
             }
             if (ret == 0) {
@@ -590,10 +600,23 @@ printf("\n");
         int start = i > 1 ? i : 1;
         for (int j=start; j<=q->block; j++) {
             if (!q->bb[j]) {
+#ifdef DEBUG_MERGE
+                printf("skipping B%d, no bindings\n", j);
+#endif
                 continue;
             }
             if (q->parent_block[j] == i) {
-                if (q->union_group[j]) {
+                if (q->join_type[j] == FS_INNER) {
+#ifdef DEBUG_MERGE
+                    printf("block join B%d [X] B%d\n", i, j);
+#endif
+                    /* It's an normal join */
+                    fs_binding *nb = fs_binding_join(q, q->bb[i], q->bb[j], FS_INNER);
+                    fs_binding_free(q->bb[i]);
+                    q->bb[i] = nb;
+                    fs_binding_free(q->bb[j]);
+                    q->bb[j] = NULL;
+                } else if (q->join_type[j] == FS_UNION) {
                     /* It's a UNION, inner join */
 #ifdef DEBUG_MERGE
                     printf("block join B%d [X] B%d\n", i, j);
@@ -603,7 +626,7 @@ printf("\n");
                     q->bb[i] = nb;
                     fs_binding_free(q->bb[j]);
                     q->bb[j] = NULL;
-                } else {
+                } else if (q->join_type[j] == FS_LEFT) {
                     /* It's an OPTIONAL, left join */
 #ifdef DEBUG_MERGE
                     printf("block join B%d =X] B%d\n", i, j);
@@ -613,15 +636,12 @@ printf("\n");
                     q->bb[i] = nb;
                     fs_binding_free(q->bb[j]);
                     q->bb[j] = NULL;
+                } else {
+                    fs_error(LOG_ERR, "unknown join type joining B%d and B%d", i, j);
                 }
             }
         }
     }
-#ifdef DEBUG_MERGE
-printf("table after final joins:\n");
-fs_binding_print(q->bb[0], stdout);
-printf("\n");
-#endif
 
 #ifdef DEBUG_MERGE
     explain = flags & FS_QUERY_EXPLAIN;
@@ -668,11 +688,6 @@ printf("\n");
         }
     }
 
-    /* if there are results we may need to apply FILTERs to check boolean
-     * value */
-    if (q->length > 0) {
-        q->boolean = 0;
-    }
     if (q->offset < 0) {
 	q->offset = 0;
     }
@@ -680,8 +695,6 @@ printf("\n");
     if (q->num_vars == 0) {
 	/* ASK or similar */
         q->length = fs_binding_length(q->bb[0]);
-        if (q->boolean && q->length == 0) q->length = 1;
-        q->boolean = 0;
 
 	return q;
     }
@@ -921,12 +934,15 @@ static void graph_pattern_walk(fsp_link *link, rasqal_graph_pattern *pattern,
         q->parent_block[q->block] = parent;
         q->join_type[q->block] = FS_UNION;
     } else if (op == RASQAL_GRAPH_PATTERN_OPERATOR_BASIC ||
-	op == RASQAL_GRAPH_PATTERN_OPERATOR_GROUP ||
-        op == RASQAL_GRAPH_PATTERN_OPERATOR_GRAPH) {
-printf("@@ BASIC/GRAPH\n");
+	       op == RASQAL_GRAPH_PATTERN_OPERATOR_GRAPH) {
+	if (pass == 0) return;
+        (q->block)++;
+        q->parent_block[q->block] = parent;
+        q->join_type[q->block] = FS_INNER;
+    } else if (op == RASQAL_GRAPH_PATTERN_OPERATOR_GROUP) {
         /* do nothing */
     } else {
-	fs_error(LOG_ERR, "GP operator %d not supported treating as BGP", op);
+	fs_error(LOG_ERR, "GP operator %d not supported", op);
     }
 
     if (q->block == 0 && pass == 1) {
@@ -936,10 +952,11 @@ printf("@@ BASIC/GRAPH\n");
     for (int i=0; 1; i++) {
 	rasqal_triple *t = rasqal_graph_pattern_get_triple(pattern, i);
 	if (!t) break;
-
+#ifdef DEBUG_MERGE
 printf("ADD ");
 rasqal_triple_print(t, stdout);
-printf("to B%d\n", q->block);
+printf(" to B%d\n", q->block);
+#endif
 	fs_p_vector_append(q->blocks+q->block, (void *)t);
 	assign_slot(q, t->origin, q->block);
 	assign_slot(q, t->subject, q->block);
@@ -1577,7 +1594,8 @@ int fs_bind_slot(fs_query *q, int block, fs_binding *b,
 
             int bound_in_this_union = 0;
             if (block != -1) {
-                (vb->bound_in_block[block])++;
+                fs_binding *b0 = fs_binding_get(q->bb[0], *vname);
+                (b0->bound_in_block[block])++;
                 if (q->union_group[block] > 0 &&
                     q->union_group[block] == q->union_group[vb->appears] &&
                     vb->bound_in_block[block] == 1) {

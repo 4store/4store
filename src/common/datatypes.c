@@ -349,6 +349,28 @@ void fs_p_vector_append(fs_p_vector *v, void *p)
     v->length++;
 }
 
+void fs_p_vector_append_vector(fs_p_vector *v, fs_p_vector *v2)
+{
+    if (!v) return;
+    if (!v2) return;
+
+    if (v2->length > 4 && v->size - v->length < v2->length) {
+	v->size += v2->length > 32 ? v2->length : 32;
+	v->data = realloc(v->data, sizeof(void *) * v->size);
+    }
+
+    if (v->size - v->length >= v2->length) {
+	memcpy(&v->data[v->length], v2->data, sizeof(void *) * v2->length);
+	v->length += v2->length;
+
+	return;
+    }
+
+    for (int j=0; j<v2->length; j++) {
+	fs_p_vector_append(v, v2->data[j]);
+    }
+}
+
 void fs_p_vector_clear(fs_p_vector *v)
 {
     v->length = 0;

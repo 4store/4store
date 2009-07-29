@@ -35,6 +35,7 @@ struct _fs_query {
     int expressions;			/* number of projected expressions */
     int construct;
     int describe;
+    int ask;
     int length;
     int order;				/* true if there are ORDER BYs */
     int limit;				/* a user specified limit, or -1 */

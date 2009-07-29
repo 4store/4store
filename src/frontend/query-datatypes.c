@@ -184,6 +184,11 @@ void fs_binding_clear_vector(fs_binding *b, const char *name)
 
 fs_binding *fs_binding_copy(fs_binding *b)
 {
+    if (!b) {
+        fs_error(LOG_CRIT, "tried to copy NULL binding table");
+
+        return NULL;
+    }
 #ifdef DEBUG_BINDING
     printf("@@ copy()\n");
 #endif
@@ -447,7 +452,7 @@ void fs_binding_print(fs_binding *b, FILE *out)
 	    }
 	}
 	fprintf(out, "\n");
-#if !defined(DEBUG_MERGE) || DEBUG_MERGE < 2
+#if !defined(DEBUG_MERGE) || DEBUG_MERGE < 3
 	if (length > 25 && r > 20 && (length - r) > 2) {
 
 	    fprintf(out, "...\n");
@@ -672,8 +677,6 @@ void fs_binding_merge(fs_query *q, int block, fs_binding *from, fs_binding *to)
     fs_binding *inter_f = NULL; /* the intersecting column */
     fs_binding *inter_t = NULL; /* the intersecting column */
 
-    //int optional = (q->join_type[block] == FS_LEFT);
-
     for (int i=0; from[i].name; i++) {
 	from[i].sort = 0;
 	to[i].sort = 0;
@@ -721,7 +724,8 @@ void fs_binding_merge(fs_query *q, int block, fs_binding *from, fs_binding *to)
                     to[i].vals->data[d] = FS_RID_NULL;
                 }
 	    }
-	    to[i].bound_in_block[block] += from[i].bound_in_block[block];
+#warning remove me?
+	    //q->bb[0][i].bound_in_block[block] = 1;
 	    fs_rid_vector_append_vector(to[i].vals, from[i].vals);
 	    to[i].bound = 1;
 	}
@@ -853,21 +857,6 @@ if (fp < 20) {
 	} else if (cmp == -1) {
 	    fpos++;
 	} else if (cmp == 1) {
-#warning remove me
-#if 0
-/* I'm prety sure this is wrong */
-            /* we need to duplicate the to row */
-            if (optional) {
-                for (int c=0; to[c].name; c++) {
-                    if (!from[c].bound && !to[c].bound) continue;
-                    if (from[c].bound && fpos < from[c].vals->length) {
-                        fs_rid_vector_append(to[c].vals, from[c].vals->data[fpos]);
-                    } else {
-                        fs_rid_vector_append(to[c].vals, FS_RID_NULL);
-                    }
-                }
-            }
-#endif
 	    tpos++;
 	} else {
 	    fs_error(LOG_CRIT, "unknown compare state %d in binding", cmp);
@@ -880,7 +869,8 @@ if (fp < 20) {
 #endif
 }
 
-/* return a [X] b, or a =X] b */
+/* return a [X] b, or a =X] b, depending on value of join */
+
 fs_binding *fs_binding_join(fs_query *q, fs_binding *a, fs_binding *b, fs_join_type join)
 {
     fs_binding *c = fs_binding_copy(a);
@@ -892,13 +882,15 @@ fs_binding *fs_binding_join(fs_query *q, fs_binding *a, fs_binding *b, fs_join_t
 	c[i].sort = 0;
         c[i].vals->length = 0;
     }
-    int used = 0;
+    int bound_a = 0;
+    int bound_b = 0;
     for (int i=0; a[i].name; i++) {
+        if (a[i].bound) bound_a++;
+        if (b[i].bound) bound_b++;
+
         if (a[i].bound || b[i].bound) {
             c[i].bound = 1;
         }
-	if (!a[i].bound || !b[i].bound) continue;
-        if (a[i].used) used++;
 
 	if (a[i].bound && b[i].bound) {
 	    inter = 1;
@@ -910,12 +902,26 @@ fs_binding *fs_binding_join(fs_query *q, fs_binding *a, fs_binding *b, fs_join_t
 	}
     }
 
-    /* a and b bound variables do not intersect, we can just dump results */
 #warning not really sure this is correct
+    /* a and b bound variables do not intersect, we can just dump results */
     if (!inter) {
+        int length_a = fs_binding_length(a);
+        int length_b = fs_binding_length(b);
 	for (int i=0; a[i].name; i++) {
-            fs_rid_vector_append_vector(c[i].vals, a[i].vals);
-            fs_rid_vector_append_vector(c[i].vals, b[i].vals);
+            if (!a[i].bound) {
+                for (int j=0; j<length_a; j++) {
+                    fs_rid_vector_append(c[i].vals, FS_RID_NULL);
+                }
+            } else {
+                fs_rid_vector_append_vector(c[i].vals, a[i].vals);
+            }
+            if (!b[i].bound) {
+                for (int j=0; j<length_b; j++) {
+                    fs_rid_vector_append(c[i].vals, FS_RID_NULL);
+                }
+            } else {
+                fs_rid_vector_append_vector(c[i].vals, b[i].vals);
+            }
 	}
 #ifdef DEBUG_MERGE
         printf("append all, result:\n");
@@ -963,23 +969,23 @@ fs_binding *fs_binding_join(fs_query *q, fs_binding *a, fs_binding *b, fs_join_t
     while (apos < length_a) {
         if (join == FS_INNER && bpos >= length_b) break;
 	cmp = binding_row_compare(q, a, b, apos, bpos, length_a, length_b);
-#if DEBUG_MERGE > 1
-printf("@@ Ap=%d, Bp=%d, cmp=%d\n", apos, bpos, cmp);
-#endif
         if (cmp == -1) {
-            /* A and B aren't compatible, A sorts lower, skip A */
+            /* A and B aren't compatible, A sorts lower, skip A or left join */
+#if DEBUG_MERGE > 1
+printf("[L] Ar=%d, Br=%d", apos, bpos);
+#endif
             if (join == FS_LEFT) {
                 for (int col=0; a[col].name; col++) {
                     if (!c[col].need_val) {
                         continue;
                     } else if (a[col].bound) {
 #if DEBUG_MERGE > 1
-printf("@@ %s=%016llx\n", c[col].name, a[col].vals->data[apos]);
+printf(" %s=%016llx", c[col].name, a[col].vals->data[apos]);
 #endif
                         fs_rid_vector_append(c[col].vals, a[col].vals->data[apos]);
                     } else {
 #if DEBUG_MERGE > 1
-printf("@@ %s=null\n", c[col].name);
+printf(" %s=null", c[col].name);
 #endif
                         fs_rid_vector_append(c[col].vals, FS_RID_NULL);
                     }
@@ -988,44 +994,52 @@ printf("@@ %s=null\n", c[col].name);
             apos++;
         } else if (cmp == 0) {
 	    /* both rows match, find out what combinations bind and produce them */
-            int range_a;
-            int range_b;
-            for (range_a = apos+1;
-                 binding_row_compare(q, a, b, range_a, bpos, length_a, length_b) == 0;
-                 range_a++);
-            for (range_b = bpos+1;
-                 binding_row_compare(q, a, b, apos, range_b, length_a, length_b) == 0;
-                 range_b++);
-            for (; apos<range_a; apos++) {
-                for (; bpos<range_b; bpos++) {
+#if DEBUG_MERGE > 1
+printf("[I] Ar=%d, Br=%d", apos, bpos);
+#endif
+            int range_a = apos+1;
+            int range_b = bpos+1;
+            while (binding_row_compare(q, a, a, apos, range_a, length_a, length_a) == 0) range_a++;
+            while (binding_row_compare(q, b, b, bpos, range_b, length_b, length_b) == 0) range_b++;
+            int start_a = apos;
+            int start_b = bpos;
+            for (apos = start_a; apos<range_a; apos++) {
+                for (bpos = start_b; bpos<range_b; bpos++) {
                     for (int col=0; a[col].name; col++) {
                         if (!c[col].need_val) {
                             continue;
                         } else if (!a[col].bound && !b[col].bound) {
 #if DEBUG_MERGE > 1
-                            printf("@@ %s=null\n", c[col].name);
+                            printf(" %s=null", c[col].name);
 #endif
                             fs_rid_vector_append(c[col].vals, FS_RID_NULL);
                         } else if (a[col].bound) {
 #if DEBUG_MERGE > 1
-                            printf("@@ %s=%016llx\n", c[col].name, a[col].vals->data[apos]);
+                            printf(" %s=%016llx", c[col].name, a[col].vals->data[apos]);
 #endif
                             fs_rid_vector_append(c[col].vals, a[col].vals->data[apos]);
                         } else {
 #if DEBUG_MERGE > 1
-                            printf("@@ %s=%016llx\n", c[col].name, b[col].vals->data[bpos]);
+                            printf(" %s=%016llx", c[col].name, b[col].vals->data[bpos]);
 #endif
                             fs_rid_vector_append(c[col].vals, b[col].vals->data[bpos]);
                         }
                     }
                 }
             }
+            /* this is actually unneccesary because the for loop will do the
+             * same thing, but it's clearer */
+            apos = range_a;
+            bpos = range_b;
 	} else if (cmp == +1) {
             /* A and B aren't compatible, B sorts lower, skip B */
             bpos++;
 	} else {
             fs_error(LOG_ERR, "oh heck, we got cmp=%d, no idea what to do with that", cmp);
         }
+#if DEBUG_MERGE > 1
+printf("\n");
+#endif
     }
 
 #ifdef DEBUG_MERGE

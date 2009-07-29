@@ -176,28 +176,26 @@ static fs_value literal_to_value(fs_query *q, int row, int block, rasqal_literal
 	    {
 		char *name = (char *)l->value.variable->name;
 #ifdef DEBUG_FILTER
-printf("getting value of ?%s, row %d from block %d\n", name, row, block);
+                printf("getting value of ?%s, row %d from B%d\n", name, row, block);
 #endif
-		fs_binding *b = fs_binding_get(q->bb[block], name);
+		fs_binding *b = fs_binding_get(q->bb[0], name);
+                /* TODO this code needs to be tested when the parser handles
+                 * { FILTER() } correctly */
 #if 0
-if (!b->bound_in_block[block]) {
-fs_error(LOG_INFO, "%s not bib %d .. %d appears %d", name, block, b->bound_in_block[block], b->appears);
-}
+                if (!b->bound_in_block[block]) {
+#ifdef DEBUG_FILTER
+                    printf("?%s not bound in B%d, appears in B%d\n", name, block, b->appears);
 #endif
-		if (!b || row >= b->vals->length) {
-		    return fs_value_rid(FS_RID_NULL);
-		}
-#if 0
-                /* if the variable is not bound locally we're not allowed to
-                 * reference it, maybe */
-                if (block != -1 && block != 0 && !b->bound_in_block[block]) {
                     q->warnings = g_slist_prepend(q->warnings,
                         "variable used in expression block where "
                         "it is not bound");
 
-                    return fs_value_rid(FS_RID_NULL);
+		    return fs_value_rid(FS_RID_NULL);
                 }
 #endif
+		if (!b || row >= b->vals->length) {
+		    return fs_value_rid(FS_RID_NULL);
+		}
 		fs_resource r;
                 resolve(q, b->vals->data[row], &r);
 		fs_value v = fs_value_resource(q, &r);
@@ -226,20 +224,21 @@ fs_value fs_expression_eval(fs_query *q, int row, int block, rasqal_expression *
     switch (e->op) {
 	case RASQAL_EXPR_AND:
 	    return fn_logical_and(q, fs_expression_eval(q, row, block, e->arg1),
-			    fs_expression_eval(q, row, block, e->arg2));
+			             fs_expression_eval(q, row, block, e->arg2));
 
 	case RASQAL_EXPR_OR:
 	    return fn_logical_or(q, fs_expression_eval(q, row, block, e->arg1),
-			    fs_expression_eval(q, row, block, e->arg2));
+			            fs_expression_eval(q, row, block, e->arg2));
 
 	case RASQAL_EXPR_EQ:
 	case RASQAL_EXPR_STR_EQ:
+	    return fn_equal(q, fs_expression_eval(q, row, block, e->arg1),
+			       fs_expression_eval(q, row, block, e->arg2));
 #ifdef HAVE_RASQAL_WORLD
 	case RASQAL_EXPR_SAMETERM:
+	    return fn_rdfterm_equal(q, fs_expression_eval(q, row, block, e->arg1),
+			               fs_expression_eval(q, row, block, e->arg2));
 #endif
-	    return fn_equal(q, fs_expression_eval(q, row, block, e->arg1),
-			    fs_expression_eval(q, row, block, e->arg2));
-
 	case RASQAL_EXPR_NEQ:
 	case RASQAL_EXPR_STR_NEQ:
 	    return fn_not_equal(q, fs_expression_eval(q, row, block, e->arg1),
@@ -247,15 +246,15 @@ fs_value fs_expression_eval(fs_query *q, int row, int block, rasqal_expression *
 
 	case RASQAL_EXPR_LT:
 	    return fn_less_than(q, fs_expression_eval(q, row, block, e->arg1),
-			        fs_expression_eval(q, row, block, e->arg2));
+			           fs_expression_eval(q, row, block, e->arg2));
 
 	case RASQAL_EXPR_GT:
 	    return fn_greater_than(q, fs_expression_eval(q, row, block, e->arg1),
-			           fs_expression_eval(q, row, block, e->arg2));
+			              fs_expression_eval(q, row, block, e->arg2));
 
 	case RASQAL_EXPR_LE:
 	    return fn_less_than_equal(q, fs_expression_eval(q, row, block, e->arg1),
-			        fs_expression_eval(q, row, block, e->arg2));
+			                 fs_expression_eval(q, row, block, e->arg2));
 
 	case RASQAL_EXPR_GE:
 	    return fn_greater_than_equal(q, 
@@ -267,19 +266,19 @@ fs_value fs_expression_eval(fs_query *q, int row, int block, rasqal_expression *
 
 	case RASQAL_EXPR_PLUS:
 	    return fn_numeric_add(q, fs_expression_eval(q, row, block, e->arg1),
-                                  fs_expression_eval(q, row, block, e->arg2));
+                                     fs_expression_eval(q, row, block, e->arg2));
 
 	case RASQAL_EXPR_MINUS:
 	    return fn_numeric_subtract(q, fs_expression_eval(q, row, block, e->arg1),
-                                       fs_expression_eval(q, row, block, e->arg2));
+                                          fs_expression_eval(q, row, block, e->arg2));
 
 	case RASQAL_EXPR_STAR:
 	    return fn_numeric_multiply(q, fs_expression_eval(q, row, block, e->arg1),
-				   fs_expression_eval(q, row, block, e->arg2));
+				          fs_expression_eval(q, row, block, e->arg2));
 
 	case RASQAL_EXPR_SLASH:
 	    return fn_numeric_divide(q, fs_expression_eval(q, row, block, e->arg1),
-				   fs_expression_eval(q, row, block, e->arg2));
+				        fs_expression_eval(q, row, block, e->arg2));
 
 	case RASQAL_EXPR_REM:
 	    return fs_value_error(FS_ERROR_INVALID_TYPE, "unhandled REM operator");
@@ -304,7 +303,8 @@ fs_value fs_expression_eval(fs_query *q, int row, int block, rasqal_expression *
 	    return fn_not(q, fs_expression_eval(q, row, block, e->arg1));
 
 	case RASQAL_EXPR_FUNCTION:
-            if (raptor_sequence_size(e->args) == 1 && !strncmp((char *)raptor_uri_as_string(e->name), XSD_NAMESPACE, strlen(XSD_NAMESPACE))) {
+            if (raptor_sequence_size(e->args) == 1 &&
+                !strncmp((char *)raptor_uri_as_string(e->name), XSD_NAMESPACE, strlen(XSD_NAMESPACE))) {
                 return fn_cast(q, fs_expression_eval(q, row,
                                     block, (rasqal_expression *)raptor_sequence_get_at(e->args, 0)),
 		           fs_value_uri((char *)raptor_uri_as_string(e->name)));
@@ -636,8 +636,7 @@ static int apply_constraints(fs_query *q, int row)
 		raptor_sequence_get_at(q->constraints[block], c);
 	    if (!e) continue;
 
-#warning this should make be the correct block
-	    fs_value v = fs_expression_eval(q, row, 0, e);
+	    fs_value v = fs_expression_eval(q, row, block, e);
 #ifdef DEBUG_FILTER
 	    rasqal_expression_print(e, stdout);
 	    printf(" -> ");
@@ -649,13 +648,14 @@ static int apply_constraints(fs_query *q, int row)
 	    }
 	    fs_value result = fn_ebv(v);
 	    if (result.valid & fs_valid_bit(FS_V_TYPE_ERROR) || !result.in) {
-		if (block == 0) {
+                /* if the block ID is 0 or 1, the it must be an inner join */
+		if (block < 2) {
 		    return 0;
-		} else {
-                    for (int c=0; q->bb[0][c].name; c++) {
-                        if (q->bb[0][c].appears == block) {
-                            q->bb[0][c].vals->data[row] = FS_RID_NULL;
-                        }
+                }
+                /* TODO should check the bind types between here and B0 */
+                for (int c=0; q->bb[0][c].name; c++) {
+                    if (q->bb[0][c].appears == block) {
+                        q->bb[0][c].vals->data[row] = FS_RID_NULL;
                     }
                 }
 	    }
@@ -1110,8 +1110,8 @@ static void output_sparql(fs_query *q, int flags, FILE *out)
             g_slist_free(q->warnings);
             q->warnings = NULL;
         }
-        if (q->num_vars == 0) {
-            while (!q->boolean && fs_query_fetch_row(q));
+        if (q->ask) {
+            while (q->boolean && fs_query_fetch_row(q));
             if (q->boolean) {
                 fprintf(out, "  <boolean>true</boolean>\n");
             } else {
@@ -1431,7 +1431,7 @@ static void output_testcase(fs_query *q, int flags, FILE *out)
     } else {
         /* apply the filters until we find one that matches or run out of
          * rows */
-        while (!q->boolean && fs_query_fetch_row(q));
+        while (q->boolean && fs_query_fetch_row(q));
         if (q->boolean) {
             fprintf(out, "   rs:boolean \"true\"^^xsd:boolean .\n");
         } else {
@@ -1610,17 +1610,16 @@ nextrow: ;
 
     const int row = q->ordering ? q->ordering[q->row] : q->row;
 
-    if (apply_constraints(q, row)) {
-        q->boolean = 1;
-    } else {
+    if (!apply_constraints(q, row)) {
+        q->boolean = 0;
+        /* if we dont need any bindings we may as well stop */
+        if (q->num_vars == 0) {
+            return NULL;
+        }
 	q->row++;
 	goto nextrow;
     }
 
-    /* if we dont need any bindings we may as well stop */
-    if (q->num_vars == 0) {
-        return NULL;
-    }
 
     int repeat_row = 1;
     for (int i=0; i<q->num_vars; i++) {
