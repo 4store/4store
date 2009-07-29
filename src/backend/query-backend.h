@@ -17,13 +17,6 @@
 #include "backend.h"
 #include "common/datatypes.h"
 
-#define FS_LEX_FILE    'F'  /* offset into lex file */
-#define FS_LEX_INT     'i'  /* signed integer */
-#define FS_LEX_CHAR    'c'  /* array of chars */
-#define FS_LEX_FLOAT   'f'  /* a double */
-#define FS_LEX_HEX     'h'  /* an unsigned lowercase hex number */
-#define FS_LEX_DECIMAL 'd'  /* a 32.32 fixedpoint number */
-
 fs_rid_vector **fs_bind(fs_backend *be, fs_segment segment, unsigned int tobind,
 			     fs_rid_vector *mv, fs_rid_vector *sv,
 			     fs_rid_vector *pv, fs_rid_vector *ov,
@@ -50,11 +43,6 @@ int fs_bind_done(fs_backend *be, fs_segment segment);
 unsigned long long int fs_bind_price(fs_backend *be, fs_segment segment, unsigned int tobind,
 			     fs_rid_vector *mv, fs_rid_vector *sv,
 			     fs_rid_vector *pv, fs_rid_vector *ov);
-
-char *fs_bind_pattern_to_sql(fs_segment segment, unsigned int tobind,
-			     fs_rid_vector *mv, fs_rid_vector *sv,
-			     fs_rid_vector *pv, fs_rid_vector *ov,
-			     int offset, int limit);
 
 int fs_resolve(fs_backend *be, fs_segment segment, fs_rid_vector *v,
 	fs_resource *out);

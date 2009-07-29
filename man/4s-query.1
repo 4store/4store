@@ -26,6 +26,8 @@ Treat CONSTRUCT statements as INSERT statements. This feature is highly experime
 Enable query complexity restriction mode
 .It Fl "s, \-\-soft-limit"
 Override default soft limit on search breadth
+.It Fl "d, \-\-default-graph"
+Enable SPARQL default graph support
 .It Fl "b, \-\-base"
 Set base URI for queries
 .It Fl "P"
@@ -52,6 +54,17 @@ protocol, but non-standard.
 .Sh STANDARDS
 .Nm
 implements the SPARQL Query Language specification (aka. SPARQL/Query 1.0) and the SPARQL Result Format specification (aka. SPARQL/Results 1.0).
+.sp
+Default graph support is no normally enabled, the \-\-default\-graph turns it on, as does speicfying FROM <default:> in the query. Data loaded with
+.sp
+$ 4s-import
+.Ar kb
+.Fl -add
+.Fl m
+default:
+.Ar uri/filename
+.sp
+will be added to the default graph.
 .Sh EXAMPLES
 $
 .Nm

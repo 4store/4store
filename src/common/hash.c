@@ -109,6 +109,7 @@ void fs_hash_init(fsp_hash_enum type)
     fs_c.lang_de = fs_hash_literal("de", 0);
     fs_c.lang_es = fs_hash_literal("es", 0);
     fs_c.rdf_type = fs_hash_uri(RDF_NAMESPACE "type");
+    fs_c.default_graph = fs_hash_uri(FS_DEFAULT_GRAPH);
 }
 
 GHashTable * fs_hash_bnids()

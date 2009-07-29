@@ -72,6 +72,7 @@ int main(int argc, char *argv[])
     int insert_mode = 0;
     int restricted = 0;
     int soft_limit = 0;
+    int default_graph = 0;
     char *base_uri = "local:";
 
     static struct option long_options[] = {
@@ -82,6 +83,7 @@ int main(int argc, char *argv[])
         { "insert", 0, 0, 'I' },
         { "restricted", 0, 0, 'r' },
         { "soft-limit", 1, 0, 's' },
+        { "default-graph", 0, 0, 'd' },
         { "base", 1, 0, 'b' },
         { 0, 0, 0, 0 }
     };
@@ -101,6 +103,8 @@ int main(int argc, char *argv[])
             restricted = 1;
         } else if (c == 's') {
             soft_limit = atoi(optarg);
+        } else if (c == 'd') {
+            default_graph = 1;
         } else if (c == 'b') {
             base_uri = optarg;
         } else {
@@ -129,6 +133,7 @@ int main(int argc, char *argv[])
       fprintf(stderr, " -I, --insert    Interpret CONSTRUCT statements as inserts\n");
       fprintf(stderr, " -r, --restricted  Enable query complexity restriction\n");
       fprintf(stderr, " -s, --soft-limit  Override default soft limit on search breadth\n");
+      fprintf(stderr, " -d, --default-graph  Enable SPARQL default graph support\n");
       fprintf(stderr, " -b, --base      Set base URI for query\n");
       return 1;
     }
@@ -176,10 +181,14 @@ int main(int argc, char *argv[])
 
     raptor_uri *bu = raptor_new_uri((unsigned char *)base_uri);
 
+    int flags = 0;
+    flags |= insert_mode ? FS_RESULT_FLAG_CONSTRUCT_AS_INSERT : 0;
+    flags |= restricted ? FS_QUERY_RESTRICTED : 0;
+    flags |= default_graph ? FS_QUERY_DEFAULT_GRAPH : 0;
+
     if (programatic) {
 	programatic_io(link, bu, "sparql", format, timing, verbosity, opt_level,
-            FS_RESULT_FLAG_HEADERS |
-            (insert_mode ? FS_RESULT_FLAG_CONSTRUCT_AS_INSERT : 0), soft_limit);
+            FS_RESULT_FLAG_HEADERS | flags, soft_limit);
     } else if (!query) {
         if (!format) format = "text";
         interactive(link, bu, format, verbosity, opt_level,
@@ -189,9 +198,6 @@ int main(int argc, char *argv[])
     int ret = 0;
 
     fs_query_state *qs = fs_query_init(link);
-    int flags = 0;
-    flags |= insert_mode ? FS_RESULT_FLAG_CONSTRUCT_AS_INSERT : 0;
-    flags |= restricted ? FS_QUERY_RESTRICTED : 0;
     fs_query *qr = fs_query_execute(qs, link, bu, query, flags, opt_level, soft_limit);
     if (fs_query_errors(qr)) {
         ret = 1;

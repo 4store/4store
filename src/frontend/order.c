@@ -23,10 +23,9 @@
 
 #include "order.h"
 #include "filter.h"
+#include "debug.h"
 #include "query-intl.h"
 #include "common/hash.h"
-
-//#define DEBUG_ORDER 1
 
 struct order_row {
     int row;
@@ -51,7 +50,6 @@ static int orow_compare_sub(const struct order_row *a,
 fs_value_print(va);
 printf(" <=> ");
 fs_value_print(vb);
-printf(" ... ");
 #endif
         if (va.valid & fs_valid_bit(FS_V_RID) && va.rid == FS_RID_NULL) {
             if (vb.valid & fs_valid_bit(FS_V_RID) && vb.rid == FS_RID_NULL) {
@@ -160,6 +158,12 @@ printf("\n");
     for (int i=0; i<length; i++) {
         ordering[i] = orows[i].row;
     }
+#ifdef DEBUG_ORDER
+printf("Output order:\n");
+for (int i=0; i<length; i++) {
+    printf("output row %d row %d\n", i, ordering[i]);
+}
+#endif
 
     q->ordering = ordering;
     free(ordervals);

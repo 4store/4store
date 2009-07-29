@@ -352,6 +352,12 @@ fs_query *fs_query_execute(fs_query_state *qs, fsp_link *link, raptor_uri *bu, c
         q->order = 1;
     }
 
+    if (flags & FS_QUERY_DEFAULT_GRAPH) {
+        flags &= ~FS_QUERY_DEFAULT_GRAPH;
+        q->default_graphs = fs_rid_vector_new(1);
+        q->default_graphs->data[0] = FS_DEFAULT_GRAPH_RID;
+    }
+
     int explain = flags & FS_QUERY_EXPLAIN;
 #ifdef DEBUG_MERGE
     explain = 1;
@@ -386,6 +392,25 @@ fs_query *fs_query_execute(fs_query_state *qs, fsp_link *link, raptor_uri *bu, c
     }
 #endif
         
+    for (int i=0; 1; i++) {
+        rasqal_data_graph *dg = rasqal_query_get_data_graph(rq, i);
+        if (!dg) break;
+        if (i == 0 && q->default_graphs) {
+            q->default_graphs->length = 0;
+        }
+        char *uri = (char *)raptor_uri_as_string(dg->uri);
+        char *name_uri = (char *)raptor_uri_as_string(dg->name_uri);
+        if (name_uri) {
+            q->warnings = g_slist_prepend(q->warnings, "FROM NAMED is not currently supported");
+        } else {
+            if (!q->default_graphs) {
+                q->default_graphs = fs_rid_vector_new(0);
+            }
+            fs_rid default_rid = fs_hash_uri(uri);
+            fs_rid_vector_append(q->default_graphs, default_rid);
+        }
+    }
+
     q->limit = rasqal_query_get_limit(rq);
     q->offset = rasqal_query_get_offset(rq);
 
@@ -681,18 +706,9 @@ printf("\n");
 	return q;
     }
 
-    q->row = q->offset;
-    if (q->row < 0) q->row = 0;
-    q->lastrow = q->row;
-    q->rows_output = 0;
-    q->pending = calloc(q->segments, sizeof(fs_rid_vector *));
-    for (int i=0; i<q->segments; i++) {
-	q->pending[i] = fs_rid_vector_new(0);
-    }
-
     if (q->flags & FS_BIND_DISTINCT) {
 	for (int i=0; q->bb[0][i].name; i++) {
-	    if (q->bb[0][i].proj || q->bb[0][i].selected) {
+	    if (q->bb[0][i].proj) {
 		q->bb[0][i].sort = 1;
 	    } else {
 		q->bb[0][i].sort = 0;
@@ -701,7 +717,6 @@ printf("\n");
 	fs_binding_sort(q->bb[0]);
 	fs_binding_uniq(q->bb[0]);
     }
-
     /* this is neccesary because the DISTINCT phase may have
      * reduced the length of the projected columns */
     q->length = 0;
@@ -710,6 +725,19 @@ printf("\n");
         if (q->bb[0][col].vals->length > q->length) {
             q->length = q->bb[0][col].vals->length;
         }
+    }
+#if DEBUG_MERGE > 1
+printf("After DISINTCT\n");
+fs_binding_print(q->bb[0], stdout);
+#endif
+
+    q->row = q->offset;
+    if (q->row < 0) q->row = 0;
+    q->lastrow = q->row;
+    q->rows_output = 0;
+    q->pending = calloc(q->segments, sizeof(fs_rid_vector *));
+    for (int i=0; i<q->segments; i++) {
+	q->pending[i] = fs_rid_vector_new(0);
     }
 
     if (q->offset < 0) {
@@ -763,6 +791,9 @@ void fs_query_free(fs_query *q)
             g_free(it->data);
         }
 	g_slist_free(q->free_list);
+
+        if (q->default_graphs) fs_rid_vector_free(q->default_graphs);
+
         memset(q, 0, sizeof(fs_query));
 	free(q);
     }
@@ -1145,6 +1176,16 @@ static int bind_pattern(fs_query *q, int block, fs_binding *b, rasqal_triple *t,
     } else {
         *tobind &= ~FS_BIND_MODEL;
     }
+    if (q->default_graphs) {
+        if (!t->origin && slot[0]->length == 0) {
+            fs_rid_vector_append_vector(slot[0], q->default_graphs);
+            *tobind &= ~FS_QUERY_DEFAULT_GRAPH;
+        } else {
+            /* setting this prevents the backend from binding to values in the default
+             * graph */
+            *tobind |= FS_QUERY_DEFAULT_GRAPH;
+        }
+    }
     ret = fs_bind_slot(q, block, b, t->subject, slot[1], &bind, &varnames[*numbindings], 0);
     if (ret) {
 #ifdef DEBUG_BIND
@@ -1523,13 +1564,18 @@ static int fs_handle_query_triple_multi(fs_query *q, int block, int count, rasqa
 
         return 0;
     }
+    int use_model = 0;
     for (int i=1; i<count; i++) {
         int bind;
         char *v;
+        if (t[i]->origin) use_model = 1;
         fs_bind_slot(q, block, oldb, t[i]->origin, slot[0], &bind, &v, 0);
         fs_bind_slot(q, block, oldb, t[i]->subject, slot[1], &bind, &v, 0);
         fs_bind_slot(q, block, oldb, t[i]->predicate, slot[2], &bind, &v, 0);
         fs_bind_slot(q, block, oldb, t[i]->object, slot[3], &bind, &v, 1);
+    }
+    if (!use_model && slot[0]->length == 0 && q->default_graphs) {
+        fs_rid_vector_append_vector(slot[0], q->default_graphs);
     }
     bind_reverse(q, tobind | FS_BIND_BY_SUBJECT,
                  slot, &results, -1, q->order ? -1 : q->soft_limit);

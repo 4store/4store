@@ -71,6 +71,17 @@ static fs_ptree_it *fs_backend_get_matches(fs_backend *be, fs_rid quad[4], int f
     return fs_ptree_search(pt, pk, pair);
 }
 
+static int graph_ok(const fs_rid ref[4], int flags)
+{
+    /* the flag means the we SHOULDN'T bind triples that are in the default
+     * graph */
+    if (flags & FS_QUERY_DEFAULT_GRAPH && ref[0] == FS_DEFAULT_GRAPH_RID) {
+	return 0;
+    }
+
+    return 1;
+}
+
 static int bind_same(const fs_rid ref[4], int flags)
 {
     int match = 1;
@@ -250,6 +261,7 @@ fs_rid_vector **fs_bind(fs_backend *be, fs_segment segment, unsigned int tobind,
 		    const fs_rid quad[4] =
 				    { model, triple[0], triple[1], triple[2] };
 		    if (!bind_same(quad, tobind)) continue;
+		    if (!graph_ok(quad, tobind)) continue;
 		    bind_results(quad, tobind, ret);
 		    count++;
 		}
@@ -263,6 +275,7 @@ fs_rid_vector **fs_bind(fs_backend *be, fs_segment segment, unsigned int tobind,
 		    const fs_rid quad[4] =
 				    { model, triple[0], triple[1], triple[2] };
 		    if (!bind_same(quad, tobind)) continue;
+		    if (!graph_ok(quad, tobind)) continue;
 		    bind_results(quad, tobind, ret);
 		    count++;
 		}
@@ -295,6 +308,7 @@ fs_error(LOG_INFO, "bind() branch");
 		    fs_ptree_it *it = fs_ptree_traverse(pt, mrid);
 		    while (it && fs_ptree_traverse_next(it, quad) && count<limit) {
 			if (!bind_same(quad, tobind)) continue;
+			if (!graph_ok(quad, tobind)) continue;
 			count++;
 			bind_results(quad, tobind, ret);
 		    }
@@ -319,6 +333,7 @@ fs_error(LOG_INFO, "bind() branch");
 		    fs_ptree_it *it = fs_ptree_traverse(pt, mrid);
 		    while (it && fs_ptree_traverse_next(it, quad) && count<limit) {
 			if (!bind_same(quad, tobind)) continue;
+			if (!graph_ok(quad, tobind)) continue;
 			count++;
 			bind_results(quad, tobind, ret);
 		    }
@@ -349,6 +364,7 @@ fs_error(LOG_INFO, "bind() branch");
 				const fs_rid quad[4] =
 				    { pair[0], pk, pv->data[p], pair[1] };
 				if (!bind_same(quad, tobind)) continue;
+				if (!graph_ok(quad, tobind)) continue;
 				count++;
 				bind_results(quad, tobind, ret);
 			    }
@@ -379,6 +395,7 @@ fs_error(LOG_INFO, "bind() branch");
 				    pair[0], pair[1], pv->data[p], pk
 				};
 				if (!bind_same(quad, tobind)) continue;
+				if (!graph_ok(quad, tobind)) continue;
 				count++;
 				bind_results(quad, tobind, ret);
 			    }
@@ -411,6 +428,7 @@ fs_error(LOG_INFO, "bind() branch");
 				const fs_rid quad[4] =
 				    { pair[0], pk, be->ptrees_priv[p].pred, pair[1] };
 				if (!bind_same(quad, tobind)) continue;
+				if (!graph_ok(quad, tobind)) continue;
 				count++;
 				bind_results(quad, tobind, ret);
 			    }
@@ -441,6 +459,7 @@ fs_error(LOG_INFO, "bind() branch");
 				const fs_rid quad[4] =
 				    { pair[0], pair[1], be->ptrees_priv[p].pred, pk };
 				if (!bind_same(quad, tobind)) continue;
+				if (!graph_ok(quad, tobind)) continue;
 				count++;
 				bind_results(quad, tobind, ret);
 			    }

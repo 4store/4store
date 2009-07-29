@@ -46,6 +46,7 @@
 #define FS_BIND_PRICE        0x10000000
 #define FS_QUERY_EXPLAIN     0x20000000
 #define FS_QUERY_COUNT       0x40000000
+#define FS_QUERY_DEFAULT_GRAPH 0x80000000
 
 typedef unsigned long long int fs_rid;
 typedef uint32_t fs_segment;

@@ -16,32 +16,38 @@
 
 #define FS_RID_SEGMENT(x, size) ((x) & ((size) - 1))
 
+/* for all sorts of complex reasons it's hard for the backend to figure this
+ * RID out, it's value depends on the hash function, so it needs to be changed
+ * if the hash function changes  */
+#define FS_DEFAULT_GRAPH_RID (0xDB4D687EBF8EED87LL)
+
 struct fs_globals {
+	fs_rid default_graph;
 	fs_rid empty;
-	fs_rid xsd_string;
-	fs_rid xsd_integer;
-	fs_rid xsd_float;
-	fs_rid xsd_double;
-	fs_rid xsd_decimal;
-	fs_rid xsd_boolean;
-	fs_rid xsd_datetime;
-	fs_rid xsd_pinteger;
-	fs_rid xsd_ninteger;
-	fs_rid xsd_npinteger;
-	fs_rid xsd_nninteger;
-	fs_rid xsd_long;
-	fs_rid xsd_int;
-	fs_rid xsd_short;
-	fs_rid xsd_byte;
-	fs_rid xsd_ulong;
-	fs_rid xsd_uint;
-	fs_rid xsd_ushort;
-	fs_rid xsd_ubyte;
-	fs_rid lang_en;
-	fs_rid lang_fr;
 	fs_rid lang_de;
+	fs_rid lang_en;
 	fs_rid lang_es;
+	fs_rid lang_fr;
 	fs_rid rdf_type;
+	fs_rid xsd_boolean;
+	fs_rid xsd_byte;
+	fs_rid xsd_datetime;
+	fs_rid xsd_decimal;
+	fs_rid xsd_double;
+	fs_rid xsd_float;
+	fs_rid xsd_int;
+	fs_rid xsd_integer;
+	fs_rid xsd_long;
+	fs_rid xsd_ninteger;
+	fs_rid xsd_nninteger;
+	fs_rid xsd_npinteger;
+	fs_rid xsd_pinteger;
+	fs_rid xsd_short;
+	fs_rid xsd_string;
+	fs_rid xsd_ubyte;
+	fs_rid xsd_uint;
+	fs_rid xsd_ulong;
+	fs_rid xsd_ushort;
 };
 
 extern struct fs_globals fs_c;

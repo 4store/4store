@@ -67,6 +67,7 @@ struct _fs_query {
     GSList *warnings;
     int *ordering;
     double start_time;
+    fs_rid_vector *default_graphs;
 };
 
 #endif

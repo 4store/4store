@@ -39,4 +39,6 @@
 #define DIRECT_SUBPROPERTY DIRECT_NAMESPACE "subPropertyOf"
 #define DIRECT_TYPE        DIRECT_NAMESPACE "type"
 
+#define FS_DEFAULT_GRAPH "default:"
+
 #endif
