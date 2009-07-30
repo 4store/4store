@@ -53,7 +53,7 @@ static void graph_pattern_walk(fsp_link *link, rasqal_graph_pattern *p, fs_query
 static int fs_handle_query_triple(fs_query *q, int block, rasqal_triple *t);
 static int fs_handle_query_triple_multi(fs_query *q, int block, int count, rasqal_triple *t[]);
 static fs_rid const_literal_to_rid(fs_query *q, rasqal_literal *l, fs_rid *attr);
-static void check_variables(fs_query *q, rasqal_expression *e);
+static void check_variables(fs_query *q, rasqal_expression *e, int dont_select);
 static void filter_optimise_disjunct_equality(fs_query *q,
             rasqal_expression *e, int block, char **var, fs_rid_vector *res);
 
@@ -521,7 +521,7 @@ fs_query *fs_query_execute(fs_query_state *qs, fsp_link *link, raptor_uri *bu, c
     for (int i=0; i < q->num_vars; i++) {
 	rasqal_variable *v = raptor_sequence_get_at(vars, i);
         if (v->expression) {
-            check_variables(q, v->expression);
+            check_variables(q, v->expression, 0);
         }
     }
 #endif
@@ -731,7 +731,41 @@ printf("After DISINTCT\n");
 fs_binding_print(q->bb[0], stdout);
 #endif
 
-    q->row = q->offset;
+    int selected_not_projected = 0;
+    for (int col = 0; q->bb[0][col].name; col++) {
+        if (q->bb[0][col].selected && !q->bb[0][col].proj) {
+            selected_not_projected = 1;
+            break;
+        }
+    }
+    /* If there are selected variables that are not projected then we might
+     * not have performed a full distinct yet, so we need to run thorugh
+     * q->offset disinct rows to make sure the OFFSET is correct */
+    if (q->offset > 0 && selected_not_projected) {
+        int offsetted = 0;
+        while (offsetted < q->offset && q->row < q->length) {
+            if (q->row > 0) {
+                int dup = 1;
+                /* scan right to left cos we'll find a difference quicker that
+                 * way */
+                for (int col=(q->num_vars)-1; col >= 0; col--) {
+                    if (q->bb[0][col].vals->data[q->row] != q->bb[0][col].vals->data[(q->row)-1]) {
+                        dup = 0;
+                        break;
+                    }
+                }
+                if (dup) {
+                    (q->row)++;
+                    continue;
+                }
+            }
+            offsetted++;
+            (q->row)++;
+        }
+    } else {
+        q->row = q->offset;
+    }
+
     if (q->row < 0) q->row = 0;
     q->lastrow = q->row;
     q->rows_output = 0;
@@ -828,33 +862,35 @@ static void assign_slot(fs_query *q, rasqal_literal *l, int block)
     }
 }
 
-static void check_variables(fs_query *q, rasqal_expression *e)
+static void check_variables(fs_query *q, rasqal_expression *e, int dont_select)
 {
     if (e->literal && e->literal->type == RASQAL_LITERAL_VARIABLE) {
 	rasqal_variable *v = e->literal->value.variable;
 	fs_binding *b = fs_binding_get(q->bb[0], (char *)v->name);
 	if (b) {
             b->need_val = 1;
-            b->selected = 1;
+            if (!dont_select) {
+                b->selected = 1;
+            }
         }
 
 	return;
     }
 
     if (e->arg1) {
-	check_variables(q, e->arg1);
+	check_variables(q, e->arg1, dont_select);
     }
     if (e->arg2) {
-	check_variables(q, e->arg2);
+	check_variables(q, e->arg2, dont_select);
     }
     if (e->arg3) {
-	check_variables(q, e->arg3);
+	check_variables(q, e->arg3, dont_select);
     }
     if (e->args) {
         const int len = raptor_sequence_size(e->args);
         for (int i=0; i<len; i++) {
             rasqal_expression *ae = raptor_sequence_get_at(e->args, i);
-            check_variables(q, ae);
+            check_variables(q, ae, dont_select);
         }
     }
 }
@@ -1039,14 +1075,16 @@ skip_assign:;
 		rasqal_expression *e = raptor_sequence_get_at(s, c);
 		if (!e) break;
 
-		check_variables(q, e);
+                /* we need to flag if it's a UNION FILTER so we don't
+                 * unneccesarily set the selected flag on the variables */
+		check_variables(q, e, uni);
 		if (filter_optimise(q, e, q->block)) {
                     /* stop us from trying to evaluate this expression later */
                     raptor_sequence_set_at(s, c, NULL);
                 }
 	    }
 
-	    if (q->constraints[q->block]) {
+	    if (q->constraints[this_block]) {
 		raptor_sequence_join(q->constraints[this_block], s);
 	    } else {
 		q->constraints[this_block] = s;
@@ -1055,7 +1093,7 @@ skip_assign:;
 	for (int c=0; 1; c++) {
 	    rasqal_expression *e = rasqal_query_get_order_condition(q->rq, c);
 	    if (!e) break;
-	    check_variables(q, e);
+	    check_variables(q, e, 0);
 	}
     }
 }
