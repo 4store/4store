@@ -15,7 +15,7 @@ typedef struct _fs_binding {
 			/* if the var is projected as an expression, this
 			   points to the expression */
 	int proj;	/* is var projected? */
-	int selected;	/* is the variable used in selections */
+	int selected;	/* is the variable used in final stage selections */
 	int used;	/* used in current expression */
 	int bound_in_block[FS_MAX_BLOCKS];
 			/* number of times var bound in block */

@@ -255,10 +255,15 @@ static void tree_compact(fs_query *q)
     for (int block = 1; block <= q->block; block++) {
         int parent = q->parent_block[block];
         if (q->join_type[block] == FS_INNER &&
-            q->constraints[block] == NULL &&
-            q->constraints[parent] == NULL) {
+            (q->constraints[block] == NULL || q->constraints[parent] == NULL)) {
             /* if there's nothing special about this block, merge up */
             fs_p_vector_append_vector(q->blocks+parent, q->blocks+block);
+            if (q->constraints[parent] == NULL) {
+                q->constraints[parent] = q->constraints[block];
+            }
+#ifdef DEBUG_MERGE
+printf("Merge B%d to B%d\n", block, parent);
+#endif
             q->blocks[block].length = 0;
             for (int j=1; j<=q->block; j++) {
                 if (q->parent_block[j] == block) {
@@ -266,6 +271,9 @@ static void tree_compact(fs_query *q)
                 }
             }
         }
+else {
+printf("NOT merging B%d to B%d, JT=%d C=%p PC=%p\n", block, parent, q->join_type[block], q->constraints[block], q->constraints[parent]);
+}
     }
 }
 
