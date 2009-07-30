@@ -271,9 +271,6 @@ printf("Merge B%d to B%d\n", block, parent);
                 }
             }
         }
-else {
-printf("NOT merging B%d to B%d, JT=%d C=%p PC=%p\n", block, parent, q->join_type[block], q->constraints[block], q->constraints[parent]);
-}
     }
 }
 
