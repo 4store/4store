@@ -708,7 +708,7 @@ printf("\n");
 
     if (q->flags & FS_BIND_DISTINCT) {
 	for (int i=0; q->bb[0][i].name; i++) {
-	    if (q->bb[0][i].proj) {
+	    if (q->bb[0][i].proj || q->bb[0][i].selected) {
 		q->bb[0][i].sort = 1;
 	    } else {
 		q->bb[0][i].sort = 0;
