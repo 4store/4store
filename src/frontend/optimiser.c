@@ -87,15 +87,6 @@ int fs_opt_is_const(fs_binding *b, rasqal_literal *l)
 	case RASQAL_LITERAL_VARIABLE: {
 	    char *vname = (char *)l->value.variable->name;
 	    fs_binding *bv = fs_binding_get(b, vname);
-#warning think we dont need this anymore
-#if 0
-remove block arg if so
-            /* We have to make sure that the variable is bound inside this
-             * UNION branch */
-	    if (bv && bv->bound == 1 && (!block || bv->bound_in_block[block])) {
-		return 1;
-	    }
-#endif
 	    if (bv && bv->bound == 1) {
 		return 1;
 	    }
