@@ -30,6 +30,24 @@
 #include "common/error.h"
 #include "common/params.h"
 
+/* returns the free disk space (in GB) remaining in the filesystem used by the
+ * storage system */
+float fs_free_disk_gb(const char *kb)
+{
+    struct statfs buf;
+    char *mdfn = g_strdup_printf(FS_MD_FILE, kb);
+
+    if (statfs(mdfn, &buf) == -1) {
+        fs_error(LOG_ERR, "cannot statfs('%s'): %s", mdfn, strerror(errno));
+        g_free(mdfn);
+
+        return 50.0;
+    }
+    g_free(mdfn);
+
+    return (double)(buf.f_bavail * buf.f_bsize) / (1024.0*1024.0*1024.0);
+}
+
 /* returns the percentage of disk space remaining in the filesystem used by the
  * storage system */
 float fs_free_disk(const char *kb)
