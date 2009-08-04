@@ -54,12 +54,16 @@ int main(int argc, char *argv[])
         return 2;
     }
 
+    double then = fs_time();
     if (fsp_no_op(link, 0)) {
-        fs_error(LOG_ERR, "NO-OP failed\n");
-        return 3;
+      fs_error(LOG_ERR, "NO-OP failed\n");
+      return 3;
     }
+    double now = fs_time();
 
     if (!strcmp(argv[2], "noop")) {
+        printf("NO-OP took %fs\n", now-then);
+
         return 0;
     } else if (!strcmp(argv[2], "freq")) {
         fs_query_state *qs = fs_query_init(link);
