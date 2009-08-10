@@ -31,7 +31,6 @@ pkg-config --exists rasqal && pass "rasqal installed" || fail "no rasqal library
 pkg-config --exists glib-2.0 && pass "glib2 installed" || fail "no glib2 devel system"
 test -e "`which pcre-config`" && pass "pcre installed" || fail "no pcre devel system installed"
 libtest "ncurses"
-libtest "termcap"
 libtest "readline" "-lncurses"
 pkg-config --exists avahi-glib avahi-client && pass "avahi installed" || ( test -e /usr/include/dns_sd.h && pass "dns_sd installed" || optfail "no mDNS library, will build without cluster support" )
 

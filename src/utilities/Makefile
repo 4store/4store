@@ -2,7 +2,7 @@ include ../rev.mk
 include ../darwin.mk
 
 CFLAGS = -Wall -g -std=gnu99 -I.. -DGIT_REV=\"$(gitrev)\" `pkg-config --cflags glib-2.0`
-LDFLAGS = $(ldfdarwin) $(ldflinux) -lz `pkg-config --libs glib-2.0 raptor` -lreadline -ltermcap
+LDFLAGS = $(ldfdarwin) $(ldflinux) -lz `pkg-config --libs glib-2.0 raptor` -lreadline
 
 BINS = 4s-backend-setup 4s-backend-destroy 4s-backend-info 4s-backend-copy \
  4s-backend-passwd 4s-rid
