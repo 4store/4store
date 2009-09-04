@@ -4,6 +4,7 @@ filter-test
 4s-delete-model
 4s-dump
 4s-import
+4s-update
 4s-info
 4s-query
 4s-resolve
