@@ -4,7 +4,7 @@ include ../darwin.mk
 include ../readedit.mk
 
 DEFINES := $(shell pkg-config rasqal --atleast-version=0.9.14 && echo "-DHAVE_LAQRS") $(shell pkg-config rasqal --atleast-version=0.9.16 && echo "-DHAVE_RASQAL_WORLD")
-BINS = 4s-query 4s-import 4s-delete-model 4s-size 4s-info
+BINS = 4s-query 4s-import 4s-delete-model 4s-size 4s-info 4s-update
 test_BINS = filter-test decimal-test 4s-bind 4s-resolve
 
 ifdef readedit
@@ -34,8 +34,11 @@ test: all filter-test
 	@echo 'Query tests'
 	@./tests/run.pl
 
-4s-query: 4s-query.o query.o results.o query-data.o query-datatypes.o query-cache.o filter.o filter-datatypes.o order.o optimiser.o decimal.o import.o ../common/lib4store.a
+4s-query: 4s-query.o query.o results.o query-data.o query-datatypes.o query-cache.o filter.o filter-datatypes.o order.o optimiser.o decimal.o import.o update.o ../common/lib4store.a
 	$(CC) $(LDFLAGS) $(readedit_ldflags) -o 4s-query $^
+
+4s-update: 4s-update.o update.o import.o ../common/lib4store.a
+	$(CC) $(LDFLAGS) $(readedit_ldflags) -o 4s-update $^
 
 decimal.o: decimal.h
 

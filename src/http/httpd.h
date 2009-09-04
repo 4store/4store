@@ -12,6 +12,7 @@ typedef struct {
   long bytes_left;
   GByteArray *partial;
   char *query_string;
+  char *update_string;
   fs_query *qr;
   int query_flags;
   guint watchdog;

@@ -42,6 +42,7 @@
 
 #include "frontend/query.h"
 #include "frontend/import.h"
+#include "frontend/update.h"
 
 #include "httpd.h"
 
@@ -55,6 +56,7 @@ static int has_o_index = 0;
 
 static long all_time_import_count = 0;
 static int global_import_count = 0;
+static int unsafe = 0;
 
 static fs_query_state *query_state;
 
@@ -337,6 +339,7 @@ static void http_answer_query(client_ctxt *ctxt, const char *query)
 {
   query_log(query);
   ctxt->query_string = g_strdup(query);
+  ctxt->update_string = NULL;
   g_source_remove_by_user_data(ctxt);
   g_thread_pool_push(pool, ctxt, NULL);
 }
@@ -353,8 +356,28 @@ static gboolean import_watchdog (gpointer data)
   return FALSE;
 }
 
-static void http_put_start(client_ctxt *ctxt)
+static void http_import_start(client_ctxt *ctxt)
 {
+  /* If it's an update operation, we have a different path */
+  if (ctxt->update_string) {
+    char *message = NULL;
+    int ret = fs_update(fsplink, ctxt->update_string, &message, unsafe);
+    fs_query_cache_flush(query_state, 0);
+    http_import_queue_remove(ctxt);
+    if (ret == 0) {
+      http_send(ctxt, "HTTP/1.0 200 OK\r\n");
+    } else {
+      http_send(ctxt, "HTTP/1.0 400 Bad argument\r\n");
+    }
+    http_send(ctxt, "Server: 4s-httpd/" GIT_REV "\r\n");
+    http_send(ctxt, "Content-Type: text/plain; charset=utf-8\r\n\r\n");
+    http_send(ctxt, message);
+    http_send(ctxt, "\n");
+    http_close(ctxt);
+
+    return;
+  }
+
   const char *length = g_hash_table_lookup(ctxt->headers, "content-length");
   ctxt->bytes_left = atol(length);
 
@@ -468,7 +491,7 @@ static void http_import_queue_remove(client_ctxt *ctxt)
 {
   import_queue = g_slist_remove(import_queue, ctxt);
   if (import_queue) {
-    http_put_start((client_ctxt *) import_queue->data);
+    http_import_start((client_ctxt *) import_queue->data);
   }
 }
 
@@ -534,13 +557,14 @@ static void http_put_request(client_ctxt *ctxt, gchar *url, gchar *protocol)
   }
 
   ctxt->import_uri = g_strdup(url);
+  ctxt->update_string = NULL;
 
   g_source_remove_by_user_data(ctxt);
   if (import_queue) {
     import_queue = g_slist_append(import_queue, ctxt);
   } else {
     import_queue = g_slist_append(import_queue, ctxt);
-    http_put_start(ctxt);
+    http_import_start(ctxt);
   }
 }
 
@@ -933,6 +957,77 @@ static void http_post_request(client_ctxt *ctxt, gchar *url, gchar *protocol)
     }
     if (query) {
       http_answer_query(ctxt, query);
+    } else {
+      http_error(ctxt, "500 SPARQL protocol error");
+      http_close(ctxt);
+    }
+    g_free(form);
+
+  } else if (!strcmp(url, "/update/")) {
+    const char *form_type = g_hash_table_lookup(ctxt->headers, "content-type");
+    if (!form_type || strcasecmp(form_type, "application/x-www-form-urlencoded")) {
+      http_error(ctxt, "400 4store only implements application/x-www-form-urlencoded");
+      http_close(ctxt);
+      return;
+    }
+
+    const char *length = g_hash_table_lookup(ctxt->headers, "content-length");
+    ctxt->bytes_left = length ? atol(length) : 0;
+
+    if (ctxt->bytes_left == 0) {
+      http_error(ctxt, "500 SPARQL protocol error, empty");
+      http_close(ctxt);
+      return;
+    }
+
+    /* FIXME this could block almost indefinitely */
+    gchar *form = g_malloc0(ctxt->bytes_left + 1);
+    gchar *buffer = form;
+
+    for (gsize read = 0; ctxt->bytes_left > 0; buffer += read, ctxt->bytes_left -= read) {
+      GIOStatus result;
+      do {
+        result = g_io_channel_read_chars(ctxt->ioch, buffer, ctxt->bytes_left, &read, NULL);
+      } while (result == G_IO_STATUS_AGAIN);
+      if (result !=  G_IO_STATUS_NORMAL) {
+        fs_error(LOG_ERR, "unexpected IO status during POST request");
+        g_free(form);
+        http_error(ctxt, "500 SPARQL server error");
+        http_close(ctxt);
+        return;
+      }
+    }
+
+    char *update = NULL;
+    char *qs = form;
+    while (qs) {
+      char *ampersand = strchr(qs, '&');
+      char *next = ampersand ? ampersand + 1 : NULL;
+      if (next) {
+        *ampersand = '\0';
+      }
+      char *key = qs;
+      char *equals = strchr(qs, '=');
+      char *value = equals ? equals + 1 : NULL;
+      if (equals) {
+        *equals = '\0';
+      }
+      url_decode(key);
+      if (!strcmp(key, "update") && value) {
+        url_decode(value);
+        update = value;
+      }
+      qs = next;
+    }
+    if (update) {
+      ctxt->update_string = update;
+      g_source_remove_by_user_data(ctxt);
+      if (import_queue) {
+        import_queue = g_slist_append(import_queue, ctxt);
+      } else {
+        import_queue = g_slist_append(import_queue, ctxt);
+        http_import_start(ctxt);
+      }
     } else {
       http_error(ctxt, "500 SPARQL protocol error");
       http_close(ctxt);
@@ -1461,7 +1556,7 @@ int main(int argc, char *argv[])
   const char *port = "8080";
 
   int o;
-  while ((o = getopt(argc, argv, "Dp:")) != -1) {
+  while ((o = getopt(argc, argv, "Dp:U")) != -1) {
     switch (o) {
       case 'D':
         daemonize = 0;
@@ -1469,12 +1564,19 @@ int main(int argc, char *argv[])
       case 'p':
         port = optarg;
         break;
+      case 'U':
+	unsafe = 1;
+	break;
     }
   }
 
   if (optind >= argc) {
     fprintf(stderr, "%s revision %s\n", argv[0], GIT_REV);
-    fprintf(stderr, "Usage: %s [-D] [-p port] <kbname>\n", basename(argv[0]));
+    fprintf(stderr, "Usage: %s [-D] [-p port] [-U] <kbname>\n", basename(argv[0]));
+    fprintf(stderr, "       -p   specify port to listen on\n");
+    fprintf(stderr, "       -D   do not daemonise\n");
+    fprintf(stderr, "       -U   enable unsafe operations (eg. LOAD)\n");
+
     return 1;
   }
 
@@ -1484,6 +1586,9 @@ int main(int argc, char *argv[])
   int srv = server_setup(daemonize, port);
   if (srv < 0) {
     return 2;
+  }
+  if (unsafe) {
+    fs_error(LOG_INFO, "unsafe operations enabled");
   }
 
   pid_t cpid, wpid;

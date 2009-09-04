@@ -399,6 +399,8 @@ int fs_import_commit(fsp_link *link, int verbosity, int dryrun, int has_o_index,
 	}
     }
 
+    inited = 0;
+
     return 0;
 }
 
@@ -575,7 +577,7 @@ static void store_stmt(void *user_data, const raptor_statement * statement)
     fs_rid tbuf[4] = { m, s, p, o };
 retry_write:
     if (write(data->quad_fd, tbuf, sizeof(tbuf))  == -1) {
-        fs_error(LOG_ERR, "failed to buffer quad to fd %d: %s", data->quad_fd, strerror(errno));
+        fs_error(LOG_ERR, "failed to buffer quad to fd %d (0x%x): %s", data->quad_fd, data->quad_fd, strerror(errno));
         if (errno == EAGAIN || errno == EINTR || errno == ENOSPC) {
             sleep(5);
             goto retry_write;
