@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CFBundleDevelopmentRegion</key>
+	<string>English</string>
+	<key>CFBundleDisplayName</key>
+	<string>4store</string>
+	<key>CFBundleExecutable</key>
+	<string>4store</string>
+	<key>CFBundleIconFile</key>
+	<string>4store.icns</string>
+	<key>CFBundleIdentifier</key>
+	<string>com.garlik.4store</string>
+	<key>CFBundleInfoDictionaryVersion</key>
+	<string>6.0</string>
+	<key>CFBundleName</key>
+	<string>4store</string>
+	<key>CFBundlePackageType</key>
+	<string>APPL</string>
+	<key>CFBundleShortVersionString</key>
+	<string>${AV}</string>
+	<key>CFBundleVersion</key>
+	<string>${BV}</string>
+	<key>LSMinimumSystemVersion</key>
+	<string>10.4</string>
+	<key>NSAppleScriptEnabled</key>
+	<string>NO</string>
+	<key>NSHumanReadableCopyright</key>
+	<string>Copyright © 2009, Garlik Ltd.</string>
+</dict>
+</plist>

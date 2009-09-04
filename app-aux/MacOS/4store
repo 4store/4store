@@ -1,0 +1,22 @@
+#!/bin/bash
+
+export fsroot=`dirname $0`
+
+osascript << EOB
+tell application "Finder"
+    set root to path to startup disk as string
+    set vl4 to root & "var:lib:4store"
+    if not (folder vl4 exists) then
+	set vl to root & "var:lib"
+	tell me
+	    do shell script "mkdir -p /var/lib/4store ; chmod 777 /var/lib/4store" with administrator privileges
+	end tell
+    end if
+end tell
+
+tell application "Terminal"
+    activate
+    do script "FSROOT=$fsroot . $fsroot/setup.sh ; clear ; echo 4store is ready for use"
+    set custom title of first window to "4store"
+end tell
+EOB
