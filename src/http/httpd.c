@@ -427,7 +427,9 @@ static void http_import_start(client_ctxt *ctxt)
   }
 
   fs_rid_vector_free(mvec);
-  fs_import_stream_start(fsplink, ctxt->import_uri, just_content_type(ctxt), has_o_index, &global_import_count);
+  char *type = just_content_type(ctxt);
+  fs_import_stream_start(fsplink, ctxt->import_uri, type, has_o_index, &global_import_count);
+  g_free(type);
 
   guint timeout = 30 + (ctxt->bytes_left / WATCHDOG_RATE);
   ctxt->watchdog = g_timeout_add(1000 * timeout, import_watchdog, ctxt);
@@ -450,7 +452,9 @@ static void http_post_data(client_ctxt *ctxt, char *model, const char *content_t
     return;
   }
 
-  fs_import_stream_start(fsplink, model, just_content_type(ctxt), has_o_index, &global_import_count);
+  char *type = just_content_type(ctxt);
+  fs_import_stream_start(fsplink, model, type, has_o_index, &global_import_count);
+  g_free(type);
 
   guint timeout = 30 + (ctxt->bytes_left / WATCHDOG_RATE);
   ctxt->watchdog = g_timeout_add(1000 * timeout, import_watchdog, ctxt);
@@ -891,12 +895,14 @@ static void http_post_request(client_ctxt *ctxt, gchar *url, gchar *protocol)
 
   url_decode(url);
   if (!strcmp(url, "/sparql/")) {
-    const char *form_type = just_content_type(ctxt);
+    char *form_type = just_content_type(ctxt);
     if (!form_type || strcasecmp(form_type, "application/x-www-form-urlencoded")) {
       http_error(ctxt, "400 4store only implements application/x-www-form-urlencoded");
       http_close(ctxt);
+      g_free(form_type);
       return;
     }
+    g_free(form_type);
 
     const char *length = g_hash_table_lookup(ctxt->headers, "content-length");
     ctxt->bytes_left = length ? atol(length) : 0;
@@ -1034,12 +1040,14 @@ static void http_post_request(client_ctxt *ctxt, gchar *url, gchar *protocol)
     g_free(form);
 
   } else if (!strcmp(url, "/data/")) {
-    const char *form_type = just_content_type(ctxt);
+    char *form_type = just_content_type(ctxt);
     if (!form_type || strcasecmp(form_type, "application/x-www-form-urlencoded")) {
       http_error(ctxt, "400 4store only implements application/x-www-form-urlencoded");
       http_close(ctxt);
+      g_free(form_type);
       return;
     }
+    g_free(form_type);
 
     const char *length = g_hash_table_lookup(ctxt->headers, "content-length");
     ctxt->bytes_left = length ? atol(length) : 0;
