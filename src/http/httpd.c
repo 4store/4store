@@ -318,7 +318,9 @@ static void http_query_worker(gpointer data, gpointer user_data)
     const char *type = "sparql"; /* default */
     int flags = FS_RESULT_FLAG_HEADERS;
 
-    if (ctxt->qr->construct && accept && strstr(accept, "text/turtle")) {
+    if (ctxt->output) {
+      type = ctxt->output;
+    } else if (ctxt->qr->construct && accept && strstr(accept, "text/turtle")) {
       type = "text";
       fprintf(fp, "Content-Type: text/turtle\r\n\r\n");
       flags = 0;
@@ -342,6 +344,10 @@ static void http_query_worker(gpointer data, gpointer user_data)
     ctxt->qr = NULL;
     free(ctxt->query_string);
     ctxt->query_string = NULL;
+    if (ctxt->output) {
+      g_free(ctxt->output);
+      ctxt->output = NULL;
+    }
 
     fclose(fp);
   }
@@ -829,6 +835,9 @@ static void http_get_request(client_ctxt *ctxt, gchar *url, gchar *protocol)
       } else if (!strcmp(key, "soft-limit") && value) {
         url_decode(value);
         ctxt->soft_limit = atoi(value);
+      } else if (!strcmp(key, "output") && value) {
+        url_decode(value);
+        ctxt->output = g_strdup(value);
       } else if (!strcmp(key, "default-graph-uri") && value) {
         url_decode(value);
         default_graph = value;

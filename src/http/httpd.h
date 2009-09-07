@@ -17,5 +17,6 @@ typedef struct {
   int query_flags;
   guint watchdog;
   int soft_limit;
+  char *output;
 } client_ctxt;
 
