@@ -20,6 +20,13 @@ die "FATAL: Couldn't mount DMG $dmgName (Error: $?)\n" if $?;
 my ($dest) = ($output =~ /Apple_HFS\s+(.+?)\s*$/im);
 
 $output = `cp -r 4store.app "$dest"`;
+$readme = `cat app-aux/README.rtf`;
+$readme =~ s/\$\\{AV\\}/$version/g;
+open(README, '>', "$dest/README.rtf");
+print(README $readme);
+close(README);
+system("ln -s /Applications \"$dest/Applications\"");
+
 $output = `hdiutil detach "$dest"`;
 die "FATAL: Error while copying files (Error: $err)\n" if $err;
 die "FATAL: Couldn't unmount device \"$dest\": $?\n" if $?;

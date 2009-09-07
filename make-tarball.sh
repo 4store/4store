@@ -8,6 +8,6 @@ rm -f tests/{query,import}/results/*
 rm -rf /tmp/${name}
 cp -r . /tmp/${name}
 echo "export gitrev = ${revision}" > /tmp/${name}/src/rev.mk
-(cd /tmp && tar cvfz ${name}.tar.gz -h --exclude .git --exclude .gitignore --exclude dawg-tests --exclude '*.tar.gz' ${name})
+(cd /tmp && tar cvfz ${name}.tar.gz -h --exclude .git --exclude .gitignore --exclude dawg --exclude '*.tar.gz' --exclude '*.dmg' --exclude '*.app' ${name})
 mv /tmp/${name}.tar.gz .
 rm -rf /tmp/${name}

@@ -8,7 +8,7 @@ install:
 test:
 	(cd tests && $(MAKE) -w $@)
 
-macapp:
+macapp: all
 	app-aux/build-app.sh
 
 macdmg: macapp
