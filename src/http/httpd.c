@@ -197,6 +197,19 @@ static void url_decode (char *encoded)
   *chase = '\0'; /* terminate string */
 }
 
+static char *just_content_type(client_ctxt *ctxt)
+{
+  char *result = NULL;
+  const char *content_type = g_hash_table_lookup(ctxt->headers, "content-type");
+  if (content_type) {
+    char **vector = g_strsplit(content_type, ";", 2);
+    result = g_strdup(vector[0]);
+    g_strfreev(vector);
+  }
+
+  return result;
+}
+
 static void http_send(client_ctxt *ctxt, const char *msg)
 {
   send(ctxt->sock, msg, strlen(msg), 0 /* flags */);
@@ -414,15 +427,7 @@ static void http_import_start(client_ctxt *ctxt)
   }
 
   fs_rid_vector_free(mvec);
-
-  const char *content_type = g_hash_table_lookup(ctxt->headers, "content-type");
-  if (content_type) {
-    char **vector = g_strsplit(content_type, ";", 2);
-    fs_import_stream_start(fsplink, ctxt->import_uri, vector[0], has_o_index, &global_import_count);
-    g_strfreev(vector);
-  } else {
-    fs_import_stream_start(fsplink, ctxt->import_uri, NULL, has_o_index, &global_import_count);
-  }
+  fs_import_stream_start(fsplink, ctxt->import_uri, just_content_type(ctxt), has_o_index, &global_import_count);
 
   guint timeout = 30 + (ctxt->bytes_left / WATCHDOG_RATE);
   ctxt->watchdog = g_timeout_add(1000 * timeout, import_watchdog, ctxt);
@@ -445,13 +450,7 @@ static void http_post_data(client_ctxt *ctxt, char *model, const char *content_t
     return;
   }
 
-  if (content_type) {
-    char **vector = g_strsplit(content_type, ";", 2);
-    fs_import_stream_start(fsplink, model, vector[0], has_o_index, &global_import_count);
-    g_strfreev(vector);
-  } else {
-    fs_import_stream_start(fsplink, model, NULL, has_o_index, &global_import_count);
-  }
+  fs_import_stream_start(fsplink, model, just_content_type(ctxt), has_o_index, &global_import_count);
 
   guint timeout = 30 + (ctxt->bytes_left / WATCHDOG_RATE);
   ctxt->watchdog = g_timeout_add(1000 * timeout, import_watchdog, ctxt);
@@ -892,7 +891,7 @@ static void http_post_request(client_ctxt *ctxt, gchar *url, gchar *protocol)
 
   url_decode(url);
   if (!strcmp(url, "/sparql/")) {
-    const char *form_type = g_hash_table_lookup(ctxt->headers, "content-type");
+    const char *form_type = just_content_type(ctxt);
     if (!form_type || strcasecmp(form_type, "application/x-www-form-urlencoded")) {
       http_error(ctxt, "400 4store only implements application/x-www-form-urlencoded");
       http_close(ctxt);
@@ -1035,7 +1034,7 @@ static void http_post_request(client_ctxt *ctxt, gchar *url, gchar *protocol)
     g_free(form);
 
   } else if (!strcmp(url, "/data/")) {
-    const char *form_type = g_hash_table_lookup(ctxt->headers, "content-type");
+    const char *form_type = just_content_type(ctxt);
     if (!form_type || strcasecmp(form_type, "application/x-www-form-urlencoded")) {
       http_error(ctxt, "400 4store only implements application/x-www-form-urlencoded");
       http_close(ctxt);
