@@ -57,6 +57,7 @@ static int has_o_index = 0;
 static long all_time_import_count = 0;
 static int global_import_count = 0;
 static int unsafe = 0;
+static int default_graph = 0;
 
 static fs_query_state *query_state;
 
@@ -831,7 +832,7 @@ static void http_get_request(client_ctxt *ctxt, gchar *url, gchar *protocol)
         url_decode(value);
         query = value;
       } else if (!strcmp(key, "restricted")) {
-        ctxt->query_flags= FS_QUERY_RESTRICTED;
+        ctxt->query_flags |= FS_QUERY_RESTRICTED;
       } else if (!strcmp(key, "soft-limit") && value) {
         url_decode(value);
         ctxt->soft_limit = atoi(value);
@@ -1298,6 +1299,9 @@ gboolean accept_fn (GIOChannel *source, GIOCondition condition, gpointer data)
   ctxt->headers = g_hash_table_new_full(g_str_hash, g_str_equal, g_free, g_free);
   ctxt->sock = accept(g_io_channel_unix_get_fd(source), NULL, NULL);
   ctxt->query_flags = 0; /* FS_QUERY_RESTRICTED; default to unrestricted */
+  if (default_graph) {
+    ctxt->query_flags |= FS_QUERY_DEFAULT_GRAPH;
+  }
   fcntl(ctxt->sock, F_SETFL, O_NONBLOCK); /* non-blocking */
   GIOChannel *connector = g_io_channel_unix_new (ctxt->sock);
   g_io_channel_set_encoding(connector, NULL, NULL);
@@ -1572,7 +1576,7 @@ int main(int argc, char *argv[])
   const char *port = "8080";
 
   int o;
-  while ((o = getopt(argc, argv, "Dp:U")) != -1) {
+  while ((o = getopt(argc, argv, "Dp:Ud")) != -1) {
     switch (o) {
       case 'D':
         daemonize = 0;
@@ -1583,6 +1587,9 @@ int main(int argc, char *argv[])
       case 'U':
 	unsafe = 1;
 	break;
+      case 'd':
+	default_graph = 1;
+	break;
     }
   }
 
@@ -1592,6 +1599,7 @@ int main(int argc, char *argv[])
     fprintf(stderr, "       -p   specify port to listen on\n");
     fprintf(stderr, "       -D   do not daemonise\n");
     fprintf(stderr, "       -U   enable unsafe operations (eg. LOAD)\n");
+    fprintf(stderr, "       -d   enable SPARQL default graph support\n");
 
     return 1;
   }

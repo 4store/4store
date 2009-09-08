@@ -192,7 +192,7 @@ int main(int argc, char *argv[])
     } else if (!query) {
         if (!format) format = "text";
         interactive(link, bu, format, verbosity, opt_level,
-            insert_mode ? FS_RESULT_FLAG_CONSTRUCT_AS_INSERT : 0, soft_limit);
+            insert_mode ? FS_RESULT_FLAG_CONSTRUCT_AS_INSERT : flags, soft_limit);
     }
 
     int ret = 0;
