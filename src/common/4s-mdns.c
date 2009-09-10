@@ -109,8 +109,6 @@ static void resolve_reply
 
     char *kb = get_txt_string(txt, txt_len, "kb");
     if (strcmp(link->kb_name, kb) != 0) {
-        fs_error(LOG_ERR, "got mismatched KB name from mDNS");
-
         return;
     }
     free(kb);
@@ -124,53 +122,51 @@ static void resolve_reply
     if (!strstr(hosttarget, ".members.mac.com")) {
 //printf("@@ adding %s:%d (%d)\n", hosttarget, port, segments);
         found += fsp_add_backend(link, hosttarget, port, segments);
+//printf("@@ found = %d\n", found);
     }
     /* if the address we got didn't help then try again */
-    if (oldfound == found) {
+    if (oldfound == found && found < segments) {
         link->try_dns_again = 1;
     }
 }
 
 static void browse_reply
-    (DNSServiceRef ref, DNSServiceFlags flags, uint32_t interfaceIndex,
+    (DNSServiceRef inref, DNSServiceFlags flags, uint32_t interfaceIndex,
      DNSServiceErrorType errorCode, const char *service_name,
      const char *regtype, const char *domain, void *context)
 {
     fsp_link *link = context;
 
-    char *dashpos = strchr(service_name, '-');
-    if (dashpos && strcmp(dashpos+1, link->kb_name) == 0) {
-//printf("@@ found service_name=%s\n", service_name);
-        DNSServiceRef ref;
-        if (DNSServiceResolve(&ref, 0, 0, service_name, regtype, domain,
-                            resolve_reply, context) != kDNSServiceErr_NoError) {
-            fs_error(LOG_ERR, "failed to resolve %s: %s", service_name,
-                     strerror(errno));
+//printf("@@ found service_name=%s, if=%d, err=%d\n", service_name, interfaceIndex, errorCode);
+    DNSServiceRef ref;
+    if (DNSServiceResolve(&ref, 0, interfaceIndex, service_name, regtype,
+            domain, resolve_reply, context) != kDNSServiceErr_NoError) {
+        fs_error(LOG_ERR, "failed to resolve %s: %s", service_name,
+                 strerror(errno));
 
-            return;
-        }
-        const int rfd = DNSServiceRefSockFD(ref);
-        fd_set resp_fds;
-        retry:;
-        link->try_dns_again = 0;
-        FD_ZERO(&resp_fds);
-        FD_SET(rfd, &resp_fds);
-        struct timeval timeout = { .tv_sec = 10, .tv_usec = 0 };
-        int sel = select(rfd+1, &resp_fds, NULL, NULL, &timeout);
-        if (sel == 1) {
-            DNSServiceProcessResult(ref);
-        } else if (sel == -1) {
-            fs_error(LOG_ERR, "select failed: %s", strerror(errno));
-        } else if (sel == 0) {
-            fs_error(LOG_INFO, "waiting for mDNS response");
-        } else {
-            fs_error(LOG_ERR, "select returned %d", sel);
-        }
-        if (link->try_dns_again) {
-            goto retry;
-        }
-        DNSServiceRefDeallocate(ref);
+        return;
     }
+    const int rfd = DNSServiceRefSockFD(ref);
+    fd_set resp_fds;
+    retry:;
+    link->try_dns_again = 0;
+    FD_ZERO(&resp_fds);
+    FD_SET(rfd, &resp_fds);
+    struct timeval timeout = { .tv_sec = 10, .tv_usec = 0 };
+    int sel = select(rfd+1, &resp_fds, NULL, NULL, &timeout);
+    if (sel == 1) {
+        DNSServiceProcessResult(ref);
+    } else if (sel == -1) {
+        fs_error(LOG_ERR, "select failed: %s", strerror(errno));
+    } else if (sel == 0) {
+        fs_error(LOG_INFO, "waiting for mDNS response");
+    } else {
+        fs_error(LOG_ERR, "select returned %d", sel);
+    }
+    if (link->try_dns_again) {
+        goto retry;
+    }
+    DNSServiceRefDeallocate(ref);
 }
 
 void fsp_avahi_setup_frontend(fsp_link *link)
@@ -186,6 +182,7 @@ void fsp_avahi_setup_frontend(fsp_link *link)
   }
 
   const int bfd = DNSServiceRefSockFD(ref);
+//printf("@@ bfd=%d\n", bfd);
   fd_set browse_fds;
   do {
     FD_ZERO(&browse_fds);
@@ -193,12 +190,15 @@ void fsp_avahi_setup_frontend(fsp_link *link)
     struct timeval timeout = { .tv_sec = 2, .tv_usec = 0 };
     int sel = select(bfd+1, &browse_fds, NULL, NULL, &timeout);
     if (sel == 1) {
-      DNSServiceProcessResult(ref);
+      if (DNSServiceProcessResult(ref) != kDNSServiceErr_NoError) {
+        fs_error(LOG_ERR, "failed to process result for "SERVICE_TYPE": %s",
+             strerror(errno));
+        return;
+      }
     } else if (sel == -1) {
       fs_error(LOG_ERR, "select faild: %s", strerror(errno));
     } else if (sel == 0) {
       fs_error(LOG_INFO, "timed out waiting for mDNS response");
-      break;
     }
   } while (link->segments == 0 || found < link->segments);
   DNSServiceRefDeallocate(ref);
