@@ -1,4 +1,8 @@
-all clean:
+all:
+	(cd src && $(MAKE) -w $@)
+
+clean:
+	rm -rf *.tar.gz *.dmg *.app
 	(cd src && $(MAKE) -w $@)
 
 install:

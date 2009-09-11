@@ -1,7 +1,14 @@
-To make a tarball release:
+To make a release:
 
 Make sure your git tree is in sync.
-Delete any old tarballs in the tree.
 $ git tag -a 'vx.y.z' -m "Version x.y.z"
 $ git push --tags
 $ ./make-tarball.sh
+
+Copy tarball to http-a
+
+make macdmg
+
+Copy dmg file to http-a
+
+Mail 4store-support@googlegroups.com with release annoucememnt.
