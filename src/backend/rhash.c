@@ -577,7 +577,7 @@ static inline int get_entry(fs_rhash *rh, fs_rhash_entry *e, fs_resource *res)
 
         if (fread(res->lex, sizeof(char), lex_len, rh->lex_f) < lex_len) {
             fs_error(LOG_ERR, "partial read %s from lexical store '%s'", ferror(rh->lex_f) ? "error" : "EOF", rh->lex_filename);
-            clearerr();
+            clearerr(rh->lex_f);
             res->lex[0] = '\0';
 
             return 1;
@@ -605,7 +605,7 @@ static inline int get_entry(fs_rhash *rh, fs_rhash_entry *e, fs_resource *res)
 
         if (fread((res->lex) + prefix_len, sizeof(char), suffix_len, rh->lex_f) < suffix_len) {
             fs_error(LOG_ERR, "partial read %s from lexical store '%s'", ferror(rh->lex_f) ? "error" : "EOF", rh->lex_filename);
-            clearerr();
+            clearerr(rh->lex_f);
             res->lex[0] = '\0';
 
             return 1;
@@ -640,7 +640,7 @@ static inline int get_entry(fs_rhash *rh, fs_rhash_entry *e, fs_resource *res)
         res->lex = malloc(lex_len + 1);
         if (fread(rh->z_buffer, sizeof(char), data_len, rh->lex_f) < data_len) {
             fs_error(LOG_ERR, "partial read %s from lexical store '%s'", ferror(rh->lex_f) ? "error" : "EOF", rh->lex_filename);
-            clearerr();
+            clearerr(rh->lex_f);
             res->lex = strdup("¡read error!");
 
             return 1;
