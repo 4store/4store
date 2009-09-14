@@ -14,6 +14,7 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
+
 #ifndef __APPLE__
 #define _XOPEN_SOURCE 600
 #endif
@@ -735,16 +736,26 @@ void fs_rhash_print(fs_rhash *rh, FILE *out, int verbosity)
     int disp_freq[128];
     memset(disp_freq, 0, 128);
 
-    if (verbosity == 0) {
-        fprintf(out, "%s\n", rh->filename);
-        fprintf(out, "size:     %d (buckets)\n", rh->size);
-        fprintf(out, "bucket:   %d\n", rh->bucket_size);
-        fprintf(out, "entries:  %d\n", rh->count);
-        fprintf(out, "revision: %d\n", rh->revision);
-        fprintf(out, "fill:     %.1f%%\n", 100.0 * (double)rh->count / (double)(rh->size * rh->bucket_size));
+    fprintf(out, "%s\n", rh->filename);
+    fprintf(out, "size:     %d (buckets)\n", rh->size);
+    fprintf(out, "bucket:   %d\n", rh->bucket_size);
+    fprintf(out, "entries:  %d\n", rh->count);
+    fprintf(out, "prefixes:  %d\n", rh->prefix_count);
+    fprintf(out, "revision: %d\n", rh->revision);
+    fprintf(out, "fill:     %.1f%%\n", 100.0 * (double)rh->count / (double)(rh->size * rh->bucket_size));
 
+    if (verbosity < 1) {
         return;
-    } 
+    }
+
+    for (int p=0; p<rh->prefix_count; p++) {
+        fprintf(out, "prefix %d: %s\n", p, rh->prefix_strings[p]);
+    }
+
+    if (verbosity < 2) {
+        return;
+    }
+
     fs_rhash_entry e;
     int entry = 0, entries = 0, show_next = 0;
 
