@@ -28,218 +28,7 @@
 
 #define SERVICE_TYPE "_4store._tcp"
 
-#if !defined(USE_DNS_SD) && !defined(USE_AVAHI)
-
-/* fallback if there's no MDNS library */
-
-void fsp_avahi_setup_frontend (fsp_link *link)
-{
-  /* this version used when USE_AVAHI is not defined */
-
-  return;
-}
-
-int fsp_avahi_retry_frontend (fsp_link *link, int msecs)
-{
-  /* this version used when USE_AVAHI is not defined */
-
-  return 1;
-}
-
-void fsp_avahi_cleanup_frontend (fsp_link *link)
-{
-  /* this version used when USE_AVAHI is not defined */
-
-  return;
-}
-
-
-void fsp_avahi_setup_backend (uint16_t port, const char *kb_name, int segments)
-{
-  /* this version used when USE_AVAHI is not defined */
-
-  return;
-}
-
-#endif
-
-#if !defined(USE_AVAHI) && defined(USE_DNS_SD)
-
-#include <errno.h>
-#include <dns_sd.h>
-#include <limits.h>
-#include <net/if.h>
-#include <sys/select.h>
-
-#include "error.h"
-
-#ifndef HOST_NAME_MAX
-#define HOST_NAME_MAX _POSIX_HOST_NAME_MAX
-#endif
-
-static int found = 0;
-
-/* Use apple-style DNS-SD library */
-
-static char *get_txt_string(const unsigned char *txt, int txtlen, char *key)
-{
-    int pos = 0;
-    while (pos < txtlen) {
-        int len = txt[pos++];
-        if (strncmp((char *)txt+pos, key, strlen(key)) == 0) {
-            char *ret = malloc(len - strlen(key));
-            strncpy(ret, (char *)txt+pos + strlen(key) + 1, len - strlen(key) - 1);
-            ret[len - strlen(key) - 1] = '\0';
-
-            return ret;
-        }
-    }
-
-    return NULL;
-}
-
-static void resolve_reply
-    (DNSServiceRef sdRef, DNSServiceFlags flags, uint32_t interface_index,
-     DNSServiceErrorType error_code, const char *fullname,
-     const char *hosttarget, uint16_t noport, uint16_t txt_len,
-     const unsigned char *txt, void *context)
-{
-    fsp_link *link = context;
-    int port = ntohs(noport);
-
-    char *kb = get_txt_string(txt, txt_len, "kb");
-    if (strcmp(link->kb_name, kb) != 0) {
-        return;
-    }
-    free(kb);
-    char *segments_str = get_txt_string(txt, txt_len, "segments");
-    int segments = atoi(segments_str);
-    free(segments_str);
-//printf("@@ resolved %s:%d (%d)\n", hosttarget, port, segments);
-    int oldfound = found;
-    /* sometimes we get these odd looking .members.mac.com addresses on OSX,
-     * they don't seem to work, so lets skip them */
-    if (!strstr(hosttarget, ".members.mac.com")) {
-//printf("@@ adding %s:%d (%d)\n", hosttarget, port, segments);
-        found += fsp_add_backend(link, hosttarget, port, segments);
-//printf("@@ found = %d\n", found);
-    }
-    /* if the address we got didn't help then try again */
-    if (oldfound == found && found < segments) {
-        link->try_dns_again = 1;
-    }
-}
-
-static void browse_reply
-    (DNSServiceRef inref, DNSServiceFlags flags, uint32_t interfaceIndex,
-     DNSServiceErrorType errorCode, const char *service_name,
-     const char *regtype, const char *domain, void *context)
-{
-    fsp_link *link = context;
-
-//printf("@@ found service_name=%s, if=%d, err=%d\n", service_name, interfaceIndex, errorCode);
-    DNSServiceRef ref;
-    if (DNSServiceResolve(&ref, 0, interfaceIndex, service_name, regtype,
-            domain, resolve_reply, context) != kDNSServiceErr_NoError) {
-        fs_error(LOG_ERR, "failed to resolve %s: %s", service_name,
-                 strerror(errno));
-
-        return;
-    }
-    const int rfd = DNSServiceRefSockFD(ref);
-    fd_set resp_fds;
-    retry:;
-    link->try_dns_again = 0;
-    FD_ZERO(&resp_fds);
-    FD_SET(rfd, &resp_fds);
-    struct timeval timeout = { .tv_sec = 10, .tv_usec = 0 };
-    int sel = select(rfd+1, &resp_fds, NULL, NULL, &timeout);
-    if (sel == 1) {
-        DNSServiceProcessResult(ref);
-    } else if (sel == -1) {
-        fs_error(LOG_ERR, "select failed: %s", strerror(errno));
-    } else if (sel == 0) {
-        fs_error(LOG_INFO, "waiting for mDNS response");
-    } else {
-        fs_error(LOG_ERR, "select returned %d", sel);
-    }
-    if (link->try_dns_again) {
-        goto retry;
-    }
-    DNSServiceRefDeallocate(ref);
-}
-
-void fsp_avahi_setup_frontend(fsp_link *link)
-{
-  DNSServiceRef ref;
-
-  if (DNSServiceBrowse(&ref, 0, 0, SERVICE_TYPE, NULL, browse_reply, link) !=
-      kDNSServiceErr_NoError) {
-    fs_error(LOG_ERR, "failed to browse for "SERVICE_TYPE": %s",
-	     strerror(errno));
-
-    return;
-  }
-
-  const int bfd = DNSServiceRefSockFD(ref);
-//printf("@@ bfd=%d\n", bfd);
-  fd_set browse_fds;
-  do {
-    FD_ZERO(&browse_fds);
-    FD_SET(bfd, &browse_fds);
-    struct timeval timeout = { .tv_sec = 2, .tv_usec = 0 };
-    int sel = select(bfd+1, &browse_fds, NULL, NULL, &timeout);
-    if (sel == 1) {
-      if (DNSServiceProcessResult(ref) != kDNSServiceErr_NoError) {
-        fs_error(LOG_ERR, "failed to process result for "SERVICE_TYPE": %s",
-             strerror(errno));
-        return;
-      }
-    } else if (sel == -1) {
-      fs_error(LOG_ERR, "select faild: %s", strerror(errno));
-    } else if (sel == 0) {
-      fs_error(LOG_INFO, "timed out waiting for mDNS response");
-    }
-  } while (link->segments == 0 || found < link->segments);
-  DNSServiceRefDeallocate(ref);
-
-  return;
-}
-
-int fsp_avahi_retry_frontend (fsp_link *link, int msecs)
-{
-  return 1;
-}
-
-void fsp_avahi_cleanup_frontend (fsp_link *link)
-{
-  return;
-}
-
-void fsp_avahi_setup_backend(uint16_t port, const char *kb_name, int segments)
-{
-  char host_name[HOST_NAME_MAX + 1];
-  gethostname(host_name, HOST_NAME_MAX);
-
-  char *service = g_strdup_printf("%s-%s", host_name, kb_name);
-  unsigned char kblen = 3 + strlen(kb_name);
-  char *segs = g_strdup_printf("segments=%d", segments);
-  char *txt_record = g_strdup_printf("%ckb=%s%c%s", kblen, kb_name, (char)strlen(segs), segs);
-
-  DNSServiceRef ref;
-  if (DNSServiceRegister(&ref, 0, 0, service, SERVICE_TYPE, NULL, NULL, htons(port), strlen(txt_record), txt_record, NULL, NULL) != kDNSServiceErr_NoError) {
-    fs_error(LOG_ERR, "failed to register mDNS advert: %s", strerror(errno));
-  }
-  g_free(service);
-  g_free(segs);
-  g_free(txt_record);
- 
-  return;
-}
-
-#endif
-
-#ifdef USE_AVAHI
+#if defined(USE_AVAHI)
 
 #include <net/if.h>
 #include <avahi-client/client.h>
@@ -366,7 +155,7 @@ static void browse_callback (AvahiServiceBrowser *browser,
   }
 }
 
-void fsp_avahi_setup_frontend (fsp_link *link)
+void fsp_mdns_setup_frontend (fsp_link *link)
 {
   int avahi_error;
 
@@ -402,7 +191,7 @@ void fsp_avahi_setup_frontend (fsp_link *link)
   link->avahi_client = avahi_client;
 }
 
-int fsp_avahi_retry_frontend (fsp_link *link, int msecs)
+int fsp_mdns_retry_frontend (fsp_link *link, int msecs)
 {
   struct timeval now;
 
@@ -422,7 +211,7 @@ int fsp_avahi_retry_frontend (fsp_link *link, int msecs)
   return 0;
 }
 
-void fsp_avahi_cleanup_frontend (fsp_link *link)
+void fsp_mdns_cleanup_frontend (fsp_link *link)
 {
    avahi_service_browser_free((AvahiServiceBrowser *) link->avahi_browser);
    link->avahi_browser = NULL;
@@ -490,7 +279,7 @@ static void client_callback_backend (AvahiClient *client,
   }
 }
 
-void fsp_avahi_setup_backend (uint16_t port, const char *kb_name,
+void fsp_mdns_setup_backend (uint16_t port, const char *kb_name,
                                int segments)
 {
   int avahi_error;
@@ -531,6 +320,212 @@ void fsp_avahi_setup_backend (uint16_t port, const char *kb_name,
              kb_name, avahi_strerror(avahi_error));
     exit(1); /* this is fatal */
   }
+
+  return;
+}
+
+#elif defined(USE_DNS_SD)
+
+#include <errno.h>
+#include <dns_sd.h>
+#include <limits.h>
+#include <net/if.h>
+#include <sys/select.h>
+
+#include "error.h"
+
+#ifndef HOST_NAME_MAX
+#define HOST_NAME_MAX _POSIX_HOST_NAME_MAX
+#endif
+
+static int found = 0;
+
+/* Use apple-style DNS-SD library */
+
+static char *get_txt_string(const unsigned char *txt, int txtlen, char *key)
+{
+    int pos = 0;
+    while (pos < txtlen) {
+        int len = txt[pos++];
+        if (strncmp((char *)txt+pos, key, strlen(key)) == 0) {
+            char *ret = malloc(len - strlen(key));
+            strncpy(ret, (char *)txt+pos + strlen(key) + 1, len - strlen(key) - 1);
+            ret[len - strlen(key) - 1] = '\0';
+
+            return ret;
+        }
+    }
+
+    return NULL;
+}
+
+static void resolve_reply
+    (DNSServiceRef sdRef, DNSServiceFlags flags, uint32_t interface_index,
+     DNSServiceErrorType error_code, const char *fullname,
+     const char *hosttarget, uint16_t noport, uint16_t txt_len,
+     const unsigned char *txt, void *context)
+{
+    fsp_link *link = context;
+    int port = ntohs(noport);
+
+    char *kb = get_txt_string(txt, txt_len, "kb");
+    if (strcmp(link->kb_name, kb) != 0) {
+        return;
+    }
+    free(kb);
+    char *segments_str = get_txt_string(txt, txt_len, "segments");
+    int segments = atoi(segments_str);
+    free(segments_str);
+//printf("@@ resolved %s:%d (%d)\n", hosttarget, port, segments);
+    int oldfound = found;
+    /* sometimes we get these odd looking .members.mac.com addresses on OSX,
+     * they don't seem to work, so lets skip them */
+    if (!strstr(hosttarget, ".members.mac.com")) {
+//printf("@@ adding %s:%d (%d)\n", hosttarget, port, segments);
+        found += fsp_add_backend(link, hosttarget, port, segments);
+//printf("@@ found = %d\n", found);
+    }
+    /* if the address we got didn't help then try again */
+    if (oldfound == found && found < segments) {
+        link->try_dns_again = 1;
+    }
+}
+
+static void browse_reply
+    (DNSServiceRef inref, DNSServiceFlags flags, uint32_t interfaceIndex,
+     DNSServiceErrorType errorCode, const char *service_name,
+     const char *regtype, const char *domain, void *context)
+{
+    fsp_link *link = context;
+
+//printf("@@ found service_name=%s, if=%d, err=%d\n", service_name, interfaceIndex, errorCode);
+    DNSServiceRef ref;
+    if (DNSServiceResolve(&ref, 0, interfaceIndex, service_name, regtype,
+            domain, resolve_reply, context) != kDNSServiceErr_NoError) {
+        fs_error(LOG_ERR, "failed to resolve %s: %s", service_name,
+                 strerror(errno));
+
+        return;
+    }
+    const int rfd = DNSServiceRefSockFD(ref);
+    fd_set resp_fds;
+    retry:;
+    link->try_dns_again = 0;
+    FD_ZERO(&resp_fds);
+    FD_SET(rfd, &resp_fds);
+    struct timeval timeout = { .tv_sec = 10, .tv_usec = 0 };
+    int sel = select(rfd+1, &resp_fds, NULL, NULL, &timeout);
+    if (sel == 1) {
+        DNSServiceProcessResult(ref);
+    } else if (sel == -1) {
+        fs_error(LOG_ERR, "select failed: %s", strerror(errno));
+    } else if (sel == 0) {
+        fs_error(LOG_INFO, "waiting for mDNS response");
+    } else {
+        fs_error(LOG_ERR, "select returned %d", sel);
+    }
+    if (link->try_dns_again) {
+        goto retry;
+    }
+    DNSServiceRefDeallocate(ref);
+}
+
+void fsp_mdns_setup_frontend(fsp_link *link)
+{
+  DNSServiceRef ref;
+
+  if (DNSServiceBrowse(&ref, 0, 0, SERVICE_TYPE, NULL, browse_reply, link) !=
+      kDNSServiceErr_NoError) {
+    fs_error(LOG_ERR, "failed to browse for "SERVICE_TYPE": %s",
+	     strerror(errno));
+
+    return;
+  }
+
+  const int bfd = DNSServiceRefSockFD(ref);
+//printf("@@ bfd=%d\n", bfd);
+  fd_set browse_fds;
+  do {
+    FD_ZERO(&browse_fds);
+    FD_SET(bfd, &browse_fds);
+    struct timeval timeout = { .tv_sec = 2, .tv_usec = 0 };
+    int sel = select(bfd+1, &browse_fds, NULL, NULL, &timeout);
+    if (sel == 1) {
+      if (DNSServiceProcessResult(ref) != kDNSServiceErr_NoError) {
+        fs_error(LOG_ERR, "failed to process result for "SERVICE_TYPE": %s",
+             strerror(errno));
+        return;
+      }
+    } else if (sel == -1) {
+      fs_error(LOG_ERR, "select faild: %s", strerror(errno));
+    } else if (sel == 0) {
+      fs_error(LOG_INFO, "timed out waiting for mDNS response");
+    }
+  } while (link->segments == 0 || found < link->segments);
+  DNSServiceRefDeallocate(ref);
+
+  return;
+}
+
+int fsp_mdns_retry_frontend (fsp_link *link, int msecs)
+{
+  return 1;
+}
+
+void fsp_mdns_cleanup_frontend (fsp_link *link)
+{
+  return;
+}
+
+void fsp_mdns_setup_backend(uint16_t port, const char *kb_name, int segments)
+{
+  char host_name[HOST_NAME_MAX + 1];
+  gethostname(host_name, HOST_NAME_MAX);
+
+  char *service = g_strdup_printf("%s-%s", host_name, kb_name);
+  unsigned char kblen = 3 + strlen(kb_name);
+  char *segs = g_strdup_printf("segments=%d", segments);
+  char *txt_record = g_strdup_printf("%ckb=%s%c%s", kblen, kb_name, (char)strlen(segs), segs);
+
+  DNSServiceRef ref;
+  if (DNSServiceRegister(&ref, 0, 0, service, SERVICE_TYPE, NULL, NULL, htons(port), strlen(txt_record), txt_record, NULL, NULL) != kDNSServiceErr_NoError) {
+    fs_error(LOG_ERR, "failed to register mDNS advert: %s", strerror(errno));
+  }
+  g_free(service);
+  g_free(segs);
+  g_free(txt_record);
+
+  return;
+}
+
+#else
+
+/* fallback if there's no MDNS library */
+
+void fsp_mdns_setup_frontend (fsp_link *link)
+{
+  fsp_add_backend(link, "127.0.0.1", FS_DEFAULT_PORT, 0); /* try loopback */
+  return;
+}
+
+int fsp_mdns_retry_frontend (fsp_link *link, int msecs)
+{
+  /* this version used when USE_AVAHI is not defined */
+
+  return 1;
+}
+
+void fsp_mdns_cleanup_frontend (fsp_link *link)
+{
+  /* this version used when USE_AVAHI is not defined */
+
+  return;
+}
+
+
+void fsp_mdns_setup_backend (uint16_t port, const char *kb_name, int segments)
+{
+  /* this version used when USE_AVAHI is not defined */
 
   return;
 }

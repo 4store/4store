@@ -43,11 +43,10 @@ struct fsp_link_struct {
   GStaticMutex mutex[FS_MAX_SEGMENTS];
   const char *features;
   int hit_limits;
-#ifdef USE_AVAHI
+#if defined(USE_AVAHI)
   void *avahi_browser;
   void *avahi_client;
-#endif
-#ifdef USE_DNS_SD
+#elif defined(USE_DNS_SD)
   int try_dns_again;
 #endif
 };
@@ -61,7 +60,7 @@ int fsp_add_backend (fsp_link *link, const char *addr, uint16_t port, int segmen
 
 int fsp_ver_fixup (fsp_link *link, int sock);
 
-void fsp_avahi_setup_backend (uint16_t port, const char *kb_name, int segments);
-int fsp_avahi_retry_frontend (fsp_link *link, int msecs);
-void fsp_avahi_cleanup_frontend (fsp_link *link);
-void fsp_avahi_setup_frontend (fsp_link *link);
+void fsp_mdns_setup_backend (uint16_t port, const char *kb_name, int segments);
+int fsp_mdns_retry_frontend (fsp_link *link, int msecs);
+void fsp_mdns_cleanup_frontend (fsp_link *link);
+void fsp_mdns_setup_frontend (fsp_link *link);

@@ -251,7 +251,7 @@ static int check_segments(fsp_link *link, int readonly)
 
   if (count > 0 && count < link->segments) {
     link_error(LOG_INFO, "waiting for more backend nodes");
-    fsp_avahi_retry_frontend(link, 180000); /* up to three minutes pause */
+    fsp_mdns_retry_frontend(link, 180000); /* up to three minutes pause */
 
     /* re-assess count */
     count = 0;
@@ -553,21 +553,11 @@ fsp_link* fsp_open_link (const char *name, char *password, int readonly)
     g_free(pw);
   }
 
-#if defined(USE_AVAHI) || defined(USE_DNS_SD)
-  fsp_avahi_setup_frontend(link);
+  fsp_mdns_setup_frontend(link);
   if (link->servers < 1) {
     free(link);
     link = NULL;
   }
-#else
-
-  fsp_add_backend(link, "127.0.0.1", FS_DEFAULT_PORT, 0); /* try loopback */
-
-  if (link->servers == 0) {
-    free(link);
-    link = NULL;
-  }
-#endif
 
   if (link && check_segments(link, readonly)) {
     free(link);
@@ -579,7 +569,7 @@ fsp_link* fsp_open_link (const char *name, char *password, int readonly)
 
 void fsp_close_link (fsp_link *link)
 {
-  fsp_avahi_cleanup_frontend(link);
+  fsp_mdns_cleanup_frontend(link);
 
   for (int k= 0; k < link->servers; ++k) {
     g_free((char *) link->addrs[k]);
