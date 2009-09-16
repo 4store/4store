@@ -1,5 +1,4 @@
-
-include ../avahi.mk
+include ../discovery.mk
 include ../rev.mk
 include ../darwin.mk
 
