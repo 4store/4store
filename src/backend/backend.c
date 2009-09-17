@@ -294,7 +294,7 @@ void fs_backend_ptree_limited_open(fs_backend *be, int n)
     be->open_ptrees[be->open_ptrees_newest++] = n;
     fs_rid *rid = g_malloc(sizeof(fs_rid));
     *rid = be->ptrees_priv[n].pred;
-    g_hash_table_insert(be->rid_id_map, rid, (gpointer)n);
+    g_hash_table_insert(be->rid_id_map, rid, GINT_TO_POINTER(n));
     if (be->open_ptrees_newest >= FS_MAX_OPEN_PTREES)
 	be->open_ptrees_newest = 0;
     be->ptree_open_count++;
