@@ -345,12 +345,13 @@ int fs_rhash_put(fs_rhash *rh, fs_resource *res)
         int length = 0;
         int code = fs_prefix_trie_get_code(rh->prefixes, res->lex, &length);
         char *suffix = (res->lex)+length;
-        const int suffix_len = strlen(suffix);
+        const int32_t suffix_len = strlen(suffix);
         e.aval.pstr[0] = (char)code;
         if (suffix_len > 22) {
             /* even with prefix, won't fit inline */
+            fseek(rh->lex_f, 0L, SEEK_END);
             long pos = ftell(rh->lex_f);
-            if (fwrite(&suffix_len, sizeof(suffix_len), 1, rh->lex_f) == 0) {
+            if (fwrite(&suffix_len, sizeof(suffix_len), 1, rh->lex_f) != 1) {
                 fs_error(LOG_CRIT, "failed writing to lexical file “%s”",
                          rh->lex_filename);
 
@@ -439,6 +440,7 @@ int fs_rhash_put(fs_rhash *rh, fs_resource *res)
             fs_error(LOG_CRIT, "failed to fseek to end of '%s': %s",
                 rh->filename, strerror(errno));
         }
+        fseek(rh->lex_f, 0L, SEEK_END);
         long pos = ftell(rh->lex_f);
         e.disp = disp;
         if (fwrite(&data_len, sizeof(data_len), 1, rh->lex_f) == 0) {
