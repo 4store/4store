@@ -30,3 +30,8 @@ FROM
 
 	There is a basic implementatation in frontend/query.c, but it's
 commented out, as it's not safe to have on by default.
+
+strict aliasing
+
+	4store uses GLib static mutexes, somehow this code conflicts with the C
+language rules concerning strict aliasing.
