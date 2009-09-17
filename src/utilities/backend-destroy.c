@@ -83,7 +83,7 @@ int main(int argc, char *argv[])
     }
 
     if (help) {
-        fprintf(stderr, "%s revision r%s\n", argv[0], FS_BACKEND_VER);
+        fprintf(stderr, "%s revision %s\n", argv[0], FS_BACKEND_VER);
         fprintf(stderr, "Usage: %s [-n] <kbname>\n", basename(argv[0]));
         fprintf(stderr, "   -n, --print-only  don't execute just show what would be done\n");
         fprintf(stderr, "This command destroys the KB and all its data.\n");

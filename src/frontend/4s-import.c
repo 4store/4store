@@ -133,7 +133,7 @@ int main(int argc, char *argv[])
 
     raptor_init();
     if (help || !kb_name || files == 0) {
-            fprintf(stderr, "%s revision r%s\n", argv[0], FS_FRONTEND_VER);
+            fprintf(stderr, "%s revision %s\n", argv[0], FS_FRONTEND_VER);
 	    fprintf(stderr, "Usage: %s <kbname> <rdf file/URI> ...\n", argv[0]);
 	    fprintf(stderr, " -v --verbose   increase verbosity (can repeat)\n");
 	    fprintf(stderr, " -a --add       add data to models instead of replacing\n");

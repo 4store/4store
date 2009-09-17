@@ -76,7 +76,7 @@ int main(int argc, char *argv[])
     }
 
     if (help) {
-        fprintf(stderr, "%s revision r%s\n", argv[0], FS_BACKEND_VER);
+        fprintf(stderr, "%s revision %s\n", argv[0], FS_BACKEND_VER);
         fprintf(stderr, "Usage: %s [-v] [--password <pw>] <from> <to>\n", basename(argv[0]));
         fprintf(stderr, "   -v, --verbose    increase verbosity\n");
         fprintf(stderr, "   -P, --password   set password for new KB\n");

@@ -40,7 +40,7 @@ int main(int argc, char *argv[])
     char *password = fsp_argv_password(&argc, argv);
 
     if (argc != 2) {
-      fprintf(stderr, "%s revision r%s\n", argv[0], FS_FRONTEND_VER);
+      fprintf(stderr, "%s revision %s\n", argv[0], FS_FRONTEND_VER);
       fprintf(stderr, "Usage: %s <kbname>\n", argv[0]);
       return 1;
     }

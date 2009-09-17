@@ -124,7 +124,7 @@ int main(int argc, char *argv[])
   fs_rid_vector **result = NULL;
 
   if (argc < 7) {
-    fprintf(stderr, "%s revision r%s\n", argv[0], FS_FRONTEND_VER);
+    fprintf(stderr, "%s revision %s\n", argv[0], FS_FRONTEND_VER);
     fprintf(stderr, "Usage: %s <kbname> { many | all | seg# } <flags>\n", argv[0]);
     fprintf(stderr, " mrid-file srid-file prid-file orid-file [offset limit]\n");
     fprintf(stderr, "For flags use FS_BIND_... symbols or a numeric value\n");
