@@ -206,6 +206,11 @@ void fsp_hit_limits_reset(fsp_link *link)
   link->hit_limits = 0;
 }
 
+void fsp_hit_limits_add(fsp_link *link, int delta)
+{
+  (link->hit_limits) += delta;
+}
+
 fsp_hash_enum fsp_hash_type(fsp_link *link)
 {
   return link->hash_type;

@@ -270,6 +270,7 @@ const char *fsp_kb_name(fsp_link *link);
 
 int fsp_hit_limits(fsp_link *link);
 void fsp_hit_limits_reset(fsp_link *link);
+void fsp_hit_limits_add(fsp_link *link, int delta);
 
 typedef enum {
   FS_HASH_UNKNOWN,

@@ -13,9 +13,8 @@
 
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
-/*
- *  Copyright (C) 2007 Steve Harris for Garlik
+
+    Copyright (C) 2007 Steve Harris for Garlik
  */
 
 #include <stdio.h>
@@ -42,7 +41,8 @@ struct _fs_bind_cache {
     int all;
     int flags;
     int offset;
-    int limit;
+    int limit;      /* the soft limit which was used to do the bind */
+    int limited;    /* number of times the soft limit constrained results */
     fs_rid key[4];  /* the rid vector arguments to bind */
     fs_rid_vector *res[4];
 };
@@ -118,6 +118,7 @@ int fs_bind_cache_wrapper(fs_query_state *qs, fs_query *q, int all,
             for (int s=0; s<slots; s++) {
                 (*result)[s] = fs_rid_vector_copy(qs->bind_cache[cache_hash].res[s]);
             }
+            fsp_hit_limits_add(q->link, qs->bind_cache[cache_hash].limited);
             qs->bind_cache[cache_hash].hits++;
 
             g_static_mutex_unlock(&qs->cache_mutex);
@@ -128,13 +129,15 @@ int fs_bind_cache_wrapper(fs_query_state *qs, fs_query *q, int all,
 
     int ret;
 
-    skip_cache:
+    skip_cache:;
 
+    int limited_before = fsp_hit_limits(q->link);
     if (all) {
         ret = fsp_bind_limit_all(q->link, flags, rids[0], rids[1], rids[2], rids[3], result, offset, limit);
     } else {
         ret = fsp_bind_limit_many(q->link, flags, rids[0], rids[1], rids[2], rids[3], result, offset, limit);
     }
+    int limited = fsp_hit_limits(q->link) - limited_before;
     if (ret) {
         fs_error(LOG_ERR, "bind failed in '%s', %d segments gave errors",
                  fsp_kb_name(q->link), ret);
@@ -154,6 +157,7 @@ int fs_bind_cache_wrapper(fs_query_state *qs, fs_query *q, int all,
         qs->bind_cache[cache_hash].flags = flags;
         qs->bind_cache[cache_hash].offset = offset;
         qs->bind_cache[cache_hash].limit = limit;
+        qs->bind_cache[cache_hash].limited = limited;
         for (int s=0; s<4; s++) {
             qs->bind_cache[cache_hash].key[s] = cache_key[s];
             if (s < slots) {
