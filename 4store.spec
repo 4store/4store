@@ -23,3 +23,4 @@ rm -rf %{buildroot}
 %files
 %defattr(-,root,root)
 /usr/local/bin/
+%doc /usr/local/share/man/man1/*
