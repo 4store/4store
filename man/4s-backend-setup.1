@@ -1,0 +1,41 @@
+.Dd 2009-07-08
+.Dt 4S-BACKEND_SETUP 1J 4store
+.Os 4store
+.Sh NAME
+.Nm 4s-backend-setup
+.Nd Create a new 4store KB
+.Sh SYNOPSIS
+.Nm
+kbname
+.Op Fl \-node Ar node-number
+.Op Fl \-cluster Ar cluster-size
+.Op Fl \-segments Ar segment-count
+kb-name
+.Bl -tag -width indent
+.It Fl "\-node"
+Number of this node in the cluster, values range from 0 to cluster-size \- 1.
+The default is 0.
+.It Fl "\-cluster"
+The number of nodes in the cluster.
+The default is 1.
+.It Fl "\-segments"
+The number of segments in the cluster. The default is 2. We recommend one for
+each CPU core in the cluster as a good starting point. Higher numbers tend to
+consume more resources, but may result in increased performance.
+.Sh NOTES
+Once crated with
+.Nm
+KBs should be started with
+.Xr 4s-backend 1
+.Sh SEE ALSO
+.Xr 4s-query 1 ,
+.Xr 4s-size 1 ,
+.Xr 4s-httpd 1 ,
+.Xr 4s-backend 1 ,
+.Xr 4s-delete-model 1
+.Sh EXAMPLES
+$
+.Nm
+\-\-node 0 \-\-cluster 1 \-\-segments 4 demo
+.sp
+Creates the indexes for a single-machine KB with four segments, named "demo".
