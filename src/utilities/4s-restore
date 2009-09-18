@@ -1,0 +1,32 @@
+#!/usr/bin/perl -w
+
+$kb_name = shift;
+die "Usage: find <data-dir> -type f | $0 <kbname>\n" unless $kb_name;
+
+$cmd = "";
+while ($file = <>) {
+	chomp $file;
+	open(IN, '<', $file) || die "Cannot open $file: $!";
+	$first = <IN>;
+	if ($first =~ m(## GRAPH (.*))) {
+		if (!$cmd) {
+			$cmd = "4s-import $kb_name -f turtle";
+		}
+		$uri = $1;
+		print("Restoring $uri\n");
+		$cmd .= " -m $uri $file";
+		if (length($cmd) > 3000) {
+			print("$cmd\n");
+			system($cmd);
+			$cmd = "";
+		}
+	} else {
+		die "Cannot find GRAPH ID in $file";
+	}
+	close(IN);
+}
+
+if ($cmd) {
+	print("$cmd\n");
+	system($cmd);
+}

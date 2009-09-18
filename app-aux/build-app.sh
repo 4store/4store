@@ -11,7 +11,7 @@ version=`git describe --tags --always | sed 's/^v//; s/-.*//'`
 sed -e 's/${AV}/'$version'/' -i "" 4store.app/Contents/Info.plist
 cp -r app-aux/Resources/* 4store.app/Contents/Resources/
 cp app-aux/MacOS/* 4store.app/Contents/MacOS/
-for i in src/frontend/4s-* src/backend/4s-* src/utilities/4s-backend-* src/http/4s-*; do
+for i in src/frontend/4s-* src/backend/4s-* src/utilities/4s-{backend,cluster}-* src/utilities/4s-{dump,restore} src/http/4s-*; do
 	if test -x $i ; then
 		cp $i 4store.app/Contents/MacOS/bin/
 	fi

@@ -7,7 +7,8 @@ LDFLAGS = $(ldfdarwin) $(ldflinux) -lz `pkg-config --libs glib-2.0 raptor` -lrea
 BINS = 4s-backend-setup 4s-backend-destroy 4s-backend-info 4s-backend-copy \
  4s-backend-passwd 4s-rid
 SCRIPTS = 4s-ssh-all 4s-ssh-all-parallel \
- 4s-cluster-create 4s-cluster-destroy 4s-cluster-start 4s-cluster-stop 4s-cluster-info 4s-cluster-cache \
+ 4s-cluster-create 4s-cluster-destroy 4s-cluster-start 4s-cluster-stop \
+ 4s-cluster-info 4s-cluster-cache 4s-dump 4s-restore \
  4s-file-backup 4s-cluster-file-backup 4s-cluster-copy 4s-ssh-keyscan
 TESTS = lex-file-verify
 

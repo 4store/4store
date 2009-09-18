@@ -1,0 +1,146 @@
+#!/usr/bin/perl -w
+
+use IPC::Open2;
+use Digest::MD5 'md5_hex';
+use File::Path;
+use Net::HTTP;
+use URI::Escape;
+
+$outdir = "data";
+$force = 0;
+$all = 0;
+@graphs = ();
+$help = 0;
+
+$endpoint = shift;
+
+while ($arg = shift) {
+	if ($arg eq '-o') {
+		$outdir = shift;
+		$help = 1 if !$outdir;
+	} elsif ($arg eq '--overwrite') {
+		$force = 1;
+	} elsif ($arg eq '-a' || $arg eq '--all-graphs') {
+		$all = 1;
+	} elsif ($arg eq '-f') {
+		my $file = shift;
+		open(GF, '<', $file) || die "cannot open file: $!";
+		while (<GF>) {
+			chomp;
+			push(@graphs, $_);
+		}
+		close(GF);
+	} else {
+		die("unexpected argument $arg\n");
+	}
+}
+
+die "Usage: $0 <endpoint> [-a,--all-graphs] [-f uri-file] [--overwrite] [-o output-dir]\n" unless $endpoint && $endpoint =~ m(^http:) && !$help;
+
+if (!$force && -d $outdir) {
+	die("$outdir/ already exists, use --overwrite if you want to force it\n");
+}
+
+if ($all) {
+	my $res = sparql_query($endpoint, "SELECT DISTINCT ?g WHERE { GRAPH ?g { ?x ?y ?z } }", -1);
+	my $r;
+	for $r (@{ $res }) {
+		push(@graphs, $r->{'g'});
+	}
+}
+
+for $uri (@graphs) {
+	$uri =~ s/^\s*<//g;
+	$uri =~ s/>\s*$//g;
+	my $file = md5_hex($uri);
+	$file =~ s/^(..)(..)(.*)/$outdir\/$1\/$2\/$3/;
+	print("Export $uri\n   to $file\n");
+	$dir = "$outdir/$1/$2";
+        File::Path::mkpath($dir);
+	open(DATA, '>', $file) || die "cannot create $file: $!";
+	print(DATA "## GRAPH $uri\n");
+	$res = sparql_query($endpoint, "CONSTRUCT { ?x ?y ?z } WHERE { GRAPH <$uri> { ?x ?y ?z } }", -1);
+	print(DATA $res);
+	close(DATA);
+}
+
+sub sparql_query {
+	local($uri, $tquery, $limit) = @_;
+
+	if (!$uri) {
+		warn "sparql_query() called without endpoint";
+		return ();
+	}
+
+	my $ret = "";
+
+	my $query;
+	my $tsv = 0;
+	if ($uri =~ m(http://(.*?):([0-9]+)(/.*))) {
+		my $server = $1;
+		my $port = $2;
+		my $path = $3;
+		my $s = Net::HTTP->new(Host => $server, PeerPort => $port);
+		if (!$s) {
+			warn $@;
+			return ();
+		}
+		$query = uri_escape($tquery);
+		$qpath = $path."?query=".$query;
+		if ($limit) {
+			$qpath .= '&soft-limit='.$limit;
+		}
+		$s->write_request(GET => $qpath, 'User-Agent' => "4store-dump/1.0", "Accept" => "text/tab-separated-values, text/turtle, text/rdf+n3");
+		if (!$s) {
+			warn "failed to create HTTP object";
+			return ();
+		}
+		my($code, $mess, %h) = $s->read_response_headers;
+		$tsv = ($h{'Content-Type'} =~ m(^text/tab-separated-values)i);
+
+		while (1) {
+			my $buf;
+			my $n = $s->read_entity_body($buf, 1024);
+			warn "read failed: $!" unless defined $n;
+			last unless $n;
+			$ret .= $buf;
+		}
+	} else {
+		warn "unexpected URI form '$uri'";
+		return ();
+	}
+
+	my @retrows = ();
+	my $errors = 0;
+	if ($tsv) {
+		@rows = split("\n", $ret);
+		$header = shift @rows;
+		if (!$header) {
+			warn("no header from query");
+			return ();
+		}
+		my @cols = grep(s/^\?//, split("\t", $header));
+		while (my $row = shift @rows) {
+			if ($row =~ /^#/) {
+				print(STDERR "JXT warning: $row\n");
+				$errors++;
+				next;
+			}
+			next if ($row =~ /^\s*$/);
+			my @data = split("\t", $row);
+			my %row = ();
+			push(@retrows, \%row);
+			for my $h (@cols) {
+				my $cell = shift @data;
+				$row{$h} = $cell;
+			}
+		}
+	} else {
+		return $ret;
+	}
+	if ($errors) {
+		print(STDERR "query was: ".$tquery."\n");
+	}
+
+	return \@retrows;
+}
