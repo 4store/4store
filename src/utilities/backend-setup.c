@@ -87,9 +87,9 @@ int main(int argc, char *argv[])
     kbconfig config = {
         .name = NULL,
         .password = NULL,
-        .node = -1,
-        .cluster = 0,
-        .segments = 0,
+        .node = 0,
+        .cluster = 1,
+        .segments = 2,
         .mirror = 0,
         .model_files = 0,
     };
@@ -134,7 +134,7 @@ int main(int argc, char *argv[])
 	config.name = argv[optind];
     }
 
-    if (config.segments == 0 || config.node == -1 ||
+    if (config.segments < 1 || config.node < 0 ||
         config.node >= config.cluster || config.name == NULL) {
         help = 1;
     }
