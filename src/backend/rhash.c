@@ -14,6 +14,7 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
+
 #ifndef __APPLE__
 #define _XOPEN_SOURCE 600
 #endif
@@ -344,12 +345,17 @@ int fs_rhash_put(fs_rhash *rh, fs_resource *res)
         int length = 0;
         int code = fs_prefix_trie_get_code(rh->prefixes, res->lex, &length);
         char *suffix = (res->lex)+length;
-        const int suffix_len = strlen(suffix);
+        const int32_t suffix_len = strlen(suffix);
         e.aval.pstr[0] = (char)code;
         if (suffix_len > 22) {
             /* even with prefix, won't fit inline */
+            if (fseek(rh->lex_f, 0, SEEK_END) == -1) {
+                fs_error(LOG_CRIT, "failed to fseek to end of '%s': %s",
+                    rh->filename, strerror(errno));
+                return 1;
+            }
             long pos = ftell(rh->lex_f);
-            if (fwrite(&suffix_len, sizeof(suffix_len), 1, rh->lex_f) == 0) {
+            if (fwrite(&suffix_len, sizeof(suffix_len), 1, rh->lex_f) != 1) {
                 fs_error(LOG_CRIT, "failed writing to lexical file “%s”",
                          rh->lex_filename);
 
@@ -376,6 +382,7 @@ int fs_rhash_put(fs_rhash *rh, fs_resource *res)
                 fs_prefix *pre = fs_prefix_trie_get_prefixes(rh->ptrie, 32);
                 int num = 0;
                 struct prefix_file_line pfl;
+                memset(&pfl, 0, sizeof(struct prefix_file_line));
                 for (int i=0; i<32; i++) {
                     if (pre[i].score == 0 || rh->prefix_count == FS_MAX_PREFIXES) {
                         break;
@@ -390,6 +397,7 @@ int fs_rhash_put(fs_rhash *rh, fs_resource *res)
                     fs_list_add(rh->prefix_file, &pfl);
                     (rh->prefix_count)++;
                 }
+                fs_list_flush(rh->prefix_file);
                 free(pre);
                 fs_prefix_trie_free(rh->ptrie);
                 rh->ptrie = fs_prefix_trie_new();
@@ -435,6 +443,7 @@ int fs_rhash_put(fs_rhash *rh, fs_resource *res)
         if (fseek(rh->lex_f, 0, SEEK_END) == -1) {
             fs_error(LOG_CRIT, "failed to fseek to end of '%s': %s",
                 rh->filename, strerror(errno));
+                return 1;
         }
         long pos = ftell(rh->lex_f);
         e.disp = disp;
@@ -551,11 +560,13 @@ static inline int get_entry(fs_rhash *rh, fs_rhash_entry *e, fs_resource *res)
     } else if (e->disp == DISP_I_PREFIX) {
         if (e->aval.pstr[0] >= rh->prefix_count) {
             res->lex = malloc(128);
-            sprintf(res->lex, "¡bad prefix %d (max %d) !", e->aval.pstr[0], rh->prefix_count - 1);
+            sprintf(res->lex, "¡bad prefix %d (max %d)!", e->aval.pstr[0], rh->prefix_count - 1);
+            fs_error(LOG_ERR, "prefix %d out of range, count=%d", e->aval.pstr[0], rh->prefix_count);
         } else {
-            int plen = strlen(rh->prefix_strings[e->aval.pstr[0]]);
+            const int pnum = e->aval.pstr[0];
+            int plen = strlen(rh->prefix_strings[pnum]);
             res->lex = calloc(23 + plen, sizeof(char));
-            strcpy(res->lex, rh->prefix_strings[e->aval.pstr[0]]);
+            strcpy(res->lex, rh->prefix_strings[pnum]);
             strncpy((res->lex) + plen, (char *)(e->aval.pstr)+1, 7);
             strncat((res->lex) + plen, e->val.str, 15);
             res->attr = 0;
@@ -584,27 +595,32 @@ static inline int get_entry(fs_rhash *rh, fs_rhash_entry *e, fs_resource *res)
         }
         res->lex[lex_len] = '\0';
     } else if (e->disp == DISP_F_PREFIX) {
+        if (e->aval.pstr[0] >= rh->prefix_count) {
+            fs_error(LOG_ERR, "prefix %d out of range, count=%d", e->aval.pstr[0], rh->prefix_count);
+
+            return 1;
+        }
         char *prefix = rh->prefix_strings[e->aval.pstr[0]];
         int prefix_len = strlen(prefix);
-        int32_t lex_len;
+        int32_t lex_len = 0;
+        int32_t suffix_len = 0;
         if (fseek(rh->lex_f, e->val.offset, SEEK_SET) == -1) {
             fs_error(LOG_ERR, "seek error reading lexical store '%s': %s", rh->lex_filename, strerror(errno));
 
             return 1;
         }
-        if (fread(&lex_len, sizeof(lex_len), 1, rh->lex_f) == 0) {
+        if (fread(&suffix_len, sizeof(suffix_len), 1, rh->lex_f) == 0) {
             fs_error(LOG_ERR, "read error from lexical store '%s', offset %lld: %s", rh->lex_filename, (long long)e->val.offset, strerror(errno));
 
             return 1;
         }
 
-        int suffix_len = lex_len;
-        lex_len += prefix_len;
+        lex_len = suffix_len + prefix_len;
         res->lex = malloc(lex_len + 1);
         strcpy(res->lex, prefix);
 
         if (fread((res->lex) + prefix_len, sizeof(char), suffix_len, rh->lex_f) < suffix_len) {
-            fs_error(LOG_ERR, "partial read %s from lexical store '%s'", ferror(rh->lex_f) ? "error" : "EOF", rh->lex_filename);
+            fs_error(LOG_ERR, "partial read %s, of %d bytes (%d+%d) for RID %016llx from lexical store '%s'", ferror(rh->lex_f) ? "error" : "EOF", suffix_len, prefix_len, suffix_len, (long long)e->rid, rh->lex_filename);
             clearerr(rh->lex_f);
             res->lex[0] = '\0';
 
@@ -735,16 +751,26 @@ void fs_rhash_print(fs_rhash *rh, FILE *out, int verbosity)
     int disp_freq[128];
     memset(disp_freq, 0, 128);
 
-    if (verbosity == 0) {
-        fprintf(out, "%s\n", rh->filename);
-        fprintf(out, "size:     %d (buckets)\n", rh->size);
-        fprintf(out, "bucket:   %d\n", rh->bucket_size);
-        fprintf(out, "entries:  %d\n", rh->count);
-        fprintf(out, "revision: %d\n", rh->revision);
-        fprintf(out, "fill:     %.1f%%\n", 100.0 * (double)rh->count / (double)(rh->size * rh->bucket_size));
+    fprintf(out, "%s\n", rh->filename);
+    fprintf(out, "size:     %d (buckets)\n", rh->size);
+    fprintf(out, "bucket:   %d\n", rh->bucket_size);
+    fprintf(out, "entries:  %d\n", rh->count);
+    fprintf(out, "prefixes:  %d\n", rh->prefix_count);
+    fprintf(out, "revision: %d\n", rh->revision);
+    fprintf(out, "fill:     %.1f%%\n", 100.0 * (double)rh->count / (double)(rh->size * rh->bucket_size));
 
+    if (verbosity < 1) {
         return;
-    } 
+    }
+
+    for (int p=0; p<rh->prefix_count; p++) {
+        fprintf(out, "prefix %d: %s\n", p, rh->prefix_strings[p]);
+    }
+
+    if (verbosity < 2) {
+        return;
+    }
+
     fs_rhash_entry e;
     int entry = 0, entries = 0, show_next = 0;
 
@@ -753,9 +779,15 @@ void fs_rhash_print(fs_rhash *rh, FILE *out, int verbosity)
         if (e.rid) {
             char *ent_str = g_strdup_printf("%08d.%02d", entry / rh->bucket_size, entry % rh->bucket_size);
             fs_resource res = { .lex = NULL };
-            get_entry(rh, &e, &res);
-            if (e.disp == DISP_F_UTF8 || e.disp == DISP_F_PREFIX || e.disp == DISP_F_ZCOMP) {
+            int ret = get_entry(rh, &e, &res);
+            if (ret) {
+                fprintf(out, "ERROR: failed to get entry for %016llx\n", e.rid);
+                continue;
+            }
+            if (e.disp == DISP_F_UTF8 || e.disp == DISP_F_ZCOMP) {
                 if (verbosity > 1 || show_next) fprintf(out, "%s %016llx %016llx %c %10lld %s\n", ent_str, e.rid, e.aval.attr, e.disp, (long long)e.val.offset, res.lex);
+            } else if (e.disp == DISP_F_PREFIX) {
+                if (verbosity > 1 || show_next) fprintf(out, "%s %016llx %16d %c %10lld %s\n", ent_str, e.rid, e.aval.pstr[0], e.disp, (long long)e.val.offset, res.lex);
             } else {
                 if (verbosity > 1 || show_next) fprintf(out, "%s %016llx %016llx %c %s\n", ent_str, e.rid, e.aval.attr, e.disp, res.lex);
             }

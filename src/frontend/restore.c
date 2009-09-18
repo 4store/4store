@@ -30,7 +30,7 @@ int main(int argc, char *argv[])
   char *password = fsp_argv_password(&argc, argv);
 
   if (argc != 3) {
-    fprintf(stderr, "%s revision r%s\n", argv[0], FS_FRONTEND_VER);
+    fprintf(stderr, "%s revision %s\n", argv[0], FS_FRONTEND_VER);
     fprintf(stderr, "Usage: %s <kbname> <TriX file>\n", argv[0]);
     exit(1);
   }

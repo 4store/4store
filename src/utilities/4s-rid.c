@@ -34,7 +34,7 @@
 int main(int argc, char *argv[])
 {
   if (argc != 2) {
-    fprintf(stderr, "%s revision r%s\n", argv[0], FS_BACKEND_VER);
+    fprintf(stderr, "%s revision %s\n", argv[0], FS_BACKEND_VER);
     fprintf(stderr, "Usage: %s <uri> | \"literal\"\n", argv[0]);
     exit(1);
   }

@@ -251,7 +251,7 @@ static int check_segments(fsp_link *link, int readonly)
 
   if (count > 0 && count < link->segments) {
     link_error(LOG_INFO, "waiting for more backend nodes");
-    fsp_avahi_retry_frontend(link, 180000); /* up to three minutes pause */
+    fsp_mdns_retry_frontend(link, 180000); /* up to three minutes pause */
 
     /* re-assess count */
     count = 0;
@@ -279,25 +279,31 @@ static int check_segments(fsp_link *link, int readonly)
   return link->segments - count;
 }
 
-static int choose_segment (fsp_link *link, int sock, fs_segment segment)
+static int choose_segment (fsp_link *link, int sock, int server, fs_segment segment)
 {
   unsigned char *out = message_new(FS_CHOOSE_SEGMENT, segment, 0);
   write(sock, out, FS_HEADER);
   free(out);
 
-#if 0
-  int errors = 0;
-  errors = check_message(link, sock, "choose_segment(%d) failed: %s");
-
-  return errors;
-#else
   unsigned int ignored;
 
+  struct pollfd pollfds[1] = { { .fd = sock, .events = POLLIN } };
+  int timeout = 2500; /* 2.5 seconds */
+  while (poll(pollfds, 1, timeout) == 0) {
+    timeout += 2500; /* wait longer each time */
+    link_error(LOG_INFO, "waiting for lock on segment %d on %s port %d",
+               segment, link->addrs[server], link->ports[server]);
+  }
+
+  int ret = 0;
   unsigned char *in = message_recv(sock, &segment, &ignored);
+  if (!in || in[3] != FS_DONE_OK) {
+    link_error(LOG_ERR, "choose_segment failed(%d): %s", segment, invalid_response(in));
+    ret = 1;
+  }
   free(in);
 
-  return 0;
-#endif
+  return ret;
 }
 
 /* returns count of new primary segments or zero */
@@ -337,7 +343,7 @@ int fsp_add_backend (fsp_link *link, const char *addr, uint16_t port, int segmen
           sock = fsp_open_socket(link, link->addrs[server], link->ports[server]);
         }
         
-        if (choose_segment(link, sock, seg)) break; /* something went wrong */
+        if (choose_segment(link, sock, server, seg)) break; /* something went wrong */
         link->groups[seg]= server;
         link->socks[seg] = link->socks1[seg] = sock;
         sock = -1; /* used this one */
@@ -349,7 +355,7 @@ int fsp_add_backend (fsp_link *link, const char *addr, uint16_t port, int segmen
         } else if (sock == -1) {
           sock = fsp_open_socket(link, link->addrs[server], link->ports[server]);
         }
-        if (choose_segment(link, sock, seg)) break; /* something went wrong */
+        if (choose_segment(link, sock, server, seg)) break; /* something went wrong */
         link->socks2[seg] = sock;
         sock = -1; /* used this one */
         break;
@@ -553,21 +559,11 @@ fsp_link* fsp_open_link (const char *name, char *password, int readonly)
     g_free(pw);
   }
 
-#if defined(USE_AVAHI) || defined(USE_DNS_SD)
-  fsp_avahi_setup_frontend(link);
+  fsp_mdns_setup_frontend(link);
   if (link->servers < 1) {
     free(link);
     link = NULL;
   }
-#else
-
-  fsp_add_backend(link, "127.0.0.1", FS_DEFAULT_PORT, 0); /* try loopback */
-
-  if (link->servers == 0) {
-    free(link);
-    link = NULL;
-  }
-#endif
 
   if (link && check_segments(link, readonly)) {
     free(link);
@@ -579,7 +575,7 @@ fsp_link* fsp_open_link (const char *name, char *password, int readonly)
 
 void fsp_close_link (fsp_link *link)
 {
-  fsp_avahi_cleanup_frontend(link);
+  fsp_mdns_cleanup_frontend(link);
 
   for (int k= 0; k < link->servers; ++k) {
     g_free((char *) link->addrs[k]);

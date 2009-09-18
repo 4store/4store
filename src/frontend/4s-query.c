@@ -123,7 +123,7 @@ int main(int argc, char *argv[])
     }
 
     if (help || !kb_name) {
-      fprintf(stderr, "%s revision r%s\n", argv[0], FS_FRONTEND_VER);
+      fprintf(stderr, "%s revision %s\n", argv[0], FS_FRONTEND_VER);
       fprintf(stderr, "Usage: %s <kbname> [-f format] [-O opt-level] [-I] [-b uri] [query]\n", argv[0]);
       fprintf(stderr, "   or: %s <kbname> -P\n", argv[0]);
       fprintf(stderr, " query should be a SPARQL query, remember to use"

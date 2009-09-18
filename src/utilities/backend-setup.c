@@ -140,7 +140,7 @@ int main(int argc, char *argv[])
     }
 
     if (help) {
-        fprintf(stderr, "%s revision r%s\n", argv[0], FS_BACKEND_VER);
+        fprintf(stderr, "%s revision %s\n", argv[0], FS_BACKEND_VER);
         fprintf(stderr, "Usage: %s [-v] --node <id> --cluster <size>\n\t--segments <seg> [--password <pw>] <kbname>\n", basename(argv[0]));
         fprintf(stderr, "   --node <id>       node id 0 ... cluster-1\n");
         fprintf(stderr, "   --cluster <size>  number of nodes in cluster\n");

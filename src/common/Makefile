@@ -1,5 +1,4 @@
-
-include ../avahi.mk
+include ../discovery.mk
 include ../rev.mk
 include ../darwin.mk
 
@@ -20,7 +19,7 @@ ifdef dnssd
   mdns_flags = -DUSE_DNS_SD
 endif
 
-CFLAGS = -std=gnu99 -Wall -g -O2 -I../ -DGIT_REV=\"$(gitrev)\" $(mdns_flags) `pkg-config --cflags $(pkgs)`
+CFLAGS = -std=gnu99 -fno-strict-aliasing -Wall -g -O2 -I../ -DGIT_REV=\"$(gitrev)\" $(mdns_flags) `pkg-config --cflags $(pkgs)`
 LDFLAGS = $(ldfdarwin) $(lfdlinux)
 LIBS = `pkg-config --libs $(pkgs)`
 

@@ -1083,7 +1083,7 @@ int main (int argc, char *argv[])
   }
 
   if (help) {
-    fprintf(stderr, "%s revision r%s\n", argv[0], FS_BACKEND_VER);
+    fprintf(stderr, "%s revision %s\n", argv[0], FS_BACKEND_VER);
     fprintf(stderr, "Usage: %s [-D,--deamon] [-l,--limit min-free-space] <kbname>\n", argv[0]);
     fprintf(stderr, "       env. var. FS_DISK_LIMIT also controls min free disk\n");
     return 1;

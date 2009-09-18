@@ -1,1 +1,1 @@
-export gitrev := $(shell git rev-parse --short HEAD)
+export gitrev := $(shell git describe --always --tags)

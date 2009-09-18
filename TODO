@@ -1,10 +1,4 @@
-TODO - last modified 2009-07-06
-
-Predicate limit
-
-	Currently you can only have a number of predicates roughly equal to the
-max number of open files per process. You can increase this in
-/etc/security/limits.conf, but a real fix owuld be better
+TODO - last modified 2009-09-17
 
 UNION
 
@@ -12,7 +6,7 @@ UNION
 OK, but anything complex, eg. combining UNION with OPTIONAL in complex ways
 typically gives the wrong result. The is a side effect of the way the query
 engine works, and will be difficult to fix. A better solution would be a 2nd,
-slower but simple querye engine that follows the SPARQL spec. closely.
+slower but simple query engine that follows the SPARQL spec. closely.
 
 Single client
 
@@ -36,3 +30,8 @@ FROM
 
 	There is a basic implementatation in frontend/query.c, but it's
 commented out, as it's not safe to have on by default.
+
+strict aliasing
+
+	4store uses GLib static mutexes, somehow this code conflicts with the C
+language rules concerning strict aliasing.

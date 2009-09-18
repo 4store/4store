@@ -417,7 +417,7 @@ void fsp_serve (const char *kb_name, fsp_backend *backend, int daemon, float dis
   }
 
   GMainLoop *loop = g_main_loop_new (NULL, FALSE);
-  fsp_avahi_setup_backend (port, kb_name, backend->segment_count(be));
+  fsp_mdns_setup_backend (port, kb_name, backend->segment_count(be));
 
   backend->close(be);
 
