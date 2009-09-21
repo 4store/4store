@@ -374,6 +374,11 @@ void fsp_serve (const char *kb_name, fsp_backend *backend, int daemon, float dis
     }
     srv = socket(info->ai_family, info->ai_socktype, info->ai_protocol);
     if (srv < 0) {
+      if (errno == EAFNOSUPPORT) {
+        kb_error(LOG_INFO, "couldn't get IPv6 dual stack, trying IPv4-only");
+        hints.ai_family = AF_INET;
+        continue;
+      }
       kb_error(LOG_ERR, "socket failed: %s", strerror(errno));
       freeaddrinfo(info);
       return;
