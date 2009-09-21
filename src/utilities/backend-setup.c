@@ -28,10 +28,8 @@
 #include <getopt.h>
 #include <locale.h>
 #include <unistd.h>
-#include <termios.h>
 #include <libgen.h>
 #include <fcntl.h>
-#include <readline/readline.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 
