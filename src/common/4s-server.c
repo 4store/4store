@@ -374,13 +374,13 @@ void fsp_serve (const char *kb_name, fsp_backend *backend, int daemon, float dis
     }
     srv = socket(info->ai_family, info->ai_socktype, info->ai_protocol);
     if (srv < 0) {
-      kb_error(LOG_ERR, "socket failed");
+      kb_error(LOG_ERR, "socket failed: %s", strerror(errno));
       freeaddrinfo(info);
       return;
     }
 
     if (setsockopt(srv, IPPROTO_IPV6, IPV6_V6ONLY, &off, sizeof(off)) == -1) {
-      kb_error(LOG_WARNING, "setsockopt IPV6_V6ONLY ON failed");
+      kb_error(LOG_WARNING, "setsockopt IPV6_V6ONLY OFF failed");
     }
     if (setsockopt(srv, SOL_SOCKET, SO_REUSEADDR, &on, sizeof(on)) == -1) {
       kb_error(LOG_WARNING, "setsockopt SO_REUSEADDR failed");
