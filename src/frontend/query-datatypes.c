@@ -977,10 +977,17 @@ printf("[L] Ar=%d, Br=%d", apos, bpos);
                     if (!c[col].need_val) {
                         continue;
                     } else if (a[col].bound) {
+                        if (b[col].bound && a[col].vals->data[apos] == FS_RID_NULL && bpos < b[col].vals->length) {
 #if DEBUG_MERGE > 1
 printf(" %s=%016llx", c[col].name, a[col].vals->data[apos]);
 #endif
-                        fs_rid_vector_append(c[col].vals, a[col].vals->data[apos]);
+                            fs_rid_vector_append(c[col].vals, b[col].vals->data[bpos]);
+                        } else {
+#if DEBUG_MERGE > 1
+printf(" %s=%016llx", c[col].name, a[col].vals->data[apos]);
+#endif
+                            fs_rid_vector_append(c[col].vals, a[col].vals->data[apos]);
+                        }
                     } else {
 #if DEBUG_MERGE > 1
 printf(" %s=null", c[col].name);
