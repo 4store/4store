@@ -32,6 +32,7 @@ pkg-config --exists glib-2.0 && pass "glib2 installed" || fail "no glib2 devel s
 test -e "`which pcre-config`" && pass "pcre installed" || fail "no pcre devel system installed"
 libtest "ncurses"
 libtest "readline" "-lncurses"
+libtest "z"
 pkg-config --exists avahi-glib avahi-client && pass "avahi installed" || ( test -e /usr/include/dns_sd.h && pass "dns_sd installed" || optfail "no mDNS library, will build without cluster support" )
 
 rm -f /tmp/configure-$$.*
