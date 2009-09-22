@@ -281,6 +281,7 @@ int fs_import(fsp_link *link, const char *model_uri, char *resource_uri,
 {
     raptor_parser *rdf_parser = NULL;
     raptor_uri ruri = NULL;
+    int ret = 0;
 
     const int segments = fsp_link_segments(link);
 
@@ -339,7 +340,7 @@ int fs_import(fsp_link *link, const char *model_uri, char *resource_uri,
 
     if (raptor_parse_uri(rdf_parser, ruri, parse_data.muri)) {
         fs_error(LOG_ERR, "failed to parse file “%s”", resource_uri);
-        exit(1);
+        ret++;
     }
     if (verbosity) {
         printf("Pass 1, processed %d triples (%d)\n", total_triples_parsed, parse_data.count_trip);
@@ -351,7 +352,7 @@ int fs_import(fsp_link *link, const char *model_uri, char *resource_uri,
     g_free(parse_data.model);
     fs_hash_freshen(); /* blank nodes are unique per file */
 
-    return 0;
+    return ret;
 }
 
 int fs_import_commit(fsp_link *link, int verbosity, int dryrun, int has_o_index, FILE *msg, int *count)
