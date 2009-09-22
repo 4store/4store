@@ -224,7 +224,12 @@ fs_value fs_value_datetime_from_string(const char *s)
 	    if (strptime(ret, "+%H%M", &tz)) {
 		tz.tm_hour *= -1;
 		tz.tm_min *= -1;
+	    } else if (strptime(ret, "+%H:%M", &tz)) {
+		tz.tm_hour *= -1;
+		tz.tm_min *= -1;
 	    } else if (strptime(ret, "-%H%M", &tz)) {
+		/* values are fine */
+	    } else if (strptime(ret, "-%H:%M", &tz)) {
 		/* values are fine */
 	    }
 	}
