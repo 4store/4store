@@ -328,8 +328,11 @@ int fs_quad_import_commit(fs_backend *be, int seg, int flags, int account)
 	    }
 	    tl = NULL;
 	    model_node = 0;
-	    fs_index_node node;
-	    fs_mhash_get(be->models, model, &node);
+	    fs_index_node node = 0;
+	    if (fs_mhash_get(be->models, model, &node)) {
+		fs_error(LOG_ERR, "failed to get node for model %016llx",
+			 model);
+	    }
 	    if (node == 1) {
 		tl = fs_tlist_open(be, model, O_RDWR);
 		if (!tl) {
@@ -474,15 +477,15 @@ int fs_delete_models(fs_backend *be, int seg, fs_rid_vector *mvec)
          * graphs that are less than 1% of the total size, or really small
          * this way */
         if (val > 1) {
-    	long long chain_length = fs_tbchain_length(be->model_list, val);
-    	if (chain_length < be->approx_size / 100 ||
-    	    chain_length < 100) {
-    	    remove_by_search(be, todo->data[0], val);
-    	    fs_backend_model_set_usage(be, seg, todo->data[0], 0);
-    	    fs_rid_vector_free(todo);
+	    long long chain_length = fs_tbchain_length(be->model_list, val);
+	    if (chain_length < be->approx_size / 100 ||
+		chain_length < 100) {
+		remove_by_search(be, todo->data[0], val);
+		fs_backend_model_set_usage(be, seg, todo->data[0], 0);
+		fs_rid_vector_free(todo);
 
-    	    return errs;
-    	}
+		return errs;
+	    }
         }
     }
 
@@ -490,13 +493,13 @@ int fs_delete_models(fs_backend *be, int seg, fs_rid_vector *mvec)
         fs_index_node val = 0;
         fs_mhash_get(be->models, todo->data[i], &val);
         if (val == 1) {
-    	fs_tlist *tl = fs_tlist_open(be, todo->data[i], O_RDWR);
-    	if (tl) {
-    	    fs_tlist_truncate(tl);
-    	    fs_tlist_close(tl);
-    	}
-        } else if (val > 1) {
-    	fs_tbchain_remove_chain(be->model_list, val);
+	    fs_tlist *tl = fs_tlist_open(be, todo->data[i], O_RDWR);
+	    if (tl) {
+		fs_tlist_truncate(tl);
+		fs_tlist_close(tl);
+	    }
+	} else if (val > 1) {
+	    fs_tbchain_remove_chain(be->model_list, val);
         }
         fs_backend_model_set_usage(be, seg, todo->data[i], 0);
     }

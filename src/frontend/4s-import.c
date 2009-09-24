@@ -202,8 +202,8 @@ read(0, &foo, 1);
             fs_error(LOG_ERR, "model delete failed");
             return 1;
         }
+        fsp_new_model_all(fsplink, mvec);
     }
-    fsp_new_model_all(fsplink, mvec);
 
     fs_rid_vector_free(mvec);
 
