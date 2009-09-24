@@ -459,9 +459,7 @@ static void http_post_data(client_ctxt *ctxt, char *model, const char *content_t
     return;
   }
 
-  char *type = just_content_type(ctxt);
-  fs_import_stream_start(fsplink, model, type, has_o_index, &global_import_count);
-  g_free(type);
+  fs_import_stream_start(fsplink, model, content_type, has_o_index, &global_import_count);
 
   guint timeout = 30 + (ctxt->bytes_left / WATCHDOG_RATE);
   ctxt->watchdog = g_timeout_add(1000 * timeout, import_watchdog, ctxt);
