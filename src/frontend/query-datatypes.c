@@ -487,6 +487,10 @@ static int binding_row_compare(fs_query *q, fs_binding *b1, fs_binding *b2, int 
         const fs_rid b1v = p1 < b1[i].vals->length ? b1[i].vals->data[p1] : FS_RID_NULL;
         const fs_rid b2v = p2 < b2[i].vals->length ? b2[i].vals->data[p2] : FS_RID_NULL;
 
+        if (b1v == FS_RID_NULL || b2v == FS_RID_NULL) {
+            continue;
+        }
+
 	if (b1v > b2v) {
 #ifdef DEBUG_COMPARE
             printf("CMP %llx > %llx\n", b1v, b2v);
@@ -977,17 +981,10 @@ printf("[L] Ar=%d, Br=%d", apos, bpos);
                     if (!c[col].need_val) {
                         continue;
                     } else if (a[col].bound) {
-                        if (b[col].bound && a[col].vals->data[apos] == FS_RID_NULL && bpos < b[col].vals->length) {
 #if DEBUG_MERGE > 1
 printf(" %s=%016llx", c[col].name, a[col].vals->data[apos]);
 #endif
-                            fs_rid_vector_append(c[col].vals, b[col].vals->data[bpos]);
-                        } else {
-#if DEBUG_MERGE > 1
-printf(" %s=%016llx", c[col].name, a[col].vals->data[apos]);
-#endif
-                            fs_rid_vector_append(c[col].vals, a[col].vals->data[apos]);
-                        }
+                        fs_rid_vector_append(c[col].vals, a[col].vals->data[apos]);
                     } else {
 #if DEBUG_MERGE > 1
 printf(" %s=null", c[col].name);
@@ -1019,10 +1016,19 @@ printf("[I] Ar=%d, Br=%d", apos, bpos);
 #endif
                             fs_rid_vector_append(c[col].vals, FS_RID_NULL);
                         } else if (a[col].bound) {
+                            /* if were left joining and A is NULL, we want the
+                             * value from B */
+                            if (join == FS_LEFT && a[col].vals->data[apos] == FS_RID_NULL && b[col].bound) {
 #if DEBUG_MERGE > 1
-                            printf(" %s=%016llx", c[col].name, a[col].vals->data[apos]);
+                                printf(" %s=%016llx", c[col].name, b[col].vals->data[bpos]);
 #endif
-                            fs_rid_vector_append(c[col].vals, a[col].vals->data[apos]);
+                                fs_rid_vector_append(c[col].vals, b[col].vals->data[bpos]);
+                            } else {
+#if DEBUG_MERGE > 1
+                                printf(" %s=%016llx", c[col].name, a[col].vals->data[apos]);
+#endif
+                                fs_rid_vector_append(c[col].vals, a[col].vals->data[apos]);
+                            }
                         } else {
 #if DEBUG_MERGE > 1
                             printf(" %s=%016llx", c[col].name, b[col].vals->data[bpos]);
