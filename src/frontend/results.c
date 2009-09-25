@@ -1643,7 +1643,7 @@ nextrow: ;
                            q->bt[i].vals->data[row] : FS_RID_NULL;
         if (last_rid != q->resrow[i].rid) repeat_row = 0;
         if (q->bt[i].expression) {
-            fs_value val = fs_expression_eval(q, q->row, 0, q->bt[i].expression);
+            fs_value val = fs_expression_eval(q, row, 0, q->bt[i].expression);
             fs_value_to_row(q, val, q->resrow+i);
         } else {
             fs_resource r;

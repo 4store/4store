@@ -13,9 +13,8 @@
 
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
-/*
- *  Copyright (C) 2006 Steve Harris for Garlik
+
+    Copyright (C) 2006 Steve Harris for Garlik
  */
 
 #include <stdlib.h>
@@ -29,6 +28,8 @@
 #include "common/error.h"
 #include "common/hash.h"
 #include "common/rdf-constants.h"
+
+static fs_value cast_lexical(fs_query *q, fs_value a);
 
 static fs_value cast_double(fs_value a)
 {
@@ -87,10 +88,20 @@ static fs_value cast_decimal(fs_value a)
     return fs_value_error(FS_ERROR_INVALID_TYPE, "bad cast to decimal");
 }
 
-static fs_value cast_datetime(fs_value a)
+static fs_value cast_datetime(fs_query *q, fs_value a)
 {
     if (a.lex) {
-	return fs_value_datetime_from_string(a.lex);
+        fs_value ret = fs_value_datetime_from_string(a.lex);
+        ret.lex = g_strdup(a.lex);
+        fs_query_add_freeable(q, ret.lex);
+
+	return ret;
+    }
+
+    if (a.valid & fs_valid_bit(FS_V_IN) && a.attr == fs_c.xsd_datetime) {
+        fs_value b = cast_lexical(q, a);
+
+        return b;
     }
 
     return fs_value_error(FS_ERROR_INVALID_TYPE, "bad cast to datetime");
@@ -613,6 +624,12 @@ fs_value fn_datetime_equal(fs_query *q, fs_value a, fs_value b)
 
 fs_value fn_datetime_less_than(fs_query *q, fs_value a, fs_value b)
 {
+#if 0
+fs_value_print(a);
+printf(" < ");
+fs_value_print(b);
+printf(" [dT]\n");
+#endif
     if (a.attr == fs_c.xsd_datetime && b.attr == fs_c.xsd_datetime)
 	return fs_value_boolean(a.in < b.in);
 
@@ -1015,7 +1032,7 @@ fs_value fn_cast_intl(fs_query *q, fs_value v, fs_rid dt)
     } else if (dt == fs_c.xsd_string) {
 	v = cast_lexical(q, v);
     } else if (dt == fs_c.xsd_datetime) {
-	v = cast_datetime(v);
+	v = cast_datetime(q, v);
     } else if (dt == fs_c.xsd_boolean) {
         v = cast_boolean(v);
     }
