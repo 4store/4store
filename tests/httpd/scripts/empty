@@ -1,0 +1,5 @@
+#!/bin/bash
+
+source sparql.sh
+
+sparql "$EPR" 'SELECT * WHERE { ?x ?y ?z }'

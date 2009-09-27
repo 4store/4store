@@ -1,0 +1,47 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML 2.0//EN">
+<html><head><title>200 added successfully</title></head>
+<body><h1>200 added successfully</h1>
+<p>This is a 4store SPARQL server.</p><p>4store [VERSION]</p></body></html>
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML 2.0//EN">
+<html><head><title>200 added successfully</title></head>
+<body><h1>200 added successfully</h1>
+<p>This is a 4store SPARQL server.</p><p>4store [VERSION]</p></body></html>
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML 2.0//EN">
+<html><head><title>200 added successfully</title></head>
+<body><h1>200 added successfully</h1>
+<p>This is a 4store SPARQL server.</p><p>4store [VERSION]</p></body></html>
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML 2.0//EN">
+<html><head><title>200 added successfully</title></head>
+<body><h1>200 added successfully</h1>
+<p>This is a 4store SPARQL server.</p><p>4store [VERSION]</p></body></html>
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML 2.0//EN">
+<html><head><title>200 added successfully</title></head>
+<body><h1>200 added successfully</h1>
+<p>This is a 4store SPARQL server.</p><p>4store [VERSION]</p></body></html>
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML 2.0//EN">
+<html><head><title>200 added successfully</title></head>
+<body><h1>200 added successfully</h1>
+<p>This is a 4store SPARQL server.</p><p>4store [VERSION]</p></body></html>
+?g	?x	?y	?z
+<http://example.org/test1>	<test:a>	<test:b>	"turtle"
+<http://example.org/test1.ttl>	<test:a>	<test:b>	"turtle"
+<http://example.org/test1>	<test:x>	<test:y>	"ntriples"
+<http://example.org/test1>	<test:x>	<test:y>	"rdfxml"
+<http://example.org/test1.rdf>	<test:x>	<test:y>	"rdfxml"
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML 2.0//EN">
+<html><head><title>200 deleted successfully</title></head>
+<body><h1>200 deleted successfully</h1>
+<p>This is a 4store SPARQL server.</p><p>4store [VERSION]</p></body></html>
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML 2.0//EN">
+<html><head><title>200 deleted successfully</title></head>
+<body><h1>200 deleted successfully</h1>
+<p>This is a 4store SPARQL server.</p><p>4store [VERSION]</p></body></html>
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML 2.0//EN">
+<html><head><title>200 deleted successfully</title></head>
+<body><h1>200 deleted successfully</h1>
+<p>This is a 4store SPARQL server.</p><p>4store [VERSION]</p></body></html>
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML 2.0//EN">
+<html><head><title>200 deleted successfully</title></head>
+<body><h1>200 deleted successfully</h1>
+<p>This is a 4store SPARQL server.</p><p>4store [VERSION]</p></body></html>
+?x	?y	?z

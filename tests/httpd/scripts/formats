@@ -1,0 +1,16 @@
+#!/bin/bash
+
+source sparql.sh
+
+post "$EPR" '<test:a> <test:b> "turtle" .' 'text/turtle' 'http://example.org/test1'
+post "$EPR" '<test:x> <test:y> "ntriples" .' 'text/turtle' 'http://example.org/test1'
+post "$EPR" '<?xml version="1.0" encoding="utf-8"?><rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"><rdf:Description rdf:about="test:x"><test:y xmlns:test="test:">rdfxml</test:y></rdf:Description></rdf:RDF>' 'application/rdf+xml' 'http://example.org/test1'
+post "$EPR" '<test:a> <test:b> "turtle" .' '' 'http://example.org/test1.ttl'
+post "$EPR" '<test:x> <test:y> "ntriples" .' '' 'http://example.org/test1.nt'
+post "$EPR" '<?xml version="1.0" encoding="utf-8"?><rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"><rdf:Description rdf:about="test:x"><test:y xmlns:test="test:">rdfxml</test:y></rdf:Description></rdf:RDF>' '' 'http://example.org/test1.rdf'
+sparql "$EPR" 'SELECT * WHERE { GRAPH ?g { ?x ?y ?z } } ORDER BY ?x ?y ?z ?g'
+delete "$EPR" 'http://example.org/test1'
+delete "$EPR" 'http://example.org/test1.ttl'
+delete "$EPR" 'http://example.org/test1.nt'
+delete "$EPR" 'http://example.org/test1.rdf'
+sparql "$EPR" 'SELECT * WHERE { ?x ?y ?z } ORDER BY ?x ?y ?z'

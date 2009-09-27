@@ -1,0 +1,8 @@
+#!/bin/bash
+
+source sparql.sh
+
+put "$EPR" ../../data/swh.xrdf 'application/rdf+xml' 'http://example.com/test.ttl'
+sparql "$EPR" 'SELECT * WHERE { ?x ?y ?z } ORDER BY ?x ?y ?z'
+delete "$EPR" 'http://example.com/test.ttl'
+sparql "$EPR" 'SELECT * WHERE { ?x ?y ?z } ORDER BY ?x ?y ?z'
