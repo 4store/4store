@@ -1,0 +1,11 @@
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix text: <http://4store.org/fulltext#> .
+@prefix ex: <http://example.org/text#> .
+
+<ex:en1> rdfs:label "This should get turned into metaphones"@en-GB .
+<ex:en2> ex:token "This, should get tokenised." .
+<ex:en3> ex:token "This should also get tokenised"@anything .
+<ex:en4> ex:stem "This should get stemmed\nit has several\nlines." .
+<ex:it> ex:stem "Rane mangiano le mosche, ma non può volare"@IT-gb .
+<ex:ru> ex:stem "Корова Хайнак Морфология"@ru .
+<ex:de> ex:stem "Alle Menschen sind frei und gleich an Würde und Rechten geboren. Sie sind mit Vernunft und Gewissen begabt und sollen einander im Geist der Brüderlichkeit begegnen."@de .

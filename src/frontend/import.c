@@ -206,10 +206,6 @@ int fs_import_stream_start(fsp_link *link, const char *model_uri, const char *mi
     parse_data.last_count = 0;
     parse_data.has_o_index = has_o_index;
 
-    if (parse_data.model_hash == fs_c.system_config) {
-        read_config = 0;
-    }
-
     /* store the model uri */
     buffer_res(link, parse_data.segments, parse_data.model_hash, parse_data.model, FS_RID_NULL, parse_data.dryrun);
 
@@ -288,7 +284,12 @@ int fs_import_stream_finish(fsp_link *link, int *count, int *errors)
         }
     }
 
+    if (parse_data.model_hash == fs_c.system_config) {
+        fs_import_reread_config();
+    }
+
     *errors = parse_data.count_err;
+
     return 0;
 }
 
@@ -334,10 +335,6 @@ int fs_import(fsp_link *link, const char *model_uri, char *resource_uri,
     parse_data.dryrun = dryrun;
     parse_data.has_o_index = has_o_index;
 
-    if (parse_data.model_hash == fs_c.system_config) {
-        read_config = 0;
-    }
-
     /* store the model uri */
     buffer_res(link, segments, parse_data.model_hash, parse_data.model, FS_RID_NULL, dryrun);
 
@@ -373,6 +370,17 @@ int fs_import(fsp_link *link, const char *model_uri, char *resource_uri,
     raptor_free_uri(parse_data.muri);
     g_free(parse_data.model);
     fs_hash_freshen(); /* blank nodes are unique per file */
+
+    /* if we've changed system:config we need to reread it next time we import */
+    if (parse_data.model_hash == fs_c.system_config) {
+        /* we need to push out pending quads so that the next import can pick
+         * up config-realted ones */
+        *count += process_quads(&parse_data);
+        if (!(dryrun & FS_DRYRUN_QUADS) && fsp_quad_import_commit_all(link, FS_BIND_BY_SUBJECT)) {
+            fs_error(LOG_ERR, "early quad commit failed");
+        }
+        fs_import_reread_config();
+    }
 
     return ret;
 }

@@ -1,0 +1,12 @@
+#!/bin/bash
+
+source sparql.sh
+
+put "$EPR" ../../data/config-test.ttl 'text/turtle' 'system:config'
+sparql "$EPR" 'SELECT * WHERE { GRAPH <system:config> { ?x ?y ?z } } ORDER BY ?x ?y ?z'
+put "$EPR" ../../data/fulltext-test.ttl 'text/turtle' 'http://example.com/texttest'
+sparql "$EPR" 'SELECT * WHERE { GRAPH <http://example.com/texttest> { ?x ?y ?z } } ORDER BY ?x DESC(?y) ?z'
+delete "$EPR" 'system:config'
+put "$EPR" ../../data/fulltext-test.ttl 'text/turtle' 'http://example.com/texttest'
+sparql "$EPR" 'SELECT * WHERE { GRAPH <http://example.com/texttest> { ?x ?y ?z } } ORDER BY ?x DESC(?y) ?z'
+delete "$EPR" 'http://example.com/texttest'

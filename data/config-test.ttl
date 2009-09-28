@@ -1,0 +1,7 @@
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix text: <http://4store.org/fulltext#> .
+@prefix ex: <http://example.org/text#> .
+
+rdfs:label text:index text:dmetaphone .
+ex:token text:index text:token .
+ex:stem text:index text:stem .
