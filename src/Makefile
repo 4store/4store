@@ -1,4 +1,4 @@
-SUBDIRS = common backend frontend http utilities
+SUBDIRS = libs common backend frontend http utilities
 
 all clean install:
 	for i in $(SUBDIRS); do \

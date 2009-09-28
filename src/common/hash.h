@@ -23,6 +23,7 @@
 
 struct fs_globals {
 	fs_rid default_graph;
+	fs_rid system_config;
 	fs_rid empty;
 	fs_rid lang_de;
 	fs_rid lang_en;
@@ -48,6 +49,11 @@ struct fs_globals {
 	fs_rid xsd_uint;
 	fs_rid xsd_ulong;
 	fs_rid xsd_ushort;
+	fs_rid rdfs_label;
+	fs_rid fs_text_index;
+	fs_rid fs_token;
+	fs_rid fs_dmetaphone;
+	fs_rid fs_stem;
 };
 
 extern struct fs_globals fs_c;
