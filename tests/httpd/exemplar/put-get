@@ -2,6 +2,7 @@
 <html><head><title>201 imported successfully</title></head>
 <body><h1>201 imported successfully</h1>
 <p>This is a 4store SPARQL server.</p><p>4store [VERSION]</p></body></html>
+Query: SELECT * WHERE { ?x ?y ?z } ORDER BY ?x ?y ?z
 ?x	?y	?z
 <http://example.com/test.ttl>	<http://xmlns.com/foaf/0.1/maker>	<mailto:steve@example.net>
 <http://example.com/test.ttl>	<http://xmlns.com/wot/0.1/assurance>	<http://example.com/swh.xrdf.asc>
@@ -68,4 +69,5 @@
 <html><head><title>200 deleted successfully</title></head>
 <body><h1>200 deleted successfully</h1>
 <p>This is a 4store SPARQL server.</p><p>4store [VERSION]</p></body></html>
+Query: SELECT * WHERE { ?x ?y ?z } ORDER BY ?x ?y ?z
 ?x	?y	?z
