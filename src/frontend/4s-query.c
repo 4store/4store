@@ -62,7 +62,7 @@ int main(int argc, char *argv[])
 {
     char *password = fsp_argv_password(&argc, argv);
 
-    static char *optstring = "vf:PO:Ib:rs:";
+    static char *optstring = "hvf:PO:Ib:rs:d";
     char *format = getenv("FORMAT");
     char *kb_name = NULL, *query = NULL;
     int programatic = 0, help = 0;
@@ -76,6 +76,7 @@ int main(int argc, char *argv[])
     char *base_uri = "local:";
 
     static struct option long_options[] = {
+        { "help", 0, 0, 'h' },
         { "verbose", 0, 0, 'v' },
         { "format", 1, 0, 'f' },
         { "programatic", 0, 0, 'P' },
@@ -89,7 +90,9 @@ int main(int argc, char *argv[])
     };
 
     while ((c = getopt_long (argc, argv, optstring, long_options, &opt_index)) != -1) {
-        if (c == 'f') {
+        if (c == 'h') {
+            help = 1;
+        } else if (c == 'f') {
             format = optarg;
         } else if (c == 'P') {
             programatic = TRUE;
@@ -123,11 +126,15 @@ int main(int argc, char *argv[])
     }
 
     if (help || !kb_name) {
+      char *langs = "";
+      if (fq_query_have_laqrs()) {
+        langs = "/LAQRS";
+      }
       fprintf(stderr, "%s revision %s\n", argv[0], FS_FRONTEND_VER);
       fprintf(stderr, "Usage: %s <kbname> [-f format] [-O opt-level] [-I] [-b uri] [query]\n", argv[0]);
       fprintf(stderr, "   or: %s <kbname> -P\n", argv[0]);
-      fprintf(stderr, " query should be a SPARQL query, remember to use"
-                      " shell quoting if necessary\n");
+      fprintf(stderr, " query is a SPARQL%s query, remember to use"
+                      " shell quoting if necessary\n", langs);
       fprintf(stderr, " -f              Output format one of, sparql, text or testcase\n");
       fprintf(stderr, " -O, --opt-level Set optimisation level, range 0-3\n");
       fprintf(stderr, " -I, --insert    Interpret CONSTRUCT statements as inserts\n");

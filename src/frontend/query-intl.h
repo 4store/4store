@@ -19,8 +19,8 @@ struct _fs_query_state {
 
     /* features supported by the backend */
     int freq_available;
-#ifdef HAVE_RASQAL_WORLD
 
+#ifdef HAVE_RASQAL_WORLD
     /* rasqal state */
     rasqal_world* rasqal_world;
 #endif /* HAVE_RASQAL_WORLD */
