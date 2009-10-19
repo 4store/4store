@@ -4,3 +4,5 @@ all:
 
 clean:
 	(cd stemmer && $(MAKE) -w $@)
+
+install:

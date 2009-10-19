@@ -22,4 +22,4 @@ clean:
 	rm -rf *.dSYM
 
 4s-httpd: httpd.o ../common/lib4store.a ../libs/stemmer/libstemmer.o ../libs/double-metaphone/double_metaphone.o $(FRONTEND)
-	$(CC) $(LDFLAGS) -o $@ $^ `pcre-config --libs`
+	$(CC) $(LDFLAGS) -o $@ $^ `pcre-config --libs` ../libs/stemmer/libstemmer.o
