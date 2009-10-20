@@ -548,8 +548,8 @@ fs_rid_vector **fs_reverse_bind(fs_backend *be, fs_segment segment,
     }
 
     fs_rid_vector *mv = NULL, *sv = NULL;
-    if (mvi->length) mv = mvi;
-    if (svi->length) sv = svi;
+    if (mvi->length) mv = fs_rid_vector_copy(mvi);
+    if (svi->length) sv = fs_rid_vector_copy(svi);
 
     int iters = ov->length;
     if (pv->length && pv->length != iters) {
@@ -615,7 +615,7 @@ fs_rid_vector **fs_reverse_bind(fs_backend *be, fs_segment segment,
 	}
 	fs_ptree_it_free(res[i]);
 	if (tobind & FS_BIND_MODEL) {
-	    if (mv && mv != mvi) {
+	    if (mv) {
 		fs_rid_vector_free(mv);
 	    }
 	    mv = fs_rid_vector_copy(inter[0]);
@@ -623,7 +623,7 @@ fs_rid_vector **fs_reverse_bind(fs_backend *be, fs_segment segment,
 	    inter[0] = fs_rid_vector_new(0);
 	}
 	if (tobind & FS_BIND_SUBJECT) {
-	    if (sv && sv != svi) {
+	    if (sv) {
 		fs_rid_vector_free(sv);
 	    }
 	    sv = fs_rid_vector_copy(inter[1]);
