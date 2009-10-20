@@ -563,9 +563,6 @@ fs_rid_vector **fs_reverse_bind(fs_backend *be, fs_segment segment,
     } else {
 	ret = calloc(cols, sizeof(fs_rid_vector *));
     }
-    for (int i=0; i<cols; i++) {
-	ret[i] = NULL;
-    }
 
     fs_rid quad[4] = { FS_RID_NULL, FS_RID_NULL, FS_RID_NULL, FS_RID_NULL };
 
