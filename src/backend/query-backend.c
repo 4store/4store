@@ -615,11 +615,17 @@ fs_rid_vector **fs_reverse_bind(fs_backend *be, fs_segment segment,
 	}
 	fs_ptree_it_free(res[i]);
 	if (tobind & FS_BIND_MODEL) {
+	    if (mv && mv != mvi) {
+		fs_rid_vector_free(mv);
+	    }
 	    mv = fs_rid_vector_copy(inter[0]);
 	    fs_rid_vector_free(inter[0]);
 	    inter[0] = fs_rid_vector_new(0);
 	}
 	if (tobind & FS_BIND_SUBJECT) {
+	    if (sv && sv != svi) {
+		fs_rid_vector_free(sv);
+	    }
 	    sv = fs_rid_vector_copy(inter[1]);
 	    fs_rid_vector_free(inter[1]);
 	    inter[1] = fs_rid_vector_new(0);
@@ -628,18 +634,25 @@ fs_rid_vector **fs_reverse_bind(fs_backend *be, fs_segment segment,
 
     /* If we just need to bind subjects then we can use the intersection */
     if (cols == 1 && tobind & FS_BIND_SUBJECT) {
-	fs_rid_vector_truncate(inter[1], limit);
+	fs_rid_vector_truncate(sv, limit);
 	ret[0] = sv;
 	fs_rid_vector_free(inter[0]);
+	fs_rid_vector_free(inter[1]);
+	be->out_time[segment].bind_count++;
+	be->out_time[segment].bind += fs_time() - then;
 
 	return ret;
     }
 
     if (cols == 2 && tobind & FS_BIND_SUBJECT && tobind & FS_BIND_MODEL) {
-	fs_rid_vector_truncate(inter[0], limit);
-	fs_rid_vector_truncate(inter[1], limit);
+	fs_rid_vector_truncate(mv, limit);
+	fs_rid_vector_truncate(sv, limit);
 	ret[0] = mv;
 	ret[1] = sv;
+	fs_rid_vector_free(inter[0]);
+	fs_rid_vector_free(inter[1]);
+	be->out_time[segment].bind_count++;
+	be->out_time[segment].bind += fs_time() - then;
 
 	return ret;
     }
