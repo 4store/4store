@@ -5,7 +5,7 @@ include ../readedit.mk
 
 DEFINES := $(shell pkg-config rasqal --atleast-version=0.9.14 && echo "-DHAVE_LAQRS") $(shell pkg-config rasqal --atleast-version=0.9.16 && echo "-DHAVE_RASQAL_WORLD")
 BINS = 4s-query 4s-import 4s-delete-model 4s-size 4s-info 4s-update
-test_BINS = filter-test decimal-test 4s-bind 4s-resolve
+test_BINS = filter-test decimal-test 4s-bind 4s-reverse-bind 4s-resolve
 
 ifdef readedit
   readedit_cflags = -DUSE_LIBEDIT
@@ -68,6 +68,8 @@ query-datatypes.o: debug.h
 4s-resolve: 4s-resolve.o ../common/lib4store.a
 
 4s-bind: 4s-bind.o ../common/lib4store.a
+
+4s-reverse-bind: 4s-reverse-bind.o ../common/lib4store.a
 
 4s-dump: dump.o ../common/lib4store.a
 	$(CC) $(LDFLAGS) -o 4s-dump $^

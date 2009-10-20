@@ -9,5 +9,6 @@ filter-test
 4s-query
 4s-resolve
 4s-restore
+4s-reverse-bind
 4s-size
 4s-transaction
