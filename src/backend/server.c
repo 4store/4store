@@ -653,6 +653,10 @@ static unsigned char * handle_reverse_bind (fs_backend *be, fs_segment segment,
   } else if (cols == 0) {
     /* Zero columns => match with no binding */
     reply = message_new(FS_BIND_LIST, segment, 0);
+  } else if (!bindings[0]) {
+    /* this probably shouldn't happen, but it does */
+    reply = message_new(FS_NO_MATCH, segment, 0);
+    cols = 0;
   } else {
     /* otherwise return bindings */
     reply = message_new(FS_BIND_LIST, segment, bindings[0]->length * 8 * cols);
