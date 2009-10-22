@@ -1450,7 +1450,7 @@ static void signal_actions_child(void)
   sigaction(SIGSEGV, &backtrace_action, NULL); /* segfault */
 }
 
-static int server_setup (int background, const char *port)
+static int server_setup (int background, const char *host, const char *port)
 {
   struct addrinfo hints, *info;
   int err, on = 1;
@@ -1460,7 +1460,7 @@ static int server_setup (int background, const char *port)
   hints.ai_socktype = SOCK_STREAM; /* tcp */
   hints.ai_flags = AI_PASSIVE;
 
-  if ((err = getaddrinfo(NULL, port, &hints, &info))) {
+  if ((err = getaddrinfo(host, port, &hints, &info))) {
     fs_error(LOG_ERR, "getaddrinfo failed: %s", gai_strerror(err));
     return -1;
   }
@@ -1493,7 +1493,11 @@ static int server_setup (int background, const char *port)
   }
 
   signal_actions_parent();
-  fs_error(LOG_INFO, "4store HTTP daemon " GIT_REV " started on port %s", port);
+  if (host != NULL) {
+    fs_error(LOG_INFO, "4store HTTP daemon " GIT_REV " started on host %s port %s", host, port);
+  } else {
+    fs_error(LOG_INFO, "4store HTTP daemon " GIT_REV " started on port %s", port);
+  }
   return srv;
 }
 
@@ -1575,13 +1579,17 @@ int main(int argc, char *argv[])
   char *password = fsp_argv_password(&argc, argv);
   char *kb_name = NULL;
 
+  const char *host = NULL;
   const char *port = "8080";
 
   int o;
-  while ((o = getopt(argc, argv, "Dp:Uds:")) != -1) {
+  while ((o = getopt(argc, argv, "DH:p:Uds:")) != -1) {
     switch (o) {
       case 'D':
         daemonize = 0;
+        break;
+      case 'H':
+        host = optarg;
         break;
       case 'p':
         port = optarg;
@@ -1600,7 +1608,8 @@ int main(int argc, char *argv[])
 
   if (optind >= argc) {
     fprintf(stderr, "%s revision %s\n", argv[0], GIT_REV);
-    fprintf(stderr, "Usage: %s [-D] [-p port] [-U] [-s limit] <kbname>\n", basename(argv[0]));
+    fprintf(stderr, "Usage: %s [-D] [-H host] [-p port] [-U] [-s limit] <kbname>\n", basename(argv[0]));
+    fprintf(stderr, "       -H   specify host to listen on\n");
     fprintf(stderr, "       -p   specify port to listen on\n");
     fprintf(stderr, "       -D   do not daemonise\n");
     fprintf(stderr, "       -U   enable unsafe operations (eg. LOAD)\n");
@@ -1613,7 +1622,7 @@ int main(int argc, char *argv[])
   fsp_syslog_enable();
   kb_name = argv[optind];
 
-  int srv = server_setup(daemonize, port);
+  int srv = server_setup(daemonize, host, port);
   if (srv < 0) {
     return 2;
   }
