@@ -1,1 +1,2 @@
+Query: SELECT * WHERE { ?x ?y ?z }
 ?x	?y	?z

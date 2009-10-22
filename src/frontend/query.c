@@ -230,9 +230,32 @@ fs_query_state *fs_query_init(fsp_link *link)
     if (!qs->rasqal_world) {
         fs_error(LOG_ERR, "failed to get initialise rasqal world");
     }
-
 #endif /* HAVE_RASQAL_WORLD */
+
     return qs;
+}
+
+int fq_query_have_laqrs(void)
+{
+    int laqrs = 0;
+
+#ifdef HAVE_RASQAL_WORLD
+    rasqal_world *w = rasqal_new_world();
+    if (!w) {
+        fs_error(LOG_ERR, "failed to get initialise rasqal world");
+
+        return 0;
+    }
+    rasqal_query *rq = rasqal_new_query(w, "laqrs", NULL);
+#else
+    rasqal_query *rq = rasqal_new_query("laqrs", NULL);
+#endif /* HAVE_RASQAL_WORLD */
+    if (rq) {
+        laqrs = 1;
+        rasqal_free_query(rq);
+    }
+
+    return laqrs;
 }
 
 int fs_query_fini(fs_query_state *qs)

@@ -431,7 +431,7 @@ void fsp_serve (const char *kb_name, fsp_backend *backend, int daemon, float dis
   }
 
   signal_actions();
-  fs_error(LOG_INFO, "4store backend r%s for kb %s on port %s", FS_BACKEND_VER, kb_name, cport);
+  fs_error(LOG_INFO, "4store backend %s for kb %s on port %s", FS_BACKEND_VER, kb_name, cport);
 
   GIOChannel *listener = g_io_channel_unix_new (srv);
   g_io_add_watch(listener, G_IO_IN, accept_fn, backend);

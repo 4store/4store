@@ -20,7 +20,7 @@
 
 /* Sample usage
  *
- * 4s-bind sparql_test many FS_BIND_SUBJECT FS_BIND_PREDICATE FS_BIND_OBJECT FS_BIND_BY_SUBJECT /dev/null subjects /dev/null /dev/null
+ * 4s-reverse-bind sparql_test many FS_BIND_SUBJECT FS_BIND_BY_SUBJECT /dev/null /dev/null predicates objects
  */
 
 #include <stdio.h>
@@ -118,14 +118,14 @@ int main(int argc, char *argv[])
 {
   char *password = fsp_argv_password(&argc, argv);
 
-  int flags = 0, many = 0, all = 0;
+  int flags = 0;
   int seg = 0; /* deliberately using signed type */
   fs_rid_vector *mrids= NULL, *srids= NULL, *prids= NULL, *orids= NULL;
   fs_rid_vector **result = NULL;
 
   if (argc < 7) {
     fprintf(stderr, "%s revision %s\n", argv[0], FS_FRONTEND_VER);
-    fprintf(stderr, "Usage: %s <kbname> { many | all | seg# } <flags>\n", argv[0]);
+    fprintf(stderr, "Usage: %s <kbname> <flags>\n", argv[0]);
     fprintf(stderr, " mrid-file srid-file prid-file orid-file [offset limit]\n");
     fprintf(stderr, "For flags use FS_BIND_... symbols or a numeric value\n");
     fprintf(stderr, "RID files are one RID per line\n");
@@ -134,15 +134,9 @@ int main(int argc, char *argv[])
 
   char *kbname = argv[1];
 
-  if (!strcasecmp(argv[2], "many")) {
-    many = 1;
-  } else if (!strcasecmp(argv[2], "all")) {
-    all = 1;
-  } else {
-    seg = atoi(argv[2]);
-  }
+  seg = atoi(argv[2]);
 
-  int param = 3;
+  int param = 2;
 
   flags = strtol(argv[param], NULL, 0);
 
@@ -205,18 +199,13 @@ int main(int argc, char *argv[])
   }
 
   double then = fs_time();
-  int ans = 0;
-
-  if (all) {
-    ans = fsp_bind_limit_all(link, flags, mrids, srids, prids, orids, &result, offset, limit);
-  } else if (many) {
-    ans = fsp_bind_limit_many(link, flags, mrids, srids, prids, orids, &result, offset, limit);
-  } else {
-    ans = fsp_bind_limit(link, seg, flags, mrids, srids, prids, orids, &result, offset, limit);
-  }
+  int ans = fsp_reverse_bind_all(link, flags, mrids, srids, prids, orids, &result, offset, limit);
 
   double time_binding = fs_time() - then;
-  if (ans != 0) exit(1);
+  if (ans != 0) {
+    fs_error (LOG_ERR, "error during reverse bind");
+    exit(1);
+  }
 
   /* print results */
 
@@ -249,19 +238,13 @@ int main(int argc, char *argv[])
   fprintf(stderr, "bind took %f seconds on client\n", time_binding);
 
   fs_query_timing times;
-  if (all || many) {
-    fprintf(stderr, "binding on all or many segments, times in seconds...\n");
-    for (int s = 0; s < segments; ++s) {
-      fsp_get_query_times(link, s, &times);
-      if (times.bind > 0.0f) {
-        fprintf(stderr, "%d: %f\n", s, times.bind);
-      }
+  for (int s = 0; s < segments; ++s) {
+    fsp_get_query_times(link, s, &times);
+    if (times.bind > 0.0f) {
+      fprintf(stderr, "%d: %f\n", s, times.bind);
     }
-    fputc('\n', stderr);
-  } else {
-    fsp_get_query_times(link, seg, &times);
-    fprintf(stderr, "binding segment %d took %f seconds\n", seg, times.bind);
   }
+  fputc('\n', stderr);
 
   fsp_close_link(link);
 }

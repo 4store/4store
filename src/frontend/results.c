@@ -1326,15 +1326,6 @@ static void output_json(fs_query *q, int flags, FILE *out)
     }
     fprintf(out, "]},\n");
 
-    if (q->warnings) {
-        GSList *it;
-        for (it = q->warnings; it; it = it->next) {
-            fprintf(out, "// %s\n", (char *)it->data);
-        }
-        g_slist_free(q->warnings);
-        q->warnings = NULL;
-    }
-
     fprintf(out, " \"results\": {\n");
     fprintf(out, "  \"bindings\":[");
     fs_row *row;
@@ -1387,16 +1378,32 @@ static void output_json(fs_query *q, int flags, FILE *out)
     if (rownum) {
         fputs("\n  ", out);
     }
-    fprintf(out, "]\n }\n}\n");
+    fprintf(out, "]\n }");
 
     if (q->warnings) {
+        fprintf(out, ",\n \"warnings\": [");
         GSList *it;
+        int count = 0;
         for (it = q->warnings; it; it = it->next) {
-            fprintf(out, "// %s\n", (char *)it->data);
+            if (count++) {
+                printf(", ");
+            }
+            char *text = it->data;
+            char *escd = NULL;
+            int esclen = 0;
+            if (json_needs_escape(text, &esclen)) {
+                escd = json_escape(text, esclen);
+                text = escd;
+            }
+            fprintf(out, "\"%s\"", text);
+            if (escd) free(escd);
         }
         g_slist_free(q->warnings);
         q->warnings = NULL;
+        fprintf(out, "]\n");
     }
+
+    fprintf(out, "}\n");
 }
 
 static void output_testcase(fs_query *q, int flags, FILE *out)

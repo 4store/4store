@@ -152,6 +152,7 @@ void fs_rid_vector_free(fs_rid_vector *t);
 fs_p_vector *fs_p_vector_new(int length);
 void fs_p_vector_append(fs_p_vector *v, void *p);
 void fs_p_vector_append_vector(fs_p_vector *v, fs_p_vector *p);
+void fs_rid_vector_append_set(fs_rid_vector *v, fs_rid_set *s);
 void fs_p_vector_clear(fs_p_vector *v);
 void fs_p_vector_free(fs_p_vector *v);
 #define fs_rid_vector_length(rv) ((rv) ? (rv)->length : 0)

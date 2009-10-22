@@ -13,9 +13,8 @@
 
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
-/*
- *  Copyright (C) 2006 Steve Harris for Garlik
+
+    Copyright (C) 2006 Steve Harris for Garlik
  */
 
 #include <stdint.h>
@@ -240,6 +239,33 @@ fs_rid_vector **fs_bind(fs_backend *be, fs_segment segment, unsigned int tobind,
 	ret[i] = fs_rid_vector_new(0);
     }
     int count = 0;
+
+    /* if the query looks like DISINTCT (_ _ p ?o) we can use a set to get a
+     * cheap DISTINCT */
+    if (cols == 1 && ((tobind & (FS_BIND_MODEL | FS_BIND_SUBJECT | 
+	FS_BIND_PREDICATE | FS_BIND_OBJECT)) == FS_BIND_OBJECT) && tobind &
+	FS_BIND_DISTINCT && mvl == 0 && svl == 0 && pvl == 1 && ovl == 0) {
+	fs_ptree *pt = fs_backend_get_ptree(be, pv->data[0], 0);
+	if (pt) {
+	    fs_rid_set *set = fs_rid_set_new();
+	    fs_rid quad[4] = { FS_RID_NULL, FS_RID_NULL, pv->data[0],
+			       FS_RID_NULL };
+	    fs_ptree_it *it = fs_ptree_traverse(pt, FS_RID_NULL);
+	    while (it && fs_ptree_traverse_next(it, quad) && count<limit) {
+		if (!bind_same(quad, tobind)) continue;
+		if (!graph_ok(quad, tobind)) continue;
+		count++;
+		fs_rid_set_add(set, quad[3]);
+	    }
+	    fs_ptree_it_free(it);
+	    fs_rid_vector_append_set(ret[0], set);
+	}
+
+	be->out_time[segment].bind_count++;
+	be->out_time[segment].bind += fs_time() - then;
+
+	return ret;
+    }
 
     /* if the query looks like (m ?s/_ ?p/_ ?o/_) we can consult the model
      * index */
@@ -522,8 +548,8 @@ fs_rid_vector **fs_reverse_bind(fs_backend *be, fs_segment segment,
     }
 
     fs_rid_vector *mv = NULL, *sv = NULL;
-    if (mvi->length) mv = mvi;
-    if (svi->length) sv = svi;
+    if (mvi->length) mv = fs_rid_vector_copy(mvi);
+    if (svi->length) sv = fs_rid_vector_copy(svi);
 
     int iters = ov->length;
     if (pv->length && pv->length != iters) {
@@ -536,9 +562,6 @@ fs_rid_vector **fs_reverse_bind(fs_backend *be, fs_segment segment,
 	ret = calloc(1, sizeof(fs_rid_vector *));
     } else {
 	ret = calloc(cols, sizeof(fs_rid_vector *));
-    }
-    for (int i=0; i<cols; i++) {
-	ret[i] = NULL;
     }
 
     fs_rid quad[4] = { FS_RID_NULL, FS_RID_NULL, FS_RID_NULL, FS_RID_NULL };
@@ -589,11 +612,17 @@ fs_rid_vector **fs_reverse_bind(fs_backend *be, fs_segment segment,
 	}
 	fs_ptree_it_free(res[i]);
 	if (tobind & FS_BIND_MODEL) {
+	    if (mv) {
+		fs_rid_vector_free(mv);
+	    }
 	    mv = fs_rid_vector_copy(inter[0]);
 	    fs_rid_vector_free(inter[0]);
 	    inter[0] = fs_rid_vector_new(0);
 	}
 	if (tobind & FS_BIND_SUBJECT) {
+	    if (sv) {
+		fs_rid_vector_free(sv);
+	    }
 	    sv = fs_rid_vector_copy(inter[1]);
 	    fs_rid_vector_free(inter[1]);
 	    inter[1] = fs_rid_vector_new(0);
@@ -602,18 +631,25 @@ fs_rid_vector **fs_reverse_bind(fs_backend *be, fs_segment segment,
 
     /* If we just need to bind subjects then we can use the intersection */
     if (cols == 1 && tobind & FS_BIND_SUBJECT) {
-	fs_rid_vector_truncate(inter[1], limit);
+	fs_rid_vector_truncate(sv, limit);
 	ret[0] = sv;
 	fs_rid_vector_free(inter[0]);
+	fs_rid_vector_free(inter[1]);
+	be->out_time[segment].bind_count++;
+	be->out_time[segment].bind += fs_time() - then;
 
 	return ret;
     }
 
     if (cols == 2 && tobind & FS_BIND_SUBJECT && tobind & FS_BIND_MODEL) {
-	fs_rid_vector_truncate(inter[0], limit);
-	fs_rid_vector_truncate(inter[1], limit);
+	fs_rid_vector_truncate(mv, limit);
+	fs_rid_vector_truncate(sv, limit);
 	ret[0] = mv;
 	ret[1] = sv;
+	fs_rid_vector_free(inter[0]);
+	fs_rid_vector_free(inter[1]);
+	be->out_time[segment].bind_count++;
+	be->out_time[segment].bind += fs_time() - then;
 
 	return ret;
     }

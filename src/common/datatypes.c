@@ -26,6 +26,20 @@
 #include "datatypes.h"
 #include "common/hash.h"
 
+#define FS_RID_SET_ENTRIES 1024
+#define FS_RID_ENTRY_HASH(r) ((r >> 12) & (FS_RID_SET_ENTRIES-1))
+
+struct rid_entry {
+    fs_rid            val;
+    struct rid_entry *next;
+};
+
+struct _fs_rid_set {
+    struct rid_entry entry[FS_RID_SET_ENTRIES];
+    int scan_hash;
+    struct rid_entry *scan_entry;
+};
+
 #ifdef DEBUG_RV_ALLOC
 fs_rid_vector *fs_rid_vector_new_logged(int length, char *file, int line)
 {
@@ -120,6 +134,19 @@ void fs_rid_vector_append_vector_no_nulls_lit(fs_rid_vector *v, fs_rid_vector *v
     for (int j=0; j<v2->length; j++) {
 	if (v2->data[j] != FS_RID_NULL && !FS_IS_LITERAL(v2->data[j])) {
 	    fs_rid_vector_append(v, v2->data[j]);
+	}
+    }
+}
+
+void fs_rid_vector_append_set(fs_rid_vector *v, fs_rid_set *s)
+{
+    if (!s) return;
+
+    for (int hash=0; hash < FS_RID_SET_ENTRIES; hash++) {
+	for (struct rid_entry *e=&(s->entry[hash]); e; e=e->next) {
+	    if (e->val != FS_RID_NULL) {
+		fs_rid_vector_append(v, e->val);
+	    }
 	}
     }
 }
@@ -406,20 +433,6 @@ void fs_rid_str_vector_free(fs_rid_str_vector *t)
 	free(t);
     }
 }
-
-#define FS_RID_SET_ENTRIES 1024
-#define FS_RID_ENTRY_HASH(r) ((r >> 12) & (FS_RID_SET_ENTRIES-1))
-
-struct rid_entry {
-    fs_rid            val;
-    struct rid_entry *next;
-};
-
-struct _fs_rid_set {
-    struct rid_entry entry[FS_RID_SET_ENTRIES];
-    int scan_hash;
-    struct rid_entry *scan_entry;
-};
 
 fs_rid_set *fs_rid_set_new()
 {

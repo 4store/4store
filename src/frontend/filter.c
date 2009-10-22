@@ -413,9 +413,9 @@ printf("\n");
         return fs_value_boolean(1);
     }
 
-    if ((a.attr != fs_c.empty && FS_IS_LITERAL(a.attr) &&
+    if ((!FS_IS_URI(a.rid) && a.attr != fs_c.empty && FS_IS_LITERAL(a.attr) &&
          !FS_IS_LITERAL(b.attr)) ||
-        (!FS_IS_LITERAL(a.attr) && b.attr != fs_c.empty &&
+        (!FS_IS_URI(a.rid) && !FS_IS_LITERAL(a.attr) && b.attr != fs_c.empty &&
          FS_IS_LITERAL(b.attr))) {
         /* one has a lang tag and one doesn't, definatly different */
         return fs_value_boolean(1);

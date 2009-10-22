@@ -4,6 +4,9 @@ use Term::ANSIColor;
 
 $kb_name = "query_test_".$ENV{'USER'};
 
+# names of tests that require LAQRS support
+my @need_laqrs = ('count', 'union-nobind');
+
 $dirname=`dirname '$0'`;
 chomp $dirname;
 chdir($dirname) || die "cannot cd to $dirname";
@@ -38,6 +41,14 @@ mkdir($outdir);
 
 if (!@tests) {
 	@tests = `ls scripts`;
+	chomp @tests;
+}
+
+if (`../../src/frontend/4s-query -h 2>&1 | grep LAQRS` eq '') {
+	my %tmp;
+	foreach $t (@tests) { $tmp{$t} ++; }
+	foreach $t (@need_laqrs) { delete $tmp{$t}; }
+	@tests = sort keys %tmp;
 }
 
 if ($pid = fork()) {

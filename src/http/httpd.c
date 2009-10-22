@@ -58,6 +58,7 @@ static long all_time_import_count = 0;
 static int global_import_count = 0;
 static int unsafe = 0;
 static int default_graph = 0;
+static int soft_limit = 0; /* default value for soft limit */
 
 static fs_query_state *query_state;
 
@@ -805,7 +806,6 @@ static void http_query_widget(client_ctxt *ctxt)
 static void http_get_request(client_ctxt *ctxt, gchar *url, gchar *protocol)
 {
   char *default_graph = NULL; /* ignored for now */
-  ctxt->soft_limit = 0; /* use default unless specified per query */
 
   char *qm = strchr(url, '?');
   char *qs = qm ? qm + 1 : NULL;
@@ -902,7 +902,6 @@ static void http_head_request(client_ctxt *ctxt, gchar *url, gchar *protocol)
 static void http_post_request(client_ctxt *ctxt, gchar *url, gchar *protocol)
 {
   char *default_graph = NULL; /* ignored for now */
-  ctxt->soft_limit = 0; /* use default unless specified per query */
 
   url_decode(url);
   if (!strcmp(url, "/sparql/")) {
@@ -1303,6 +1302,8 @@ gboolean accept_fn (GIOChannel *source, GIOCondition condition, gpointer data)
   if (default_graph) {
     ctxt->query_flags |= FS_QUERY_DEFAULT_GRAPH;
   }
+  /* set default value */
+  ctxt->soft_limit = soft_limit;
   fcntl(ctxt->sock, F_SETFL, O_NONBLOCK); /* non-blocking */
   GIOChannel *connector = g_io_channel_unix_new (ctxt->sock);
   g_io_channel_set_encoding(connector, NULL, NULL);
@@ -1577,7 +1578,7 @@ int main(int argc, char *argv[])
   const char *port = "8080";
 
   int o;
-  while ((o = getopt(argc, argv, "Dp:Ud")) != -1) {
+  while ((o = getopt(argc, argv, "Dp:Uds:")) != -1) {
     switch (o) {
       case 'D':
         daemonize = 0;
@@ -1591,16 +1592,20 @@ int main(int argc, char *argv[])
       case 'd':
 	default_graph = 1;
 	break;
+      case 's':
+	soft_limit = atoi(optarg);
+	break;
     }
   }
 
   if (optind >= argc) {
     fprintf(stderr, "%s revision %s\n", argv[0], GIT_REV);
-    fprintf(stderr, "Usage: %s [-D] [-p port] [-U] <kbname>\n", basename(argv[0]));
+    fprintf(stderr, "Usage: %s [-D] [-p port] [-U] [-s limit] <kbname>\n", basename(argv[0]));
     fprintf(stderr, "       -p   specify port to listen on\n");
     fprintf(stderr, "       -D   do not daemonise\n");
     fprintf(stderr, "       -U   enable unsafe operations (eg. LOAD)\n");
     fprintf(stderr, "       -d   enable SPARQL default graph support\n");
+    fprintf(stderr, "       -s   default soft limit (-1 to disable)\n");
 
     return 1;
   }
