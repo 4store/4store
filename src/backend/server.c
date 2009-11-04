@@ -1050,7 +1050,7 @@ int main (int argc, char *argv[])
   char *kb_name;
   int daemon = 1;
   int help = 0;
-  float disk_limit = 15.0;
+  float disk_limit = 1.0;
 
   fsp_syslog_enable();
 
