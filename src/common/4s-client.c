@@ -1249,6 +1249,27 @@ int fsp_delete_model_all (fsp_link *link, fs_rid_vector *models)
   return errors;
 }
 
+int fsp_delete_quads_all (fsp_link *link, fs_rid_vector *vec[4])
+{
+  unsigned int length = sizeof(fs_rid) * vec[0]->length;
+  int errors = 0;
+
+  for (fs_segment segment = 0; segment < link->segments; ++segment) {
+    unsigned char *out = message_new(FS_DELETE_QUADS, segment, length * 4);
+    for (int s=0; s<4; s++) {
+      memcpy(out + FS_HEADER + s * length, vec[s]->data, length);
+    }
+    fsp_write_replica(link, out, length);
+    free(out);
+  }
+
+  for (fs_segment segment = 0; segment < link->segments; ++segment) {
+    errors += check_message_replica(link, segment, "delete_quads(%d) failed: %s");
+  }
+
+  return errors;
+}
+
 int fsp_get_data_size (fsp_link *link, fs_segment segment,
                        fs_data_size *size)
 {

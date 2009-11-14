@@ -316,6 +316,53 @@ static unsigned char * handle_stop_import (fs_backend *be, fs_segment segment,
   return message_new(FS_DONE_OK, segment, 0);
 }
 
+static unsigned char * handle_delete_quads (fs_backend *be, fs_segment segment,
+                                          unsigned int length,
+                                          unsigned char *content)
+{
+  if (segment > be->segments) {
+    fs_error(LOG_ERR, "invalid segment number: %d", segment);
+    return fsp_error_new(segment, "invalid segment number");
+  }
+
+  if (length < 32) {
+    fs_error(LOG_ERR, "bind_limit(%d) much too short", segment);
+    return fsp_error_new(segment, "much too short");
+  }
+
+  fs_rid_vector models, subjects, predicates, objects;
+  unsigned int value;
+
+  memcpy(&value, content, sizeof (models.length));
+  models.size = models.length = value / 8;
+  subjects.size = subjects.length = value / 8;
+  predicates.size = predicates.length = value / 8;
+  objects.size = objects.length = value / 8;
+  content += 4;
+
+  if (length < (models.size + subjects.size + predicates.size + objects.size) * 8 + 4) {
+    fs_error(LOG_ERR, "bind_limit(%d) too short", segment);
+    return fsp_error_new(segment, "too short");
+  }
+
+  models.data = (fs_rid *) content;
+  content += models.length * 8;
+
+  subjects.data = (fs_rid *) content;
+  content += subjects.length * 8;
+
+  predicates.data = (fs_rid *) content;
+  content += predicates.length * 8;
+
+  objects.data = (fs_rid *) content;
+
+  fs_rid_vector *args[4] = { &models, &subjects, &predicates, &objects };
+  fs_delete_quads(be, args);
+  /* FIXME, should check return value */
+
+  return message_new(FS_DONE_OK, 0, 0);
+}
+
 static unsigned char * handle_get_size_reverse (fs_backend *be, fs_segment segment,
                                              unsigned int length,
                                              unsigned char *content)
@@ -1015,6 +1062,7 @@ fsp_backend native_backend = {
   .insert_resource = handle_insert_resource,
   .commit_resource = handle_commit_resource,
   .delete_models = handle_delete_models,
+  .delete_quads = handle_delete_quads,
   .new_models = handle_new_models,
   .start_import = handle_start_import,
   .stop_import = handle_stop_import,

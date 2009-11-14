@@ -24,6 +24,12 @@ fs_index_node fs_tbchain_length(fs_tbchain *bc, fs_index_node b);
 /* addpend a triple to the chain, creating blocks is neccesary */
 fs_index_node fs_tbchain_add_triple(fs_tbchain *bc, fs_index_node b, fs_rid triple[3]) __attribute__ ((warn_unused_result));
 
+/* functions to set/clear the "sparse" flag on a chain, indicating that not all
+ * the triples included still exist in the graph */
+int fs_tbchain_set_sparse(fs_tbchain *bc, fs_index_node b);
+int fs_tbchain_clear_sparse(fs_tbchain *bc, fs_index_node b);
+int fs_tbchain_get_sparse(fs_tbchain *bc, fs_index_node b);
+
 /* number of blocks allocated internally */
 unsigned int fs_tbchain_allocated_blocks(fs_tbchain *bc);
 /* show structure of chain file */
