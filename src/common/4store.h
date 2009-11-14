@@ -69,6 +69,8 @@
 #define FS_QUAD_FREQ 0x30
 #define FS_CHOOSE_SEGMENT 0x31
 
+#define FS_DELETE_QUADS 0x32
+
 /* message header  = 16 bytes */
 #define FS_HEADER 16
 
@@ -224,6 +226,7 @@ typedef struct {
   fsp_backend_fn insert_resource;
   fsp_backend_fn insert_triple; /* deprecated */
   fsp_backend_fn delete_models;
+  fsp_backend_fn delete_quads;
   fsp_backend_fn new_models;
 
   fsp_backend_fn segments; /* deprecated */

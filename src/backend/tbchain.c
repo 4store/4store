@@ -43,6 +43,8 @@
 #define FS_TBLOCK_LEN    5  /* in triples */
 #define FS_TBLOCK_SIZE 128  /* in bytes */
 
+#define FS_TBCHAIN_SPARSE 1 /* bit set on first block if chain is sparse */
+
 struct fs_tbc_header {
     int32_t id;
     int32_t revision;
@@ -55,7 +57,8 @@ struct fs_tbc_header {
 typedef struct _fs_tblock {
     fs_index_node cont;
     uint8_t       length;
-    uint8_t       padding[3];
+    uint8_t       flags;
+    uint8_t       padding[2];
     fs_rid        data[FS_TBLOCK_LEN][3];
 } FS_PACKED fs_tblock;
 
@@ -325,6 +328,58 @@ int fs_tbchain_remove_chain(fs_tbchain *c, fs_index_node b)
     return 0;
 }
 
+int fs_tbchain_set_sparse(fs_tbchain *bc, fs_index_node b)
+{
+    if (b == 0 || b == 1) {
+        fs_error(LOG_CRIT, "tried to set flag on block %u\n", b);
+
+        return 0;
+    }
+    if (b > bc->header->length) {
+        fs_error(LOG_CRIT, "tried to set flag past end of chain\n");
+
+        return 0;
+    }
+
+    bc->data[b].flags |= FS_TBCHAIN_SPARSE;
+    
+    return 0;
+}
+
+int fs_tbchain_clear_sparse(fs_tbchain *bc, fs_index_node b)
+{
+    if (b == 0 || b == 1) {
+        fs_error(LOG_CRIT, "tried to clear flag on block %u\n", b);
+
+        return 0;
+    }
+    if (b > bc->header->length) {
+        fs_error(LOG_CRIT, "tried to clear flag past end of chain\n");
+
+        return 0;
+    }
+
+    bc->data[b].flags &= ~FS_TBCHAIN_SPARSE;
+    
+    return 0;
+}
+
+int fs_tbchain_get_sparse(fs_tbchain *bc, fs_index_node b)
+{
+    if (b == 0 || b == 1) {
+        fs_error(LOG_CRIT, "tried to read flag on block %u\n", b);
+
+        return 0;
+    }
+    if (b > bc->header->length) {
+        fs_error(LOG_CRIT, "tried to read flag past end of chain\n");
+
+        return 0;
+    }
+
+    return bc->data[b].flags & FS_TBCHAIN_SPARSE;
+}
+
 fs_index_node fs_tbchain_add_triple(fs_tbchain *bc, fs_index_node b, fs_rid triple[3])
 {
     if (b == 0 || b == 1) {
@@ -349,6 +404,7 @@ fs_index_node fs_tbchain_add_triple(fs_tbchain *bc, fs_index_node b, fs_rid trip
         }
         bc->data[new_b].cont = b;
         bc->data[new_b].length = 0;
+        bc->data[new_b].flags = bc->data[b].flags;
         b = new_b;
     }
 
