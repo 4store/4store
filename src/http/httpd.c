@@ -930,7 +930,7 @@ static void http_post_request(client_ctxt *ctxt, gchar *url, gchar *protocol)
         result = g_io_channel_read_chars(ctxt->ioch, buffer, ctxt->bytes_left, &read, NULL);
       } while (result == G_IO_STATUS_AGAIN);
       if (result !=  G_IO_STATUS_NORMAL) {
-        fs_error(LOG_ERR, "unexpected IO status during POST request");
+        fs_error(LOG_ERR, "unexpected IO status %u during POST request", result);
         g_free(form);
         http_error(ctxt, "500 SPARQL server error");
         http_close(ctxt);
@@ -1002,7 +1002,7 @@ static void http_post_request(client_ctxt *ctxt, gchar *url, gchar *protocol)
         result = g_io_channel_read_chars(ctxt->ioch, buffer, ctxt->bytes_left, &read, NULL);
       } while (result == G_IO_STATUS_AGAIN);
       if (result !=  G_IO_STATUS_NORMAL) {
-        fs_error(LOG_ERR, "unexpected IO status during POST request");
+        fs_error(LOG_ERR, "unexpected IO status %u during POST request", result);
         g_free(form);
         http_error(ctxt, "500 SPARQL server error");
         http_close(ctxt);
@@ -1075,7 +1075,7 @@ static void http_post_request(client_ctxt *ctxt, gchar *url, gchar *protocol)
         result = g_io_channel_read_chars(ctxt->ioch, buffer, ctxt->bytes_left, &read, NULL);
       } while (result == G_IO_STATUS_AGAIN);
       if (result !=  G_IO_STATUS_NORMAL) {
-        fs_error(LOG_ERR, "unexpected IO status during POST request");
+        fs_error(LOG_ERR, "unexpected IO status %u during POST request", result);
         g_free(form);
         http_error(ctxt, "500 SPARQL REST server error");
         http_close(ctxt);
