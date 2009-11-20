@@ -1441,15 +1441,15 @@ static void output_testcase(fs_query *q, int flags, FILE *out)
 	    p = p->next;
 	}
     }
+    fs_row *row;
+    int cols = fs_query_get_columns(q);
     fprintf(out, "\n[] rdf:type rs:ResultSet ;\n");
     if (q->num_vars > 0) {
 	fprintf(out, "   rs:resultVariable ");
-	for (int i=0; i<q->num_vars; i++) {
-	    if (!q->bb[0][i].proj) {
-		continue;
-	    }
-	    if (i > 0) fprintf(out, ", ");
-	    fprintf(out, "\"%s\"", q->bb[0][i].name);
+	row = fs_query_fetch_header_row(q);
+	for (int c=0; c<cols; c++) {
+	    if (c > 0) fprintf(out, ", ");
+	    fprintf(out, "\"%s\"", row[c].name);
 	}
     } else {
         /* apply the filters until we find one that matches or run out of
@@ -1464,8 +1464,6 @@ static void output_testcase(fs_query *q, int flags, FILE *out)
         return;
     }
 
-    fs_row *row;
-    int cols = fs_query_get_columns(q);
     while ((row = fs_query_fetch_row(q))) {
 	fprintf(out, " ;\n   rs:solution [\n");
         if (q->ordering) {
@@ -1479,7 +1477,7 @@ static void output_testcase(fs_query *q, int flags, FILE *out)
 
 	    if (count++ > 0) fprintf(out, " ;\n");
 
-	    fprintf(out, "      rs:binding [ rs:variable \"%s\" ;\n", q->bb[0][c].name);
+	    fprintf(out, "      rs:binding [ rs:variable \"%s\" ;\n", row[c].name);
 	    switch (row[c].type) {
 		case FS_TYPE_NONE:
 		    break;
@@ -1517,7 +1515,7 @@ fs_row *fs_query_fetch_header_row(fs_query *q)
     if (!q->resrow) {
 	q->resrow = calloc(q->num_vars + 1, sizeof(fs_row));
 	for (int col=0; col < q->num_vars; col++) {
-	    q->resrow[col].name = q->bb[0][col].name;
+	    q->resrow[col].name = q->bb[0][col+1].name;
 	}
     }
 
@@ -1549,7 +1547,7 @@ fs_row *fs_query_fetch_row(fs_query *q)
         if (q->row > 0) return NULL;
 
         for (int i=0; i<q->num_vars; i++) {
-            fs_value val = fs_expression_eval(q, q->row, 0, q->bb[0][i].expression);
+            fs_value val = fs_expression_eval(q, q->row, 0, q->bb[0][i+1].expression);
             fs_value_to_row(q, val, q->resrow+i);
         }
         q->row++;
@@ -1608,7 +1606,7 @@ nextrow: ;
             lookup_buffer_size = q->limit * 2;
         }
 	for (int row=q->row; row < q->row + lookup_buffer_size && row < rows; row++) {
-	    for (int col=0; col < q->num_vars; col++) {
+	    for (int col=1; col < q->num_vars; col++) {
 		fs_rid rid;
 		if (row < q->bt[col].vals->length) {
                     if (q->ordering) {
@@ -1646,11 +1644,11 @@ nextrow: ;
     int repeat_row = 1;
     for (int i=0; i<q->num_vars; i++) {
         fs_rid last_rid = q->resrow[i].rid;
-	q->resrow[i].rid = q->bt[i].bound && row < q->bt[i].vals->length ?
-                           q->bt[i].vals->data[row] : FS_RID_NULL;
+	q->resrow[i].rid = q->bt[i+1].bound && row < q->bt[i+1].vals->length ?
+                           q->bt[i+1].vals->data[row] : FS_RID_NULL;
         if (last_rid != q->resrow[i].rid) repeat_row = 0;
-        if (q->bt[i].expression) {
-            fs_value val = fs_expression_eval(q, row, 0, q->bt[i].expression);
+        if (q->bt[i+1].expression) {
+            fs_value val = fs_expression_eval(q, row, 0, q->bt[i+1].expression);
             fs_value_to_row(q, val, q->resrow+i);
         } else {
             fs_resource r;

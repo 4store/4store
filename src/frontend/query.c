@@ -748,7 +748,7 @@ printf("\n");
     /* this is neccesary because the DISTINCT phase may have
      * reduced the length of the projected columns */
     q->length = 0;
-    for (int col=0; col < q->num_vars; col++) {
+    for (int col=1; col < q->num_vars+1; col++) {
         if (!q->bb[0][col].proj) continue;
         if (q->bb[0][col].vals->length > q->length) {
             q->length = q->bb[0][col].vals->length;
@@ -760,7 +760,7 @@ fs_binding_print(q->bb[0], stdout);
 #endif
 
     int selected_not_projected = 0;
-    for (int col = 0; q->bb[0][col].name; col++) {
+    for (int col = 1; q->bb[0][col].name; col++) {
         if (q->bb[0][col].selected && !q->bb[0][col].proj) {
             selected_not_projected = 1;
             break;
@@ -776,7 +776,7 @@ fs_binding_print(q->bb[0], stdout);
                 int dup = 1;
                 /* scan right to left cos we'll find a difference quicker that
                  * way */
-                for (int col=(q->num_vars)-1; col >= 0; col--) {
+                for (int col=(q->num_vars); col > 0; col--) {
                     if (q->bb[0][col].vals->data[q->row] != q->bb[0][col].vals->data[(q->row)-1]) {
                         dup = 0;
                         break;
@@ -1126,6 +1126,7 @@ skip_assign:;
     }
 }
 
+#if 0
 fs_rid_vector **fs_distinct_results(fs_rid_vector **r, int count)
 {
     /* handle trivial cases */
@@ -1167,6 +1168,7 @@ fs_rid_vector **fs_distinct_results(fs_rid_vector **r, int count)
     
     return r;
 }
+#endif
 
 static void desc_action(int flags, fs_rid_vector *slots[], char out[4][DESC_SIZE])
 {
@@ -1411,10 +1413,6 @@ static int process_results(fs_query *q, int block, fs_binding *oldb,
             return 1;
         }
 
-	if (flags & FS_BIND_DISTINCT) {
-	    results = fs_distinct_results(results, numbindings);
-	}
-
 	for (int col=0; col<numbindings; col++) {
 	    if (varnames[col]) {
                 fs_binding *bv = fs_binding_get(b, varnames[col]);
@@ -1443,6 +1441,24 @@ static int process_results(fs_query *q, int block, fs_binding *oldb,
 	    fs_rid_vector_free(results[col]);
 	}
         free(results);
+
+#if 0
+        /* this code proves to cost more overall, though you'd expect it save
+         * effort, lookout for pathalogical cases where it makes a huge
+         * difference, on the "baseball" benchmark it makes things slower */
+        /* do some early DISTINCTing, to save us work later */
+	if (flags & FS_BIND_DISTINCT) {
+            for (int c=0; b[c].name; c++) {
+                if (b[c].bound) b[c].sort = 1;
+            }
+            fs_binding_sort(b);
+            fs_binding_uniq(b);
+            for (int c=0; b[c].name; c++) {
+                b[c].sort = 0;
+            }
+        }
+#endif
+            
         fs_binding_merge(q, block, oldb, b);
     } else {
         if (!(flags & (FS_BIND_OPTIONAL | FS_BIND_UNION))) {
