@@ -21,5 +21,5 @@ clean:
 	rm -f *.o $(BINS)
 	rm -rf *.dSYM
 
-4s-httpd: httpd.o ../common/lib4store.a ../common/libsort.a $(FRONTEND)
+4s-httpd: httpd.o ../common/lib4store.a $(FRONTEND) ../common/libsort.a
 	$(CC) $(LDFLAGS) -o $@ $^ `pcre-config --libs`
