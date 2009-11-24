@@ -191,7 +191,7 @@ fs_qsort_r (void *b, size_t n, size_t s, fs_compar_d_fn_t cmp, void *arg)
 
   if (size < 1024)
     /* The temporary array is small, so put it on the stack.  */
-    p.t = __alloca (size);
+    p.t = alloca (size);
   else
     {
       /* It's somewhat large, so malloc it.  */
