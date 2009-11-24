@@ -44,5 +44,5 @@ libsort.a: $(SORT_OBJS) sort.h
 	ranlib libsort.a
 
 clean:
-	rm -f *.o lib4store.a $(BINS) hashtest
+	rm -f *.o lib4store.a libsort.a $(BINS) hashtest
 	rm -rf *.dSYM

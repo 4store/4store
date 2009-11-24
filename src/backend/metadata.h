@@ -18,6 +18,7 @@
 #define FS_MD_MODEL_DATA		FS_MD_PREFIX "model_data"
 #define FS_MD_MODEL_DIRS		FS_MD_PREFIX "model_dirs"
 #define FS_MD_MODEL_FILES		FS_MD_PREFIX "model_files"
+#define FS_MD_CODE_VERSION		FS_MD_PREFIX "code_version"
 
 #define FS_MD_PKSALT			FS_MD_PREFIX "pksalt"
 #define FS_MD_PWSALT			FS_MD_PREFIX "pwsalt"
