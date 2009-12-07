@@ -384,7 +384,7 @@ void fsp_serve (const char *kb_name, fsp_backend *backend, int daemon, float dis
       return;
     }
 
-    if (setsockopt(srv, IPPROTO_IPV6, IPV6_V6ONLY, &off, sizeof(off)) == -1) {
+    if (hints.ai_family != AF_INET && setsockopt(srv, IPPROTO_IPV6, IPV6_V6ONLY, &off, sizeof(off)) == -1) {
       kb_error(LOG_WARNING, "setsockopt IPV6_V6ONLY OFF failed");
     }
     if (setsockopt(srv, SOL_SOCKET, SO_REUSEADDR, &on, sizeof(on)) == -1) {
