@@ -157,10 +157,9 @@ static void map_file(fs_ptree *pt)
 
 fs_ptree *fs_ptree_open_filename(const char *filename, int flags, fs_ptable *chain)
 {
-    struct ptree_header header;
     if (sizeof(struct ptree_header) != 512) {
         fs_error(LOG_CRIT, "incorrect ptree header size %zd, should be 512",
-                 sizeof(header));
+                 sizeof(struct ptree_header));
 
         return NULL;
     }
