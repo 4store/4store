@@ -135,7 +135,7 @@ int main(int argc, char *argv[])
       fprintf(stderr, "   or: %s <kbname> -P\n", argv[0]);
       fprintf(stderr, " query is a SPARQL%s query, remember to use"
                       " shell quoting if necessary\n", langs);
-      fprintf(stderr, " -f              Output format one of, sparql, text or testcase\n");
+      fprintf(stderr, " -f              Output format one of, sparql, text, json, or testcase\n");
       fprintf(stderr, " -O, --opt-level Set optimisation level, range 0-3\n");
       fprintf(stderr, " -I, --insert    Interpret CONSTRUCT statements as inserts\n");
       fprintf(stderr, " -r, --restricted  Enable query complexity restriction\n");
