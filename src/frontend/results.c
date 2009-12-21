@@ -139,6 +139,10 @@ static fs_value literal_to_value(fs_query *q, int row, int block, rasqal_literal
 	case RASQAL_LITERAL_URI:
 	    return fs_value_uri((char *)raptor_uri_as_string(l->value.uri));
 
+#if RASQAL_VERSION >= 917
+        case RASQAL_LITERAL_XSD_STRING:
+        case RASQAL_LITERAL_UDT:
+#endif
 	case RASQAL_LITERAL_STRING:
             if (l->language) {
                 attr = fs_hash_literal(l->language, 0);
@@ -450,6 +454,10 @@ static raptor_identifier_type slot_fill(fs_query *q, void **data,
 
 	return RAPTOR_IDENTIFIER_TYPE_ANONYMOUS;
 
+#if RASQAL_VERSION >= 917
+    case RASQAL_LITERAL_XSD_STRING:
+    case RASQAL_LITERAL_UDT:
+#endif
     case RASQAL_LITERAL_STRING:
     case RASQAL_LITERAL_BOOLEAN:
 	*data = (void *)l->string;
@@ -547,6 +555,10 @@ static void insert_slot_fill(fs_query *q, fs_rid *rid,
 
 	break;
 
+#if RASQAL_VERSION >= 917
+    case RASQAL_LITERAL_XSD_STRING:
+    case RASQAL_LITERAL_UDT:
+#endif
     case RASQAL_LITERAL_STRING:
 	res.lex = (char *)l->string;
         res.attr = 0;
@@ -642,6 +654,7 @@ static int apply_constraints(fs_query *q, int row)
 
 	    fs_value v = fs_expression_eval(q, row, block, e);
 #ifdef DEBUG_FILTER
+            printf("FILTERs for B%d\n", block);
 	    rasqal_expression_print(e, stdout);
 	    printf(" -> ");
 	    fs_value_print(v);

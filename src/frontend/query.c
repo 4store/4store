@@ -49,7 +49,7 @@
 
 #define DEBUG_SIZE(n, thing) printf("@@ %d * sizeof(%s) = %zd\n", n, #thing, n * sizeof(thing))
 
-static void graph_pattern_walk(fsp_link *link, rasqal_graph_pattern *p, fs_query *q, int optional, int pass, int uni);
+static void graph_pattern_walk(fsp_link *link, rasqal_graph_pattern *p, fs_query *q, rasqal_literal *model, int optional, int pass, int uni);
 static int fs_handle_query_triple(fs_query *q, int block, rasqal_triple *t);
 static int fs_handle_query_triple_multi(fs_query *q, int block, int count, rasqal_triple *t[]);
 static fs_rid const_literal_to_rid(fs_query *q, rasqal_literal *l, fs_rid *attr);
@@ -283,6 +283,12 @@ static void tree_compact(fs_query *q)
             fs_p_vector_append_vector(q->blocks+parent, q->blocks+block);
             if (q->constraints[parent] == NULL) {
                 q->constraints[parent] = q->constraints[block];
+                q->constraints[block] = NULL;
+            }
+            for (int col=0; q->bb[0][col].name; col++) {
+                if (q->bb[0][col].appears == block) {
+                    q->bb[0][col].appears = parent;
+                }
             }
 #ifdef DEBUG_MERGE
 printf("Merge B%d to B%d\n", block, parent);
@@ -453,7 +459,8 @@ fs_query *fs_query_execute(fs_query_state *qs, fsp_link *link, raptor_uri *bu, c
 	    check_cons_slot(q, vars, t->object);
 	}
     } else if (q->describe) {
-#ifdef HAVE_RASQAL_DESCRIBE
+#if RASQAL_VERSION > 917
+#warning untested
         raptor_sequence *desc = rasqal_query_get_describe_sequence(rq);
         vars = raptor_new_sequence(NULL, NULL);
         for (int i=0; 1; i++) {
@@ -507,8 +514,8 @@ fs_query *fs_query_execute(fs_query_state *qs, fsp_link *link, raptor_uri *bu, c
 	q->flags |= FS_BIND_DISTINCT;
     }
 
-    graph_pattern_walk(link, pattern, q, 0, 0, 0);
-    graph_pattern_walk(link, pattern, q, 0, 1, 0);
+    graph_pattern_walk(link, pattern, q, NULL, 0, 0, 0);
+    graph_pattern_walk(link, pattern, q, NULL, 0, 1, 0);
 
     tree_compact(q);
 
@@ -562,7 +569,12 @@ printf("Processing B%d, parent is B%d\n", i, q->parent_block[i]);
             continue;
         }
         if (!q->bb[i]) {
-            q->bb[i] = fs_binding_copy(q->bb[q->parent_block[i]]);
+            int tocopy = q->parent_block[i];
+            while (!q->bb[tocopy]) {
+                tocopy = q->parent_block[tocopy];
+                if (tocopy == 0) break;
+            }
+            q->bb[i] = fs_binding_copy(q->bb[tocopy]);
         }
 	for (int j=0; j<q->blocks[i].length; j++) {
 	    int chunk = fs_optimise_triple_pattern(q->qs, q, i,
@@ -844,7 +856,12 @@ void fs_query_free(fs_query *q)
 	g_slist_free(q->warnings);
         if (q->blocks) {
             for (int i=0; i<FS_MAX_BLOCKS; i++) {
-                if (q->blocks[i].data) free(q->blocks[i].data);
+                if (q->blocks[i].data) {
+                    for (int j=0; j<q->blocks[i].length; j++) {
+                        free(q->blocks[i].data[j]);
+                    }
+                    free(q->blocks[i].data);
+                }
             }
         }
 
@@ -1028,7 +1045,7 @@ static int filter_optimise(fs_query *q, rasqal_expression *e, int block)
 }
 
 static void graph_pattern_walk(fsp_link *link, rasqal_graph_pattern *pattern,
-	fs_query *q, int parent, const int pass, int uni)
+	fs_query *q, rasqal_literal *model, int parent, const int pass, int uni)
 {
     if (!pattern) {
 	return;
@@ -1055,14 +1072,50 @@ static void graph_pattern_walk(fsp_link *link, rasqal_graph_pattern *pattern,
         q->join_type[q->block] = FS_UNION;
     } else if (op == RASQAL_GRAPH_PATTERN_OPERATOR_BASIC ||
 	       op == RASQAL_GRAPH_PATTERN_OPERATOR_GRAPH) {
+printf("@@ {%p}\n", rasqal_graph_pattern_get_origin(pattern));
+        if (op == RASQAL_GRAPH_PATTERN_OPERATOR_GRAPH) {
+printf("@@ GRAPH\n");
+            model = rasqal_graph_pattern_get_origin(pattern);
+            if (!model) {
+                fs_error(LOG_ERR, "expected origin from pattern, but got NULL");
+            }
+        }
 	if (pass == 0) return;
         (q->block)++;
         q->parent_block[q->block] = parent;
         q->join_type[q->block] = FS_INNER;
+#if RASQAL_VERSION >= 917
+    } else if (op == RASQAL_GRAPH_PATTERN_OPERATOR_FILTER) {
+        if (pass == 1) {
+            rasqal_expression *e =
+                rasqal_graph_pattern_get_filter_expression(pattern);
+            if (e) {
+                /* we need to flag if it's a UNION FILTER so we don't
+                 * unneccesarily set the selected flag on the variables */
+                check_variables(q, e, uni);
+                if (filter_optimise(q, e, q->block)) {
+                    /* stop us from trying to evaluate this expression later */
+                    e = NULL;
+                }
+            }
+            if (e) {
+                if (!q->constraints[parent]) {
+                    q->constraints[parent] = raptor_new_sequence(NULL, NULL);
+                }
+#ifdef DEBUG_FILTER
+                printf("ADD ");
+                rasqal_expression_print(e, stdout);
+                printf(" to B%d\n", parent);
+#endif
+                raptor_sequence_push(q->constraints[parent], e);
+            }
+#endif
+        }
     } else if (op == RASQAL_GRAPH_PATTERN_OPERATOR_GROUP) {
         /* do nothing */
+printf("@@ GROUP\n");
     } else {
-	fs_error(LOG_ERR, "GP operator %d not supported", op);
+	fs_error(LOG_ERR, "Unknown GP operator %d not supported", op);
     }
 
     if (q->block == 0 && pass == 1) {
@@ -1070,12 +1123,18 @@ static void graph_pattern_walk(fsp_link *link, rasqal_graph_pattern *pattern,
     }
 
     for (int i=0; 1; i++) {
-	rasqal_triple *t = rasqal_graph_pattern_get_triple(pattern, i);
-	if (!t) break;
+	rasqal_triple *rt = rasqal_graph_pattern_get_triple(pattern, i);
+	if (!rt) break;
+        rasqal_triple *t = calloc(1, sizeof(rasqal_triple));
+printf("@@ model=%p\n", model);
+        t->origin = model;
+        t->subject = rt->subject;
+        t->predicate = rt->predicate;
+        t->object = rt->object;
 #ifdef DEBUG_MERGE
-printf("ADD ");
-rasqal_triple_print(t, stdout);
-printf(" to B%d\n", q->block);
+        printf("ADD ");
+        rasqal_triple_print(rt, stdout);
+        printf(" to B%d\n", q->block);
 #endif
 	fs_p_vector_append(q->blocks+q->block, (void *)t);
 	assign_slot(q, t->origin, q->block);
@@ -1092,10 +1151,11 @@ skip_assign:;
         rasqal_graph_pattern *sgp =
                     rasqal_graph_pattern_get_sub_graph_pattern(pattern, index);
         if (!sgp) break;
-        graph_pattern_walk(link, sgp, q, this_block, pass, union_sub);
+        graph_pattern_walk(link, sgp, q, model, this_block, pass, union_sub);
     }
 
     if (pass == 1) {
+#if RASQAL_VERSION < 917
 	raptor_sequence *s =
 	    rasqal_graph_pattern_get_constraint_sequence(pattern);
 	if (s) {
@@ -1118,6 +1178,7 @@ skip_assign:;
 		q->constraints[this_block] = s;
 	    }
 	}
+#endif
 	for (int c=0; 1; c++) {
 	    rasqal_expression *e = rasqal_query_get_order_condition(q->rq, c);
 	    if (!e) break;
@@ -1682,6 +1743,10 @@ static fs_rid const_literal_to_rid(fs_query *q, rasqal_literal *l, fs_rid *attr)
             char *uri = (char *)raptor_uri_as_string(l->value.uri);
             return fs_hash_uri(uri);
         }
+#if RASQAL_VERSION >= 917
+        case RASQAL_LITERAL_XSD_STRING:
+        case RASQAL_LITERAL_UDT:
+#endif
 	case RASQAL_LITERAL_STRING: {
             *attr = fs_c.empty;
             if (l->language) {
@@ -1776,6 +1841,10 @@ int fs_bind_slot(fs_query *q, int block, fs_binding *b,
             fs_rid_vector_append(v, fs_hash_uri(uri));
 	    break;
         }
+#if RASQAL_VERSION >= 917
+        case RASQAL_LITERAL_XSD_STRING:
+        case RASQAL_LITERAL_UDT:
+#endif
 	case RASQAL_LITERAL_STRING:
 	    if (!lit_allowed) {
 		return 1;
