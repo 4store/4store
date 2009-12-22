@@ -438,6 +438,39 @@ static int resolve_precache_all(fsp_link *l, fs_rid_vector *rv[], int segments)
     return 0;
 }
 
+static raptor_identifier_type slot_fill_from_rid(fs_query *q, void **data, fs_rid rid, raptor_uri **dt, const unsigned char **tag)
+{
+    fs_resource r;
+    resolve(q, rid, &r);
+
+    if (FS_IS_BNODE(rid)) {
+        *data = g_strdup(r.lex+2);
+        fs_query_add_freeable(q, *data);
+
+	return RAPTOR_IDENTIFIER_TYPE_ANONYMOUS;
+    } else if (FS_IS_URI(rid)) {
+        *data = raptor_new_uri((unsigned char *)r.lex);
+
+        return RAPTOR_IDENTIFIER_TYPE_RESOURCE;
+    } else if (FS_IS_LITERAL(rid)) {
+        *data = g_strdup(r.lex);
+        fs_query_add_freeable(q, *data);
+        if (r.attr && r.attr != FS_RID_NULL) {
+            fs_resource ar;
+            resolve(q, r.attr, &ar);
+            if (FS_IS_URI(r.attr)) {
+                *dt = raptor_new_uri((unsigned char *)ar.lex);
+            } else {
+                *tag = (unsigned char *)g_strdup(ar.lex);
+                fs_query_add_freeable(q, (void *)*tag);
+            }
+        }
+	return RAPTOR_IDENTIFIER_TYPE_LITERAL;
+    }
+
+    return RAPTOR_IDENTIFIER_TYPE_UNKNOWN;
+}
+
 static raptor_identifier_type slot_fill(fs_query *q, void **data,
                                         rasqal_literal *l, fs_row *row,
                                         raptor_uri **dt)
@@ -938,26 +971,69 @@ static char *xml_escape(const char *from, int len)
     return to;
 }
 
+static void describe_uri(fs_query *q, fs_rid rid, raptor_uri *uri)
+{
+    if (rid == FS_RID_NULL) {
+        rid = fs_hash_uri((char *)raptor_uri_as_string(uri));
+    }
+    raptor_statement st;
+    fs_rid_vector *ms = fs_rid_vector_new(0);
+    fs_rid_vector *ss = fs_rid_vector_new_from_args(1, rid);
+    fs_rid_vector *ps = fs_rid_vector_new(0);
+    fs_rid_vector *os = fs_rid_vector_new(0);
+    fs_rid_vector **result = NULL;
+    fsp_bind_limit(q->link, FS_RID_SEGMENT(rid, q->segments),
+        FS_BIND_BY_SUBJECT | FS_BIND_PREDICATE | FS_BIND_OBJECT, ms, ss,
+        ps, os, &result, 0, q->soft_limit);
+    st.object_literal_datatype = NULL;
+    st.object_literal_language = NULL;
+    st.subject = uri;
+    if (FS_IS_BNODE(rid)) {
+        st.subject_type = RAPTOR_IDENTIFIER_TYPE_ANONYMOUS;
+    } else {
+        st.subject_type = RAPTOR_IDENTIFIER_TYPE_RESOURCE;
+    }
+    for (int row = 0; row < result[0]->length; row++) {
+        st.predicate_type = slot_fill_from_rid(q, (void **)&(st.predicate), result[0]->data[row], NULL, NULL);
+        st.object_type = slot_fill_from_rid(q, (void **)&(st.object), result[1]->data[row], &(st.object_literal_datatype), &(st.object_literal_language));
+        raptor_serialize_statement(q->ser, &st);
+    }
+}
 
 static void handle_describe(fs_query *q, const char *type, FILE *output)
 {
-    //if (!q->boolean) return;
-#ifdef HAVE_RASQAL_DESCRIBE
-    raptor_sequence *desc = rasqal_query_get_describe_sequence(q->rq);
+#if RASQAL_VERSION >= 917
+    q->ser = raptor_new_serializer(type);
+    for (int i=0; 1; i++) {
+        rasqal_prefix *p = rasqal_query_get_prefix(q->rq, i);
+        if (!p) break;
+        raptor_serialize_set_namespace(q->ser, p->uri, p->prefix);
+    }
+    raptor_serialize_start_to_file_handle(q->ser, q->base, output);
 
+    fs_p_vector *vars = fs_p_vector_new(0);
+    raptor_sequence *desc = rasqal_query_get_describe_sequence(q->rq);
     for (int i=0; 1; i++) {
         rasqal_literal *l = raptor_sequence_get_at(desc, i);
         if (!l) break;
         if (l->type == RASQAL_LITERAL_URI) {
-            fs_rid uri = fs_hash_uri((char *)raptor_uri_as_string(l->value.uri));
-printf("@@ %016llx\n", uri);
+            describe_uri(q, FS_RID_NULL, l->value.uri);
+        } else if (l->type == RASQAL_LITERAL_VARIABLE) {
+            fs_p_vector_append(vars, l);
         }
     }
 
     fs_row *row;
     while ((row = fs_query_fetch_row(q))) {
-printf("@@ %016llx\n", row[0].rid);
+        for (int i=0; i<vars->length; i++) {
+            raptor_uri *duri;
+            slot_fill(q, (void **)&duri, vars->data[i], row, NULL);
+            describe_uri(q, row[i].rid, duri);
+        }
     }
+    raptor_serialize_end(q->ser);
+    raptor_free_serializer(q->ser);
+    fs_p_vector_free(vars);
 #else
     fprintf(output, "<?xml version=\"1.0\"?>\n<rdf:RDF xmlns:rdf=\"http://www.w3.org/1999/02/22-rdf-syntax-ns#\"><!-- sorry, DESCRIBE is not supported by this version of rasqal --></rdf:RDF>\n");
 #endif

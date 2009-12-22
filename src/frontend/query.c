@@ -49,7 +49,7 @@
 
 #define DEBUG_SIZE(n, thing) printf("@@ %d * sizeof(%s) = %zd\n", n, #thing, n * sizeof(thing))
 
-static void graph_pattern_walk(fsp_link *link, rasqal_graph_pattern *p, fs_query *q, rasqal_literal *model, int optional, int pass, int uni);
+static void graph_pattern_walk(fsp_link *link, rasqal_graph_pattern *p, fs_query *q, rasqal_literal *model, int optional, int uni);
 static int fs_handle_query_triple(fs_query *q, int block, rasqal_triple *t);
 static int fs_handle_query_triple_multi(fs_query *q, int block, int count, rasqal_triple *t[]);
 static fs_rid const_literal_to_rid(fs_query *q, rasqal_literal *l, fs_rid *attr);
@@ -459,8 +459,7 @@ fs_query *fs_query_execute(fs_query_state *qs, fsp_link *link, raptor_uri *bu, c
 	    check_cons_slot(q, vars, t->object);
 	}
     } else if (q->describe) {
-#if RASQAL_VERSION > 917
-#warning untested
+#if RASQAL_VERSION >= 917
         raptor_sequence *desc = rasqal_query_get_describe_sequence(rq);
         vars = raptor_new_sequence(NULL, NULL);
         for (int i=0; 1; i++) {
@@ -514,8 +513,7 @@ fs_query *fs_query_execute(fs_query_state *qs, fsp_link *link, raptor_uri *bu, c
 	q->flags |= FS_BIND_DISTINCT;
     }
 
-    graph_pattern_walk(link, pattern, q, NULL, 0, 0, 0);
-    graph_pattern_walk(link, pattern, q, NULL, 0, 1, 0);
+    graph_pattern_walk(link, pattern, q, NULL, 0, 0);
 
     tree_compact(q);
 
@@ -680,9 +678,6 @@ printf("\n");
 
     /* run through the blocks in the correct order to do the joins */
     for (int i=q->block; i>=0; i--) {
-        if (!q->bb[i]) {
-            continue;
-        }
         int start = i > 1 ? i : 1;
         for (int j=start; j<=q->block; j++) {
             if (!q->bb[j]) {
@@ -697,23 +692,35 @@ printf("\n");
                     printf("block join B%d [X] B%d\n", i, j);
 #endif
                     /* It's an normal join */
-                    fs_binding *nb = fs_binding_join(q, q->bb[i], q->bb[j], FS_INNER);
-                    fs_binding_free(q->bb[i]);
-                    q->bb[i] = nb;
-                    if (i == 0) q->bt = q->bb[i];
-                    fs_binding_free(q->bb[j]);
-                    q->bb[j] = NULL;
+                    if (q->bb[i]) {
+                        fs_binding *nb = fs_binding_join(q, q->bb[i], q->bb[j], FS_INNER);
+                        fs_binding_free(q->bb[i]);
+                        q->bb[i] = nb;
+                        if (i == 0) q->bt = q->bb[i];
+                        fs_binding_free(q->bb[j]);
+                        q->bb[j] = NULL;
+                    } else {
+                        /* Bi is empty, just replace it */
+                        q->bb[i] = q->bb[j];
+                        q->bb[j] = NULL;
+                    }
                 } else if (q->join_type[j] == FS_UNION) {
                     /* It's a UNION, inner join */
 #ifdef DEBUG_MERGE
                     printf("block join B%d [X] B%d\n", i, j);
 #endif
-                    fs_binding *nb = fs_binding_join(q, q->bb[i], q->bb[j], FS_INNER);
-                    fs_binding_free(q->bb[i]);
-                    q->bb[i] = nb;
-                    if (i == 0) q->bt = q->bb[i];
-                    fs_binding_free(q->bb[j]);
-                    q->bb[j] = NULL;
+                    if (q->bb[i]) {
+                        fs_binding *nb = fs_binding_join(q, q->bb[i], q->bb[j], FS_INNER);
+                        fs_binding_free(q->bb[i]);
+                        q->bb[i] = nb;
+                        if (i == 0) q->bt = q->bb[i];
+                        fs_binding_free(q->bb[j]);
+                        q->bb[j] = NULL;
+                    } else {
+                        /* Bi is empty, just replace it */
+                        q->bb[i] = q->bb[j];
+                        q->bb[j] = NULL;
+                    }
                 } else if (q->join_type[j] == FS_LEFT) {
                     /* It's an OPTIONAL, left join */
 #ifdef DEBUG_MERGE
@@ -747,15 +754,19 @@ printf("\n");
     }
 
     if (q->flags & FS_BIND_DISTINCT) {
+        int sortable = 0;
 	for (int i=0; q->bb[0][i].name; i++) {
 	    if (q->bb[0][i].proj || q->bb[0][i].selected) {
 		q->bb[0][i].sort = 1;
+                sortable = 1;
 	    } else {
 		q->bb[0][i].sort = 0;
 	    }
 	}
-	fs_binding_sort(q->bb[0]);
-	fs_binding_uniq(q->bb[0]);
+        if (sortable) {
+            fs_binding_sort(q->bb[0]);
+            fs_binding_uniq(q->bb[0]);
+        }
     }
     /* this is neccesary because the DISTINCT phase may have
      * reduced the length of the projected columns */
@@ -1045,7 +1056,7 @@ static int filter_optimise(fs_query *q, rasqal_expression *e, int block)
 }
 
 static void graph_pattern_walk(fsp_link *link, rasqal_graph_pattern *pattern,
-	fs_query *q, rasqal_literal *model, int parent, const int pass, int uni)
+	fs_query *q, rasqal_literal *model, int parent, int uni)
 {
     if (!pattern) {
 	return;
@@ -1056,78 +1067,71 @@ static void graph_pattern_walk(fsp_link *link, rasqal_graph_pattern *pattern,
     int op = rasqal_graph_pattern_get_operator(pattern);
 
     if (op == RASQAL_GRAPH_PATTERN_OPERATOR_OPTIONAL) {
-	if (pass == 0) return;
 	(q->block)++;
         q->parent_block[q->block] = parent;
         q->join_type[q->block] = FS_LEFT;
     } else if (op == RASQAL_GRAPH_PATTERN_OPERATOR_UNION) {
-	if (pass == 0) return;
         (q->unions)++;
-        union_sub = 1;
-    } else if (uni) {
-	if (pass == 0) return;
-	(q->block)++;
-        q->union_group[q->block] = q->unions;
-        q->parent_block[q->block] = parent;
-        q->join_type[q->block] = FS_UNION;
+        union_sub = q->unions;
     } else if (op == RASQAL_GRAPH_PATTERN_OPERATOR_BASIC ||
 	       op == RASQAL_GRAPH_PATTERN_OPERATOR_GRAPH) {
-printf("@@ {%p}\n", rasqal_graph_pattern_get_origin(pattern));
         if (op == RASQAL_GRAPH_PATTERN_OPERATOR_GRAPH) {
-printf("@@ GRAPH\n");
+#if RASQAL_VERSION >= 917
             model = rasqal_graph_pattern_get_origin(pattern);
+#endif
             if (!model) {
                 fs_error(LOG_ERR, "expected origin from pattern, but got NULL");
             }
         }
-	if (pass == 0) return;
         (q->block)++;
         q->parent_block[q->block] = parent;
         q->join_type[q->block] = FS_INNER;
 #if RASQAL_VERSION >= 917
     } else if (op == RASQAL_GRAPH_PATTERN_OPERATOR_FILTER) {
-        if (pass == 1) {
-            rasqal_expression *e =
-                rasqal_graph_pattern_get_filter_expression(pattern);
-            if (e) {
-                /* we need to flag if it's a UNION FILTER so we don't
-                 * unneccesarily set the selected flag on the variables */
-                check_variables(q, e, uni);
-                if (filter_optimise(q, e, q->block)) {
-                    /* stop us from trying to evaluate this expression later */
-                    e = NULL;
-                }
+        rasqal_expression *e =
+            rasqal_graph_pattern_get_filter_expression(pattern);
+        if (e) {
+            /* we need to flag if it's a UNION FILTER so we don't
+             * unneccesarily set the selected flag on the variables */
+            check_variables(q, e, uni);
+            if (filter_optimise(q, e, q->block)) {
+                /* stop us from trying to evaluate this expression later */
+                e = NULL;
             }
-            if (e) {
-                if (!q->constraints[parent]) {
-                    q->constraints[parent] = raptor_new_sequence(NULL, NULL);
-                }
-#ifdef DEBUG_FILTER
-                printf("ADD ");
-                rasqal_expression_print(e, stdout);
-                printf(" to B%d\n", parent);
-#endif
-                raptor_sequence_push(q->constraints[parent], e);
-            }
-#endif
         }
+        if (e) {
+            if (!q->constraints[parent]) {
+                q->constraints[parent] = raptor_new_sequence(NULL, NULL);
+            }
+#ifdef DEBUG_FILTER
+            printf("ADD ");
+            rasqal_expression_print(e, stdout);
+            printf(" to B%d\n", parent);
+#endif
+            raptor_sequence_push(q->constraints[parent], e);
+        }
+#endif
     } else if (op == RASQAL_GRAPH_PATTERN_OPERATOR_GROUP) {
         /* do nothing */
-printf("@@ GROUP\n");
     } else {
 	fs_error(LOG_ERR, "Unknown GP operator %d not supported", op);
     }
 
-    if (q->block == 0 && pass == 1) {
-	goto skip_assign;
+    if (uni) {
+        q->union_group[q->block] = uni;
+        q->parent_block[q->block] = parent;
+        q->join_type[q->block] = FS_UNION;
     }
 
     for (int i=0; 1; i++) {
 	rasqal_triple *rt = rasqal_graph_pattern_get_triple(pattern, i);
 	if (!rt) break;
         rasqal_triple *t = calloc(1, sizeof(rasqal_triple));
-printf("@@ model=%p\n", model);
+#if RASQAL_VERSION >= 917
         t->origin = model;
+#else
+        t->origin = rt->origin;
+#endif
         t->subject = rt->subject;
         t->predicate = rt->predicate;
         t->object = rt->object;
@@ -1143,47 +1147,43 @@ printf("@@ model=%p\n", model);
 	assign_slot(q, t->object, q->block);
     }
 
-skip_assign:;
-
     const int this_block = q->block;
     /* descend into next level down */
     for (int index=0; 1; index++) {
         rasqal_graph_pattern *sgp =
                     rasqal_graph_pattern_get_sub_graph_pattern(pattern, index);
         if (!sgp) break;
-        graph_pattern_walk(link, sgp, q, model, this_block, pass, union_sub);
+        graph_pattern_walk(link, sgp, q, model, this_block, union_sub);
     }
 
-    if (pass == 1) {
 #if RASQAL_VERSION < 917
-	raptor_sequence *s =
-	    rasqal_graph_pattern_get_constraint_sequence(pattern);
-	if (s) {
-	    for (int c=0; 1; c++) {
-		rasqal_expression *e = raptor_sequence_get_at(s, c);
-		if (!e) break;
+    raptor_sequence *s =
+        rasqal_graph_pattern_get_constraint_sequence(pattern);
+    if (s) {
+        for (int c=0; 1; c++) {
+            rasqal_expression *e = raptor_sequence_get_at(s, c);
+            if (!e) break;
 
-                /* we need to flag if it's a UNION FILTER so we don't
-                 * unneccesarily set the selected flag on the variables */
-		check_variables(q, e, uni);
-		if (filter_optimise(q, e, q->block)) {
-                    /* stop us from trying to evaluate this expression later */
-                    raptor_sequence_set_at(s, c, NULL);
-                }
-	    }
+            /* we need to flag if it's a UNION FILTER so we don't
+             * unneccesarily set the selected flag on the variables */
+            check_variables(q, e, uni);
+            if (filter_optimise(q, e, q->block)) {
+                /* stop us from trying to evaluate this expression later */
+                raptor_sequence_set_at(s, c, NULL);
+            }
+        }
 
-	    if (q->constraints[this_block]) {
-		raptor_sequence_join(q->constraints[this_block], s);
-	    } else {
-		q->constraints[this_block] = s;
-	    }
-	}
+        if (q->constraints[this_block]) {
+            raptor_sequence_join(q->constraints[this_block], s);
+        } else {
+            q->constraints[this_block] = s;
+        }
+    }
 #endif
-	for (int c=0; 1; c++) {
-	    rasqal_expression *e = rasqal_query_get_order_condition(q->rq, c);
-	    if (!e) break;
-	    check_variables(q, e, 0);
-	}
+    for (int c=0; 1; c++) {
+        rasqal_expression *e = rasqal_query_get_order_condition(q->rq, c);
+        if (!e) break;
+        check_variables(q, e, 0);
     }
 }
 
