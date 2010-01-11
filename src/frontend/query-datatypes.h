@@ -31,7 +31,7 @@ typedef struct _fs_query_state fs_query_state;
 
 typedef enum { FS_NONE, FS_INNER, FS_LEFT, FS_UNION } fs_join_type;
 
-fs_binding *fs_binding_new();
+fs_binding *fs_binding_new(void);
 int fs_binding_set_expression(fs_binding *b, const char *name, rasqal_expression *ex);
 void fs_binding_free(fs_binding *b);
 int fs_binding_any_bound(fs_binding *b);

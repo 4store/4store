@@ -160,7 +160,7 @@ void fs_p_vector_free(fs_p_vector *v);
 fs_rid_str_vector *fs_rid_str_vector_new(int length);
 void fs_rid_str_vector_free(fs_rid_str_vector *t);
 
-fs_rid_set *fs_rid_set_new();
+fs_rid_set *fs_rid_set_new(void);
 void fs_rid_set_add(fs_rid_set *s, fs_rid val);
 int fs_rid_set_contains(fs_rid_set *s, fs_rid vsl);
 int fs_rid_set_rewind(fs_rid_set *s);
@@ -168,7 +168,7 @@ fs_rid fs_rid_set_next(fs_rid_set *s);
 void fs_rid_set_print(fs_rid_set *s);
 void fs_rid_set_free(fs_rid_set *s);
  
-double fs_time(); 
+double fs_time(void); 
 
 int fs_resource_cmp(const void *va, const void *vb);
 
