@@ -1470,6 +1470,7 @@ static int process_results(fs_query *q, int block, fs_binding *oldb,
             for (int x=0; x<4; x++) {
                 fs_rid_vector_clear(slot[x]);
             }
+            fs_binding_free(oldb);
 
             return 1;
         }
