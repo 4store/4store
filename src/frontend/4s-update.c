@@ -43,7 +43,7 @@ int main(int argc, char *argv[])
 
     char *message = NULL;
     int ret = fs_update(link, argv[2], &message, TRUE);
-    printf("%s", message);
+    if (message) printf("%s\n", message);
 
     return ret;
 }
