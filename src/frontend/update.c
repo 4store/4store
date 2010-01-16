@@ -18,12 +18,14 @@
 #include <stdio.h>
 #include <glib.h>
 #include <pcre.h>
+#include <rasqal.h>
 
 #include "update.h"
 #include "import.h"
 #include "common/4store.h"
 #include "common/hash.h"
 #include "common/error.h"
+#include "common/rdf-constants.h"
 
 enum update_op {
     OP_LOAD, OP_CLEAR
@@ -36,10 +38,23 @@ typedef struct _update_operation {
     struct _update_operation *next;
 } update_operation;
 
+struct update_context {
+    fsp_link *link;
+    int segments;
+    rasqal_world *rw;
+    rasqal_query *rq;
+    rasqal_query_verb verb;
+    rasqal_literal *graph;
+};
+
 static int inited = 0;
 static pcre *re_ws = NULL;
 static pcre *re_load = NULL;
 static pcre *re_clear = NULL;
+
+fs_rid fs_hash_rasqal_literal(rasqal_literal *l);
+void fs_resource_from_rasqal_literal(struct update_context *uctxt,
+                                     rasqal_literal *l, fs_resource *res);
 
 static void re_error(int rc)
 {
@@ -81,8 +96,122 @@ static void free_ops(update_operation *head)
     }
 }
 
+static void update_walk(struct update_context *uctxt, rasqal_graph_pattern *node)
+{
+    rasqal_graph_pattern_operator op = rasqal_graph_pattern_get_operator(node);
+    if (op == RASQAL_GRAPH_PATTERN_OPERATOR_BASIC ||
+        op == RASQAL_GRAPH_PATTERN_OPERATOR_GROUP) {
+        /* do nothing */
+    } else if (op == RASQAL_GRAPH_PATTERN_OPERATOR_GRAPH) {
+        uctxt->graph = rasqal_graph_pattern_get_origin(node);
+    } else {
+        fs_error(LOG_ERR, "enocuntered unexpected graph operator “%s”", rasqal_graph_pattern_operator_as_string(op));
+
+        return;
+    }
+    for (int t=0; rasqal_graph_pattern_get_triple(node, t); t++) {
+        rasqal_triple *triple = rasqal_graph_pattern_get_triple(node, t);
+        fs_rid quad_buf[1][4];
+        quad_buf[0][0] = fs_hash_rasqal_literal(uctxt->graph);
+        quad_buf[0][1] = fs_hash_rasqal_literal(triple->subject);
+        quad_buf[0][2] = fs_hash_rasqal_literal(triple->predicate);
+        quad_buf[0][3] = fs_hash_rasqal_literal(triple->object);
+
+        if (uctxt->verb == RASQAL_QUERY_VERB_INSERT) {
+            if (quad_buf[0][0] == FS_RID_NULL) {
+                quad_buf[0][0] = fs_c.default_graph;
+            }
+
+            fs_resource res;
+            res.rid = quad_buf[0][0];
+            if (uctxt->graph) {
+                fs_resource_from_rasqal_literal(uctxt, uctxt->graph, &res);
+            } else {
+                res.lex = FS_DEFAULT_GRAPH;
+                res.attr = FS_RID_NULL;
+            }
+            fsp_res_import(uctxt->link, FS_RID_SEGMENT(quad_buf[0][0], uctxt->segments), 1, &res);
+            res.rid = quad_buf[0][1];
+            fs_resource_from_rasqal_literal(uctxt, triple->subject, &res);
+            fsp_res_import(uctxt->link, FS_RID_SEGMENT(quad_buf[0][1], uctxt->segments), 1, &res);
+            res.rid = quad_buf[0][2];
+            fs_resource_from_rasqal_literal(uctxt, triple->predicate, &res);
+            fsp_res_import(uctxt->link, FS_RID_SEGMENT(quad_buf[0][2], uctxt->segments), 1, &res);
+            res.rid = quad_buf[0][3];
+            fs_resource_from_rasqal_literal(uctxt, triple->object, &res);
+            fsp_res_import(uctxt->link, FS_RID_SEGMENT(quad_buf[0][3], uctxt->segments), 1, &res);
+
+            fsp_quad_import(uctxt->link, FS_RID_SEGMENT(quad_buf[0][1], uctxt->segments),
+                            FS_BIND_BY_SUBJECT, 1, quad_buf);
+        } else {
+            fs_error(LOG_ERR, "unhandled verb");
+        }
+    }
+    for (int i=0; rasqal_graph_pattern_get_sub_graph_pattern(node, i); i++) {
+        update_walk(uctxt, rasqal_graph_pattern_get_sub_graph_pattern(node, i));
+    }
+}
+
+int fs_rasqal_update(fsp_link *l, char *update, char **message, int unsafe)
+{
+    rasqal_world *rworld = rasqal_new_world();
+    rasqal_world_open(rworld);
+    rasqal_query *rq = rasqal_new_query(rworld, "laqrs", NULL);
+    if (!rq) {
+        *message = g_strdup_printf("Unable to initialise update parser");
+        rasqal_free_world(rworld);
+
+        return 1;
+    }
+    rasqal_query_prepare(rq, (unsigned char *)update, NULL);
+    rasqal_query_verb verb = rasqal_query_get_verb(rq);
+    int ok = 0;
+    switch (verb) {
+    case RASQAL_QUERY_VERB_UNKNOWN:
+        *message = g_strdup("Unknown update verb");
+        break;
+    case RASQAL_QUERY_VERB_SELECT:
+    case RASQAL_QUERY_VERB_CONSTRUCT:
+    case RASQAL_QUERY_VERB_DESCRIBE:
+    case RASQAL_QUERY_VERB_ASK:
+        *message = g_strdup("Query verb sent in update request");
+        break;
+    case RASQAL_QUERY_VERB_DELETE:
+    case RASQAL_QUERY_VERB_INSERT:
+        ok = 1;
+        break;
+    }
+
+    if (!ok) {
+        rasqal_free_query(rq);
+        rasqal_free_world(rworld);
+
+        return 1;
+    }
+
+    struct update_context uctxt;
+    memset(&uctxt, 0, sizeof(uctxt));
+    uctxt.link = l;
+    uctxt.segments = fsp_link_segments(l);
+    uctxt.rw = rworld;
+    uctxt.rq = rq;
+    uctxt.verb = verb;
+    update_walk(&uctxt, rasqal_query_get_query_graph_pattern(rq));
+    if (verb == RASQAL_QUERY_VERB_INSERT) {
+        fsp_res_import_commit_all(l);
+        fsp_quad_import_commit_all(l, FS_BIND_BY_SUBJECT);
+    }
+
+    rasqal_free_query(rq);
+    rasqal_free_world(rworld);
+
+    return 0;
+}
+
 int fs_update(fsp_link *l, char *update, char **message, int unsafe)
 {
+    *message = NULL;
+
     if (!inited) {
         const char *errstr = NULL;
         int erroffset = 0;
@@ -152,10 +281,16 @@ int fs_update(fsp_link *l, char *update, char **message, int unsafe)
     if (length > 0) {
         free_ops(ops);
         g_string_free(mstr, TRUE);
-        *message = g_strdup_printf("Syntax error in SPARUL command near "
-                                   "“%.40s”\n", scan);
+        if (fs_rasqal_update(l, update, message, unsafe)) {
+            if (!*message) {
+                *message = g_strdup_printf("Syntax error in SPARUL command "
+                                           "near “%.40s”\n", scan);
+            }
 
-        return 1;
+            return 1;
+        }
+
+        return 0;
     }
 
     int errors = 0;
@@ -217,6 +352,64 @@ int fs_update(fsp_link *l, char *update, char **message, int unsafe)
     g_string_free(mstr, FALSE);
 
     return errors;
+}
+
+fs_rid fs_hash_rasqal_literal(rasqal_literal *l)
+{
+    if (!l) return FS_RID_NULL;
+
+    rasqal_literal_type type = rasqal_literal_get_rdf_term_type(l);
+    if (type == RASQAL_LITERAL_URI) {
+	return fs_hash_uri((char *)raptor_uri_as_string(l->value.uri));
+    } else if (type == RASQAL_LITERAL_STRING) {
+        fs_rid attr = 0;
+        if (l->datatype) {
+            attr = fs_hash_uri((char *)raptor_uri_as_string(l->datatype));
+        } else if (l->language) {
+            attr = fs_hash_literal((char *)l->language, 0);
+        }
+
+        return fs_hash_literal((char *)rasqal_literal_as_string(l), attr);
+    } else {
+	fs_error(LOG_ERR, "bad rasqal literal in hash");
+    }
+
+    return FS_RID_NULL;
+}
+
+void fs_resource_from_rasqal_literal(struct update_context *uctxt, rasqal_literal *l, fs_resource *res)
+{
+    if (!l) {
+        res->lex = "(null)";
+        res->attr = FS_RID_NULL;
+
+        return;
+    }
+    rasqal_literal_type type = rasqal_literal_get_rdf_term_type(l);
+    if (type == RASQAL_LITERAL_URI) {
+	res->lex = (char *)raptor_uri_as_string(l->value.uri);
+        res->attr = FS_RID_NULL;
+    } else {
+        res->lex = (char *)l->string;
+        res->attr = 0;
+        fs_resource ares;
+        ares.lex = NULL;
+        if (l->datatype) {
+            res->attr = fs_hash_uri((char *)raptor_uri_as_string(l->datatype));
+            ares.rid = res->attr;
+            ares.lex = (char *)raptor_uri_as_string(l->datatype);
+            ares.attr = FS_RID_NULL;
+        } else if (l->language) {
+            res->attr = fs_hash_literal(l->language, 0);
+            ares.rid = res->attr;
+            ares.lex = (char *)l->language;
+            ares.attr = 0;
+        }
+        /* insert attribute resource if there is one */
+        if (ares.lex) {
+            fsp_res_import(uctxt->link, FS_RID_SEGMENT(ares.rid, uctxt->segments), 1, &ares);
+        }
+    }
 }
 
 /* vi:set expandtab sts=4 sw=4: */
