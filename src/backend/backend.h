@@ -29,7 +29,7 @@ int fs_backend_get_segments(fs_backend *be);
 fs_segment fs_backend_get_segment(fs_backend *be);
 void fs_backend_set_min_free(fs_backend *be, float min_free);
 
-int fs_backend_need_reload();
+int fs_backend_need_reload(void);
 #define fs_backend_open_files(b, s, fl, fi) fs_backend_open_files_intl(b, s, fl, fi, __FILE__, __LINE__)
 int fs_backend_open_files_intl(fs_backend *be, fs_segment seg, int flags, int files, char *file, int line);
 int fs_backend_unlink_indexes(fs_backend *be, fs_segment seg);

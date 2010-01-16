@@ -13,9 +13,8 @@
 
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
-/*
- *  Copyright (C) 2007 Steve Harris for Garlik
+
+    Copyright (C) 2007 Steve Harris for Garlik
  */
 
 #include <stdio.h>
@@ -30,6 +29,7 @@
 #include "query.h"
 #include "query-datatypes.h"
 #include "query-intl.h"
+#include "debug.h"
 #include "common/error.h"
 #include "common/hash.h"
 #include "common/rdf-constants.h"
@@ -40,6 +40,10 @@ int fs_opt_num_vals(fs_binding *b, rasqal_literal *l)
     if (!l) return 0;
 
     switch (l->type) {
+#if RASQAL_VERSION >= 917
+        case RASQAL_LITERAL_XSD_STRING:
+        case RASQAL_LITERAL_UDT:
+#endif
 	case RASQAL_LITERAL_URI:
 	case RASQAL_LITERAL_STRING:
 	case RASQAL_LITERAL_BOOLEAN:
@@ -75,6 +79,10 @@ int fs_opt_is_const(fs_binding *b, rasqal_literal *l)
     if (!l) return 0;
 
     switch (l->type) {
+#if RASQAL_VERSION >= 917
+        case RASQAL_LITERAL_XSD_STRING:
+        case RASQAL_LITERAL_UDT:
+#endif
 	case RASQAL_LITERAL_URI:
 	case RASQAL_LITERAL_STRING:
 	case RASQAL_LITERAL_BOOLEAN:
@@ -105,12 +113,60 @@ int fs_opt_is_const(fs_binding *b, rasqal_literal *l)
     return 0;
 }
 
+/* returns true if the expression has bound values, or nothing does */
+int fs_opt_is_bound(fs_binding *b, rasqal_literal *l)
+{
+    if (!l) return 0;
+
+    switch (l->type) {
+	case RASQAL_LITERAL_VARIABLE: {
+            if (fs_binding_length(b) == 0) {
+                return 1;
+            }
+	    char *vname = (char *)l->value.variable->name;
+	    fs_binding *bv = fs_binding_get(b, vname);
+	    if (bv && bv->bound == 1) {
+		return 1;
+	    }
+	    return 0;
+
+	}
+
+#if RASQAL_VERSION >= 917
+        case RASQAL_LITERAL_XSD_STRING:
+        case RASQAL_LITERAL_UDT:
+#endif
+	case RASQAL_LITERAL_URI:
+	case RASQAL_LITERAL_STRING:
+	case RASQAL_LITERAL_BOOLEAN:
+	case RASQAL_LITERAL_INTEGER:
+	case RASQAL_LITERAL_DOUBLE:
+	case RASQAL_LITERAL_FLOAT:
+	case RASQAL_LITERAL_DECIMAL:
+	case RASQAL_LITERAL_DATETIME:
+	    return 0;
+
+	/* we shouldn't find any of these... */
+	case RASQAL_LITERAL_UNKNOWN:
+	case RASQAL_LITERAL_BLANK:
+	case RASQAL_LITERAL_PATTERN:
+	case RASQAL_LITERAL_QNAME:
+	    return 0;
+    }
+
+    return 0;
+}
+
 /* returns name of bound variable, or NULL if its not a variable */
 static char *var_name(rasqal_literal *l)
 {
     if (!l) return NULL;
 
     switch (l->type) {
+#if RASQAL_VERSION >= 917
+        case RASQAL_LITERAL_XSD_STRING:
+        case RASQAL_LITERAL_UDT:
+#endif
 	case RASQAL_LITERAL_URI:
 	case RASQAL_LITERAL_STRING:
 	case RASQAL_LITERAL_BOOLEAN:
@@ -172,7 +228,7 @@ int fs_optimise_triple_pattern(fs_query_state *qs, fs_query *q, int block, rasqa
 	if (!pbuf[i]) {
 	    continue;
 	}
-	if (fs_opt_is_const(q->bb[block], pbuf[i]->subject) && fs_opt_is_const(q->bb[block], pbuf[i]->predicate)) {
+	if (fs_opt_is_const(q->bb[block], pbuf[i]->subject) && fs_opt_is_const(q->bb[block], pbuf[i]->predicate) && fs_opt_is_bound(q->bb[block], pbuf[i]->object)) {
 	    patt[append_pos++] = pbuf[i];
 	    pbuf[i] = NULL;
 	}
@@ -181,7 +237,7 @@ int fs_optimise_triple_pattern(fs_query_state *qs, fs_query *q, int block, rasqa
 	if (!pbuf[i]) {
 	    continue;
 	}
-	if (fs_opt_is_const(q->bb[block], pbuf[i]->object) && fs_opt_is_const(q->bb[block], pbuf[i]->predicate)) {
+	if (fs_opt_is_bound(q->bb[block], pbuf[i]->subject) && fs_opt_is_const(q->bb[block], pbuf[i]->predicate) && fs_opt_is_const(q->bb[block], pbuf[i]->object)) {
 	    patt[append_pos++] = pbuf[i];
 	    pbuf[i] = NULL;
 	}
@@ -190,7 +246,7 @@ int fs_optimise_triple_pattern(fs_query_state *qs, fs_query *q, int block, rasqa
 	if (!pbuf[i]) {
 	    continue;
 	}
-	if (fs_opt_is_const(q->bb[block], pbuf[i]->subject)) {
+	if (fs_opt_is_const(q->bb[block], pbuf[i]->subject) && fs_opt_is_bound(q->bb[block], pbuf[i]->object)) {
 	    patt[append_pos++] = pbuf[i];
 	    pbuf[i] = NULL;
 	}
@@ -199,7 +255,7 @@ int fs_optimise_triple_pattern(fs_query_state *qs, fs_query *q, int block, rasqa
 	if (!pbuf[i]) {
 	    continue;
 	}
-	if (fs_opt_is_const(q->bb[block], pbuf[i]->object)) {
+	if (fs_opt_is_const(q->bb[block], pbuf[i]->object) && fs_opt_is_bound(q->bb[block], pbuf[i]->subject)) {
 	    patt[append_pos++] = pbuf[i];
 	    pbuf[i] = NULL;
 	}
@@ -208,7 +264,7 @@ int fs_optimise_triple_pattern(fs_query_state *qs, fs_query *q, int block, rasqa
 	if (!pbuf[i]) {
 	    continue;
 	}
-	if (fs_opt_is_const(q->bb[block], pbuf[i]->predicate)) {
+	if (fs_opt_is_const(q->bb[block], pbuf[i]->predicate) && (fs_opt_is_bound(q->bb[block], pbuf[i]->subject) || fs_opt_is_bound(q->bb[block], pbuf[i]->object))) {
 	    patt[append_pos++] = pbuf[i];
 	    pbuf[i] = NULL;
 	}
@@ -234,6 +290,15 @@ int fs_optimise_triple_pattern(fs_query_state *qs, fs_query *q, int block, rasqa
     if (append_pos != length) {
 	fs_error(LOG_CRIT, "Optimser mismatch error");
     }
+
+#ifdef DEBUG_OPTIMISER
+    printf("optimiser choices look like:\n");
+    for (int i=start; i<length; i++) {
+        printf("%4d: ", i);
+        rasqal_triple_print(patt[i], stdout);
+        printf("\n");
+    }
+#endif
 
     /* If the next two or more pattern's subjects are both variables, we might be able
      * to multi reverse bind them */
@@ -315,13 +380,15 @@ static int calc_freq(fs_query *q, int block, GHashTable *freq, rasqal_literal *p
 int fs_bind_freq(fs_query_state *qs, fs_query *q, int block, rasqal_triple *t)
 {
     int ret = 100;
-    char dir = '?';
+    char dir = 'X';
 
     if (!fs_opt_is_const(q->bb[block], t->subject) && !fs_opt_is_const(q->bb[block], t->predicate) &&
         !fs_opt_is_const(q->bb[block], t->object) && !fs_opt_is_const(q->bb[block], t->origin)) {
+        dir = '?';
         ret = INT_MAX;
     } else if (!fs_opt_is_const(q->bb[block], t->subject) &&
                !fs_opt_is_const(q->bb[block], t->object)) {
+        dir = '?';
         ret = INT_MAX - 100;
     } else if (qs->freq_s && fs_opt_num_vals(q->bb[block], t->subject) == 1 &&
                fs_opt_num_vals(q->bb[block], t->predicate) == 1) {
@@ -339,10 +406,32 @@ int fs_bind_freq(fs_query_state *qs, fs_query *q, int block, rasqal_triple *t)
         dir = 'o';
         ret = calc_freq(q, block, qs->freq_s, t->object, NULL) +
                 q->segments * 50;
+    /* cluases for if we have no freq data */
+    } else if (fs_opt_num_vals(q->bb[block], t->subject) < 1000000 &&
+               fs_opt_num_vals(q->bb[block], t->predicate) < 100 &&
+               fs_opt_num_vals(q->bb[block], t->object) == INT_MAX) {
+        dir = 's';
+        ret = fs_opt_num_vals(q->bb[block], t->subject) * fs_opt_num_vals(q->bb[block], t->predicate);
+        if (!fs_opt_is_bound(q->bb[block], t->subject) &&
+            !fs_opt_is_bound(q->bb[block], t->predicate) &&
+            !fs_opt_is_bound(q->bb[block], t->object)) {
+            ret *= (fs_binding_length(q->bb[block]) * 100);
+        }
+    } else if (fs_opt_num_vals(q->bb[block], t->object) < 1000000 &&
+               fs_opt_num_vals(q->bb[block], t->predicate) < 100 &&
+               fs_opt_num_vals(q->bb[block], t->subject) == INT_MAX) {
+        dir = 'o';
+        ret = fs_opt_num_vals(q->bb[block], t->predicate) * fs_opt_num_vals(q->bb[block], t->object);
+        if (!fs_opt_is_bound(q->bb[block], t->subject) &&
+            !fs_opt_is_bound(q->bb[block], t->predicate) &&
+            !fs_opt_is_bound(q->bb[block], t->object)) {
+            ret *= (fs_binding_length(q->bb[block]) * 100);
+        }
     }
-#if 0
+
+#if DEBUG_OPTIMISER
     if (q->flags & FS_QUERY_EXPLAIN) {
-        printf("@@ freq_%c(", dir);
+        printf("freq(%c, ", dir);
         rasqal_triple_print(t, stdout);
         printf(") = %d\n", ret);
     }

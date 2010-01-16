@@ -253,6 +253,7 @@ void setup_metadata(kbconfig *config)
     } else {
         fs_metadata_set(md, FS_MD_MODEL_FILES, "false");
     }
+    fs_metadata_set(md, FS_MD_CODE_VERSION, GIT_REV);
     for (int seg = 0; seg < config->segments; seg++) {
         if (primary_segment(config, seg))
 	    fs_metadata_add_int(md, FS_MD_SEGMENT_P, seg);

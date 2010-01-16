@@ -34,7 +34,7 @@ test: all filter-test
 	@echo 'Query tests'
 	@./tests/run.pl
 
-4s-query: 4s-query.o query.o results.o query-data.o query-datatypes.o query-cache.o filter.o filter-datatypes.o order.o optimiser.o decimal.o import.o update.o ../common/lib4store.a
+4s-query: 4s-query.o query.o results.o query-data.o query-datatypes.o query-cache.o filter.o filter-datatypes.o order.o optimiser.o decimal.o import.o update.o ../common/lib4store.a ../common/libsort.a
 	$(CC) $(LDFLAGS) $(readedit_ldflags) -o 4s-query $^
 
 4s-update: 4s-update.o update.o import.o ../common/lib4store.a
@@ -50,7 +50,9 @@ order.o: debug.h
 
 query-datatypes.o: debug.h
 
-4s-import: 4s-import.o import.o ../common/lib4store.a
+optimiser.o: debug.h
+
+4s-import: 4s-import.o import.o ../common/lib4store.a ../common/libsort.a
 	$(CC) $(LDFLAGS) -o 4s-import $^
 
 4s-delete-model: delete-model.o ../common/lib4store.a
@@ -59,30 +61,27 @@ query-datatypes.o: debug.h
 4s-size: size.o ../common/lib4store.a
 	$(CC) $(LDFLAGS) -o 4s-size $^
 
-4s-info: 4s-info.o query.o query-datatypes.o query-data.o query-cache.o order.o optimiser.o filter.o filter-datatypes.o results.o decimal.o import.o ../common/lib4store.a
+4s-info: 4s-info.o query.o query-datatypes.o query-data.o query-cache.o order.o optimiser.o filter.o filter-datatypes.o results.o decimal.o import.o ../common/lib4store.a ../common/libsort.a
 	$(CC) $(LDFLAGS) -o 4s-info $^
 
-4s-restore: restore.o restore-trix.o ../common/lib4store.a
+4s-restore: restore.o restore-trix.o ../common/lib4store.a ../common/libsort.a
 	$(CC) $(LDFLAGS) -o 4s-restore $^
 
-4s-resolve: 4s-resolve.o ../common/lib4store.a
+4s-resolve: 4s-resolve.o ../common/lib4store.a ../common/libsort.a
 
-4s-bind: 4s-bind.o ../common/lib4store.a
+4s-bind: 4s-bind.o ../common/lib4store.a ../common/libsort.a
 
-4s-reverse-bind: 4s-reverse-bind.o ../common/lib4store.a
+4s-reverse-bind: 4s-reverse-bind.o ../common/lib4store.a ../common/libsort.a
 
-4s-dump: dump.o ../common/lib4store.a
+4s-dump: dump.o ../common/lib4store.a ../common/libsort.a
 	$(CC) $(LDFLAGS) -o 4s-dump $^
 
-4s-indexes: 4s-indexes.o ../common/lib4store.a
-	$(CC) $(LDFLAGS) -o $@ $^
-
-4s-transaction: 4s-transaction.o ../common/lib4store.a
+4s-indexes: 4s-indexes.o ../common/lib4store.a ../common/libsort.a
 	$(CC) $(LDFLAGS) -o $@ $^
 
 filter-test.o: filter-test.c
 	cc -c -std=gnu99 -Wall $(PROFILE) -g -I../ `pkg-config --cflags rasqal glib-2.0` `pcre-config --cflags` $^
 
-filter-test: filter-test.o filter.o filter-datatypes.o query-data.o decimal.o ../common/lib4store.a
+filter-test: filter-test.o filter.o filter-datatypes.o query-data.o decimal.o ../common/lib4store.a ../common/libsort.a
 
 decimal-test: decimal-test.o decimal.o

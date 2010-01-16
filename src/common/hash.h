@@ -53,12 +53,12 @@ struct fs_globals {
 extern struct fs_globals fs_c;
 
 void fs_hash_init(fsp_hash_enum type);
-void fs_hash_freshen();
-void fs_hash_fini();
+void fs_hash_freshen(void);
+void fs_hash_fini(void);
 
 extern fs_rid (*fs_hash_uri)(const char *str);
 extern fs_rid (*fs_hash_literal)(const char *str, fs_rid attr);
-GHashTable * fs_hash_bnids();
+GHashTable * fs_hash_bnids(void);
 
 void umac_crypto_hash(const char *str, char *result);
 

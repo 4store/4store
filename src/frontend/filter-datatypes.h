@@ -63,7 +63,7 @@ static inline uint32_t fs_valid_bit(fs_value_field f)
     return 1 << f;
 }
 
-fs_value fs_value_blank();
+fs_value fs_value_blank(void);
 fs_value fs_value_rid(fs_rid r);
 fs_value fs_value_resource(fs_query *q, fs_resource *r);
 fs_value fs_value_error(fs_error e, const char *msg);

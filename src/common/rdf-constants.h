@@ -9,6 +9,7 @@
 
 #define RDF_TYPE        RDF_NAMESPACE "type"
 #define RDF_PROPERTY    RDF_NAMESPACE "Property"
+#define RDF_RESOURCE    RDF_NAMESPACE "Resource"
 #define OWL_OBJPROPERTY OWL_NAMESPACE "ObjectProperty"
 #define OWL_DATPROPERTY OWL_NAMESPACE "DatatypeProperty"
 
