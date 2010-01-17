@@ -1259,7 +1259,7 @@ int fsp_delete_quads_all (fsp_link *link, fs_rid_vector *vec[4])
     for (int s=0; s<4; s++) {
       memcpy(out + FS_HEADER + s * length, vec[s]->data, length);
     }
-    fsp_write_replica(link, out, length);
+    fsp_write_replica(link, out, length * 4);
     free(out);
   }
 

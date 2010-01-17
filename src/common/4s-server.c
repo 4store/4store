@@ -186,6 +186,9 @@ static void child (int conn, fsp_backend *backend, fs_backend *be)
         case FS_CHOOSE_SEGMENT:
           reply = handle(backend->choose_segment, be, segment, length, content);
           break;
+	case FS_DELETE_QUADS:
+	  reply = handle(backend->delete_quads, be, segment, length, content);
+	  break;
         default:
           kb_error(LOG_WARNING, "unexpected message type (%d)", msg[3]);
           reply = fsp_error_new(segment, "unexpected message type");

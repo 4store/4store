@@ -1,0 +1,10 @@
+# add 2 triples
+?s	?p	?o
+<http://example.com/x>	<http://example.com/y>	<http://example.com/z>
+<http://example.com/x>	<http://example.com/y>	"23"^^<http://www.w3.org/2001/XMLSchema#integer>
+# remove 1 triple
+?s	?p	?o
+<http://example.com/x>	<http://example.com/y>	"23"^^<http://www.w3.org/2001/XMLSchema#integer>
+#
+?g	?s	?p	?o
+<http://example.com/g>	<http://example.com/x>	<http://example.com/y>	"23"^^<http://www.w3.org/2001/XMLSchema#integer>
