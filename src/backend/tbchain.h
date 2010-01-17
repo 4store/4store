@@ -6,7 +6,14 @@
 #include "common/datatypes.h"
 
 typedef struct _fs_tbchain fs_tbchain; 
-typedef struct _fs_tbchain_it fs_tbchain_it; 
+typedef struct _fs_tbchain_it fs_tbchain_it;
+typedef enum {
+	/* bit set on first block if chain is sparse */
+	FS_TBCHAIN_SPARSE = 1,
+	/* bit set on first block if chain has triples that don't appear in the
+         * graph */
+	FS_TBCHAIN_SUPERSET = 2,
+} fs_tbchain_bit;
 
 fs_tbchain *fs_tbchain_open(fs_backend *be, const char *label, int flags);
 fs_tbchain *fs_tbchain_open_filename(const char *fname, int flags);
@@ -24,11 +31,11 @@ fs_index_node fs_tbchain_length(fs_tbchain *bc, fs_index_node b);
 /* addpend a triple to the chain, creating blocks is neccesary */
 fs_index_node fs_tbchain_add_triple(fs_tbchain *bc, fs_index_node b, fs_rid triple[3]) __attribute__ ((warn_unused_result));
 
-/* functions to set/clear the "sparse" flag on a chain, indicating that not all
+/* functions to set/clear a bit on a chain, indicating that not all
  * the triples included still exist in the graph */
-int fs_tbchain_set_sparse(fs_tbchain *bc, fs_index_node b);
-int fs_tbchain_clear_sparse(fs_tbchain *bc, fs_index_node b);
-int fs_tbchain_get_sparse(fs_tbchain *bc, fs_index_node b);
+int fs_tbchain_set_bit(fs_tbchain *bc, fs_index_node b, fs_tbchain_bit bit);
+int fs_tbchain_clear_bit(fs_tbchain *bc, fs_index_node b, fs_tbchain_bit bit);
+int fs_tbchain_get_bit(fs_tbchain *bc, fs_index_node b, fs_tbchain_bit bit);
 
 /* number of blocks allocated internally */
 unsigned int fs_tbchain_allocated_blocks(fs_tbchain *bc);
@@ -45,7 +52,7 @@ int fs_tbchain_check_leaks(fs_tbchain *bc, FILE *out);
 /* iterator functions */
 
 /* create an interator, return NULL on fail */
-fs_tbchain_it *fs_tbchain_new_iterator(fs_tbchain *bc, fs_index_node chain);
+fs_tbchain_it *fs_tbchain_new_iterator(fs_tbchain *bc, fs_rid model, fs_index_node chain);
 /* get the first/next triple from the chain, returns TRUE on OK */
 int fs_tbchain_it_next(fs_tbchain_it *it, fs_rid triple[3]);
 /* free the iterator, returns 0 on success */

@@ -295,7 +295,7 @@ fs_rid_vector **fs_bind(fs_backend *be, fs_segment segment, unsigned int tobind,
 	    /* it's stored in the model table */
 	    } else {
 		fs_tbchain_it *it =
-		    fs_tbchain_new_iterator(be->model_list, mnode);
+		    fs_tbchain_new_iterator(be->model_list, model, mnode);
 		fs_rid triple[3];
 		while (fs_tbchain_it_next(it, triple) && count < limit) {
 		    const fs_rid quad[4] =

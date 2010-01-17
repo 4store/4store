@@ -326,22 +326,20 @@ static unsigned char * handle_delete_quads (fs_backend *be, fs_segment segment,
   }
 
   if (length < 32) {
-    fs_error(LOG_ERR, "bind_limit(%d) much too short", segment);
+    fs_error(LOG_ERR, "delete_quads(%d) much too short", segment);
     return fsp_error_new(segment, "much too short");
   }
 
   fs_rid_vector models, subjects, predicates, objects;
-  unsigned int value;
 
-  memcpy(&value, content, sizeof (models.length));
-  models.size = models.length = value / 8;
-  subjects.size = subjects.length = value / 8;
-  predicates.size = predicates.length = value / 8;
-  objects.size = objects.length = value / 8;
-  content += 4;
+  models.size = models.length = length / 32;
+  subjects.size = subjects.length = length / 32;
+  predicates.size = predicates.length = length / 32;
+  objects.size = objects.length = length / 32;
 
-  if (length < (models.size + subjects.size + predicates.size + objects.size) * 8 + 4) {
-    fs_error(LOG_ERR, "bind_limit(%d) too short", segment);
+  if (length < (models.size + subjects.size + predicates.size + objects.size) * 8) {
+    fs_error(LOG_ERR, "delete_quads(%d) too short (%d < %d)", segment, length,
+	     (models.size + subjects.size + predicates.size + objects.size) * 8);
     return fsp_error_new(segment, "too short");
   }
 

@@ -27,12 +27,12 @@
 #include <sys/types.h>
 #include <sys/mman.h>
 
-#include "common/timing.h"
-
 #include "backend.h"
 #include "tbchain.h"
+#include "ptree.h"
 #include "common/params.h"
 #include "common/error.h"
+#include "common/timing.h"
 
 #define TBCHAIN_ID 0x4a585442  /* JXTB */
 
@@ -43,7 +43,8 @@
 #define FS_TBLOCK_LEN    5  /* in triples */
 #define FS_TBLOCK_SIZE 128  /* in bytes */
 
-#define FS_TBCHAIN_SPARSE 1 /* bit set on first block if chain is sparse */
+#define FS_TBCHAIN_SPARSE   1 /* bit set on first block if chain is sparse */
+#define FS_TBCHAIN_SUPERSET 2 /* bit set on first block if chain is sparse */
 
 struct fs_tbc_header {
     int32_t id;
@@ -73,12 +74,17 @@ struct _fs_tbchain {
   fs_index_node *const_data;
   fs_rid *model_data;
                         /* allocated + used when we do consistency checks */
+  fs_backend *be;       /* pointer to backend object, used to check if triples
+                         * still exist */
 };
 
 struct _fs_tbchain_it {
     fs_tbchain *tbc;
+    fs_rid model;
+    fs_index_node chain;
     fs_index_node node;
     int pos;
+    int superset;
 };
 
 static int fs_tbchain_free_block(fs_tbchain *bc, fs_index_node b);
@@ -138,6 +144,7 @@ fs_tbchain *fs_tbchain_open(fs_backend *be, const char *label, int flags)
 {
     char *fname = fname_from_label(be, label);
     fs_tbchain *c = fs_tbchain_open_filename(fname, flags);
+    c->be = be;
     g_free(fname);
 
     return c;
@@ -214,14 +221,14 @@ void fs_tbchain_print(fs_tbchain *bc, FILE *out, int verbosity)
     fprintf(out, "  length: %lld blocks\n", (long long)bc->header->length);
     int free_count = 0;
     fs_index_node i = bc->header->free_list;
-fprintf(out, "  free list:");
+    fprintf(out, "  free list:");
     while (i) {
         if (free_count < 10 || bc->data[i].cont == 0) fprintf(out, " %d", i);
         if (free_count == 10) fprintf(out, " ...");
         i = bc->data[i].cont;
         free_count++;
     }
-fprintf(out, "\n");
+    fprintf(out, "\n");
     fprintf(out, "  free list length: %d blocks\n", free_count);
     for (fs_index_node i=2; i<bc->header->length; i++) {
         if (bc->data[i].length == 0) {
@@ -229,10 +236,11 @@ fprintf(out, "\n");
         }
         fprintf(out, "  B%d", i);
         if (bc->data[i].cont) {
-            fprintf(out, " -> B%d\n", bc->data[i].cont);
-        } else {
-            fprintf(out, "\n");
+            fprintf(out, " -> B%d", bc->data[i].cont);
         }
+        fprintf(out, " flags: %s %s\n",
+                bc->data[i].flags & FS_TBCHAIN_SUPERSET ? "superset" : "-",
+                bc->data[i].flags & FS_TBCHAIN_SPARSE ? "sparse" : "-");
         if (bc->data[i].cont < 2 && bc->data[i].cont != 0) {
             fprintf(out, "ERROR: B%d is out of range\n", bc->data[i].cont);
         }
@@ -328,7 +336,7 @@ int fs_tbchain_remove_chain(fs_tbchain *c, fs_index_node b)
     return 0;
 }
 
-int fs_tbchain_set_sparse(fs_tbchain *bc, fs_index_node b)
+int fs_tbchain_set_bit(fs_tbchain *bc, fs_index_node b, fs_tbchain_bit bit)
 {
     if (b == 0 || b == 1) {
         fs_error(LOG_CRIT, "tried to set flag on block %u\n", b);
@@ -341,12 +349,13 @@ int fs_tbchain_set_sparse(fs_tbchain *bc, fs_index_node b)
         return 0;
     }
 
-    bc->data[b].flags |= FS_TBCHAIN_SPARSE;
+    /* flipping bits can cause writes, so lets avoid if possible */
+    if (!(bc->data[b].flags & bit)) bc->data[b].flags |= bit;
     
     return 0;
 }
 
-int fs_tbchain_clear_sparse(fs_tbchain *bc, fs_index_node b)
+int fs_tbchain_clear_bit(fs_tbchain *bc, fs_index_node b, fs_tbchain_bit bit)
 {
     if (b == 0 || b == 1) {
         fs_error(LOG_CRIT, "tried to clear flag on block %u\n", b);
@@ -359,12 +368,13 @@ int fs_tbchain_clear_sparse(fs_tbchain *bc, fs_index_node b)
         return 0;
     }
 
-    bc->data[b].flags &= ~FS_TBCHAIN_SPARSE;
+    /* flipping bits can cause writes, so lets avoid if possible */
+    if (bc->data[b].flags & bit) bc->data[b].flags &= ~bit;
     
     return 0;
 }
 
-int fs_tbchain_get_sparse(fs_tbchain *bc, fs_index_node b)
+int fs_tbchain_get_bit(fs_tbchain *bc, fs_index_node b, fs_tbchain_bit bit)
 {
     if (b == 0 || b == 1) {
         fs_error(LOG_CRIT, "tried to read flag on block %u\n", b);
@@ -372,12 +382,12 @@ int fs_tbchain_get_sparse(fs_tbchain *bc, fs_index_node b)
         return 0;
     }
     if (b > bc->header->length) {
-        fs_error(LOG_CRIT, "tried to read flag past end of chain\n");
+        fs_error(LOG_CRIT, "tried to read flag on block %u, past end of chain\n", b);
 
         return 0;
     }
 
-    return bc->data[b].flags & FS_TBCHAIN_SPARSE;
+    return bc->data[b].flags & bit;
 }
 
 fs_index_node fs_tbchain_add_triple(fs_tbchain *bc, fs_index_node b, fs_rid triple[3])
@@ -608,7 +618,7 @@ int fs_tbchain_close(fs_tbchain *bc)
     return 0;
 }
 
-fs_tbchain_it *fs_tbchain_new_iterator(fs_tbchain *bc, fs_index_node chain)
+fs_tbchain_it *fs_tbchain_new_iterator(fs_tbchain *bc, fs_rid model, fs_index_node chain)
 {
     if (!bc) {
         fs_error(LOG_ERR, "tried to create iterator from null tbchain");
@@ -616,7 +626,13 @@ fs_tbchain_it *fs_tbchain_new_iterator(fs_tbchain *bc, fs_index_node chain)
         return NULL;
     }
     if (chain == 0 || chain == 1) {
-        fs_error(LOG_ERR, "tried to create iterator for chain %d", chain);
+        fs_error(LOG_ERR, "tried to create iterator for chain %u", chain);
+
+        return NULL;
+    }
+    if (chain > bc->header->size) {
+        fs_error(LOG_ERR, "tried to create iterator for chain %u, past end",
+                 chain);
 
         return NULL;
     }
@@ -625,7 +641,10 @@ fs_tbchain_it *fs_tbchain_new_iterator(fs_tbchain *bc, fs_index_node chain)
     if (it == NULL) return NULL;
 
     it->tbc = bc;
+    it->chain = chain;
+    it->model = model;
     it->node = chain;
+    it->superset = fs_tbchain_get_bit(bc, chain, FS_TBCHAIN_SUPERSET);
     it->pos = 0;
 
     return it;
@@ -644,6 +663,9 @@ int fs_tbchain_it_next(fs_tbchain_it *it, fs_rid triple[3])
             triple[0] = FS_RID_NULL;
             triple[1] = FS_RID_NULL;
             triple[2] = FS_RID_NULL;
+            if (it->superset) {
+                fs_tbchain_clear_bit(it->tbc, it->chain, FS_TBCHAIN_SUPERSET);
+            }
 
             return 0;
         } else if (it->node == 1) {
@@ -656,14 +678,43 @@ int fs_tbchain_it_next(fs_tbchain_it *it, fs_rid triple[3])
         } else if (it->pos >= it->tbc->data[it->node].length) {
             it->node = it->tbc->data[it->node].cont;
             it->pos = 0;
+        } else if (it->tbc->data[it->node].data[it->pos][0] == FS_RID_GONE) {
+            (it->pos)++;
         } else {
+            int ok = 1;
             triple[0] = it->tbc->data[it->node].data[it->pos][0];
             triple[1] = it->tbc->data[it->node].data[it->pos][1];
             triple[2] = it->tbc->data[it->node].data[it->pos][2];
 
-            (it->pos)++;
+            if (it->superset) {
+                if (it->tbc->be) {
+                    fs_ptree *pt = fs_backend_get_ptree(it->tbc->be, triple[1], 0);
+                    fs_rid pair[2] = { it->model, triple[2] };
+                    fs_ptree_it *pit = fs_ptree_search(pt, triple[0], pair);
+                    if (pit) {
+                        fs_rid dummy[2];
+                        if (!fs_ptree_it_next(pit, dummy)) {
+                            ok = 0;
+                        }
+                        fs_ptree_it_free(pit);
+                    } else {
+                        ok = 0;
+                    }
+                } else {
+                    fs_error(LOG_ERR, "backend pointer missing from tbchain, "
+                             "returning superset of results");
+                }
+            }
 
-            return 1;
+            if (ok) {
+                (it->pos)++;
+
+                return 1;
+            } else {
+                it->tbc->data[it->node].data[it->pos][0] = FS_RID_GONE;
+                fs_tbchain_set_bit(it->tbc, it->chain, FS_TBCHAIN_SPARSE);
+                (it->pos)++;
+            }
         }
     }
 }

@@ -399,7 +399,7 @@ int fs_delete_quads(fs_backend *be, fs_rid_vector *quads[4])
 	fs_ptree *sfp = fs_backend_get_ptree(be, pred, 0);
 	fs_ptree *ofp = fs_backend_get_ptree(be, pred, 1);
 	if (!sfp && !ofp) {
-	    fs_error(LOG_CRIT, "failed to get ptrees for pred %016llx", pred);
+	    /* this predicate doesn't exist in this segment */
 	    continue;
 	}
 	if (!sfp) {
@@ -414,9 +414,9 @@ int fs_delete_quads(fs_backend *be, fs_rid_vector *quads[4])
 	for (int i=0; i<quads[2]->length; i++) {
 	    if (quads[2]->data[i] == pred) {
 		fs_rid spair[2] = { quads[0]->data[i], quads[3]->data[i] };
-		if (fs_ptree_remove(sfp, quads[1]->data[i], spair));
+		fs_ptree_remove(sfp, quads[1]->data[i], spair);
 		fs_rid opair[2] = { quads[0]->data[i], quads[1]->data[i] };
-		if (fs_ptree_remove(sfp, quads[3]->data[1], opair));
+		fs_ptree_remove(sfp, quads[3]->data[i], opair);
 	    }
 	}
     }
@@ -427,7 +427,7 @@ int fs_delete_quads(fs_backend *be, fs_rid_vector *quads[4])
         fs_index_node val = 0;
         fs_mhash_get(be->models, model, &val);
         if (val > 1) {
-	    fs_tbchain_set_sparse(be->model_list, val);
+	    fs_tbchain_set_bit(be->model_list, val, FS_TBCHAIN_SUPERSET);
 	}
     }
 
@@ -437,7 +437,7 @@ int fs_delete_quads(fs_backend *be, fs_rid_vector *quads[4])
 static int remove_by_search(fs_backend *be, fs_rid model, fs_index_node model_id)
 {
     int errors = 0;
-    fs_tbchain_it *it = fs_tbchain_new_iterator(be->model_list, model_id);
+    fs_tbchain_it *it = fs_tbchain_new_iterator(be->model_list, model, model_id);
     fs_rid triple[3];
     fs_rid_set *preds = fs_rid_set_new();
     while (fs_tbchain_it_next(it, triple)) {
@@ -463,7 +463,7 @@ static int remove_by_search(fs_backend *be, fs_rid model, fs_index_node model_id
 	}
 
 	fs_tbchain_it *it =
-	    fs_tbchain_new_iterator(be->model_list, model_id);
+	    fs_tbchain_new_iterator(be->model_list, model, model_id);
 	fs_rid triple[3];
 	while (fs_tbchain_it_next(it, triple)) {
 	    if (triple[1] == pred) {

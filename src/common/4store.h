@@ -143,6 +143,7 @@ int fsp_start_import_all (fsp_link *link);
 int fsp_stop_import_all (fsp_link *link);
 int fsp_delete_model_all (fsp_link *link, fs_rid_vector *models);
 int fsp_new_model_all (fsp_link *link, fs_rid_vector *models);
+int fsp_delete_quads_all (fsp_link *link, fs_rid_vector *vec[4]);
 
 int fsp_bind_limit_many (fsp_link *link,
                          int flags,

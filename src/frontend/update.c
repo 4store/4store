@@ -113,15 +113,14 @@ static void update_walk(struct update_context *uctxt, rasqal_graph_pattern *node
         rasqal_triple *triple = rasqal_graph_pattern_get_triple(node, t);
         fs_rid quad_buf[1][4];
         quad_buf[0][0] = fs_hash_rasqal_literal(uctxt->graph);
+        if (quad_buf[0][0] == FS_RID_NULL) {
+            quad_buf[0][0] = fs_c.default_graph;
+        }
         quad_buf[0][1] = fs_hash_rasqal_literal(triple->subject);
         quad_buf[0][2] = fs_hash_rasqal_literal(triple->predicate);
         quad_buf[0][3] = fs_hash_rasqal_literal(triple->object);
 
         if (uctxt->verb == RASQAL_QUERY_VERB_INSERT) {
-            if (quad_buf[0][0] == FS_RID_NULL) {
-                quad_buf[0][0] = fs_c.default_graph;
-            }
-
             fs_resource res;
             res.rid = quad_buf[0][0];
             if (uctxt->graph) {
@@ -143,6 +142,16 @@ static void update_walk(struct update_context *uctxt, rasqal_graph_pattern *node
 
             fsp_quad_import(uctxt->link, FS_RID_SEGMENT(quad_buf[0][1], uctxt->segments),
                             FS_BIND_BY_SUBJECT, 1, quad_buf);
+        } else if (uctxt->verb == RASQAL_QUERY_VERB_DELETE) {
+            fs_rid_vector *vec[4];
+            for (int s=0; s<4; s++) {
+                vec[s] = fs_rid_vector_new(1);
+                vec[s]->data[0] = quad_buf[0][s];
+            }
+            fsp_delete_quads_all(uctxt->link, vec);
+            for (int s=0; s<4; s++) {
+                fs_rid_vector_free(vec[s]);
+            }
         } else {
             fs_error(LOG_ERR, "unhandled verb");
         }

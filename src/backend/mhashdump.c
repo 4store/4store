@@ -74,7 +74,7 @@ int main(int argc, char *argv[])
 	    /* it's stored in the model table */
 	    } else {
 		fs_tbchain_it *it =
-		    fs_tbchain_new_iterator(tbc, mnode);
+		    fs_tbchain_new_iterator(tbc, FS_RID_NULL, mnode);
 		fs_rid triple[3];
 		while (fs_tbchain_it_next(it, triple)) {
 		    printf("%016llx %016llx %016llx\n", triple[0], triple[1], triple[2]);

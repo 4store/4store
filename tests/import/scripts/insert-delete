@@ -1,0 +1,14 @@
+#!
+
+./test-create.sh --segments 1 $1
+./test-start.sh $1
+echo "# add 2 triples"
+$PRECMD $TESTPATH/frontend/4s-update $1 'PREFIX : <http://example.com/> INSERT { GRAPH :g { :x :y :z . :x :y 23 } }'
+$PRECMD $TESTPATH/frontend/4s-query $1 'PREFIX : <http://example.com/> SELECT * WHERE { GRAPH :g { ?s ?p ?o } } ORDER BY ?s ?p ?o'
+echo "# remove 1 triple"
+$PRECMD $TESTPATH/frontend/4s-update $1 'PREFIX : <http://example.com/> DELETE { GRAPH :g { :x :y :z } }'
+$PRECMD $TESTPATH/frontend/4s-query $1 'PREFIX : <http://example.com/> SELECT * WHERE { GRAPH :g { ?s ?p ?o } } ORDER BY ?s ?p ?o'
+echo "#"
+$PRECMD $TESTPATH/frontend/4s-query $1 'PREFIX : <http://example.com/> SELECT * WHERE { GRAPH ?g { ?s ?p ?o } } ORDER BY ?s ?p ?o'
+./test-stop.sh $1
+$TESTPATH/backend/tbchaindump /var/lib/4store/$1/0000/mlist.tbchain | grep ERROR
