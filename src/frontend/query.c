@@ -228,7 +228,12 @@ fs_query_state *fs_query_init(fsp_link *link)
 #ifdef HAVE_RASQAL_WORLD
     qs->rasqal_world = rasqal_new_world();
     if (!qs->rasqal_world) {
-        fs_error(LOG_ERR, "failed to get initialise rasqal world");
+        fs_error(LOG_ERR, "failed to allocate rasqal world");
+    }
+    if (rasqal_world_open(qs->rasqal_world)) {
+        fs_error(LOG_ERR, "failed to intialise rasqal world");
+	fs_query_fini(qs);
+	return NULL;
     }
 #endif /* HAVE_RASQAL_WORLD */
 
@@ -242,9 +247,13 @@ int fq_query_have_laqrs(void)
 #ifdef HAVE_RASQAL_WORLD
     rasqal_world *w = rasqal_new_world();
     if (!w) {
-        fs_error(LOG_ERR, "failed to get initialise rasqal world");
-
+        fs_error(LOG_ERR, "failed to allocate rasqal world");
         return 0;
+    }
+    if (rasqal_world_open(w)) {
+        fs_error(LOG_ERR, "failed to initialise rasqal world");
+	rasqal_free_world(w);
+	return 0;
     }
     rasqal_query *rq = rasqal_new_query(w, "laqrs", NULL);
 #else
@@ -254,6 +263,9 @@ int fq_query_have_laqrs(void)
         laqrs = 1;
         rasqal_free_query(rq);
     }
+#ifdef HAVE_RASQAL_WORLD
+    rasqal_free_world(w);
+#endif
 
     return laqrs;
 }
