@@ -205,7 +205,14 @@ int fs_rasqal_update(fsp_link *l, char *update, char **message, int unsafe)
     uctxt.rw = rworld;
     uctxt.rq = rq;
     uctxt.verb = verb;
-    update_walk(&uctxt, rasqal_query_get_query_graph_pattern(rq));
+    rasqal_graph_pattern *gp = rasqal_query_get_query_graph_pattern(rq);
+    if (!gp) {
+        fs_error(LOG_ERR, "update failed");
+        *message = g_strdup("bad update request");
+
+        return 1;
+    }
+    update_walk(&uctxt, gp);
     if (verb == RASQAL_QUERY_VERB_INSERT) {
         fsp_res_import_commit_all(l);
         fsp_quad_import_commit_all(l, FS_BIND_BY_SUBJECT);
