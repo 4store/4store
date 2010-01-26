@@ -126,7 +126,7 @@ static int fsp_open_socket (fsp_link *link, const char *node, uint16_t port)
   sprintf(cport, "%u", port);
   default_hints(&hints);
   if ((err = getaddrinfo(node, cport, &hints, &info))) {
-    link_error(LOG_ERR, "getaddrinfo failed for “%s”", node);
+    link_error(LOG_ERR, "getaddrinfo failed for “%s” with error: %s", node, gai_strerror(err));
     return -1;
   }
 
