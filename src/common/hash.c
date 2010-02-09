@@ -28,6 +28,7 @@
 #include <fcntl.h>
 #include <sys/types.h>
 #include <sys/stat.h>
+#include <errno.h>
 
 #include "params.h"
 #include "md5.h"
@@ -187,7 +188,10 @@ fs_rid umac_wrapper(const char *str, fs_rid nonce_in)
 #else
 	int tmp = (slen + 1) & 31;
 	void **ptr = &heap_buffer;
-	posix_memalign(ptr, 16, slen + 33 - tmp);
+	if (posix_memalign(ptr, 16, slen + 33 - tmp)) {
+            fs_error(LOG_ERR, "posix_memalign: %s", strerror(errno));
+            /* XXX free memory here? return NULL? */
+        }
 	buffer = heap_buffer;
 #endif
     }
