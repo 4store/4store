@@ -85,7 +85,9 @@ static void child (int conn, fsp_backend *backend, fs_backend *be)
       reply = fsp_error_new(segment, "protocol mismatch");
       unsigned int* const l = (unsigned int *) (reply + 4);
       unsigned int length = *l;
-      write(conn, reply, FS_HEADER + length);
+      if (write(conn, reply, FS_HEADER + length) != (FS_HEADER+length)) {
+        fs_error(LOG_ERR, "write failed: %s", strerror(errno));
+      }
       break;
     }
 
@@ -291,7 +293,9 @@ static void daemonize (void)
   open("/dev/null", 0);
 
   /* move somewhere safe and known */
-  chdir("/");
+  if (chdir("/")) {
+    kb_error(LOG_ERR, "chdir failed: %s", strerror(errno));
+  }
 }
 
 static void child_exited(GPid pid, gint status, gpointer data)

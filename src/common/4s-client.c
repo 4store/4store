@@ -126,7 +126,7 @@ static int fsp_open_socket (fsp_link *link, const char *node, uint16_t port)
   sprintf(cport, "%u", port);
   default_hints(&hints);
   if ((err = getaddrinfo(node, cport, &hints, &info))) {
-    link_error(LOG_ERR, "getaddrinfo failed for “%s”", node);
+    link_error(LOG_ERR, "getaddrinfo failed for “%s” with error: %s", node, gai_strerror(err));
     return -1;
   }
 
@@ -162,7 +162,11 @@ static int fsp_open_socket (fsp_link *link, const char *node, uint16_t port)
   unsigned char *out = message_new(FS_AUTH, 0, length);
   memcpy(out + FS_HEADER, link->hash, 16);
   memcpy(out + FS_HEADER + 16, link->kb_name, strlen(link->kb_name));
-  write(sock, out, FS_HEADER + length);
+  if (write(sock, out, FS_HEADER + length) != (FS_HEADER + length)) {
+    link_error(LOG_ERR, "write failed: %s", strerror(errno));
+    close(sock);
+    sock = -1;
+  }
   free(out);
 
   fs_segment segment;
@@ -190,7 +194,11 @@ static unsigned char *segment_list(fsp_link *link, int server, int sock)
   if (in && in[3] == FS_ERROR) {
     free(in);
     unsigned char *out = message_new(FS_SEGMENTS, 0, 0);
-    write(sock, out, FS_HEADER);
+    if (write(sock, out, FS_HEADER) != FS_HEADER) {
+      link_error(LOG_ERR, "write failed: %s", strerror(errno));
+      free(out);
+      return NULL;
+    }
     expected = FS_SEGMENT_LIST;
     free(out);
     in = message_recv(sock, &segments, &length);
@@ -272,7 +280,7 @@ static int check_segments(fsp_link *link, int readonly)
       }
     }
     g_string_append(buf, "missing");
-    link_error(LOG_CRIT, buf->str);
+    link_error(LOG_CRIT, "%s", buf->str);
     g_string_free(buf, TRUE);
   }
 
@@ -282,7 +290,10 @@ static int check_segments(fsp_link *link, int readonly)
 static int choose_segment (fsp_link *link, int sock, int server, fs_segment segment)
 {
   unsigned char *out = message_new(FS_CHOOSE_SEGMENT, segment, 0);
-  write(sock, out, FS_HEADER);
+  if (write(sock, out, FS_HEADER) != FS_HEADER) {
+    free(out);
+    return 1;
+  }
   free(out);
 
   unsigned int ignored;
@@ -318,15 +329,19 @@ int fsp_add_backend (fsp_link *link, const char *addr, uint16_t port, int segmen
   int sock = fsp_open_socket(link, addr, port);
   if (sock == -1) return 0;
 
+  unsigned char *out = message_new(FS_NODE_SEGMENTS, 0, 0);
+  if (write(sock, out, FS_HEADER) != FS_HEADER) {
+    link_error(LOG_ERR, "write failed: %s", strerror(errno));
+    free(out);
+    return 0;
+  }
+  free(out);
+
   /* post increment */
   int server = link->servers++;
   link->addrs[server] = g_strdup(addr);
   link->ports[server] = port;
   link->segments = segments; /* still zero despite this for non-Avahi case */
-
-  unsigned char *out = message_new(FS_NODE_SEGMENTS, 0, 0);
-  write(sock, out, FS_HEADER);
-  free(out);
 
   unsigned char *in = segment_list(link, server, sock);
   /* now we definitely know # of seg */
@@ -461,7 +476,9 @@ static void fsp_write_replica(fsp_link* link, const void *data, size_t size)
     }
   } else if (link->socks2[segment] != -1) {
     /* success and mirror exists so try to write to that too */
-    write(link->socks2[segment], data, FS_HEADER + size);
+    if (write(link->socks2[segment], data, FS_HEADER + size) != (FS_HEADER+size)) {
+      link_error(LOG_ERR, "write failed: %s", strerror(errno));
+    }
   }
 #ifdef FS_PROFILE_WRITE
   gettimeofday(&stop, NULL);
@@ -489,7 +506,9 @@ static void fsp_write_replica_locked(fsp_link* link, const void *data, size_t si
     }
   } else if (link->socks2[segment] != -1) {
     /* success and mirror exists so try to write to that too */
-    write(link->socks2[segment], data, FS_HEADER + size);
+    if (write(link->socks2[segment], data, FS_HEADER + size) != (FS_HEADER+size)) {
+      link_error(LOG_ERR, "write failed: %s", strerror(errno));
+    }
   }
 #ifdef FS_PROFILE_WRITE
   gettimeofday(&stop, NULL);

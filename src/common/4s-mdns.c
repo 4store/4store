@@ -92,6 +92,7 @@ static void resolve_callback (AvahiServiceResolver *browser,
                               void *userdata)
 {
   fsp_link *link = (fsp_link *) userdata;
+  /* address + % + interface */
   char addr[AVAHI_ADDRESS_STR_MAX + IF_NAMESIZE + 1];
 
   unresolved--;
@@ -112,11 +113,14 @@ static void resolve_callback (AvahiServiceResolver *browser,
     free(key); free(value);
 
     avahi_address_snprint(addr, sizeof(addr), address);
-    /* Avahi doesn't understand about link-local IPv6 properly, cope */
-    if (address->proto == AVAHI_PROTO_INET6 && interface >= 0) {
-      int slen = strlen(addr);
-      addr[slen] = '%';
-      if_indextoname(interface, addr + slen + 1);
+    if (address->proto == AVAHI_PROTO_INET6) {
+      /* Avahi doesn't understand about link-local IPv6 properly, cope */
+      /* 1111 1110 is not as precise as it could be but good enough for us */
+      if (address->data.ipv6.address[0] == 0xfe && interface >= 0) {
+        int slen = strlen(addr);
+        addr[slen] = '%';
+        if_indextoname(interface, addr + slen + 1);
+      }
     }
     found += fsp_add_backend (link, addr, port, segments);
   }

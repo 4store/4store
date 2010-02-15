@@ -64,17 +64,23 @@ void fsp_log(int priority, const char *format, ...)
 
 int fsp_ver_fixup (fsp_link *link, int sock)
 {
+  int err;
   if (link->hash_type != FS_HASH_UNKNOWN) {
     /* already know the type of hash we're using */
     return 0;
   }
 
   unsigned char *out = message_new(FS_NO_OP, 0, 0);
-  write(sock, out, FS_HEADER + 0);
+  err = write(sock, out, FS_HEADER + 0);
   free(out);
 
+  if (err != FS_HEADER) {
+    fs_error(LOG_ERR, "unable to write to socket, %s", strerror(errno));
+    return -1;
+  }
+
   unsigned char header[FS_HEADER];
-  int err = recv(sock, header, FS_HEADER, MSG_WAITALL);
+  err = recv(sock, header, FS_HEADER, MSG_WAITALL);
 
   if (err < 0) {
     fs_error(LOG_ERR, "recv header from socket failed, %s", strerror(errno));

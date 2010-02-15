@@ -148,7 +148,9 @@ static void daemonize (void)
   open("/dev/null", 0);
 
   /* move somewhere safe and known */
-  chdir("/");
+  if (chdir("/")) {
+    fs_error(LOG_ERR, "chdir failed: %s", strerror(errno));
+  }
 }
 
 static char hexdigit[256] =
