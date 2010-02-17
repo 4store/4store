@@ -1205,8 +1205,8 @@ static void http_line(client_ctxt *ctxt, gchar *line)
     char *colon = strchr(line, ':');
     char *value;
     if (colon) {
-      value = colon + 2;
-      g_hash_table_insert(ctxt->headers, g_ascii_strdown(name, colon - name), g_strdup(g_strchomp(value)));
+      value = colon + 1;
+      g_hash_table_insert(ctxt->headers, g_ascii_strdown(name, colon - name), g_strdup(g_strstrip(value)));
     }
     free(line);
   }
