@@ -216,7 +216,11 @@ static char *just_content_type(client_ctxt *ctxt)
 
 static void http_send(client_ctxt *ctxt, const char *msg)
 {
-  send(ctxt->sock, msg, strlen(msg), 0 /* flags */);
+  if (msg) {
+    send(ctxt->sock, msg, strlen(msg), 0 /* flags */);
+  } else {
+    fs_error(LOG_ERR, "tried to send NULL message");
+  }
 }
 
 static void http_header(client_ctxt *ctxt, const char *code, const char *mimetype)
@@ -394,7 +398,9 @@ static void http_import_start(client_ctxt *ctxt)
     }
     http_send(ctxt, "Server: 4s-httpd/" GIT_REV "\r\n");
     http_send(ctxt, "Content-Type: text/plain; charset=utf-8\r\n\r\n");
-    http_send(ctxt, message);
+    if (message) {
+      http_send(ctxt, message);
+    }
     http_send(ctxt, "\n");
     http_close(ctxt);
 
