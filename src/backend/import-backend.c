@@ -416,7 +416,7 @@ int fs_delete_quads(fs_backend *be, fs_rid_vector *quads[4])
 		fs_rid spair[2] = { quads[0]->data[i], quads[3]->data[i] };
 		fs_ptree_remove(sfp, quads[1]->data[i], spair);
 		fs_rid opair[2] = { quads[0]->data[i], quads[1]->data[i] };
-		fs_ptree_remove(sfp, quads[3]->data[i], opair);
+		fs_ptree_remove(ofp, quads[3]->data[i], opair);
 	    }
 	}
     }
