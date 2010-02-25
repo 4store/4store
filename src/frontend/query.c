@@ -391,6 +391,8 @@ fs_query *fs_query_execute(fs_query_state *qs, fsp_link *link, raptor_uri *bu, c
         q->ask = 1;
     } else if (verb == RASQAL_QUERY_VERB_DESCRIBE) {
         q->describe = 1;
+    } else if (verb == RASQAL_QUERY_VERB_SELECT) {
+        /* nothing */
     } else {
         fs_error(LOG_ERR, "Unknown query verb %d", verb);
     }
