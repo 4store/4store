@@ -694,7 +694,10 @@ static int apply_constraints(fs_query *q, int row)
 	    printf("\n");
 #endif
 	    if (v.valid & fs_valid_bit(FS_V_TYPE_ERROR) && v.lex) {
-		q->warnings = g_slist_prepend(q->warnings, v.lex);
+                /* only add a warning if it's not already in there */
+                if (!q->warnings || !g_slist_find(q->warnings, v.lex)) {
+		    q->warnings = g_slist_prepend(q->warnings, v.lex);
+                }
 	    }
 	    fs_value result = fn_ebv(v);
 	    if (result.valid & fs_valid_bit(FS_V_TYPE_ERROR) || !result.in) {
