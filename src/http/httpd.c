@@ -835,7 +835,9 @@ static void http_get_request(client_ctxt *ctxt, gchar *url, gchar *protocol)
         ctxt->query_flags |= FS_QUERY_RESTRICTED;
       } else if (!strcmp(key, "soft-limit") && value) {
         url_decode(value);
-        ctxt->soft_limit = atoi(value);
+        if (strlen(value)) { /* ignore empty string, default form value */
+          ctxt->soft_limit = atoi(value);
+        }
       } else if (!strcmp(key, "output") && value) {
         url_decode(value);
         ctxt->output = g_strdup(value);
@@ -962,7 +964,9 @@ static void http_post_request(client_ctxt *ctxt, gchar *url, gchar *protocol)
         ctxt->query_flags= FS_QUERY_RESTRICTED;
       } else if (!strcmp(key, "soft-limit") && value) {
         url_decode(value);
-        ctxt->soft_limit = atoi(value);
+        if (strlen(value)) { /* ignore empty string, default form value */
+          ctxt->soft_limit = atoi(value);
+        }
       } else if (!strcmp(key, "default-graph-uri") && value) {
         url_decode(value);
         default_graph = value;
