@@ -24,7 +24,7 @@
 int main(int argc, char *argv[])
 {
     if (argc != 3) {
-        printf("Usage: %s <kb-name> 'LOAD <uri>'\n", argv[0]);
+        printf("Usage: %s <kb-name> <sparql-update-request>\n", argv[0]);
 
         return 1;
     }
