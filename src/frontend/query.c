@@ -1626,13 +1626,13 @@ static int fs_handle_query_triple(fs_query *q, int block, rasqal_triple *t)
 	}
 
         char *scope = NULL;
-        fs_bind_cache_wrapper(q->qs, q, 1, tobind | FS_BIND_BY_OBJECT,
+        fs_bind_cache_wrapper(q->qs, q, 1, tobind | FS_BIND_BY_SUBJECT,
                  slot, &results, -1, q->order ? -1 : q->soft_limit);
         scope = "NNNN";
 	if (explain) {
 	    char desc[4][DESC_SIZE];
 	    desc_action(tobind, slot, desc);
-	    printf("%so (%s,%s,%s,%s) -> %d\n", scope, desc[0], desc[1], desc[2], desc[3], results ? (results[0] ? results[0]->length : -1) : -2);
+	    printf("%ss (%s,%s,%s,%s) -> %d\n", scope, desc[0], desc[1], desc[2], desc[3], results ? (results[0] ? results[0]->length : -1) : -2);
 	}
 
 	ret = process_results(q, block, oldb, b, tobind, results, varnames, numbindings, slot);
