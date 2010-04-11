@@ -38,7 +38,7 @@
 
 #define TMP_SIZE 512
 
-//#define DEBUG_BRANCH 1
+#define DEBUG_BRANCH 1
 
 static int slot_bits[4] = {
     FS_BIND_MODEL,
@@ -380,9 +380,9 @@ fs_error(LOG_INFO, "bind() branch");
 		if (!pt) continue;
 		for (int s=0; s<svl; s++) {
 		    fs_rid pk = sv->data[s];
-		    fs_rid pair[2] = { FS_RID_NULL, FS_RID_NULL };
 		    for (int m=0; m<ml && count<limit; m++) {
 			for (int o=0; o<ol; o++) {
+			    fs_rid pair[2] = { FS_RID_NULL, FS_RID_NULL };
 			    if (mvl) pair[0] = mv->data[m];
 			    if (ovl) pair[1] = ov->data[o];
 			    fs_ptree_it *it = fs_ptree_search(pt, pk, pair);
@@ -410,9 +410,9 @@ fs_error(LOG_INFO, "bind() branch");
 		if (!pt) continue;
 		for (int o=0; o<ovl && count<limit; o++) {
 		    fs_rid pk = ov->data[o];
-		    fs_rid pair[2] = { FS_RID_NULL, FS_RID_NULL };
 		    for (int m=0; m<ml; m++) {
 			for (int s=0; s<sl && count<limit; s++) {
+			    fs_rid pair[2] = { FS_RID_NULL, FS_RID_NULL };
 			    if (mvl) pair[0] = mv->data[m];
 			    if (svl) pair[1] = sv->data[s];
 			    fs_ptree_it *it = fs_ptree_search(pt, pk, pair);
