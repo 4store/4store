@@ -1415,16 +1415,16 @@ static void output_json(fs_query *q, int flags, FILE *out)
     }
     fprintf(out, "]},\n");
 
-    fprintf(out, " \"results\": {\n");
-    fprintf(out, "  \"bindings\":[");
     if (q->ask) {
         while (q->boolean && fs_query_fetch_row(q));
         if (q->boolean) {
-            fprintf(out, "{\"boolean\": true}");
+            fprintf(out, "\"boolean\": true");
         } else {
-            fprintf(out, "{\"boolean\": false}");
+            fprintf(out, "\"boolean\": false");
         }
     } else {
+        fprintf(out, " \"results\": {\n");
+        fprintf(out, "  \"bindings\":[");
         fs_row *row;
         int rownum = 0;
         while ((row = fs_query_fetch_row(q))) {
@@ -1475,8 +1475,8 @@ static void output_json(fs_query *q, int flags, FILE *out)
         if (rownum) {
             fputs("\n  ", out);
         }
+        fprintf(out, "]\n }");
     }
-    fprintf(out, "]\n }");
 
     if (q->warnings) {
         fprintf(out, ",\n \"warnings\": [");
