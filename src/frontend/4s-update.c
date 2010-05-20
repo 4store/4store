@@ -23,6 +23,8 @@
 
 int main(int argc, char *argv[])
 {
+#if RASQAL_VERSION > 917
+#error TRUE
     if (argc != 3) {
         printf("Usage: %s <kb-name> <sparql-update-request>\n", argv[0]);
 
@@ -46,6 +48,11 @@ int main(int argc, char *argv[])
     if (message) printf("%s\n", message);
 
     return ret;
+#else
+    fprintf(stderr, "%s requires reasqal > 0.9.17 to work\n", argv[0]);
+
+    return 1;
+#endif
 }
 
 /* vi:set expandtab sts=4 sw=4: */

@@ -387,6 +387,7 @@ static void http_import_start(client_ctxt *ctxt)
 {
   /* If it's an update operation, we have a different path */
   if (ctxt->update_string) {
+#if RASQAL_VERSION > 917
     char *message = NULL;
     int ret = fs_update(fsplink, ctxt->update_string, &message, unsafe);
     fs_query_cache_flush(query_state, 0);
@@ -403,6 +404,15 @@ static void http_import_start(client_ctxt *ctxt)
     }
     http_send(ctxt, "\n");
     http_close(ctxt);
+#else
+    http_import_queue_remove(ctxt);
+    http_send(ctxt, "HTTP/1.0 500 Not Implemented\r\n");
+    http_send(ctxt, "Server: 4s-httpd/" GIT_REV "\r\n");
+    http_send(ctxt, "Content-Type: text/plain; charset=utf-8\r\n\r\n");
+    http_send(ctxt, "SPARQL Update support requires rasqal 0.9.17+\n");
+    http_send(ctxt, "\n");
+    http_close(ctxt);
+#endif
 
     return;
   }

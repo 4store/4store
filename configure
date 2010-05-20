@@ -28,6 +28,7 @@ gcc -c /tmp/configure-$$.c -o /tmp/configure-$$.o
 test -e "`which pkg-config`" && pass "pkg-config installed" || fail "no pkg-config"
 pkg-config --exists raptor && pass "raptor installed" || fail "no raptor library"
 pkg-config --exists rasqal && pass "rasqal installed" || fail "no rasqal library"
+pkg-config --atleast-version 0.9.18 rasqal && pass "rasqal > 0.9.17" || optfail "old rasqal version, no update support"
 pkg-config --exists glib-2.0 && pass "glib2 installed" || fail "no glib2 devel system"
 pkg-config --exists libxml-2.0 && pass "libxml2 installed" || fail "no libxml2 devel system"
 test -e "`which pcre-config`" && pass "pcre installed" || fail "no pcre devel system installed"

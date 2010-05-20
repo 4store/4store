@@ -27,6 +27,8 @@
 #include "common/error.h"
 #include "common/rdf-constants.h"
 
+#if RASQAL_VERSION > 917
+
 enum update_op {
     OP_LOAD, OP_CLEAR
 };
@@ -615,5 +617,7 @@ int fs_clear(struct update_context *uc, char *graphuri)
 
     return errors;
 }
+
+#endif
 
 /* vi:set expandtab sts=4 sw=4: */
