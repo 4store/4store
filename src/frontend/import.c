@@ -128,6 +128,13 @@ static int inited = 0;
 
 static fs_parse_stuff parse_data;
 
+void rdf_parser_warning(void *user_data, raptor_locator* locator, const char *message)
+{
+    parse_data.count_warn++;
+    fs_error(LOG_ERR, "raptor parser warning: %s line %d", message,
+             raptor_locator_line(locator));
+}
+
 void rdf_parser_error(void *user_data, raptor_locator* locator, const char *message)
 {
     parse_data.count_err++;
@@ -188,6 +195,7 @@ int fs_import_stream_start(fsp_link *link, const char *model_uri, const char *mi
     parse_data.model = g_strdup(model_uri);
     parse_data.model_hash = fs_hash_uri(model_uri);
     parse_data.count_trip = 0;
+    parse_data.count_warn = 0;
     parse_data.count_err = 0;
     parse_data.last_count = 0;
     parse_data.has_o_index = has_o_index;
@@ -204,8 +212,9 @@ int fs_import_stream_start(fsp_link *link, const char *model_uri, const char *mi
     /* use us as a vector for an indirect attack? no thanks */
     raptor_set_feature(parse_data.parser, RAPTOR_FEATURE_NO_NET, 0);
 
-    raptor_set_fatal_error_handler(parse_data.parser, link, fatal_rdf_parser_error);
+    raptor_set_warning_handler(parse_data.parser, link, rdf_parser_warning);
     raptor_set_error_handler(parse_data.parser, link, rdf_parser_error);
+    raptor_set_fatal_error_handler(parse_data.parser, link, fatal_rdf_parser_error);
 
     raptor_set_statement_handler(parse_data.parser, &parse_data, store_stmt);
     raptor_set_graph_handler(parse_data.parser, &parse_data, graph_handler);
@@ -271,6 +280,7 @@ int fs_import_stream_finish(fsp_link *link, int *count, int *errors)
     }
 
     *errors = parse_data.count_err;
+
     return 0;
 }
 
