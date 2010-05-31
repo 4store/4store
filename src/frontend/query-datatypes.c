@@ -754,6 +754,8 @@ void fs_binding_merge(fs_query *q, int block, fs_binding *from, fs_binding *to)
 
     int length_t = fs_binding_length(to);
     int length_f = fs_binding_length(from);
+    /* ms8: this list keeps track of the vars to replace */
+    GList *rep_list = NULL;
     for (int i=1; to[i].name; i++) {
 	if (to+i == inter_t || to[i].used || to[i].bound) {
 	    /* do nothing */
@@ -776,6 +778,8 @@ void fs_binding_merge(fs_query *q, int block, fs_binding *from, fs_binding *to)
 	    for (int d=0; d<length_t; d++) {
 		to[i].vals->data[d] = FS_RID_NULL;
 	    }
+      if (q->opt_level == 0)
+        rep_list = g_list_append(rep_list, GINT_TO_POINTER(i));
 	}
     }
 
@@ -880,6 +884,45 @@ if (fp < 20) {
     /* clear the _ord columns */
     from[0].vals->length = 0;
     to[0].vals->length = 0;
+
+    /* ms8: INIT code to clean up rows that where not replaced */
+    if (q->opt_level == 0 && rep_list) {
+        GList *del_list = NULL;
+        while(rep_list) {
+            int col_r = GPOINTER_TO_INT(rep_list->data);
+             rep_list = g_list_next(rep_list);
+             for (int d=0; d<length_t; d++) {
+                if (to[col_r].vals->data[d] == FS_RID_NULL) {
+                     del_list = g_list_append(del_list,GINT_TO_POINTER(d));
+                }
+             }
+         }
+         g_list_free(rep_list);
+         if (del_list) {
+             int vars = 0;
+             for (int i=1; to[i].name; i++)
+                vars++;
+             fs_rid_vector **clean = calloc(vars, sizeof(fs_rid_vector *));
+             for (int i=1;i<=vars;i++)
+                clean[i] = fs_rid_vector_new(0);
+             for (int d = 0;d<length_t;d++) {
+                   if (!g_list_find(del_list,GINT_TO_POINTER(d))) {
+                     for (int i=1;i<=vars;i++)
+                        fs_rid_vector_append(clean[i],to[i].vals->data[d]);
+                   }
+              }
+
+             for (int i=1;i<=vars;i++) {
+                free(to[i].vals->data);
+                to[i].vals->data = clean[i]->data;
+                to[i].vals->length = clean[i]->length;
+                to[i].vals->size = clean[i]->size;
+             }
+             for (int i=0;i<=vars;i++)
+                 g_list_free(del_list);
+         }
+     }
+    /* ms8: END code to clean up rows that where not replaced */
 
 #ifdef DEBUG_MERGE
     printf("result: %d bindings\n", fs_binding_length(to));
