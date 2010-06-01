@@ -111,6 +111,12 @@ void fs_hash_init(fsp_hash_enum type)
     fs_c.lang_es = fs_hash_literal("es", 0);
     fs_c.rdf_type = fs_hash_uri(RDF_NAMESPACE "type");
     fs_c.default_graph = fs_hash_uri(FS_DEFAULT_GRAPH);
+    fs_c.system_config = fs_hash_uri(FS_SYSTEM_CONFIG);
+    fs_c.rdfs_label = fs_hash_uri(RDFS_LABEL);
+    fs_c.fs_text_index = fs_hash_uri(FS_TEXT_INDEX);
+    fs_c.fs_token = fs_hash_uri(FS_TEXT_TOKEN);
+    fs_c.fs_dmetaphone = fs_hash_uri(FS_TEXT_DMETAPHONE);
+    fs_c.fs_stem = fs_hash_uri(FS_TEXT_STEM);
 }
 
 GHashTable * fs_hash_bnids()

@@ -34,10 +34,10 @@ test: all filter-test
 	@echo 'Query tests'
 	@./tests/run.pl
 
-4s-query: 4s-query.o query.o results.o query-data.o query-datatypes.o query-cache.o filter.o filter-datatypes.o order.o optimiser.o decimal.o import.o update.o ../common/lib4store.a ../common/libsort.a
+4s-query: 4s-query.o query.o results.o query-data.o query-datatypes.o query-cache.o filter.o filter-datatypes.o order.o optimiser.o decimal.o ../common/lib4store.a ../common/libsort.a
 	$(CC) $(LDFLAGS) $(readedit_ldflags) -o 4s-query $^
 
-4s-update: 4s-update.o update.o import.o ../common/lib4store.a
+4s-update: 4s-update.o update.o import.o ../common/lib4store.a ../libs/stemmer/libstemmer.o ../libs/double-metaphone/double_metaphone.o
 	$(CC) $(LDFLAGS) $(readedit_ldflags) -o 4s-update $^
 
 decimal.o: decimal.h
@@ -52,7 +52,7 @@ query-datatypes.o: debug.h
 
 optimiser.o: debug.h
 
-4s-import: 4s-import.o import.o ../common/lib4store.a ../common/libsort.a
+4s-import: 4s-import.o import.o ../common/lib4store.a ../libs/stemmer/libstemmer.o ../libs/double-metaphone/double_metaphone.o ../common/libsort.a
 	$(CC) $(LDFLAGS) -o 4s-import $^
 
 4s-delete-model: delete-model.o ../common/lib4store.a
@@ -61,7 +61,7 @@ optimiser.o: debug.h
 4s-size: size.o ../common/lib4store.a
 	$(CC) $(LDFLAGS) -o 4s-size $^
 
-4s-info: 4s-info.o query.o query-datatypes.o query-data.o query-cache.o order.o optimiser.o filter.o filter-datatypes.o results.o decimal.o import.o ../common/lib4store.a ../common/libsort.a
+4s-info: 4s-info.o query.o query-datatypes.o query-data.o query-cache.o order.o optimiser.o filter.o filter-datatypes.o results.o decimal.o ../common/lib4store.a ../common/libsort.a
 	$(CC) $(LDFLAGS) -o 4s-info $^
 
 4s-restore: restore.o restore-trix.o ../common/lib4store.a ../common/libsort.a

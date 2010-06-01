@@ -186,7 +186,7 @@ static void error_handler(void *user_data, raptor_locator* locator, const char *
 
     char *msg = g_strdup_printf("Parser error: %s at line %d of operation %d", message, raptor_locator_line(locator), ct->opid);
     add_message(ct, msg, 1);
-    fs_error(LOG_ERR, msg);
+    fs_error(LOG_ERR, "%s", msg);
 }
 
 static int update_op(struct update_context *ct)

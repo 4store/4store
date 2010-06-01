@@ -16,5 +16,6 @@ int fs_import_commit(fsp_link *link, int verbosity, int dryrun, int has_o_index,
 int fs_import_stream_start(fsp_link *link, const char *model_uri, const char *mimetype, int has_o_index, int *count);
 int fs_import_stream_data(fsp_link *link, unsigned char *data, size_t count);
 int fs_import_stream_finish(fsp_link *link, int *count, int *errors);
+void fs_import_reread_config();
 
 #endif

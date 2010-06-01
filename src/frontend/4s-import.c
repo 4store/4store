@@ -197,10 +197,16 @@ read(0, &foo, 1);
 	    printf("removing old data\n");
 	    fflush(stdout);
         }
-        if (!(dryrun & FS_DRYRUN_DELETE)
-              && fsp_delete_model_all(fsplink, mvec)) {
-            fs_error(LOG_ERR, "model delete failed");
-            return 1;
+        if (!(dryrun & FS_DRYRUN_DELETE)) {
+	    if (fsp_delete_model_all(fsplink, mvec)) {
+	        fs_error(LOG_ERR, "model delete failed");
+	        return 1;
+	    }
+	    for (int i=0; i<mvec->length; i++) {
+		if (mvec->data[i] == fs_c.system_config) {
+		    fs_import_reread_config();
+		}
+	    }
         }
         fsp_new_model_all(fsplink, mvec);
     }

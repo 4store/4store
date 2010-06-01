@@ -616,6 +616,9 @@ static void http_delete_request(client_ctxt *ctxt, gchar *url, gchar *protocol)
   fs_rid_vector *mvec = fs_rid_vector_new(0);
   fs_rid muri = fs_hash_uri(url);
   fs_rid_vector_append(mvec, muri);
+  if (muri == fs_c.system_config) {
+    fs_import_reread_config();
+  }
 
   if (fsp_delete_model_all(fsplink, mvec)) {
     fs_error(LOG_ERR, "error while trying to delete model <%s>", url);

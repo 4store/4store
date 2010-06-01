@@ -13,9 +13,8 @@
 
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
-/*
- *  Copyright (C) 2006 Steve Harris for Garlik
+
+    Copyright (C) 2006 Steve Harris for Garlik
  */
 
 #include <stdio.h>
@@ -36,14 +35,20 @@
 #include "common/error.h"
 #include "common/hash.h"
 #include "common/params.h"
-
 #include "common/4store.h"
+#include "common/rdf-constants.h"
+#include "libs/stemmer/include/libstemmer.h"
+#include "libs/double-metaphone/double_metaphone.h"
 
 #define RES_BUF_SIZE 256
 #define QUAD_BUF_SIZE 10000
 #define FS_CHUNK_SIZE 5000000
 
 #define MEMBER_PREFIX "http://www.w3.org/1999/02/22-rdf-syntax-ns#_"
+
+/* characters that we break on when producing free text tokens, must be ASCII
+ * only  */
+#define TOKEN_BOUNDARY " \n\t\r!@$%^&*()-_=+[]{};:\"\\|<>,./?#"
 
 typedef struct {
     fsp_link *link;
@@ -72,6 +77,15 @@ static char *lex_tmp[FS_MAX_SEGMENTS][RES_BUF_SIZE];
 
 static fs_rid quad_buf[QUAD_BUF_SIZE][4];
 static fs_rid quad_buf_s[QUAD_BUF_SIZE][4];
+
+static int sent_token_pred = 0;
+static int sent_metaphone_pred = 0;
+static int sent_stem_pred = 0;
+
+static int read_config = 0;
+static fs_rid_set *token_set = NULL;
+static fs_rid_set *metaphone_set = NULL;
+static fs_rid_set *stem_set = NULL;
 
 static void store_stmt(void *user_data,
 		       const raptor_statement * statement);
@@ -279,6 +293,10 @@ int fs_import_stream_finish(fsp_link *link, int *count, int *errors)
         }
     }
 
+    if (parse_data.model_hash == fs_c.system_config) {
+        fs_import_reread_config();
+    }
+
     *errors = parse_data.count_err;
 
     return 0;
@@ -361,6 +379,17 @@ int fs_import(fsp_link *link, const char *model_uri, char *resource_uri,
     raptor_free_uri(parse_data.muri);
     g_free(parse_data.model);
     fs_hash_freshen(); /* blank nodes are unique per file */
+
+    /* if we've changed system:config we need to reread it next time we import */
+    if (parse_data.model_hash == fs_c.system_config) {
+        /* we need to push out pending quads so that the next import can pick
+         * up config-realted ones */
+        *count += process_quads(&parse_data);
+        if (!(dryrun & FS_DRYRUN_QUADS) && fsp_quad_import_commit_all(link, FS_BIND_BY_SUBJECT)) {
+            fs_error(LOG_ERR, "early quad commit failed");
+        }
+        fs_import_reread_config();
+    }
 
     return ret;
 }
@@ -523,9 +552,162 @@ static fs_rid fs_bnode_id(fsp_link *link, const char *bnode)
 
 /* remainder of code uses swizzled bNode RIDs */
 
+static void buffer_quad(fs_parse_stuff *data, fs_rid quad[4])
+{
+retry_write:
+    if (write(data->quad_fd, quad, sizeof(fs_rid) * 4) == -1) {
+        fs_error(LOG_ERR, "failed to buffer quad to fd %d (0x%x): %s", data->quad_fd, data->quad_fd, strerror(errno));
+        if (errno == EAGAIN || errno == EINTR || errno == ENOSPC) {
+            sleep(5);
+            goto retry_write;
+        }
+    }
+    if (data->verbosity > 2) {
+        fprintf(stderr, "%016llx %016llx %016llx %016llx\n", quad[0], quad[1], quad[2], quad[3]);
+    }
+}
+
+static void buffer_tokens(fs_parse_stuff *data, fs_rid quad[4], const char *str)
+{
+    quad[2] = fs_c.fs_token;
+
+    if (!sent_token_pred) {
+        buffer_res(data->link, data->segments, fs_c.fs_token, FS_TEXT_TOKEN, FS_RID_NULL, data->dryrun);
+        sent_token_pred = 1;
+    }
+
+    char **tokens = g_strsplit_set(str, TOKEN_BOUNDARY, -1);
+    for (int i=0; tokens[i]; i++) {
+        if (tokens[i][0] == '\0') {
+            continue;
+        }
+        gchar *ltok = g_utf8_strdown(tokens[i], strlen(tokens[i]));
+	quad[3] = fs_hash_literal(ltok, fs_c.empty);
+        buffer_res(data->link, data->segments, quad[3], ltok, fs_c.empty, data->dryrun);
+        g_free(ltok);
+        buffer_quad(data, quad);
+    }
+    g_strfreev(tokens);
+}
+
+static void buffer_metaphones(fs_parse_stuff *data, fs_rid quad[4], const char *str)
+{
+    quad[2] = fs_c.fs_dmetaphone;
+
+    if (!sent_metaphone_pred) {
+        buffer_res(data->link, data->segments, fs_c.fs_dmetaphone, FS_TEXT_DMETAPHONE, FS_RID_NULL, data->dryrun);
+        sent_metaphone_pred = 1;
+    }
+
+    char **tokens = g_strsplit_set(str, TOKEN_BOUNDARY, -1);
+    for (int i=0; tokens[i]; i++) {
+        if (tokens[i][0] == '\0') {
+            continue;
+        }
+        char *phones[2];
+        DoubleMetaphone(tokens[i], phones);
+        for (int p=0; p<2 && phones[p]; p++) {
+            if (!phones[p][0]) {
+                break;
+            }
+            if (p == 1 && !strcmp(phones[0], phones[1])) {
+                break;
+            }
+            quad[3] = fs_hash_literal(phones[p], fs_c.empty);
+            buffer_res(data->link, data->segments, quad[3], phones[p], fs_c.empty, data->dryrun);
+            buffer_quad(data, quad);
+            free(phones[p]);
+        }
+    }
+    g_strfreev(tokens);
+}
+
+static void buffer_stems(fs_parse_stuff *data, fs_rid quad[4], const char *str, const char *langtag)
+{
+    quad[2] = fs_c.fs_stem;
+
+    char *lang = NULL;
+    if (!langtag) {
+        lang = g_strdup("en");
+    } else {
+        lang = g_strdup(langtag);
+        for (char *pos = lang; *pos; pos++) {
+            *pos = tolower(*pos);
+            if (*pos < 'a' || *pos > 'z') {
+                *pos = '\0';
+                break;
+            }
+        }
+    }
+    /* TODO could cache stemmers in a hashtable or something for better efficiency */
+    struct sb_stemmer *stemmer = sb_stemmer_new(lang, NULL);
+    if (!stemmer) {
+        return;
+    }
+
+    if (!sent_stem_pred) {
+        buffer_res(data->link, data->segments, fs_c.fs_stem, FS_TEXT_STEM, FS_RID_NULL, data->dryrun);
+        sent_stem_pred = 1;
+    }
+
+    char **tokens = g_strsplit_set(str, TOKEN_BOUNDARY, -1);
+    for (int i=0; tokens[i]; i++) {
+        if (tokens[i][0] == '\0') {
+            continue;
+        }
+        gchar *ltok = g_utf8_strdown(tokens[i], strlen(tokens[i]));
+        char *symbol = (char *)sb_stemmer_stem(stemmer, (sb_symbol *)ltok, strlen(ltok));
+        g_free(ltok);
+	quad[3] = fs_hash_literal(symbol, fs_c.empty);
+        buffer_res(data->link, data->segments, quad[3], symbol, fs_c.empty, data->dryrun);
+        buffer_quad(data, quad);
+    }
+    g_strfreev(tokens);
+    sb_stemmer_delete(stemmer);
+}
+
 static void store_stmt(void *user_data, const raptor_statement * statement)
 {
     fs_parse_stuff *data = (fs_parse_stuff *) user_data;
+    if (read_config == 0) {
+        /* search for relevant config data */
+        if (token_set) {
+            fs_rid_set_free(token_set);
+        }
+        token_set = fs_rid_set_new();
+        if (metaphone_set) {
+            fs_rid_set_free(metaphone_set);
+        }
+        metaphone_set = fs_rid_set_new();
+        if (stem_set) {
+            fs_rid_set_free(stem_set);
+        }
+        stem_set = fs_rid_set_new();
+        int flags = FS_BIND_SUBJECT | FS_BIND_OBJECT | FS_BIND_BY_OBJECT;
+        fs_rid_vector *mrids = fs_rid_vector_new_from_args(1, fs_c.system_config);
+        fs_rid_vector *srids = fs_rid_vector_new(0);
+        fs_rid_vector *prids = fs_rid_vector_new_from_args(1, fs_c.fs_text_index);
+        fs_rid_vector *orids = fs_rid_vector_new_from_args(3, fs_c.fs_token, fs_c.fs_dmetaphone, fs_c.fs_stem);
+        fs_rid_vector **result = NULL;
+        fsp_bind_limit_all(data->link, flags, mrids, srids, prids, orids, &result, -1, -1);
+        if (result && result[0]) {
+            for (int row = 0; row < result[0]->length; row++) {
+                /* result[0] has the users predicate in and result[1] has the
+                 * index type */
+                if (result[1]->data[row] == fs_c.fs_token) {
+                    fs_rid_set_add(token_set, result[0]->data[row]);
+                } else if (result[1]->data[row] == fs_c.fs_dmetaphone) {
+                    fs_rid_set_add(metaphone_set, result[0]->data[row]);
+                } else if (result[1]->data[row] == fs_c.fs_stem) {
+                    fs_rid_set_add(stem_set, result[0]->data[row]);
+                } else {
+                    fs_error(LOG_ERR, "unexpected index type %016llx found in "
+                                      "fulltext indexing config", result[1]->data[row]);
+                }
+            }
+        }
+        read_config = 1;
+    }
     char *subj = (char *) raptor_uri_as_string((raptor_uri *)
 					       statement->subject);
     char *pred;
@@ -555,8 +737,9 @@ static void store_stmt(void *user_data, const raptor_statement * statement)
     if (statement->object_type == RAPTOR_IDENTIFIER_TYPE_LITERAL ||
 	statement->object_type == RAPTOR_IDENTIFIER_TYPE_XML_LITERAL) {
 	obj = (char *) statement->object;
+        char *langtag = NULL;
 	if (statement->object_literal_language) {
-	    char *langtag = (char *)statement->object_literal_language;
+	    langtag = (char *)statement->object_literal_language;
             for (char *pos = langtag; *pos; pos++) {
                 if (islower(*pos)) {
                     *pos = toupper(*pos);
@@ -571,6 +754,18 @@ static void store_stmt(void *user_data, const raptor_statement * statement)
 	    buffer_res(data->link, data->segments, attr, dt, FS_RID_NULL, data->dryrun);
 	}
 	o = fs_hash_literal(obj, attr);
+        if (fs_rid_set_contains(token_set, p)) {
+            fs_rid quad[4] = { m, s, p, FS_RID_NULL };
+            buffer_tokens(data, quad, obj);
+        }
+        if (fs_rid_set_contains(metaphone_set, p)) {
+            fs_rid quad[4] = { m, s, p, FS_RID_NULL };
+            buffer_metaphones(data, quad, obj);
+        }
+        if (fs_rid_set_contains(stem_set, p)) {
+            fs_rid quad[4] = { m, s, p, FS_RID_NULL };
+            buffer_stems(data, quad, obj, langtag);
+        }
     } else if (statement->object_type == RAPTOR_IDENTIFIER_TYPE_ANONYMOUS) {
 	o = fs_bnode_id(data->link, statement->object);
 	obj = (char *) statement->object;
@@ -586,20 +781,10 @@ static void store_stmt(void *user_data, const raptor_statement * statement)
     buffer_res(data->link, data->segments, o, obj, attr, data->dryrun);
 
     fs_rid tbuf[4] = { m, s, p, o };
-retry_write:
-    if (write(data->quad_fd, tbuf, sizeof(tbuf))  == -1) {
-        fs_error(LOG_ERR, "failed to buffer quad to fd %d (0x%x): %s", data->quad_fd, data->quad_fd, strerror(errno));
-        if (errno == EAGAIN || errno == EINTR || errno == ENOSPC) {
-            sleep(5);
-            goto retry_write;
-        }
-    }
-    if (data->verbosity > 2) {
-        fprintf(stderr, "%016llx %016llx %016llx %016llx\n", m, s, p, o);
-    }
-
+    buffer_quad(data, tbuf);
     data->count_trip++;
     total_triples_parsed++;
+
     if (data->verbosity && total_triples_parsed % 10000 == 0) {
 	printf("Pass 1, processed %d triples\r", total_triples_parsed);
 	fflush(stdout);
@@ -611,6 +796,12 @@ retry_write:
 	total_triples_parsed = 0;
 	gettimeofday(&then_last, 0);
     }
+}
+
+void fs_import_reread_config()
+{
+    /* reset flag so that we will check the config on next import */
+    read_config = 0;
 }
 
 /* vi:set expandtab sts=4 sw=4: */

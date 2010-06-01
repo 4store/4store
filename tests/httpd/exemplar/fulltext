@@ -1,0 +1,100 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML 2.0//EN">
+<html><head><title>201 imported successfully</title></head>
+<body><h1>201 imported successfully</h1>
+<p>This is a 4store SPARQL server.</p><p>4store [VERSION]</p></body></html>
+Query: SELECT * WHERE { GRAPH <system:config> { ?x ?y ?z } } ORDER BY ?x ?y ?z
+?x	?y	?z
+<http://example.org/text#stem>	<http://4store.org/fulltext#index>	<http://4store.org/fulltext#stem>
+<http://example.org/text#token>	<http://4store.org/fulltext#index>	<http://4store.org/fulltext#token>
+<http://www.w3.org/2000/01/rdf-schema#label>	<http://4store.org/fulltext#index>	<http://4store.org/fulltext#dmetaphone>
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML 2.0//EN">
+<html><head><title>201 imported successfully</title></head>
+<body><h1>201 imported successfully</h1>
+<p>This is a 4store SPARQL server.</p><p>4store [VERSION]</p></body></html>
+Query: SELECT * WHERE { GRAPH <http://example.com/texttest> { ?x ?y ?z } } ORDER BY ?x DESC(?y) ?z
+?x	?y	?z
+<ex:de>	<http://example.org/text#stem>	"Alle Menschen sind frei und gleich an Würde und Rechten geboren. Sie sind mit Vernunft und Gewissen begabt und sollen einander im Geist der Brüderlichkeit begegnen."@DE
+<ex:de>	<http://4store.org/fulltext#stem>	"all"
+<ex:de>	<http://4store.org/fulltext#stem>	"an"
+<ex:de>	<http://4store.org/fulltext#stem>	"begabt"
+<ex:de>	<http://4store.org/fulltext#stem>	"begegn"
+<ex:de>	<http://4store.org/fulltext#stem>	"bruder"
+<ex:de>	<http://4store.org/fulltext#stem>	"der"
+<ex:de>	<http://4store.org/fulltext#stem>	"einand"
+<ex:de>	<http://4store.org/fulltext#stem>	"frei"
+<ex:de>	<http://4store.org/fulltext#stem>	"gebor"
+<ex:de>	<http://4store.org/fulltext#stem>	"geist"
+<ex:de>	<http://4store.org/fulltext#stem>	"gewiss"
+<ex:de>	<http://4store.org/fulltext#stem>	"gleich"
+<ex:de>	<http://4store.org/fulltext#stem>	"im"
+<ex:de>	<http://4store.org/fulltext#stem>	"mensch"
+<ex:de>	<http://4store.org/fulltext#stem>	"mit"
+<ex:de>	<http://4store.org/fulltext#stem>	"recht"
+<ex:de>	<http://4store.org/fulltext#stem>	"sie"
+<ex:de>	<http://4store.org/fulltext#stem>	"sind"
+<ex:de>	<http://4store.org/fulltext#stem>	"soll"
+<ex:de>	<http://4store.org/fulltext#stem>	"und"
+<ex:de>	<http://4store.org/fulltext#stem>	"vernunft"
+<ex:de>	<http://4store.org/fulltext#stem>	"wurd"
+<ex:en1>	<http://www.w3.org/2000/01/rdf-schema#label>	"This should get turned into metaphones"@EN-GB
+<ex:en1>	<http://4store.org/fulltext#dmetaphone>	"0S"
+<ex:en1>	<http://4store.org/fulltext#dmetaphone>	"ANT"
+<ex:en1>	<http://4store.org/fulltext#dmetaphone>	"KT"
+<ex:en1>	<http://4store.org/fulltext#dmetaphone>	"MTFN"
+<ex:en1>	<http://4store.org/fulltext#dmetaphone>	"TRNT"
+<ex:en1>	<http://4store.org/fulltext#dmetaphone>	"TS"
+<ex:en1>	<http://4store.org/fulltext#dmetaphone>	"XLT"
+<ex:en2>	<http://example.org/text#token>	"This, should get tokenised."
+<ex:en2>	<http://4store.org/fulltext#token>	"get"
+<ex:en2>	<http://4store.org/fulltext#token>	"should"
+<ex:en2>	<http://4store.org/fulltext#token>	"this"
+<ex:en2>	<http://4store.org/fulltext#token>	"tokenised"
+<ex:en3>	<http://example.org/text#token>	"This should also get tokenised"@ANYTHING
+<ex:en3>	<http://4store.org/fulltext#token>	"also"
+<ex:en3>	<http://4store.org/fulltext#token>	"get"
+<ex:en3>	<http://4store.org/fulltext#token>	"should"
+<ex:en3>	<http://4store.org/fulltext#token>	"this"
+<ex:en3>	<http://4store.org/fulltext#token>	"tokenised"
+<ex:en4>	<http://example.org/text#stem>	"This should get stemmed\nit has several\nlines."
+<ex:en4>	<http://4store.org/fulltext#stem>	"get"
+<ex:en4>	<http://4store.org/fulltext#stem>	"has"
+<ex:en4>	<http://4store.org/fulltext#stem>	"it"
+<ex:en4>	<http://4store.org/fulltext#stem>	"line"
+<ex:en4>	<http://4store.org/fulltext#stem>	"sever"
+<ex:en4>	<http://4store.org/fulltext#stem>	"should"
+<ex:en4>	<http://4store.org/fulltext#stem>	"stem"
+<ex:en4>	<http://4store.org/fulltext#stem>	"this"
+<ex:it>	<http://example.org/text#stem>	"Rane mangiano le mosche, ma non può volare"@IT-GB
+<ex:it>	<http://4store.org/fulltext#stem>	"le"
+<ex:it>	<http://4store.org/fulltext#stem>	"ma"
+<ex:it>	<http://4store.org/fulltext#stem>	"mang"
+<ex:it>	<http://4store.org/fulltext#stem>	"mosc"
+<ex:it>	<http://4store.org/fulltext#stem>	"non"
+<ex:it>	<http://4store.org/fulltext#stem>	"può"
+<ex:it>	<http://4store.org/fulltext#stem>	"ran"
+<ex:it>	<http://4store.org/fulltext#stem>	"vol"
+<ex:ru>	<http://example.org/text#stem>	"Корова Хайнак Морфология"@RU
+<ex:ru>	<http://4store.org/fulltext#stem>	"коров"
+<ex:ru>	<http://4store.org/fulltext#stem>	"морфолог"
+<ex:ru>	<http://4store.org/fulltext#stem>	"хайнак"
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML 2.0//EN">
+<html><head><title>200 deleted successfully</title></head>
+<body><h1>200 deleted successfully</h1>
+<p>This is a 4store SPARQL server.</p><p>4store [VERSION]</p></body></html>
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML 2.0//EN">
+<html><head><title>201 imported successfully</title></head>
+<body><h1>201 imported successfully</h1>
+<p>This is a 4store SPARQL server.</p><p>4store [VERSION]</p></body></html>
+Query: SELECT * WHERE { GRAPH <http://example.com/texttest> { ?x ?y ?z } } ORDER BY ?x DESC(?y) ?z
+?x	?y	?z
+<ex:de>	<http://example.org/text#stem>	"Alle Menschen sind frei und gleich an Würde und Rechten geboren. Sie sind mit Vernunft und Gewissen begabt und sollen einander im Geist der Brüderlichkeit begegnen."@DE
+<ex:en1>	<http://www.w3.org/2000/01/rdf-schema#label>	"This should get turned into metaphones"@EN-GB
+<ex:en2>	<http://example.org/text#token>	"This, should get tokenised."
+<ex:en3>	<http://example.org/text#token>	"This should also get tokenised"@ANYTHING
+<ex:en4>	<http://example.org/text#stem>	"This should get stemmed\nit has several\nlines."
+<ex:it>	<http://example.org/text#stem>	"Rane mangiano le mosche, ma non può volare"@IT-GB
+<ex:ru>	<http://example.org/text#stem>	"Корова Хайнак Морфология"@RU
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML 2.0//EN">
+<html><head><title>200 deleted successfully</title></head>
+<body><h1>200 deleted successfully</h1>
+<p>This is a 4store SPARQL server.</p><p>4store [VERSION]</p></body></html>

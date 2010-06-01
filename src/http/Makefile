@@ -21,5 +21,5 @@ clean:
 	rm -f *.o $(BINS)
 	rm -rf *.dSYM
 
-4s-httpd: httpd.o ../common/lib4store.a $(FRONTEND) ../common/libsort.a
-	$(CC) $(LDFLAGS) -o $@ $^ `pcre-config --libs`
+4s-httpd: httpd.o ../common/lib4store.a $(FRONTEND) ../common/libsort.a ../libs/stemmer/libstemmer.o ../libs/double-metaphone/double_metaphone.o
+	$(CC) $(LDFLAGS) -o $@ $^ `pcre-config --libs` ../libs/stemmer/libstemmer.o

@@ -5,7 +5,7 @@
 #define RDFS_NAMESPACE   "http://www.w3.org/2000/01/rdf-schema#"
 #define OWL_NAMESPACE    "http://www.w3.org/2002/07/owl#"
 #define XSD_NAMESPACE    "http://www.w3.org/2001/XMLSchema#"
-#define DIRECT_NAMESPACE "http://triplestore.aktors.org/direct/#"
+#define DIRECT_NAMESPACE "http://4store.org/direct#"
 
 #define RDF_TYPE        RDF_NAMESPACE "type"
 #define RDF_PROPERTY    RDF_NAMESPACE "Property"
@@ -14,7 +14,7 @@
 #define OWL_DATPROPERTY OWL_NAMESPACE "DatatypeProperty"
 
 #define RDFS_CLASS        RDFS_NAMESPACE "Class"
-#define OWL_CLASS         OWL_NAMESPACE "Class"
+#define OWL_CLASS         OWL_NAMESPACE  "Class"
 #define RDFS_RESOURCE     RDFS_NAMESPACE "Resource"
 #define RDFS_SUBCLASS     RDFS_NAMESPACE "subClassOf"
 #define RDFS_SUBPROPERTY  RDFS_NAMESPACE "subPropertyOf"
@@ -32,7 +32,7 @@
 #define XSD_DATETIME	XSD_NAMESPACE "dateTime"
 #define XSD_BOOLEAN	XSD_NAMESPACE "boolean"
 
-#define INT_NS "http://id128.example.com/ontology/#"
+#define INT_NS "http://4store.org/schema#"
 #define INT_CLOSURE INT_NS "rdfsTransitiveClosure"
 #define INT_DEPENDS INT_NS "dependsOn"
 
@@ -40,6 +40,12 @@
 #define DIRECT_SUBPROPERTY DIRECT_NAMESPACE "subPropertyOf"
 #define DIRECT_TYPE        DIRECT_NAMESPACE "type"
 
-#define FS_DEFAULT_GRAPH "default:"
+#define FS_DEFAULT_GRAPH   "default:"
+#define FS_SYSTEM_CONFIG   "system:config"
+#define FS_TEXT            "http://4store.org/fulltext#"
+#define FS_TEXT_INDEX      FS_TEXT "index"
+#define FS_TEXT_TOKEN      FS_TEXT "token"
+#define FS_TEXT_DMETAPHONE FS_TEXT "dmetaphone"
+#define FS_TEXT_STEM       FS_TEXT "stem"
 
 #endif
