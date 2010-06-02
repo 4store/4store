@@ -392,15 +392,28 @@ static void interactive(fsp_link *link, raptor_uri *bu, const char *result_forma
         g_free(old);
 
 	/* process query string */
+        double then = 0.0;
 	if (query && strcmp(query, "#EOQ")) {
+            if (show_timing) {
+                then = fs_time();
+            }
 	    fs_query *tq = fs_query_execute(qs, link, bu, query,
 		    result_flags, opt_level, soft_limit);
 	    fs_query_results_output(tq, result_format, 0, stdout);
 	    fs_query_free(tq);
 	    if (result_format && !strcmp(result_format, "sparql")) {
-                printf("<!-- EOR -->\n");
+                if (show_timing) {
+                    double now = fs_time();
+                    printf("<!-- EOR execution time %.3fs -->\n", now-then);
+                } else {
+                    printf("<!-- EOR -->\n");
+                }
 	    } else {
                 printf("#EOR\n");
+                if (show_timing) {
+                    double now = fs_time();
+                    printf("# execution time %.3fs\n", now-then);
+                }
 	    }
 	    fflush(stdout);
 	}
