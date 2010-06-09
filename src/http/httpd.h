@@ -18,5 +18,6 @@ typedef struct {
   guint watchdog;
   int soft_limit;
   char *output;
+  unsigned int query_id;
+  double start_time;
 } client_ctxt;
-

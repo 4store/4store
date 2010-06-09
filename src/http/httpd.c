@@ -71,6 +71,8 @@ static void http_put_finished(client_ctxt *ctxt, const char *msg);
 
 static FILE *ql_file = NULL;
 
+volatile static unsigned int last_query_id = 0;
+
 static void query_log_open (const char *kb_name)
 {
   char *filename = g_strdup_printf("/var/log/4store/query-%s.log", kb_name);
@@ -99,10 +101,10 @@ static void query_log_reopen ()
   query_log_open(fsp_kb_name(fsplink));
 }
 
-static void query_log (const char *query)
+static void query_log (client_ctxt *ctxt, const char *query)
 {
   if (ql_file) {
-    fprintf(ql_file, "#####\n%s\n", query);
+    fprintf(ql_file, "##### Q%u\n%s\n", ctxt->query_id, query);
     fflush(ql_file);
   }
 }
@@ -314,6 +316,7 @@ static void http_query_worker(gpointer data, gpointer user_data)
 {
   client_ctxt *ctxt = (client_ctxt *) data;
 
+  ctxt->start_time = fs_time();
   ctxt->qr = fs_query_execute(query_state, fsplink, bu, ctxt->query_string, ctxt->query_flags, 3 /* opt_level */, ctxt->soft_limit);
 
   http_send(ctxt, "HTTP/1.0 200 OK\r\n");
@@ -360,11 +363,16 @@ static void http_query_worker(gpointer data, gpointer user_data)
     fclose(fp);
   }
   http_close(ctxt);
+  if (ql_file) {
+    fprintf(ql_file, "#### execution time for Q%u: %fs\n", ctxt->query_id, fs_time() - ctxt->start_time);
+    fflush(ql_file);
+  }
 }
 
 static void http_answer_query(client_ctxt *ctxt, const char *query)
 {
-  query_log(query);
+  ctxt->query_id = ++last_query_id;
+  query_log(ctxt, query);
   ctxt->query_string = g_strdup(query);
   ctxt->update_string = NULL;
   g_source_remove_by_user_data(ctxt);
