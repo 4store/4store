@@ -59,6 +59,7 @@ static int global_import_count = 0;
 static int unsafe = 0;
 static int default_graph = 0;
 static int soft_limit = 0; /* default value for soft limit */
+static int opt_level = 3;  /* default value for optimisation level */
 
 static fs_query_state *query_state;
 
@@ -317,7 +318,7 @@ static void http_query_worker(gpointer data, gpointer user_data)
   client_ctxt *ctxt = (client_ctxt *) data;
 
   ctxt->start_time = fs_time();
-  ctxt->qr = fs_query_execute(query_state, fsplink, bu, ctxt->query_string, ctxt->query_flags, 3 /* opt_level */, ctxt->soft_limit);
+  ctxt->qr = fs_query_execute(query_state, fsplink, bu, ctxt->query_string, ctxt->query_flags, opt_level, ctxt->soft_limit);
 
   http_send(ctxt, "HTTP/1.0 200 OK\r\n");
   http_send(ctxt, "Server: 4s-httpd/" GIT_REV "\r\n");
@@ -1613,7 +1614,7 @@ int main(int argc, char *argv[])
   const char *port = "8080";
 
   int o;
-  while ((o = getopt(argc, argv, "DH:p:Uds:")) != -1) {
+  while ((o = getopt(argc, argv, "DH:p:Uds:O:")) != -1) {
     switch (o) {
       case 'D':
         daemonize = 0;
@@ -1632,6 +1633,9 @@ int main(int argc, char *argv[])
 	break;
       case 's':
 	soft_limit = atoi(optarg);
+	break;
+      case 'O':
+	opt_level = atoi(optarg);
 	break;
     }
   }
