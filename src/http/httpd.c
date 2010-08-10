@@ -881,6 +881,9 @@ static void http_get_request(client_ctxt *ctxt, gchar *url, gchar *protocol)
       http_error(ctxt, "500 SPARQL protocol error");
       http_close(ctxt);
     }
+  } else if (!strcmp(path, "/update/")) {
+      http_error(ctxt, "500 SPARQL protocol error, update requests must use POST");
+      http_close(ctxt);
   } else if (!strcmp(path, "/sparql")) {
     http_redirect(ctxt, "sparql/");
     http_close(ctxt);
