@@ -35,7 +35,7 @@ while ($arg = shift) {
 	}
 }
 
-die "Usage: $0 <endpoint> [-a,--all-graphs] [-f uri-file] [--overwrite] [-o output-dir]\n" unless $endpoint && $endpoint =~ m(^http:) && !$help;
+die "Usage: $0 <endpoint> [-a,--all-graphs] [-f uri-file] [--overwrite] [-o output-dir]\nExample: $0 http://localhost:8080/sparql/ -a\n" unless $endpoint && $endpoint =~ m(^http:) && !$help;
 
 if (!$force && -d $outdir) {
 	die("$outdir/ already exists, use --overwrite if you want to force it\n");
@@ -96,6 +96,13 @@ sub sparql_query {
 			return ();
 		}
 		my($code, $mess, %h) = $s->read_response_headers;
+		if ($code ne "200") {
+			if ($code =~ /^[34]/) {
+				warn("Incorrect SPARQL endpoint given\n");
+			}
+			warn("HTTP error $code $mess\n");
+			return;
+		}
 		$tsv = ($h{'Content-Type'} =~ m(^text/tab-separated-values)i);
 
 		while (1) {
