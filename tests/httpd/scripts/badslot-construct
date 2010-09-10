@@ -1,0 +1,7 @@
+#!/bin/bash
+
+source sparql.sh
+
+put "$EPR" ../../data/swh.xrdf '' 'http://example.org/foaf'
+sparql "$EPR" 'CONSTRUCT { ?o ?s ?p } WHERE { ?s ?p ?o } ORDER BY ?o ?s ?p'
+delete "$EPR" 'http://example.org/foaf'
