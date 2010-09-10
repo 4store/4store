@@ -44,6 +44,7 @@ fs_value fn_is_iri(fs_query *q, fs_value a);
 fs_value fn_is_blank(fs_query *q, fs_value a);
 fs_value fn_is_literal(fs_query *q, fs_value a);
 fs_value fn_str(fs_query *q, fs_value a);
+fs_value fn_uri(fs_query *q, fs_value a);
 fs_value fn_lang(fs_query *q, fs_value a);
 fs_value fn_datatype(fs_query *q, fs_value a);
 

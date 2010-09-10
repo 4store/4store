@@ -23,6 +23,7 @@
 #include <string.h>
 
 #include "results.h"
+#include "order.h"
 #include "query-datatypes.h"
 #include "query.h"
 #include "query-intl.h"
@@ -158,6 +159,9 @@ static fs_value literal_to_value(fs_query *q, int row, int block, rasqal_literal
 	    return fs_value_boolean(l->value.integer);
 
 	case RASQAL_LITERAL_INTEGER:
+#if RASQAL_VERSION >= 920
+	case RASQAL_LITERAL_INTEGER_SUBTYPE:
+#endif
 	    return fs_value_integer(l->value.integer);
 
 	case RASQAL_LITERAL_DOUBLE:
@@ -372,9 +376,106 @@ fs_value fs_expression_eval(fs_query *q, int row, int block, rasqal_expression *
         }
 
         case RASQAL_EXPR_COUNT: {
-            fs_value v = fs_value_integer(fs_binding_length(q->bb[block]));
+            int length = fs_binding_length(q->bb[block]);
+            if (e->arg1->op == RASQAL_EXPR_VARSTAR) {
+                return fs_value_integer(length);
+            }
+            int count = 0;
+            for (int r=0; r<length; r++) {
+                fs_value v = fs_expression_eval(q, r, block, e->arg1);
+                if (v.valid & fs_valid_bit(FS_V_TYPE_ERROR) ||
+                    ((v.attr == fs_c.empty || v.attr == FS_RID_NULL) &&
+                      v.rid == FS_RID_NULL)) {
+                   /* do nothing */
+                } else {
+                    count++;
+                }
+            }
+
+            return fs_value_integer(count);
+        }
+
+#if RASQAL_VERSION >= 920
+	case RASQAL_EXPR_IRI:
+	case RASQAL_EXPR_URI:
+            return fn_uri(q, fs_expression_eval(q, row, block, e->arg1));
+
+        case RASQAL_EXPR_SUM: {
+            int length = fs_binding_length(q->bb[block]);
+            fs_value v = fs_value_integer(0);
+            for (int r=0; r<length; r++) {
+                v = fn_numeric_add(q, v, fs_expression_eval(q, r, block, e->arg1));
+            }
+
             return v;
         }
+
+        case RASQAL_EXPR_AVG: {
+            int length = fs_binding_length(q->bb[block]);
+            fs_value sum = fs_value_integer(0);
+            int count = 0;
+            for (int r=0; r<length; r++) {
+                fs_value expr = fs_expression_eval(q, r, block, e-> arg1);
+                sum = fn_numeric_add(q, sum, expr);
+                if (expr.valid & fs_valid_bit(FS_V_TYPE_ERROR) ||
+                    ((expr.attr == fs_c.empty || expr.attr == FS_RID_NULL) &&
+                      expr.rid == FS_RID_NULL)) {
+                   /* do nothing */
+                } else {
+                    count++;
+                }
+            }
+
+            return fn_numeric_divide(q, sum, fs_value_integer(count));
+        }
+
+        case RASQAL_EXPR_SAMPLE: {
+            int length = fs_binding_length(q->bb[block]);
+            if (length > 0) {
+                return fs_expression_eval(q, 0, block, e->arg1);
+            }
+
+            return fs_value_error(FS_ERROR_INVALID_TYPE, NULL);
+        }
+
+        case RASQAL_EXPR_MIN: {
+            int length = fs_binding_length(q->bb[block]);
+            fs_value m;
+            if (length > 0) {
+                m = fs_expression_eval(q, 0, block, e->arg1);
+            } else {
+                m = fs_value_error(FS_ERROR_INVALID_TYPE, NULL);
+            }
+            for (int r=1; r<length; r++) {
+                fs_value expr = fs_expression_eval(q, r, block, e->arg1);
+                int order = fs_order_by_cmp(m, expr);
+                if (order > 0) {
+                    m = expr;
+                }
+            }
+
+            return m;
+        }
+
+        case RASQAL_EXPR_MAX: {
+            int length = fs_binding_length(q->bb[block]);
+            fs_value m;
+            if (length > 0) {
+                m = fs_expression_eval(q, 0, block, e->arg1);
+            } else {
+                m = fs_value_error(FS_ERROR_INVALID_TYPE, NULL);
+            }
+            for (int r=1; r<length; r++) {
+                fs_value expr = fs_expression_eval(q, r, block, e->arg1);
+                int order = fs_order_by_cmp(m, expr);
+                if (order < 0) {
+                    m = expr;
+                }
+            }
+
+            return m;
+        }
+#endif
 
         case RASQAL_EXPR_VARSTAR: {
             fs_value v = fs_value_integer(1);
@@ -498,6 +599,9 @@ static raptor_identifier_type slot_fill(fs_query *q, void **data,
 	return RAPTOR_IDENTIFIER_TYPE_LITERAL;
 
     case RASQAL_LITERAL_INTEGER:
+#if RASQAL_VERSION >= 920
+	case RASQAL_LITERAL_INTEGER_SUBTYPE:
+#endif
 	*data = (void *)l->string;
         if (dt) *dt = raptor_new_uri((unsigned char *)XSD_INTEGER);
 
@@ -607,6 +711,9 @@ static void insert_slot_fill(fs_query *q, fs_rid *rid,
 	break;
 
     case RASQAL_LITERAL_INTEGER:
+#if RASQAL_VERSION >= 920
+    case RASQAL_LITERAL_INTEGER_SUBTYPE:
+#endif
 	res.lex = (char *)l->string;
         res.attr = fs_c.xsd_integer;
         res.rid = fs_hash_literal(res.lex, res.attr);

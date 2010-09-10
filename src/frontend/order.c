@@ -50,62 +50,77 @@ fs_value_print(va);
 printf(" <=> ");
 fs_value_print(vb);
 #endif
-        if (va.valid & fs_valid_bit(FS_V_RID) && va.rid == FS_RID_NULL) {
-            if (vb.valid & fs_valid_bit(FS_V_RID) && vb.rid == FS_RID_NULL) {
-                continue;
-            }
-            return -1 * mod;
-        }
-        if (vb.valid & fs_valid_bit(FS_V_RID) && vb.rid == FS_RID_NULL) {
-            return 1 * mod;
-        }
-        if (va.valid & fs_valid_bit(FS_V_RID) && FS_IS_BNODE(va.rid)) {
-            if (vb.valid & fs_valid_bit(FS_V_RID) && FS_IS_BNODE(vb.rid)) {
-                return (va.rid - vb.rid) * mod;
-            }
-            return -1 * mod;
-        }
-        if (vb.valid & fs_valid_bit(FS_V_RID) && FS_IS_BNODE(vb.rid)) {
-            return 1 * mod;
-        }
-        if (va.valid & fs_valid_bit(FS_V_RID) && FS_IS_URI(va.rid)) {
-            if (vb.valid & fs_valid_bit(FS_V_RID) && FS_IS_URI(vb.rid)) {
-                int cmp = strcmp(va.lex, vb.lex);
-                if (cmp != 0) return cmp * mod;
-                continue;
-            }
-            return -1 * mod;
-        }
-        if (vb.valid & fs_valid_bit(FS_V_RID) && FS_IS_URI(vb.rid)) {
-            return 1 * mod;
-        }
-
-        fs_value cmp = fn_equal(NULL, va, vb);
-        if (!(cmp.valid & fs_valid_bit(FS_V_TYPE_ERROR)) && cmp.in) {
-            continue;
-        }
-        cmp = fn_less_than(NULL, va, vb);
-        if (cmp.valid & fs_valid_bit(FS_V_TYPE_ERROR)) {
-            if (va.lex && vb.lex) {
-                int cmp = strcmp(va.lex, vb.lex);
-                if (cmp != 0) {
-                    return cmp * mod;
-                }
-            }
-
-            /* TODO check for plain v's typed */
-            
+        int order = fs_order_by_cmp(va, vb);
+        if (order == 0) {
             continue;
         }
 
-        if (cmp.in) {
-            return -1 * mod;
-        } else {
-            return 1 * mod;
-        }
+        return order * mod;
     }
 
     return 0;
+}
+
+int fs_order_by_cmp(fs_value va, fs_value vb)
+{
+    if (va.valid & fs_valid_bit(FS_V_RID) && va.rid == FS_RID_NULL) {
+        if (vb.valid & fs_valid_bit(FS_V_RID) && vb.rid == FS_RID_NULL) {
+            return 0;
+        }
+        return -1;
+    }
+    if (vb.valid & fs_valid_bit(FS_V_RID) && vb.rid == FS_RID_NULL) {
+        return 1;
+    }
+    if (va.valid & fs_valid_bit(FS_V_RID) && FS_IS_BNODE(va.rid)) {
+        if (vb.valid & fs_valid_bit(FS_V_RID) && FS_IS_BNODE(vb.rid)) {
+            if (va.rid > vb.rid) {
+                return 1;
+            } else if (va.rid < vb.rid) {
+                return -1;
+            }
+            return 0;
+        }
+        return -1;
+    }
+    if (vb.valid & fs_valid_bit(FS_V_RID) && FS_IS_BNODE(vb.rid)) {
+        return 1;
+    }
+    if (va.valid & fs_valid_bit(FS_V_RID) && FS_IS_URI(va.rid)) {
+        if (vb.valid & fs_valid_bit(FS_V_RID) && FS_IS_URI(vb.rid)) {
+            int cmp = strcmp(va.lex, vb.lex);
+            if (cmp != 0) return cmp;
+            return 0;
+        }
+        return -1;
+    }
+    if (vb.valid & fs_valid_bit(FS_V_RID) && FS_IS_URI(vb.rid)) {
+        return 1;
+    }
+
+    fs_value cmp = fn_equal(NULL, va, vb);
+    if (!(cmp.valid & fs_valid_bit(FS_V_TYPE_ERROR)) && cmp.in) {
+        return 0;
+    }
+    cmp = fn_less_than(NULL, va, vb);
+    if (cmp.valid & fs_valid_bit(FS_V_TYPE_ERROR)) {
+        if (va.lex && vb.lex) {
+            int cmp = strcmp(va.lex, vb.lex);
+            if (cmp != 0) {
+                return cmp;
+            }
+        }
+
+        /* TODO check for plain v's typed */
+        
+        return 0;
+    }
+
+    if (cmp.in) {
+        return -1;
+    } else {
+        return 1;
+    }
 }
 
 static int orow_compare(const void *ain, const void *bin)

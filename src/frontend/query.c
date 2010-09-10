@@ -947,6 +947,15 @@ static void check_variables(fs_query *q, rasqal_expression *e, int dont_select)
 	return;
     }
 
+    if (e->op == RASQAL_EXPR_VARSTAR) {
+        /* Set all vars to be needed. Could be much cleaverer */
+        for (int c=1; q->bb[0][c].name; c++) {
+            q->bb[0][c].need_val = 1;
+        }
+
+        return;
+    }
+
     if (e->arg1) {
 	check_variables(q, e->arg1, dont_select);
     }
@@ -1778,6 +1787,9 @@ static fs_rid const_literal_to_rid(fs_query *q, rasqal_literal *l, fs_rid *attr)
 	    return fs_hash_literal(l->value.integer ?
 			"true" : "false", *attr);
 	case RASQAL_LITERAL_INTEGER:
+#if RASQAL_VERSION >= 920
+	case RASQAL_LITERAL_INTEGER_SUBTYPE:
+#endif
             *attr = fs_c.xsd_integer;
 	    return fs_hash_literal((char *)l->string, *attr);
 	case RASQAL_LITERAL_DOUBLE:
@@ -1835,6 +1847,7 @@ int fs_bind_slot(fs_query *q, int block, fs_binding *b,
                     bound_in_this_union = 1;
                 }
             }
+
 	    if ((!vb->bound || bound_in_this_union) && vb->need_val) {
 		*bind = 1;
                 if (block != -1) fs_binding_set_used(b, *vname);
@@ -1883,6 +1896,9 @@ int fs_bind_slot(fs_query *q, int block, fs_binding *b,
 	    fs_rid_vector_append(v, fs_hash_literal(l->value.integer ?
 			"true" : "false", fs_c.xsd_boolean));
 	    break;
+#if RASQAL_VERSION >= 920
+	case RASQAL_LITERAL_INTEGER_SUBTYPE:
+#endif
 	case RASQAL_LITERAL_INTEGER:
 	    if (!lit_allowed) {
 		return 1;

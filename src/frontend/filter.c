@@ -852,6 +852,26 @@ fs_value fn_str(fs_query *q, fs_value a)
     return v;
 }
 
+fs_value fn_uri(fs_query *q, fs_value a)
+{
+    if (a.valid & fs_valid_bit(FS_V_TYPE_ERROR)) {
+	return a;
+    }
+
+    if (a.valid & fs_valid_bit(FS_V_RID) && FS_IS_BNODE(a.rid)) {
+        return fs_value_error(FS_ERROR_INVALID_TYPE, NULL);
+    }
+
+    if (a.lex) {
+	return fs_value_uri(a.lex);
+    }
+
+    a = cast_lexical(q, a);
+    fs_value v = fs_value_uri(a.lex);
+
+    return v;
+}
+
 fs_value fn_lang(fs_query *q, fs_value a)
 {
     if (a.valid & fs_valid_bit(FS_V_TYPE_ERROR)) {
