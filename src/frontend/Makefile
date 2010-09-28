@@ -59,7 +59,7 @@ optimiser.o: debug.h
 	$(CC) $(LDFLAGS) -o 4s-delete-model $^
 
 4s-size: size.o ../common/lib4store.a
-	$(CC) $(LDFLAGS) -o 4s-size $^
+	$(CC) $(LDFLAGS) -lm -o 4s-size $^
 
 4s-info: 4s-info.o query.o query-datatypes.o query-data.o query-cache.o order.o optimiser.o filter.o filter-datatypes.o results.o decimal.o ../common/lib4store.a ../common/libsort.a
 	$(CC) $(LDFLAGS) -o 4s-info $^
