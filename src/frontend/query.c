@@ -13,9 +13,8 @@
 
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
-/*
- *  Copyright (C) 2006 Steve Harris for Garlik
+
+    Copyright (C) 2006 Steve Harris for Garlik
  */
 
 #include <stdio.h>
@@ -56,6 +55,7 @@ static fs_rid const_literal_to_rid(fs_query *q, rasqal_literal *l, fs_rid *attr)
 static void check_variables(fs_query *q, rasqal_expression *e, int dont_select);
 static void filter_optimise_disjunct_equality(fs_query *q,
             rasqal_expression *e, int block, char **var, fs_rid_vector *res);
+static void fs_query_add_msg(fs_query *q, char *msg);
 
 static void check_cons_slot(fs_query *q, raptor_sequence *vars, rasqal_literal *l)
 {
@@ -142,6 +142,14 @@ static int bind_reverse(fs_query *q, int flags, fs_rid_vector *rids[4],
     }
 
     return ret;
+}
+
+/* note, msg must be malloc'd or equivalent, don't use for stack values */
+
+static void fs_query_add_msg(fs_query *q, char *msg)
+{
+    q->warnings = g_slist_append(q->warnings, msg);
+    fs_query_add_freeable(q, msg);
 }
 
 static void warning_handler(void *user_data, raptor_locator* locator, const char *message)
@@ -593,25 +601,34 @@ printf("Processing B%d, parent is B%d\n", i, q->parent_block[i]);
 	       (rasqal_triple **)(q->blocks[i].data), q->blocks[i].length, j);
 	    /* execute triple pattern query */
 	    if (explain) {
-		printf("execute: ");
+                FILE *msg = tmpfile();
+		fprintf(msg, "execute: ");
 		if (!q->blocks[i].data[j]) {
-		    printf("NULL");
+		    fprintf(msg, "NULL");
 		} else {
                     for (int k=0; k<chunk; k++) {
-                        if (k) printf(" ");
-                        rasqal_triple_print(q->blocks[i].data[j+k], stdout);
+                        if (k) {
+                            fprintf(msg, " ");
+                        }
+                        rasqal_triple_print(q->blocks[i].data[j+k], msg);
                     }
 		}
                 if (q->flags & FS_BIND_DISTINCT) {
-                    printf(" DISTINCT");
+                    fprintf(msg, " DISTINCT");
                 }
                 if (q->flags & FS_BIND_SAME_MASK) {
-                    printf(" SAME(?)");
+                    fprintf(msg, " SAME(?)");
                 }
                 if (q->soft_limit > 0) {
-                    printf(" LIMIT %d", q->soft_limit);
+                    fprintf(msg, " LIMIT %d", q->soft_limit);
                 }
-		printf("\n");
+                fflush(msg);
+                long len = ftell(msg);
+                char *cmsg = calloc(len+1, sizeof(char));
+                fseek(msg, 0, SEEK_SET);
+                fread(cmsg, len, 1, msg);
+                fclose(msg);
+                fs_query_add_msg(q, cmsg);
 	    }
             int ret;
             if (chunk == 1) {
@@ -625,7 +642,8 @@ printf("Processing B%d, parent is B%d\n", i, q->parent_block[i]);
                 j += chunk-1;
             }
 	    if (explain) {
-		printf("%d bindings (%d)\n", fs_binding_length(q->bb[i]), ret);
+		fs_query_add_msg(q, g_strdup_printf("%d bindings (%d)", fs_binding_length(q->bb[i]), ret));
+                
 	    }
             if (q->block < 2 && ret == 0) {
                 q->boolean = 0;
@@ -758,12 +776,6 @@ printf("\n");
 #endif
 
     if (explain) {
-        double start_time = q->start_time;
-	fs_query_free(q);
-        q = calloc(1, sizeof(fs_query));
-        q->start_time = start_time;
-        q->flags = FS_QUERY_EXPLAIN;
-
 	return q;
     }
 
@@ -1608,7 +1620,7 @@ static int fs_handle_query_triple(fs_query *q, int block, rasqal_triple *t)
 	if (explain) {
 	    char desc[4][DESC_SIZE];
 	    desc_action(tobind, slot, desc);
-	    printf("mmmms (%s,%s,%s,%s) -> %d\n", desc[0], desc[1], desc[2], desc[3], results ? (results[0] ? results[0]->length : -1) : -2);
+	    fs_query_add_msg(q, g_strdup_printf("mmmms (%s,%s,%s,%s) -> %d", desc[0], desc[1], desc[2], desc[3], results ? (results[0] ? results[0]->length : -1) : -2));
 	}
 
         ret = process_results(q, block, oldb, b, tobind, results, varnames, numbindings, slot);
@@ -1643,7 +1655,7 @@ static int fs_handle_query_triple(fs_query *q, int block, rasqal_triple *t)
 	if (explain) {
 	    char desc[4][DESC_SIZE];
 	    desc_action(tobind, slot, desc);
-	    printf("%so (%s,%s,%s,%s) -> %d\n", scope, desc[0], desc[1], desc[2], desc[3], results ? (results[0] ? results[0]->length : -1) : -2);
+	    fs_query_add_msg(q, g_strdup_printf("%so (%s,%s,%s,%s) -> %d", scope, desc[0], desc[1], desc[2], desc[3], results ? (results[0] ? results[0]->length : -1) : -2));
 	}
 
 	ret = process_results(q, block, oldb, b, tobind, results, varnames, numbindings, slot);
@@ -1674,7 +1686,7 @@ static int fs_handle_query_triple(fs_query *q, int block, rasqal_triple *t)
     if (explain) {
         char desc[4][DESC_SIZE];
         desc_action(tobind, slot, desc);
-        printf("nnnns (%s,%s,%s,%s) -> %d\n", desc[0], desc[1], desc[2], desc[3], results ? (results[0] ? results[0]->length : -1) : -2);
+        fs_query_add_msg(q, g_strdup_printf("nnnns (%s,%s,%s,%s) -> %d", desc[0], desc[1], desc[2], desc[3], results ? (results[0] ? results[0]->length : -1) : -2));
     }
 
     ret = process_results(q, block, oldb, b, tobind, results, varnames, numbindings, slot);
@@ -1749,7 +1761,7 @@ static int fs_handle_query_triple_multi(fs_query *q, int block, int count, rasqa
     if (explain) {
         char desc[4][DESC_SIZE];
         desc_action(tobind, slot, desc);
-        printf("nnnnr (%s,%s,%s,%s) -> %d\n", desc[0], desc[1], desc[2], desc[3], results ? (results[0] ? results[0]->length : -1) : -2);
+        fs_query_add_msg(q, g_strdup_printf("nnnnr (%s,%s,%s,%s) -> %d", desc[0], desc[1], desc[2], desc[3], results ? (results[0] ? results[0]->length : -1) : -2));
     }
 
     ret = process_results(q, block, oldb, b, tobind, results, varnames, numbindings, slot);

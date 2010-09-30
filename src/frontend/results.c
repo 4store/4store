@@ -1901,10 +1901,6 @@ nextrow: ;
 
 void fs_query_results_output(fs_query *q, const char *fmt, int flags, FILE *out)
 {
-    if (fs_query_flags(q) & FS_QUERY_EXPLAIN) {
-        return;
-    }
-
     if (!fmt) fmt = "sparql";
 
     if (!strcmp(fmt, "sparql")) {
