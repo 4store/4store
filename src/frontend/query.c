@@ -517,6 +517,8 @@ fs_query *fs_query_execute(fs_query_state *qs, fsp_link *link, raptor_uri *bu, c
     }
     q->bb[0] = fs_binding_new();
     q->bt = q->bb[0];
+    /* add column to denote join ordering */
+    fs_binding_add(q->bb[0], "_ord", FS_RID_NULL, 0);
 
     for (int i=0; i < q->num_vars; i++) {
 	rasqal_variable *v = raptor_sequence_get_at(vars, i);
@@ -866,6 +868,8 @@ fs_binding_print(q->bb[0], stdout);
         fs_binding_free(q->bb[0]);
         q->bb[0] = fs_binding_new();
         q->bt = q->bb[0];
+        /* add column to denote join ordering */
+        fs_binding_add(q->bb[0], "_ord", FS_RID_NULL, 0);
         q->num_vars = 1;
         fs_binding_add(q->bb[0], "count", 0, 1);
     }
@@ -1608,6 +1612,7 @@ static int fs_handle_query_triple(fs_query *q, int block, rasqal_triple *t)
             for (int x=0; x<4; x++) {
                 fs_rid_vector_free(slot[x]);
             }
+            fs_binding_free(oldb);
 #ifdef DEBUG_BIND
             fs_error(LOG_ERR, "bind_pattern failed");
 #endif
@@ -1641,6 +1646,7 @@ static int fs_handle_query_triple(fs_query *q, int block, rasqal_triple *t)
             for (int x=0; x<4; x++) {
                 fs_rid_vector_free(slot[x]);
             }
+            fs_binding_free(oldb);
 #ifdef DEBUG_BIND
             fs_error(LOG_ERR, "bind_pattern failed");
 #endif
@@ -1674,6 +1680,7 @@ static int fs_handle_query_triple(fs_query *q, int block, rasqal_triple *t)
         for (int x=0; x<4; x++) {
             fs_rid_vector_free(slot[x]);
         }
+        fs_binding_free(oldb);
 #ifdef DEBUG_BIND
         fs_error(LOG_ERR, "bind_pattern failed");
 #endif
@@ -1721,10 +1728,12 @@ static int fs_handle_query_triple_multi(fs_query *q, int block, int count, rasqa
     /* check the patterns are all of the form { ?s <const> <const> . } */
     for (int i=0; i<count; i++) {
         if (fs_opt_is_const(oldb, t[i]->subject)) {
+            fs_binding_free(oldb);
             fs_error(LOG_ERR, "bad const subject argument to fs_handle_query_triple_multi()");
             return 0;
         }
         if (!fs_opt_is_const(oldb, t[i]->object) || !fs_opt_is_const(oldb, t[i]->predicate)) {
+            fs_binding_free(oldb);
             fs_error(LOG_ERR, "bad non const object/predicate argument to fs_handle_query_triple_multi()");
             return 0;
         }
@@ -1737,6 +1746,7 @@ static int fs_handle_query_triple_multi(fs_query *q, int block, int count, rasqa
         for (int x=0; x<4; x++) {
             fs_rid_vector_free(slot[x]);
         }
+        fs_binding_free(oldb);
 #ifdef DEBUG_BIND
         fs_error(LOG_ERR, "bind_pattern failed");
 #endif

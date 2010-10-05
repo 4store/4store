@@ -61,8 +61,6 @@ fs_binding *fs_binding_new()
 	b[i].appears = -1;
 	b[i].depends = -1;
     }
-    /* add column to denote join ordering */
-    fs_binding_add(b, "_ord", FS_RID_NULL, 0);
 
     return b;
 }
@@ -71,8 +69,7 @@ void fs_binding_free(fs_binding *b)
 {
     if (!b) return;
 
-    for (int i=0; 1; i++) {
-	if (!b[i].name) break;
+    for (int i=0; b[i].name; i++) {
 	g_free(b[i].name);
         b[i].name = NULL;
 	fs_rid_vector_free(b[i].vals);
@@ -267,14 +264,12 @@ void fs_binding_clear(fs_binding *b)
 #ifdef DEBUG_BINDING
     printf("@@ clear()\n");
 #endif
-    fs_binding *b2 = fs_binding_new();
 
-    memcpy(b2, b, sizeof(fs_binding) * FS_BINDING_MAX_VARS);
     for (int i=0; 1; i++) {
         if (!b[i].name) {
             break;
         }
-        b2[i].name = NULL;
+        b[i].name = NULL;
         b[i].vals->length = 0;
         b[i].bound = 0;
     }
