@@ -30,6 +30,8 @@
 #include "common/datatypes.h"
 #include "common/sort.h"
 
+#define DEBUG_CUTOFF 20
+
 /* struct to hold information useful for sorting binding tables */
 struct sort_context {
     fs_binding *b;
@@ -490,7 +492,7 @@ void fs_binding_print(fs_binding *b, FILE *out)
 	}
 	fprintf(out, "\n");
 #if !defined(DEBUG_MERGE) || DEBUG_MERGE < 3
-	if (length > 25 && lr > 20 && (length - lr) > 2) {
+	if (length > 25 && lr > DEBUG_CUTOFF && (length - lr) > 2) {
 
 	    fprintf(out, " ...\n");
 	    lr = length - 3;
@@ -811,20 +813,20 @@ void fs_binding_merge(fs_query *q, int block, fs_binding *from, fs_binding *to)
 	    int fp, tp = tpos;
 	    for (fp = fpos; binding_row_compare(q, from, to, fp, tpos, length_f, length_t) == 0; fp++) {
 #if DEBUG_MERGE > 1
-if (fp == 20) {
+if (fp == DEBUG_CUTOFF) {
     printf("...\n");
 }
 #endif
 		for (tp = tpos; 1; tp++) {
 		    if (binding_row_compare(q, from, to, fp, tp, length_f, length_t) == 0) {
 #if DEBUG_MERGE > 1
-if (fp < 20) {
+if (fp < DEBUG_CUTOFF) {
     printf("STEP %d, %d  ", fp-fpos, tp-tpos);
 }
 #endif
 			if (fp == fpos) {
 #if DEBUG_MERGE > 1
-if (fp < 20) {
+if (fp < DEBUG_CUTOFF) {
     if (inter_f) {
 	printf("REPL %llx\n", inter_f->vals->data[fp]);
     } else {
@@ -847,7 +849,7 @@ if (fp < 20) {
 			    }
 			} else {
 #if DEBUG_MERGE > 1
-if (fp < 20) {
+if (fp < DEBUG_CUTOFF) {
     printf("ADD\n");
 }
 #endif
