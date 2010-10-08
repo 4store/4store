@@ -68,6 +68,7 @@ struct _fs_query {
     int *ordering;
     double start_time;
     fs_rid_vector *default_graphs;
+    int console;			/* true if the query is being used from a console app */
 };
 
 #endif

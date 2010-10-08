@@ -45,7 +45,7 @@
 #include "common/error.h"
 
 static void interactive(fsp_link *link, raptor_uri *bu, const char *result_format, int verbosity, int opt_levelo, int result_flags, int soft_limit);
-static void programatic_io(fsp_link *link, raptor_uri *bu, const char *query_lang, const char *result_format, fs_query_timing *timing, int verbosity, int opt_level, int result_flags, int soft_limit);
+static void programatic_io(fsp_link *link, raptor_uri *bu, const char *query_lang, const char *result_format, fs_query_timing *timing, int verbosity, int opt_level, unsigned int result_flags, int soft_limit);
 
 static int show_timing;
 
@@ -188,7 +188,8 @@ int main(int argc, char *argv[])
 
     raptor_uri *bu = raptor_new_uri((unsigned char *)base_uri);
 
-    int flags = 0;
+    unsigned int flags = FS_QUERY_CONSOLE_OUTPUT; /* signal that we're using the */
+                             /* console, allows better explain functionality */
     flags |= insert_mode ? FS_RESULT_FLAG_CONSTRUCT_AS_INSERT : 0;
     flags |= restricted ? FS_QUERY_RESTRICTED : 0;
     flags |= default_graph ? FS_QUERY_DEFAULT_GRAPH : 0;
@@ -247,7 +248,7 @@ int main(int argc, char *argv[])
 
 #define MAX_Q_SIZE 1000000
 
-static void programatic_io(fsp_link *link, raptor_uri *bu, const char *query_lang, const char *result_format, fs_query_timing *timing, int verbosity, int opt_level, int result_flags, int soft_limit)
+static void programatic_io(fsp_link *link, raptor_uri *bu, const char *query_lang, const char *result_format, fs_query_timing *timing, int verbosity, int opt_level, unsigned int result_flags, int soft_limit)
 {
     char query[MAX_Q_SIZE];
     char *pos;

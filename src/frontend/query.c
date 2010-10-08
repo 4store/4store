@@ -55,7 +55,7 @@ static fs_rid const_literal_to_rid(fs_query *q, rasqal_literal *l, fs_rid *attr)
 static void check_variables(fs_query *q, rasqal_expression *e, int dont_select);
 static void filter_optimise_disjunct_equality(fs_query *q,
             rasqal_expression *e, int block, char **var, fs_rid_vector *res);
-static void fs_query_add_msg(fs_query *q, char *msg);
+static void fs_query_explain(fs_query *q, char *msg);
 
 static void check_cons_slot(fs_query *q, raptor_sequence *vars, rasqal_literal *l)
 {
@@ -146,10 +146,15 @@ static int bind_reverse(fs_query *q, int flags, fs_rid_vector *rids[4],
 
 /* note, msg must be malloc'd or equivalent, don't use for stack values */
 
-static void fs_query_add_msg(fs_query *q, char *msg)
+static void fs_query_explain(fs_query *q, char *msg)
 {
-    q->warnings = g_slist_append(q->warnings, msg);
-    fs_query_add_freeable(q, msg);
+    if (q->flags & FS_QUERY_CONSOLE_OUTPUT) {
+        fprintf(stdout, "%s", msg);
+        g_free(msg);
+    } else {
+        q->warnings = g_slist_append(q->warnings, msg);
+        fs_query_add_freeable(q, msg);
+    }
 }
 
 static void warning_handler(void *user_data, raptor_locator* locator, const char *message)
@@ -323,7 +328,7 @@ printf("Merge B%d to B%d\n", block, parent);
     }
 }
 
-fs_query *fs_query_execute(fs_query_state *qs, fsp_link *link, raptor_uri *bu, const char *query, int flags, int opt_level, int soft_limit)
+fs_query *fs_query_execute(fs_query_state *qs, fsp_link *link, raptor_uri *bu, const char *query, unsigned int flags, int opt_level, int soft_limit)
 {
     if (!qs) {
         fs_error(LOG_CRIT, "fs_query_execute() handed NULL query state");
@@ -630,7 +635,7 @@ printf("Processing B%d, parent is B%d\n", i, q->parent_block[i]);
                 fseek(msg, 0, SEEK_SET);
                 fread(cmsg, len, 1, msg);
                 fclose(msg);
-                fs_query_add_msg(q, cmsg);
+                fs_query_explain(q, cmsg);
 	    }
             int ret;
             if (chunk == 1) {
@@ -644,7 +649,7 @@ printf("Processing B%d, parent is B%d\n", i, q->parent_block[i]);
                 j += chunk-1;
             }
 	    if (explain) {
-		fs_query_add_msg(q, g_strdup_printf("%d bindings (%d)", fs_binding_length(q->bb[i]), ret));
+		fs_query_explain(q, g_strdup_printf("%d bindings (%d)", fs_binding_length(q->bb[i]), ret));
                 
 	    }
             if (q->block < 2 && ret == 0) {
@@ -1625,7 +1630,7 @@ static int fs_handle_query_triple(fs_query *q, int block, rasqal_triple *t)
 	if (explain) {
 	    char desc[4][DESC_SIZE];
 	    desc_action(tobind, slot, desc);
-	    fs_query_add_msg(q, g_strdup_printf("mmmms (%s,%s,%s,%s) -> %d", desc[0], desc[1], desc[2], desc[3], results ? (results[0] ? results[0]->length : -1) : -2));
+	    fs_query_explain(q, g_strdup_printf("mmmms (%s,%s,%s,%s) -> %d", desc[0], desc[1], desc[2], desc[3], results ? (results[0] ? results[0]->length : -1) : -2));
 	}
 
         ret = process_results(q, block, oldb, b, tobind, results, varnames, numbindings, slot);
@@ -1661,7 +1666,7 @@ static int fs_handle_query_triple(fs_query *q, int block, rasqal_triple *t)
 	if (explain) {
 	    char desc[4][DESC_SIZE];
 	    desc_action(tobind, slot, desc);
-	    fs_query_add_msg(q, g_strdup_printf("%so (%s,%s,%s,%s) -> %d", scope, desc[0], desc[1], desc[2], desc[3], results ? (results[0] ? results[0]->length : -1) : -2));
+	    fs_query_explain(q, g_strdup_printf("%so (%s,%s,%s,%s) -> %d", scope, desc[0], desc[1], desc[2], desc[3], results ? (results[0] ? results[0]->length : -1) : -2));
 	}
 
 	ret = process_results(q, block, oldb, b, tobind, results, varnames, numbindings, slot);
@@ -1693,7 +1698,7 @@ static int fs_handle_query_triple(fs_query *q, int block, rasqal_triple *t)
     if (explain) {
         char desc[4][DESC_SIZE];
         desc_action(tobind, slot, desc);
-        fs_query_add_msg(q, g_strdup_printf("nnnns (%s,%s,%s,%s) -> %d", desc[0], desc[1], desc[2], desc[3], results ? (results[0] ? results[0]->length : -1) : -2));
+        fs_query_explain(q, g_strdup_printf("nnnns (%s,%s,%s,%s) -> %d", desc[0], desc[1], desc[2], desc[3], results ? (results[0] ? results[0]->length : -1) : -2));
     }
 
     ret = process_results(q, block, oldb, b, tobind, results, varnames, numbindings, slot);
@@ -1771,7 +1776,7 @@ static int fs_handle_query_triple_multi(fs_query *q, int block, int count, rasqa
     if (explain) {
         char desc[4][DESC_SIZE];
         desc_action(tobind, slot, desc);
-        fs_query_add_msg(q, g_strdup_printf("nnnnr (%s,%s,%s,%s) -> %d", desc[0], desc[1], desc[2], desc[3], results ? (results[0] ? results[0]->length : -1) : -2));
+        fs_query_explain(q, g_strdup_printf("nnnnr (%s,%s,%s,%s) -> %d", desc[0], desc[1], desc[2], desc[3], results ? (results[0] ? results[0]->length : -1) : -2));
     }
 
     ret = process_results(q, block, oldb, b, tobind, results, varnames, numbindings, slot);
