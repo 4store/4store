@@ -149,7 +149,7 @@ static int bind_reverse(fs_query *q, int flags, fs_rid_vector *rids[4],
 static void fs_query_explain(fs_query *q, char *msg)
 {
     if (q->flags & FS_QUERY_CONSOLE_OUTPUT) {
-        fprintf(stdout, "%s", msg);
+        fprintf(stdout, "%s\n", msg);
         g_free(msg);
     } else {
         q->warnings = g_slist_append(q->warnings, msg);
