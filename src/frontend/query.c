@@ -1548,10 +1548,11 @@ static int process_results(fs_query *q, int block, fs_binding *oldb,
 	}
         free(results);
 
-#if 0
-        /* this code proves to cost more overall, though you'd expect it save
-         * effort, lookout for pathalogical cases where it makes a huge
-         * difference, on the "baseball" benchmark it makes things slower */
+        /* There are pathelogical cases where not doing this step makes things
+         * very slow, however on the "baseball" benchmark it reduces performance
+         * overall. Don't have any good metrics to choose when it's best to do
+         * this step */
+
         /* do some early DISTINCTing, to save us work later */
 	if (flags & FS_BIND_DISTINCT) {
             for (int c=0; b[c].name; c++) {
@@ -1563,8 +1564,7 @@ static int process_results(fs_query *q, int block, fs_binding *oldb,
                 b[c].sort = 0;
             }
         }
-#endif
-            
+
         fs_binding_merge(q, block, oldb, b);
     } else {
         if (!(flags & (FS_BIND_OPTIONAL | FS_BIND_UNION))) {
