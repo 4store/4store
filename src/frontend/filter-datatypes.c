@@ -214,40 +214,28 @@ fs_value fs_value_datetime_from_string(const char *s)
     fs_value v = fs_value_blank();
     v.attr = fs_c.xsd_datetime;
 
-    struct tm td, tz;
+    struct tm td;
+
     memset(&td, 0, sizeof(struct tm));
-    memset(&tz, 0, sizeof(struct tm));
 
-    char *ret = strptime(s, "%Y-%m-%dT%H:%M:%S", &td);
-    if (ret) {
-	if (*ret) {
-	    if (strptime(ret, "+%H%M", &tz)) {
-		tz.tm_hour *= -1;
-		tz.tm_min *= -1;
-	    } else if (strptime(ret, "+%H:%M", &tz)) {
-		tz.tm_hour *= -1;
-		tz.tm_min *= -1;
-	    } else if (strptime(ret, "-%H%M", &tz)) {
-		/* values are fine */
-	    } else if (strptime(ret, "-%H:%M", &tz)) {
-		/* values are fine */
-	    }
-	}
-	v.valid = fs_valid_bit(FS_V_IN);
-	v.in = timegm(&td) + tz.tm_hour * 3600 + tz.tm_min * 60;
+    GTimeVal gtime;
+    if (g_time_val_from_iso8601(s, &gtime)) {
+        v.in = gtime.tv_sec;
+        v.valid = fs_valid_bit(FS_V_IN);
+        v.lex = s;
 
-	return v;
+        return v;
     }
-    ret = strptime(s, "%Y-%m-%d", &td);
+    char *ret = strptime(s, "%Y-%m-%d", &td);
     if (ret) {
-	v.valid = fs_valid_bit(FS_V_IN);
 	v.in = timegm(&td);
+	v.valid = fs_valid_bit(FS_V_IN);
 
 	return v;
     }
 
     return fs_value_error(FS_ERROR_INVALID_TYPE,
-	    "cannot convert value to xsd:datetime");
+	    "cannot convert value to xsd:dateTime");
 }
 
 fs_value fs_value_error(fs_error e, const char *msg)

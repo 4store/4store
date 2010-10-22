@@ -614,10 +614,53 @@ fs_value fn_numeric_greater_than(fs_query *q, fs_value a, fs_value b)
     return fs_value_error(FS_ERROR_INVALID_TYPE, "non-numeric arguments to fn:numeric-greater-than");
 }
 
+static int iso8601_compare(const char *a, const char *b)
+{
+    if (a == NULL && b == NULL) {
+        return 0;
+    } else if (a == NULL) {
+        return -1;
+    } else if (b == NULL) {
+        return 1;
+    }
+
+    if (*a == '-' && *b == '-') {
+        int cmp = strcmp(a, b);
+        if (cmp < 0) {
+            return 1;
+        } else if (cmp > 0) {
+            return -1;
+        }
+
+        return 0;
+    }
+
+    if (*a == '-') {
+        return -1;
+    }
+    if (*b == '-') {
+        return 1;
+    }
+
+    int cmp = strcmp(a, b);
+    if (cmp < 0) {
+        return -1;
+    } else if (cmp > 0) {
+        return 1;
+    }
+
+    return 0;
+}
+
 fs_value fn_datetime_equal(fs_query *q, fs_value a, fs_value b)
 {
-    if (a.attr == fs_c.xsd_datetime && b.attr == fs_c.xsd_datetime)
+    if (a.attr == fs_c.xsd_datetime && b.attr == fs_c.xsd_datetime &&
+        (a.in != -1 || b.in != -1))
 	return fs_value_boolean(a.in == b.in);
+
+    if (a.lex && b.lex) {
+        return fs_value_boolean(iso8601_compare(a.lex, b.lex) == 0);
+    }
 
     return fs_value_error(FS_ERROR_INVALID_TYPE, "bad arguments to fn:datetime-equal");
 }
@@ -630,16 +673,26 @@ printf(" < ");
 fs_value_print(b);
 printf(" [dT]\n");
 #endif
-    if (a.attr == fs_c.xsd_datetime && b.attr == fs_c.xsd_datetime)
+    if (a.attr == fs_c.xsd_datetime && b.attr == fs_c.xsd_datetime &&
+        (a.in != -1 || b.in != -1))
 	return fs_value_boolean(a.in < b.in);
+
+    if (a.lex && b.lex) {
+        return fs_value_boolean(iso8601_compare(a.lex, b.lex) == -1);
+    }
 
     return fs_value_error(FS_ERROR_INVALID_TYPE, "bad arguments to fn:datetime-less-than");
 }
 
 fs_value fn_datetime_greater_than(fs_query *q, fs_value a, fs_value b)
 {
-    if (a.attr == fs_c.xsd_datetime && b.attr == fs_c.xsd_datetime)
+    if (a.attr == fs_c.xsd_datetime && b.attr == fs_c.xsd_datetime &&
+        (a.in != -1 || b.in != -1))
 	return fs_value_boolean(a.in > b.in);
+
+    if (a.lex && b.lex) {
+        return fs_value_boolean(iso8601_compare(a.lex, b.lex) == 1);
+    }
 
     return fs_value_error(FS_ERROR_INVALID_TYPE, "bad arguments to fn:datetime-greater-than");
 }
