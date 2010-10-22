@@ -1555,7 +1555,7 @@ static void child (int srv, char *kb_name, char *password)
 #endif /* ! HAVE_RASQAL_WORLD */
   fs_hash_init(fsp_hash_type(fsplink));
 
-  bu = raptor_new_uri((unsigned char *)"local:");
+  bu = raptor_new_uri((unsigned char *)"local:local");
 
   const char *features = fsp_link_features(fsplink);
   has_o_index = !(strstr(features, "no-o-index")); /* tweak */
