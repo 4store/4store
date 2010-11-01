@@ -12,6 +12,8 @@ stamp-h1
 aclocal.m4
 config.h
 config.h.in
+4store-config.h
+4store-config.h.in
 ltmain.sh
 depcomp
 install-sh

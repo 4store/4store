@@ -1,4 +1,4 @@
-SUBDIRS = src
+SUBDIRS = src man tests
 
 test:
 	(cd tests && $(MAKE) -w $@)

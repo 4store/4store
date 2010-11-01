@@ -25,7 +25,7 @@
 #include <glib.h>
 #include <rasqal.h>
 
-#include "config.h"
+#include "4store-config.h"
 #include "query.h"
 #include "query-intl.h"
 #include "query-datatypes.h"

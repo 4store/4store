@@ -34,7 +34,7 @@
 #include <readline/history.h>
 #endif
 
-#include "config.h"
+#include "4store-config.h"
 #include "query.h"
 #include "query-cache.h"
 #include "results.h"
