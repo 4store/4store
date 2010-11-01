@@ -34,7 +34,7 @@ if test $WITH_PCRE_CONFIG = no; then
 fi
 MDNS_CFLAGS=""
 MDNS_LIBS=""
-PKG_CHECK_MODULES([AVAHI], avahi, have_avahi=yes, have_avahi=no)
+PKG_CHECK_MODULES([AVAHI], avahi-glib, have_avahi=yes, have_avahi=no)
 if test $have_avahi = no; then
 	AC_CHECK_FUNC([DNSServiceRegister], [have_dns_sd=yes], [have_dns_sd=no])
 	if test $have_dns_sd = no; then
@@ -44,13 +44,14 @@ if test $have_avahi = no; then
 	fi
 else
 	AC_DEFINE([USE_AVAHI], [], [Defined if the avahi library is available])
-	MDNS_CFLAGS=AVAHI_CFLAGS
-	MDNS_LIBS=AVAHI_LIBS
+	PKG_CHECK_MODULES([AVAHIC], avahi-client)
+	MDNS_CFLAGS="$AVAHI_CFLAGS $AVAHIc_CFLAGS"
+	MDNS_LIBS="$AVAHI_LIBS $AVAHIC_LIBS"
 fi
 AC_SUBST(MDNS_CFLAGS)
 AC_SUBST(MDNS_LIBS)
 
-GIT_REV='"\"$(shell git describe --tags --always)\""'
+GIT_REV='"\"$(shell (git describe --tags --always 2>/dev/null || git describe --tags))\""'
 AC_SUBST(GIT_REV)
 
 # Checks for header files.
@@ -60,16 +61,6 @@ AC_CHECK_HEADERS([fcntl.h limits.h locale.h netdb.h stddef.h stdint.h stdlib.h s
 # Checks for typedefs, structures, and compiler characteristics.
 AC_HEADER_STDBOOL
 AC_C_INLINE
-AC_TYPE_INT32_T
-AC_TYPE_INT64_T
-AC_TYPE_OFF_T
-AC_TYPE_PID_T
-AC_TYPE_SIZE_T
-AC_TYPE_SSIZE_T
-AC_TYPE_UINT16_T
-AC_TYPE_UINT32_T
-AC_TYPE_UINT64_T
-AC_TYPE_UINT8_T
 AC_CHECK_TYPES([ptrdiff_t])
 
 # Checks for library functions.
@@ -81,7 +72,6 @@ AC_FUNC_STRTOD
 AC_CHECK_FUNCS([atexit ftime ftruncate gethostname gettimeofday memmove mempcpy memset mkdir munmap select setlocale socket strcasecmp strchr strdup strerror strncasecmp strrchr strstr strtol strtoull])
 
 AC_CONFIG_FILES([Makefile
-                 man/Makefile
                  src/Makefile
                  src/backend/Makefile
                  src/common/Makefile
@@ -90,6 +80,5 @@ AC_CONFIG_FILES([Makefile
                  src/libs/Makefile
                  src/libs/double-metaphone/Makefile
                  src/libs/stemmer/Makefile
-                 src/utilities/Makefile
-                 tests/Makefile])
+                 src/utilities/Makefile])
 AC_OUTPUT

@@ -1,5 +1,5 @@
-AM_CFLAGS = -Wall -g -std=gnu99 -O2 -I.. -DGIT_REV=@GIT_REV@ `pkg-config --cflags raptor glib-2.0`
-AM_LDFLAGS = -lz `pkg-config --libs raptor glib-2.0 $(avahi)`
+AM_CFLAGS = -Wall -g -std=gnu99 -O2 -I.. -DGIT_REV=@GIT_REV@ @RAPTOR_CFLAGS@ @GLIB_CFLAGS@ @MDNS_CFLAGS@
+AM_LDFLAGS = -lz @RAPTOR_LIBS@ @GLIB_LIBS@ @MDNS_LIBS@
 
 bin_PROGRAMS = 4s-backend
 
@@ -16,7 +16,7 @@ test: all
 	@diff /tmp/tstest/qbtest.txt exemplar/qbtest.txt && echo "PASS" || echo "FAIL"
 
 4s_backend_SOURCES = server.c backend.c import-backend.c query-backend.c ../common/timing.c
-4s_backend_LDADD = lib4storage.a ../common/lib4store.a
+4s_backend_LDADD = lib4storage.a ../common/lib4store.a @MDNS_LIBS@
 
 bctest_SOURCES = bctest.c ../common/timing.c
 bctest_LDADD = lib4storage.a ../common/lib4store.a

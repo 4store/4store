@@ -21,7 +21,7 @@ install-data-local:
 4s_backend_copy_LDADD = ../common/lib4store.a ../backend/metadata.o ../common/datatypes.o 
 
 4s_backend_setup_SOURCES = backend-setup.c ../common/timing.c
-4s_backend_setup_LDADD = ../backend/backend.o ../backend/lib4storage.a ../common/lib4store.a
+4s_backend_setup_LDADD = ../backend/backend.o ../backend/lib4storage.a ../common/lib4store.a @MDNS_LIBS@
 
 4s_rid_SOURCES = 4s-rid.c
 4s_rid_LDADD = ../common/lib4store.a
