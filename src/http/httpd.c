@@ -13,9 +13,9 @@
 
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
-/*
- *  Copyright 2006 Nick Lamb for Garlik.com
+
+
+    Copyright 2006 Nick Lamb for Garlik.com
  */
 
 #define _GNU_SOURCE
@@ -36,6 +36,7 @@
 
 #include <rasqal.h>
 
+#include "config.h"
 #include "common/4store.h"
 #include "common/error.h"
 #include "common/hash.h"

@@ -34,6 +34,7 @@
 #include <readline/history.h>
 #endif
 
+#include "config.h"
 #include "query.h"
 #include "query-cache.h"
 #include "results.h"
@@ -130,7 +131,7 @@ int main(int argc, char *argv[])
       if (fq_query_have_laqrs()) {
         langs = "/LAQRS";
       }
-      fprintf(stderr, "%s revision %s\n", argv[0], FS_FRONTEND_VER);
+      fprintf(stderr, "%s revision %s\n", argv[0], GIT_REV);
       fprintf(stderr, "Usage: %s <kbname> [-f format] [-O opt-level] [-I] [-b uri] [query]\n", argv[0]);
       fprintf(stderr, "   or: %s <kbname> -P\n", argv[0]);
       fprintf(stderr, " query is a SPARQL%s query, remember to use"

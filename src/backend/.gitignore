@@ -8,6 +8,8 @@ mhashtest
 ptabletest
 ptreebind
 ptreedump
+treedump
+treetest
 ptreetest
 rhashdump
 rhashtest

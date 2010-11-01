@@ -25,6 +25,7 @@
 #include <glib.h>
 #include <rasqal.h>
 
+#include "config.h"
 #include "query.h"
 #include "query-intl.h"
 #include "query-datatypes.h"
@@ -338,7 +339,6 @@ fs_query *fs_query_execute(fs_query_state *qs, fsp_link *link, raptor_uri *bu, c
 
     fsp_hit_limits_reset(link);
 
-#ifdef HAVE_LAQRS
 #ifndef HAVE_RASQAL_WORLD
     rasqal_query *rq = rasqal_new_query("laqrs", NULL);
 #else /* HAVE_RASQAL_WORLD */
@@ -351,13 +351,6 @@ fs_query *fs_query_execute(fs_query_state *qs, fsp_link *link, raptor_uri *bu, c
         rq = rasqal_new_query(qs->rasqal_world, "sparql", NULL);
 #endif /* HAVE_RASQAL_WORLD */
     }
-#else
-#ifndef HAVE_RASQAL_WORLD
-    rasqal_query *rq = rasqal_new_query("sparql", NULL);
-#else /* HAVE_RASQAL_WORLD */
-    rasqal_query *rq = rasqal_new_query(qs->rasqal_world, "sparql", NULL);
-#endif /* HAVE_RASQAL_WORLD */
-#endif
     if (!rq) {
         fs_error(LOG_ERR, "failed to initialise query system");
 
@@ -383,22 +376,16 @@ fs_query *fs_query_execute(fs_query_state *qs, fsp_link *link, raptor_uri *bu, c
     if (ret) {
 	return q;
     }
-#ifdef HAVE_LAQRS
     if (rasqal_query_get_explain(rq)) {
         flags |= FS_QUERY_EXPLAIN;
     }
-#endif
 
     q->link = link;
     q->segments = fsp_link_segments(link);
     q->base = bu;
     rasqal_query_verb verb = rasqal_query_get_verb(rq);
-#ifdef HAVE_LAQRS
     if (verb == RASQAL_QUERY_VERB_CONSTRUCT ||
         verb == RASQAL_QUERY_VERB_INSERT) {
-#else
-    if (verb == RASQAL_QUERY_VERB_CONSTRUCT) {
-#endif
 	q->construct = 1;
     } else if (verb == RASQAL_QUERY_VERB_ASK) {
         q->ask = 1;
@@ -528,12 +515,10 @@ fs_query *fs_query_execute(fs_query_state *qs, fsp_link *link, raptor_uri *bu, c
     for (int i=0; i < q->num_vars; i++) {
 	rasqal_variable *v = raptor_sequence_get_at(vars, i);
 	fs_binding_add(q->bb[0], (char *)v->name, FS_RID_NULL, 1);
-#ifdef HAVE_LAQRS
         if (v->expression) {
             fs_binding_set_expression(q->bb[0], (char *)v->name, v->expression);
             q->expressions++;
         }
-#endif
     }
 
     rasqal_graph_pattern *pattern = rasqal_query_get_query_graph_pattern(rq);
@@ -578,7 +563,6 @@ fs_query *fs_query_execute(fs_query_state *qs, fsp_link *link, raptor_uri *bu, c
         }
     }
 
-#ifdef HAVE_LAQRS
     /* make sure variables in expressions are marked as needed */
     for (int i=0; i < q->num_vars; i++) {
 	rasqal_variable *v = raptor_sequence_get_at(vars, i);
@@ -586,7 +570,6 @@ fs_query *fs_query_execute(fs_query_state *qs, fsp_link *link, raptor_uri *bu, c
             check_variables(q, v->expression, 0);
         }
     }
-#endif
 
     for (int i=0; i <= q->block; i++) {
 #if DEBUG_MERGE

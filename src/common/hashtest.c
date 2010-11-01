@@ -103,18 +103,18 @@ int main()
 		"https://quux.bar.baz/qux/quux#ln_10269874325349",
 	};
 
-	ts_hash_init();
+	fs_hash_init(FS_HASH_UMAC);
 
-	printf("hash(<%s>) = %016llx\n", teststr[0], ts_hash_uri(teststr[0]));
-	printf("hash('%s', 0x0) = %016llx\n", teststr[0], ts_hash_literal(teststr[0], 0));
-	printf("hash('%s', 0x12345678) = %016llx\n", teststr[0], ts_hash_literal(teststr[0], 0x12345678));
-	printf("hash('%s', 0x12345679) = %016llx\n", teststr[0], ts_hash_literal(teststr[0], 0x12345679));
-	printf("hash('%s', 0x12345678) = %016llx\n", teststr[0], ts_hash_literal(teststr[0], 0x12345678));
-	double then = ts_time();
+	printf("hash(<%s>) = %016llx\n", teststr[0], fs_hash_uri(teststr[0]));
+	printf("hash('%s', 0x0) = %016llx\n", teststr[0], fs_hash_literal(teststr[0], 0));
+	printf("hash('%s', 0x12345678) = %016llx\n", teststr[0], fs_hash_literal(teststr[0], 0x12345678));
+	printf("hash('%s', 0x12345679) = %016llx\n", teststr[0], fs_hash_literal(teststr[0], 0x12345679));
+	printf("hash('%s', 0x12345678) = %016llx\n", teststr[0], fs_hash_literal(teststr[0], 0x12345678));
+	double then = fs_time();
 	for (int i=0; i<ITS; i++) {
-		ts_hash_uri(teststr[i % 8]);
+		fs_hash_uri(teststr[i % 8]);
 	}
-	double now = ts_time();
+	double now = fs_time();
 
 	printf("%f us/hash\n", 1000000 * (now-then) / (double)ITS);
 
