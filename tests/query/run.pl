@@ -105,6 +105,12 @@ if ($pid = fork()) {
 	} else {
 		waitpid($pid, 0);
 	}
+
+	if ($fails) {
+		exit(1);
+	}
+
+	exit(0);
 } else {
 	# child
 	if ($spawn) {

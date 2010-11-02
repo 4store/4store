@@ -364,7 +364,6 @@ fs_value fs_expression_eval(fs_query *q, int row, int block, rasqal_expression *
 	    return v;
         }
 
-#ifdef HAVE_LAQRS
         case RASQAL_EXPR_GROUP_COND_DESC: {
             fs_value v = fs_expression_eval(q, row, block, e->arg1);
 	    return v;
@@ -481,7 +480,6 @@ fs_value fs_expression_eval(fs_query *q, int row, int block, rasqal_expression *
             fs_value v = fs_value_integer(1);
             return v;
         }
-#endif
 
 	case RASQAL_EXPR_UNKNOWN:
 	    return fs_value_error(FS_ERROR_INVALID_TYPE, "bad value in expression");

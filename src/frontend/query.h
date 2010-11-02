@@ -20,6 +20,6 @@ int fs_query_errors(fs_query *q);
 int fs_bind_slot(fs_query *q, int block, fs_binding *b, 
         rasqal_literal *l, fs_rid_vector *v, int *bind, char **vname,
         int lit_allowed);
-int fq_query_have_laqrs(void);
+int fs_query_have_laqrs(void);
 
 #endif

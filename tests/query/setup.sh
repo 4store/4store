@@ -7,8 +7,10 @@ FS_DISK_LIMIT=2.0 ../../src/backend/4s-backend $kb || exit
 echo "Preparing for tests..."
 ../../src/frontend/4s-delete-model $kb http://example.com/nasty.ttl
 
+ret=0
 if [ "$1" == "--autorun" ] ; then
 	./run.pl --nospawn
+	ret=$?
 fi
 if [ -x /usr/bin/pkill ] ; then
 	pkill -f "^../../src/backend/4s-backend\ $kb\$"
@@ -17,3 +19,5 @@ else
 		kill $pid 2> /dev/null
 	done
 fi
+
+exit $ret

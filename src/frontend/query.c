@@ -254,7 +254,7 @@ fs_query_state *fs_query_init(fsp_link *link)
     return qs;
 }
 
-int fq_query_have_laqrs(void)
+int fs_query_have_laqrs(void)
 {
     int laqrs = 0;
 

@@ -124,7 +124,7 @@ int main(int argc, char *argv[])
 
     if (help || !kb_name) {
       char *langs = "";
-      if (fq_query_have_laqrs()) {
+      if (fs_query_have_laqrs()) {
         langs = "/LAQRS";
       }
       fprintf(stderr, "%s revision %s\n", argv[0], GIT_REV);
