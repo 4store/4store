@@ -14,9 +14,12 @@ AC_PROG_INSTALL
 AC_PROG_LN_S
 AC_PROG_MAKE_SET
 AC_PROG_RANLIB
+AC_CHECK_PROGS(PKG_CONFIG, pkg-config)
+if test "X$PKG_CONFIG" = X; then
+	AC_MSG_ERROR([Cannot find pkg-config, you need this to build])
+fi
 
 # Checks for libraries.
-AC_SEARCH_LIBS([el_init], [edit], [have_libedit=yes], [have_libedit=no])
 AC_CHECK_LIB([m], [sin])
 AC_CHECK_LIB([ncurses], [initscr])
 AC_CHECK_LIB([readline], [readline])
@@ -45,7 +48,7 @@ if test $have_avahi = no; then
 else
 	AC_DEFINE([USE_AVAHI], [], [Defined if the avahi library is available])
 	PKG_CHECK_MODULES([AVAHIC], avahi-client)
-	MDNS_CFLAGS="$AVAHI_CFLAGS $AVAHIc_CFLAGS"
+	MDNS_CFLAGS="$AVAHI_CFLAGS $AVAHIC_CFLAGS"
 	MDNS_LIBS="$AVAHI_LIBS $AVAHIC_LIBS"
 fi
 AC_SUBST(MDNS_CFLAGS)
@@ -82,3 +85,18 @@ AC_CONFIG_FILES([Makefile
                  src/libs/stemmer/Makefile
                  src/utilities/Makefile])
 AC_OUTPUT
+
+raptor_version=`$PKG_CONFIG raptor --modversion 2>/dev/null`
+rasqal_version=`$PKG_CONFIG rasqal --modversion 2>/dev/null`
+
+echo
+echo "Configuration status:"
+
+if test $have_avahi = no -a $have_dns_sd = no; then
+	AC_MSG_WARN("No mDNS libraries are available, you will only be able to run one store per machine")
+	AC_MSG_WARN("Install Avahi (-glib and -client) to get mDNS support on Linux")
+else
+	echo "   Found mDNS libraries, cluster suport enabled"
+fi
+echo "   Using Raptor version $raptor_version"
+echo "   Using Rasqal version $rasqal_version"

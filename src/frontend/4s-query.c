@@ -27,12 +27,8 @@
 #include <getopt.h>
 #include <sys/time.h>
 
-#ifdef USE_LIBEDIT
-#include <editline/readline.h>
-#else
 #include <readline/readline.h>
 #include <readline/history.h>
-#endif
 
 #include "4store-config.h"
 #include "query.h"
