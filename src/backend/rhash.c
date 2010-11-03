@@ -33,9 +33,9 @@
 #include "rhash.h"
 #include "list.h"
 #include "prefix-trie.h"
-#include "common/params.h"
-#include "common/hash.h"
-#include "common/error.h"
+#include "../common/params.h"
+#include "../common/hash.h"
+#include "../common/error.h"
 
 #define FS_RHASH_DEFAULT_LENGTH        65536
 #define FS_RHASH_DEFAULT_SEARCH_DIST      32

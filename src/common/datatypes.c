@@ -24,7 +24,7 @@
 #include <sys/time.h>
 
 #include "datatypes.h"
-#include "common/hash.h"
+#include "../common/hash.h"
 
 #define FS_RID_SET_ENTRIES 1024
 #define FS_RID_ENTRY_HASH(r) ((r >> 12) & (FS_RID_SET_ENTRIES-1))

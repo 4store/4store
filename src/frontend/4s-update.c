@@ -19,11 +19,14 @@
 #include <rasqal.h>
 
 #include "update.h"
-#include "common/hash.h"
-#include "common/error.h"
+#include "../common/hash.h"
+#include "../common/error.h"
+#include "../common/gnu-options.h"
 
 int main(int argc, char *argv[])
 {
+    fs_gnu_options(argc, argv, "<kb-name> <sparql-update-request>\n");
+
 #if RASQAL_VERSION > 917
     if (argc != 3) {
         printf("Usage: %s <kb-name> <sparql-update-request>\n", argv[0]);

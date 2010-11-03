@@ -25,15 +25,18 @@
 #include <glib.h>
 #include <libgen.h>
 
-#include "common/params.h"
-#include "common/md5.h"
+#include "../common/params.h"
+#include "../common/md5.h"
+#include "../common/gnu-options.h"
 
-#include "backend/metadata.h"
+#include "../backend/metadata.h"
 
 int main (int argc, char *argv[])
 {
+  fs_gnu_options(argc, argv, "<kbname> <password>\n");
+
   if (argc != 3) {
-    fprintf(stderr, "%s revision %s\n", argv[0], FS_FRONTEND_VER);
+    printf("%s, built for 4store %s\n", basename(argv[0]), GIT_REV);
     fprintf(stderr, "Usage: %s <kbname> <password>\n", basename(argv[0]));
     exit(1);
   }

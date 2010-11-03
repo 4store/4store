@@ -4,8 +4,8 @@
 #include <glib.h>
 #include <stdint.h>
 
-#include "common/datatypes.h"
-#include "common/4store.h"
+#include "../common/datatypes.h"
+#include "../common/4store.h"
 
 #define FS_IS_BNODE(x)   (((x) & 0xC000000000000000LL) == 0x8000000000000000LL)
 #define FS_IS_URI(x)     (((x) & 0xC000000000000000LL) == 0xC000000000000000LL)

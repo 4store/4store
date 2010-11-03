@@ -10,6 +10,17 @@
 #
 # NB ensure target directories /var/lib/4store and MySQL DB directory exist
 #
+
+if [ $1 == '--help' ] ; then
+  echo "Usage: $0 <kbname>"
+  exit
+fi
+
+if [ $1 == '--version' ] ; then
+  4s-backend --version | sed 's/4s-backend/'`basename $0`'/'
+  exit
+fi
+
 SSH="ssh -c blowfish-cbc"
 if [ $# == 0 ] ; then
   echo "Usage: $0 <kbname>"

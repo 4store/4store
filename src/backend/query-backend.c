@@ -27,10 +27,10 @@
 #include <fcntl.h>
 #include <errno.h>
 
-#include "common/timing.h"
-#include "common/datatypes.h"
-#include "common/error.h"
-#include "common/hash.h"
+#include "../common/timing.h"
+#include "../common/datatypes.h"
+#include "../common/error.h"
+#include "../common/hash.h"
 #include "tlist.h"
 #include "backend.h"
 #include "backend-intl.h"

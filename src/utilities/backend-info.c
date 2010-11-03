@@ -23,14 +23,18 @@
 #include <string.h>
 #include <syslog.h>
 #include <glib.h>
+#include <libgen.h>
 
-#include "backend/backend.h"
-#include "backend/backend-intl.h"
+#include "../backend/backend.h"
+#include "../backend/backend-intl.h"
+#include "../common/gnu-options.h"
 
 int main(int argc, char *argv[])
 {
+    fs_gnu_options(argc, argv, "<kbname>\n");
+
     if (argc != 2) {
-        fprintf(stderr, "Usage: %s <kbname>\n", argv[0]);
+        fprintf(stderr, "Usage: %s <kbname>\n", basename(argv[0]));
 
         return 1;
     }

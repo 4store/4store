@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ([2.50])
-AC_INIT([4store], m4_esyscmd([./version.sh]), [http://4store.org/support/], [4store])
+AC_INIT([4store], m4_esyscmd([sh version.sh]), [http://4store.org/support/], [4store])
 AC_CONFIG_SRCDIR([src/backend/backend-intl.h])
 AM_INIT_AUTOMAKE([1.7 std-options -Wall])
 AM_CONFIG_HEADER(4store-config.h)
@@ -56,7 +56,7 @@ fi
 AC_SUBST(MDNS_CFLAGS)
 AC_SUBST(MDNS_LIBS)
 
-GIT_REV='"\"$(shell (git describe --tags --always 2>/dev/null || git describe --tags))\""'
+GIT_REV='"\"$(shell sh $(top_srcdir)/version.sh)\""'
 AC_SUBST(GIT_REV)
 
 # Checks for header files.
@@ -76,7 +76,10 @@ AC_FUNC_REALLOC
 AC_FUNC_STRTOD
 AC_CHECK_FUNCS([atexit ftime ftruncate gethostname gettimeofday memmove mempcpy memset mkdir munmap select setlocale socket strcasecmp strchr strdup strerror strncasecmp strrchr strstr strtol strtoull])
 
-AC_CONFIG_FILES([Makefile
+AC_CONFIG_FILES([version.sh
+                 Makefile
+                 man/Makefile
+                 tests/Makefile
                  src/Makefile
                  src/backend/Makefile
                  src/common/Makefile
@@ -94,7 +97,7 @@ rasqal_version=`$PKG_CONFIG rasqal --modversion 2>/dev/null`
 echo
 echo "Configuration status:"
 
-if test $have_avahi = no -a $have_dns_sd = no; then
+if test "X$have_avahi" = Xno -a "X$have_dns_sd" = Xno; then
 	AC_MSG_WARN("No mDNS libraries are available, you will only be able to run one store per machine")
 	AC_MSG_WARN("Install Avahi (-glib and -client) to get mDNS support on Linux")
 else

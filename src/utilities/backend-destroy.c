@@ -30,9 +30,9 @@
 #include <unistd.h>
 #include <sys/param.h>
 
-#include "common/4store.h"
-#include "common/error.h"
-#include "common/params.h"
+#include "../common/4store.h"
+#include "../common/error.h"
+#include "../common/params.h"
 
 static int dummy = 0;
 
@@ -60,15 +60,24 @@ int main(int argc, char *argv[])
     char *name = NULL;
 
     static struct option long_options[] = {
+        { "version", 0, 0, 'V' },
+        { "help", 0, 0, 'h' },
         { "print-only", 0, 0, 'n' },
         { 0, 0, 0, 0 }
     };
 
     setlocale(LC_ALL, NULL);
+    int help_return = 1;
 
     while ((c = getopt_long (argc, argv, optstring, long_options, &opt_index)) != -1) {
 	if (c == 'n') {
 	    dummy = 1;
+	} else if (c == 'V') {
+            printf("%s, built for 4store %s\n", basename(argv[0]), GIT_REV);
+	    exit(0);
+	} else if (c == 'h') {
+            help = 1;
+	    help_return = 0;
 	} else {
 	    help++;
 	}
@@ -83,11 +92,11 @@ int main(int argc, char *argv[])
     }
 
     if (help) {
-        fprintf(stderr, "%s revision %s\n", argv[0], FS_BACKEND_VER);
-        fprintf(stderr, "Usage: %s [-n] <kbname>\n", basename(argv[0]));
-        fprintf(stderr, "   -n, --print-only  don't execute just show what would be done\n");
-        fprintf(stderr, "This command destroys the KB and all its data.\n");
-        return 1;
+	printf("%s, built for 4store %s\n", basename(argv[0]), GIT_REV);
+        fprintf(stdout, "Usage: %s [-n] <kbname>\n", basename(argv[0]));
+        fprintf(stdout, "   -n, --print-only  don't execute just show what would be done\n");
+        fprintf(stdout, "This command destroys the KB and all its data.\n");
+        return help_return;
     }
 
     fsp_syslog_enable();

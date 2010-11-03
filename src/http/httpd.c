@@ -37,13 +37,14 @@
 #include <rasqal.h>
 
 #include "4store-config.h"
-#include "common/4store.h"
-#include "common/error.h"
-#include "common/hash.h"
+#include "../common/4store.h"
+#include "../common/error.h"
+#include "../common/hash.h"
+#include "../common/gnu-options.h"
 
-#include "frontend/query.h"
-#include "frontend/import.h"
-#include "frontend/update.h"
+#include "../frontend/query.h"
+#include "../frontend/import.h"
+#include "../frontend/update.h"
 
 #include "httpd.h"
 
@@ -1617,8 +1618,15 @@ int main(int argc, char *argv[])
   const char *host = NULL;
   const char *port = "8080";
 
+  int help = 0;
+  int help_return = 1;
+  if (fs_gnu_options(argc, argv, NULL)) {
+    help = 1;
+    help_return = 0;
+  }
+
   int o;
-  while ((o = getopt(argc, argv, "DH:p:Uds:O:")) != -1) {
+  while (!help && (o = getopt(argc, argv, "DH:p:Uds:O:")) != -1) {
     switch (o) {
       case 'D':
         daemonize = 0;
@@ -1644,17 +1652,16 @@ int main(int argc, char *argv[])
     }
   }
 
-  if (optind >= argc) {
-    fprintf(stderr, "%s revision %s\n", argv[0], GIT_REV);
-    fprintf(stderr, "Usage: %s [-D] [-H host] [-p port] [-U] [-s limit] <kbname>\n", basename(argv[0]));
-    fprintf(stderr, "       -H   specify host to listen on\n");
-    fprintf(stderr, "       -p   specify port to listen on\n");
-    fprintf(stderr, "       -D   do not daemonise\n");
-    fprintf(stderr, "       -U   enable unsafe operations (eg. LOAD)\n");
-    fprintf(stderr, "       -d   enable SPARQL default graph support\n");
-    fprintf(stderr, "       -s   default soft limit (-1 to disable)\n");
+  if (help || optind >= argc) {
+    fprintf(stdout, "Usage: %s [-D] [-H host] [-p port] [-U] [-s limit] <kbname>\n", basename(argv[0]));
+    fprintf(stdout, "       -H   specify host to listen on\n");
+    fprintf(stdout, "       -p   specify port to listen on\n");
+    fprintf(stdout, "       -D   do not daemonise\n");
+    fprintf(stdout, "       -U   enable unsafe operations (eg. LOAD)\n");
+    fprintf(stdout, "       -d   enable SPARQL default graph support\n");
+    fprintf(stdout, "       -s   default soft limit (-1 to disable)\n");
 
-    return 1;
+    return help_return;
   }
 
   fsp_syslog_enable();

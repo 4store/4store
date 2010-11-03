@@ -36,12 +36,12 @@
 #include "order.h"
 #include "import.h"
 #include "debug.h"
-#include "common/4store.h"
-#include "common/datatypes.h"
-#include "common/params.h"
-#include "common/hash.h"
-#include "common/error.h"
-#include "common/rdf-constants.h"
+#include "../common/4store.h"
+#include "../common/datatypes.h"
+#include "../common/params.h"
+#include "../common/hash.h"
+#include "../common/error.h"
+#include "../common/rdf-constants.h"
 
 //#define DEBUG_BIND
 

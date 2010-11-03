@@ -3,8 +3,11 @@
 *.dSYM
 *.cache
 *.log
+*~
 Makefile
 Makefile.in
+INSTALL
+configure
 .deps
 missing
 stamp-h1

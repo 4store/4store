@@ -28,16 +28,16 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 
-#include "common/timing.h"
+#include "../common/timing.h"
 
 #include "tree.h"
 #include "tlist.h"
 #include "backend.h"
 #include "backend-intl.h"
-#include "common/hash.h"
-#include "common/params.h"
-#include "common/datatypes.h"
-#include "common/error.h"
+#include "../common/hash.h"
+#include "../common/params.h"
+#include "../common/datatypes.h"
+#include "../common/error.h"
 #include "import-backend.h"
 #include "query-backend.h"
 #include "lock.h"

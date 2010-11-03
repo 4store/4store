@@ -23,9 +23,9 @@
 #include <string.h>
 #include <libxml/xmlwriter.h>
 
-#include "common/4store.h"
-#include "common/hash.h"
-#include "common/error.h"
+#include "../common/4store.h"
+#include "../common/hash.h"
+#include "../common/error.h"
 
 #define QUAD_LIMIT 2000
 

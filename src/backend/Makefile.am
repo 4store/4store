@@ -7,6 +7,8 @@ noinst_PROGRAMS = bctest bcdump listdump rhashtest rhashdump mhashtest mhashdump
 
 noinst_LIBRARIES = lib4storage.a
 
+noinst_HEADERS = backend-intl.h backend.h bucket.h chain.h disk-space.h import-backend.h list.h lock.h metadata.h mhash.h prefix-trie.h ptable.h ptree.h query-backend.h rhash.h sort.h tbchain.h tlist.h tree-intl.h tree.h
+
 LIB_OBJS = chain.o bucket.o list.o tlist.o rhash.o mhash.o sort.o \
 	   lock.o metadata.o disk-space.o ptree.o ptable.o tbchain.o prefix-trie.o
 

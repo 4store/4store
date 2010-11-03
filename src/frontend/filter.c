@@ -25,9 +25,9 @@
 #include "filter-datatypes.h"
 #include "filter.h"
 #include "query.h"
-#include "common/error.h"
-#include "common/hash.h"
-#include "common/rdf-constants.h"
+#include "../common/error.h"
+#include "../common/hash.h"
+#include "../common/rdf-constants.h"
 
 static fs_value cast_lexical(fs_query *q, fs_value a);
 

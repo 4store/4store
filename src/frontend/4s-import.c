@@ -32,12 +32,12 @@
 #include <errno.h>
 
 #include "import.h"
-#include "common/datatypes.h"
-#include "common/error.h"
-#include "common/hash.h"
-#include "common/params.h"
+#include "../common/datatypes.h"
+#include "../common/error.h"
+#include "../common/hash.h"
+#include "../common/params.h"
 
-#include "common/4store.h"
+#include "../common/4store.h"
 
 static fsp_link *fsplink; /* link to remote server(s) */
 
@@ -69,12 +69,15 @@ int main(int argc, char *argv[])
         { "no-quads", 0, 0, 'Q' },
         { "format", 1, 0, 'f' },
         { "help", 0, 0, 'h' },
+        { "version", 0, 0, 'V' },
         { 0, 0, 0, 0 }
     };
 
     for (int i= 0; i < argc; ++i) {
       model[i] = NULL;
     }
+
+    int help_return = 1;
 
     while ((c = getopt_long (argc, argv, optstring, long_options, &opt_index)) != -1) {
         if (c == 'm') {
@@ -93,6 +96,12 @@ int main(int argc, char *argv[])
 	    dryrun |= FS_DRYRUN_QUADS;
         } else if (c == 'f') {
             format = optarg;
+        } else if (c == 'h') {
+	    help = 1;
+            help_return = 0;
+        } else if (c == 'V') {
+            printf("%s, built for 4store %s\n", argv[0], GIT_REV);
+            exit(0);
         } else {
 	    help = 1;
         }
@@ -133,21 +142,21 @@ int main(int argc, char *argv[])
 
     raptor_init();
     if (help || !kb_name || files == 0) {
-            fprintf(stderr, "%s revision %s\n", argv[0], FS_FRONTEND_VER);
-	    fprintf(stderr, "Usage: %s <kbname> <rdf file/URI> ...\n", argv[0]);
-	    fprintf(stderr, " -v --verbose   increase verbosity (can repeat)\n");
-	    fprintf(stderr, " -a --add       add data to models instead of replacing\n");
-	    fprintf(stderr, " -m --model     specify a model URI for the next RDF file\n");
-	    fprintf(stderr, " -M --model-default specify a model URI for all RDF files\n");
-	    fprintf(stderr, " -f --format    specify an RDF syntax for the import\n");
-            fprintf(stderr, "\n   available formats are:\n");
+            fprintf(stdout, "%s revision %s\n", argv[0], FS_FRONTEND_VER);
+	    fprintf(stdout, "Usage: %s <kbname> <rdf file/URI> ...\n", argv[0]);
+	    fprintf(stdout, " -v --verbose   increase verbosity (can repeat)\n");
+	    fprintf(stdout, " -a --add       add data to models instead of replacing\n");
+	    fprintf(stdout, " -m --model     specify a model URI for the next RDF file\n");
+	    fprintf(stdout, " -M --model-default specify a model URI for all RDF files\n");
+	    fprintf(stdout, " -f --format    specify an RDF syntax for the import\n");
+            fprintf(stdout, "\n   available formats are:\n");
 
             const char *name, *label;
             for (unsigned int i=0; 1; i++) {
                 if (raptor_parsers_enumerate(i, &name, &label)) break;
-                fprintf(stderr, "    %12s - %s\n", name, label);
+                fprintf(stdout, "    %12s - %s\n", name, label);
             }
-	    exit(1);
+	    exit(help_return);
     }
 
     fsp_syslog_enable();

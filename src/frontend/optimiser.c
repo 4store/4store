@@ -30,9 +30,9 @@
 #include "query-datatypes.h"
 #include "query-intl.h"
 #include "debug.h"
-#include "common/error.h"
-#include "common/hash.h"
-#include "common/rdf-constants.h"
+#include "../common/error.h"
+#include "../common/hash.h"
+#include "../common/rdf-constants.h"
 
 /* returns the number of values for the expression, or INT_MAX if its unbound */
 int fs_opt_num_vals(fs_binding *b, rasqal_literal *l)

@@ -1,4 +1,16 @@
 #!/bin/sh
+
+if [ $1 == '--help' ] ; then
+  echo "Usage: $0"
+  echo "       $0 <kbname>"
+  exit
+fi
+
+if [ $1 == '--version' ] ; then
+  4s-backend --version | sed 's/4s-backend/'`basename $0`'/'
+  exit
+fi
+
 if (($# == 1)) ; then
  4s-ssh-all-parallel 4s-backend-info "$1"
 else 

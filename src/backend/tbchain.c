@@ -30,9 +30,9 @@
 #include "backend.h"
 #include "tbchain.h"
 #include "ptree.h"
-#include "common/params.h"
-#include "common/error.h"
-#include "common/timing.h"
+#include "../common/params.h"
+#include "../common/error.h"
+#include "../common/timing.h"
 
 #define TBCHAIN_ID 0x4a585442  /* JXTB */
 

@@ -3,7 +3,7 @@
 
 #include "tbchain.h"
 #include "backend.h"
-#include "common/datatypes.h"
+#include "../common/datatypes.h"
 
 typedef struct _fs_tbchain fs_tbchain; 
 typedef struct _fs_tbchain_it fs_tbchain_it;

@@ -1,0 +1,3 @@
+#!/bin/sh
+
+(git describe --tags --always 2>/dev/null || git describe --tags || echo '@PACKAGE_VERSION@') | tr -d '\n'

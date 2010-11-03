@@ -27,12 +27,12 @@
 #include <sys/types.h>
 #include <sys/mman.h>
 
-#include "common/timing.h"
+#include "../common/timing.h"
 
 #include "backend.h"
 #include "ptable.h"
-#include "common/params.h"
-#include "common/error.h"
+#include "../common/params.h"
+#include "../common/error.h"
 
 #define PTABLE_ID 0x4a585430 /* JXT0 */
 #define PTABLE_REVISION 1

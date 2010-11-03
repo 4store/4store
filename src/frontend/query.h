@@ -6,7 +6,7 @@
 #include "query-datatypes.h"
 #include "query-data.h"
 #include "query-cache.h"
-#include "common/4store.h"
+#include "../common/4store.h"
 
 fs_query_state *fs_query_init(fsp_link *link);
 int fs_query_fini(fs_query_state *qs);

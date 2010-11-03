@@ -24,7 +24,7 @@
 #include "filter.h"
 #include "debug.h"
 #include "query-intl.h"
-#include "common/hash.h"
+#include "../common/hash.h"
 
 struct order_row {
     int row;

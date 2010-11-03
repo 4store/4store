@@ -27,9 +27,9 @@
 #include <glib.h>
 #include <syslog.h>
 
-#include "common/params.h"
-#include "common/error.h"
-#include "common/datatypes.h"
+#include "../common/params.h"
+#include "../common/error.h"
+#include "../common/datatypes.h"
 #include "metadata.h"
 
 struct m_entry {

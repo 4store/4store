@@ -30,8 +30,8 @@
 
 #include "tlist.h"
 #include "lock.h"
-#include "common/error.h"
-#include "common/timing.h"
+#include "../common/error.h"
+#include "../common/timing.h"
 
 #define LIST_BUFFER_SIZE 256
 

@@ -27,16 +27,19 @@
 #include <math.h>
 
 #include "query-datatypes.h"
-#include "common/4store.h"
-#include "common/datatypes.h"
-#include "common/params.h"
-#include "common/hash.h"
-#include "common/error.h"
+#include "../common/4store.h"
+#include "../common/datatypes.h"
+#include "../common/params.h"
+#include "../common/hash.h"
+#include "../common/error.h"
+#include "../common/gnu-options.h"
 
 #define CONST_2to63 9223372036854775808.0
 
 int main(int argc, char *argv[])
 {
+    fs_gnu_options(argc, argv, "<kbname>\n");
+
     char *password = fsp_argv_password(&argc, argv);
 
     if (argc != 2) {

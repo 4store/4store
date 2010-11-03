@@ -1,7 +1,7 @@
 #ifndef IMPORT_H
 #define IMPORT_H
 
-#include "common/4store.h"
+#include "../common/4store.h"
 
 #define FS_DRYRUN_DELETE    0x01
 #define FS_DRYRUN_RESOURCES 0x02

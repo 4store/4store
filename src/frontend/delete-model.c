@@ -25,16 +25,18 @@
 #include <rasqal.h>
 
 #include "query-datatypes.h"
-#include "common/4store.h"
-#include "common/datatypes.h"
-#include "common/params.h"
-#include "common/hash.h"
-#include "common/error.h"
+#include "../common/4store.h"
+#include "../common/datatypes.h"
+#include "../common/params.h"
+#include "../common/hash.h"
+#include "../common/error.h"
+#include "../common/gnu-options.h"
 
 int main(int argc, char *argv[])
 {
     char *password = fsp_argv_password(&argc, argv);
 
+    fs_gnu_options(argc, argv, "<kbname> <--all|model-uri ...>\n");
     if (argc < 3) {
       fprintf(stderr, "%s revision %s\n", argv[0], FS_FRONTEND_VER);
       fprintf(stderr, "Usage: %s <kbname> <--all|model-uri ...>\n", argv[0]);

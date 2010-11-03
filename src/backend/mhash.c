@@ -30,9 +30,9 @@
 #include "backend.h"
 #include "mhash.h"
 #include "tbchain.h"
-#include "common/params.h"
-#include "common/hash.h"
-#include "common/error.h"
+#include "../common/params.h"
+#include "../common/hash.h"
+#include "../common/error.h"
 
 #define FS_MHASH_DEFAULT_LENGTH         4096
 #define FS_MHASH_DEFAULT_SEARCH_DIST      16

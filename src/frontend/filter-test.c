@@ -19,8 +19,8 @@
  */
 
 #include "filter.h"
-#include "common/hash.h"
-#include "common/rdf-constants.h"
+#include "../common/hash.h"
+#include "../common/rdf-constants.h"
 
 int main()
 {

@@ -20,7 +20,7 @@
 #include <string.h>
 
 #include "prefix-trie.h"
-#include "common/error.h"
+#include "../common/error.h"
 
 #define PREFIX_EDGES 16
 

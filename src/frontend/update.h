@@ -1,7 +1,7 @@
 #ifndef UPDATE_H
 #define UPDATE_H
 
-#include "common/4store.h"
+#include "../common/4store.h"
 
 /* Perform a SPARUL-type update on l.
 

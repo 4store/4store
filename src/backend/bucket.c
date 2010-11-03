@@ -21,7 +21,7 @@
 #include <syslog.h>
 
 #include "bucket.h"
-#include "common/error.h"
+#include "../common/error.h"
 
 int fs_rid_bucket_get_pair(fs_rid_bucket *b, fs_rid pair[2])
 {

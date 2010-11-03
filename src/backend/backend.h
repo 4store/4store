@@ -1,9 +1,9 @@
 #ifndef BACKEND_H
 #define BACKEND_H
 
-#include "common/params.h"
-#include "common/datatypes.h"
-#include "frontend/decimal.h"
+#include "../common/params.h"
+#include "../common/datatypes.h"
+#include "../frontend/decimal.h"
 
 #define FS_BACKEND_QUIET   1
 #define FS_BACKEND_NO_OPEN 2

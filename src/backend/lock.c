@@ -27,7 +27,7 @@
 #include <sys/file.h>
 
 #include "lock.h"
-#include "common/error.h"
+#include "../common/error.h"
 
 int fs_lock_kb(const char *kb)
 {

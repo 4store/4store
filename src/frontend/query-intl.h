@@ -3,7 +3,7 @@
 
 #include "results.h"
 #include "query-cache.h"
-#include "common/4store.h"
+#include "../common/4store.h"
 
 #include <raptor.h>
 #include <rasqal.h>

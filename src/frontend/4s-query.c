@@ -25,6 +25,7 @@
 #include <glib.h>
 #include <rasqal.h>
 #include <getopt.h>
+#include <libgen.h>
 #include <sys/time.h>
 
 #include <readline/readline.h>
@@ -35,11 +36,11 @@
 #include "query-cache.h"
 #include "results.h"
 #include "query-datatypes.h"
-#include "common/4store.h"
-#include "common/datatypes.h"
-#include "common/params.h"
-#include "common/hash.h"
-#include "common/error.h"
+#include "../common/4store.h"
+#include "../common/datatypes.h"
+#include "../common/params.h"
+#include "../common/hash.h"
+#include "../common/error.h"
 
 static void interactive(fsp_link *link, raptor_uri *bu, const char *result_format, int verbosity, int opt_levelo, int result_flags, int soft_limit);
 static void programatic_io(fsp_link *link, raptor_uri *bu, const char *query_lang, const char *result_format, fs_query_timing *timing, int verbosity, int opt_level, unsigned int result_flags, int soft_limit);
@@ -74,6 +75,7 @@ int main(int argc, char *argv[])
 
     static struct option long_options[] = {
         { "help", 0, 0, 'h' },
+        { "version", 0, 0, 'V' },
         { "verbose", 0, 0, 'v' },
         { "format", 1, 0, 'f' },
         { "programatic", 0, 0, 'P' },
@@ -86,10 +88,10 @@ int main(int argc, char *argv[])
         { 0, 0, 0, 0 }
     };
 
+    int help_return = 1;
+
     while ((c = getopt_long (argc, argv, optstring, long_options, &opt_index)) != -1) {
-        if (c == 'h') {
-            help = 1;
-        } else if (c == 'f') {
+        if (c == 'f') {
             format = optarg;
         } else if (c == 'P') {
             programatic = TRUE;
@@ -107,6 +109,12 @@ int main(int argc, char *argv[])
             default_graph = 1;
         } else if (c == 'b') {
             base_uri = optarg;
+        } else if (c == 'h') {
+            help = 1;
+            help_return = 0;
+        } else if (c == 'V') {
+            printf("%s, built for 4store %s\n", argv[0], GIT_REV);
+            exit(0); 
         } else {
             help = 1;
         }
@@ -127,19 +135,20 @@ int main(int argc, char *argv[])
       if (fs_query_have_laqrs()) {
         langs = "/LAQRS";
       }
-      fprintf(stderr, "%s revision %s\n", argv[0], GIT_REV);
-      fprintf(stderr, "Usage: %s <kbname> [-f format] [-O opt-level] [-I] [-b uri] [query]\n", argv[0]);
-      fprintf(stderr, "   or: %s <kbname> -P\n", argv[0]);
-      fprintf(stderr, " query is a SPARQL%s query, remember to use"
+      fprintf(stdout, "%s revision %s\n", basename(argv[0]), GIT_REV);
+      fprintf(stdout, "Usage: %s <kbname> [-f format] [-O opt-level] [-I] [-b uri] [query]\n", argv[0]);
+      fprintf(stdout, "   or: %s <kbname> -P\n", basename(argv[0]));
+      fprintf(stdout, " query is a SPARQL%s query, remember to use"
                       " shell quoting if necessary\n", langs);
-      fprintf(stderr, " -f              Output format one of, sparql, text, json, or testcase\n");
-      fprintf(stderr, " -O, --opt-level Set optimisation level, range 0-3\n");
-      fprintf(stderr, " -I, --insert    Interpret CONSTRUCT statements as inserts\n");
-      fprintf(stderr, " -r, --restricted  Enable query complexity restriction\n");
-      fprintf(stderr, " -s, --soft-limit  Override default soft limit on search breadth\n");
-      fprintf(stderr, " -d, --default-graph  Enable SPARQL default graph support\n");
-      fprintf(stderr, " -b, --base      Set base URI for query\n");
-      return 1;
+      fprintf(stdout, " -f              Output format one of, sparql, text, json, or testcase\n");
+      fprintf(stdout, " -O, --opt-level Set optimisation level, range 0-3\n");
+      fprintf(stdout, " -I, --insert    Interpret CONSTRUCT statements as inserts\n");
+      fprintf(stdout, " -r, --restricted  Enable query complexity restriction\n");
+      fprintf(stdout, " -s, --soft-limit  Override default soft limit on search breadth\n");
+      fprintf(stdout, " -d, --default-graph  Enable SPARQL default graph support\n");
+      fprintf(stdout, " -b, --base      Set base URI for query\n");
+
+      exit(help_return);
     }
 
     if (programatic || query) {

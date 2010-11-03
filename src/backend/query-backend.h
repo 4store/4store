@@ -15,7 +15,7 @@
  */
 
 #include "backend.h"
-#include "common/datatypes.h"
+#include "../common/datatypes.h"
 
 fs_rid_vector **fs_bind(fs_backend *be, fs_segment segment, unsigned int tobind,
 			     fs_rid_vector *mv, fs_rid_vector *sv,

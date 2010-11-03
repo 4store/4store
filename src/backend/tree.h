@@ -5,7 +5,7 @@
 
 #include "backend.h"
 #include "chain.h"
-#include "common/datatypes.h"
+#include "../common/datatypes.h"
 
 #define FS_INDEX_IGNORED_BITS 5
 #define FS_INDEX_ROOT_BITS 12

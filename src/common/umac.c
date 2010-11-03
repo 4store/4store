@@ -82,7 +82,7 @@
 /* -- Global Includes --------------------------------------------------- */
 /* ---------------------------------------------------------------------- */
 
-#include <common/umac.h>
+#include "../common/umac.h"
 
 #include <string.h>
 #include <stdlib.h>

@@ -27,13 +27,13 @@
 #include <sys/types.h>
 #include <sys/mman.h>
 
-#include "common/timing.h"
+#include "../common/timing.h"
 
 #include "backend.h"
 #include "bucket.h"
 #include "chain.h"
-#include "common/params.h"
-#include "common/error.h"
+#include "../common/params.h"
+#include "../common/error.h"
 
 #define CHAIN_ID 0x4a584230
 

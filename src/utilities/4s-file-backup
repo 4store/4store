@@ -1,4 +1,15 @@
 #!/bin/sh
+
+if [ $1 == '--help' ] ; then
+  echo "Usage: $0 <kbname>"
+  exit
+fi
+
+if [ $1 == '--version' ] ; then
+  4s-backend --version | sed 's/4s-backend/'`basename $0`'/'
+  exit
+fi
+
 if (($# == 1)) ; then
  (find /var/lib/4store/$1/ -newer /var/lib/4store/$1/backup || echo "always") |
       grep "" > /dev/null || exit 2;

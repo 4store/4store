@@ -22,10 +22,10 @@
 
 #include "update.h"
 #include "import.h"
-#include "common/4store.h"
-#include "common/hash.h"
-#include "common/error.h"
-#include "common/rdf-constants.h"
+#include "../common/4store.h"
+#include "../common/hash.h"
+#include "../common/error.h"
+#include "../common/rdf-constants.h"
 
 #if RASQAL_VERSION > 917
 

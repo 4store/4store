@@ -1,5 +1,13 @@
 #!/usr/bin/perl -w
 
+if ($ARGV[0] eq '--version') {
+	print("unknown\n");
+	exit(0);
+} elsif ($ARGV[0] eq '--help') {
+	print "Usage: find <data-dir> -type f | $0 <kbname>\n";
+	exit(0);
+}
+
 $kb_name = shift;
 die "Usage: find <data-dir> -type f | $0 <kbname>\n" unless $kb_name;
 

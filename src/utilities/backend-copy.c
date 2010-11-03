@@ -30,15 +30,16 @@
 #include <glib.h>
 #include <unistd.h>
 #include <time.h>
+#include <libgen.h>
 #include <sys/param.h>
 #include <sys/stat.h>
 
-#include "common/md5.h"
-#include "common/4store.h"
-#include "common/error.h"
-#include "common/params.h"
+#include "../common/md5.h"
+#include "../common/4store.h"
+#include "../common/error.h"
+#include "../common/params.h"
 
-#include "backend/metadata.h"
+#include "../backend/metadata.h"
 
 static int verbosity = 0;
 
@@ -51,16 +52,25 @@ int main(int argc, char *argv[])
     char *password = NULL;
 
     static struct option long_options[] = {
+        { "version", 0, 0, 'V' },
+        { "help", 0, 0, 'h' },
         { "verbose", 0, 0, 'v' },
         { "password", 1, 0, 'P' },
         { 0, 0, 0, 0 }
     };
 
     setlocale(LC_ALL, NULL);
+    int help_return = 1;
 
     while ((c = getopt_long (argc, argv, optstring, long_options, &opt_index)) != -1) {
 	if (c == 'v') {
 	    verbosity++;
+	} else if (c == 'V') {
+	    printf("%s, built for 4store %s\n", basename(argv[0]), GIT_REV);
+	    exit(0);
+	} else if (c == 'h') {
+	    help = 1;
+	    help_return = 0;
 	} else if (c == 'P') {
 	    password = optarg;
 	} else {
@@ -76,13 +86,13 @@ int main(int argc, char *argv[])
     }
 
     if (help) {
-        fprintf(stderr, "%s revision %s\n", argv[0], FS_BACKEND_VER);
-        fprintf(stderr, "Usage: %s [-v] [--password <pw>] <from> <to>\n", basename(argv[0]));
-        fprintf(stderr, "   -v, --verbose    increase verbosity\n");
-        fprintf(stderr, "   -P, --password   set password for new KB\n");
-        fprintf(stderr, "This command copies the contents of an existing KB to a new KB\n");
-        fprintf(stderr, "NB. The password is not copied, specify a new password if one is needed\n");
-        return 1;
+	printf("%s, built for 4store %s\n", basename(argv[0]), GIT_REV);
+        fprintf(stdout, "Usage: %s [-v] [--password <pw>] <from> <to>\n", basename(argv[0]));
+        fprintf(stdout, "   -v, --verbose    increase verbosity\n");
+        fprintf(stdout, "   -P, --password   set password for new KB\n");
+        fprintf(stdout, "This command copies the contents of an existing KB to a new KB\n");
+        fprintf(stdout, "NB. The password is not copied, specify a new password if one is needed\n");
+        return help_return;
     }
 
     fsp_syslog_enable();

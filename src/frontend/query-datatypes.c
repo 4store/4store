@@ -26,9 +26,9 @@
 #include "query-intl.h"
 #include "filter.h"
 #include "debug.h"
-#include "common/error.h"
-#include "common/datatypes.h"
-#include "common/sort.h"
+#include "../common/error.h"
+#include "../common/datatypes.h"
+#include "../common/sort.h"
 
 #define DEBUG_CUTOFF 20
 

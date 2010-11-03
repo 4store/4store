@@ -18,11 +18,11 @@
  *  Copyright 2006 Nick Lamb for Garlik.com
  */
 
-#include "common/4store.h"
-#include "common/hash.h"
-#include "common/error.h"
-#include "common/params.h"
-#include "common/md5.h"
+#include "../common/4store.h"
+#include "../common/hash.h"
+#include "../common/error.h"
+#include "../common/params.h"
+#include "../common/md5.h"
 #include "backend.h"
 #include "backend-intl.h"
 #include "query-backend.h"
@@ -1105,6 +1105,8 @@ int main (int argc, char *argv[])
   static struct option longopt[] = {
     { "daemon", 0, 0, 'D' },
     { "limit", 1, 0, 'l' },
+    { "help", 0, 0, 'h' },
+    { "version", 0, 0, 'v' },
     { 0, 0, 0, 0 }
   };
 
@@ -1114,6 +1116,8 @@ int main (int argc, char *argv[])
     disk_limit = atof(getenv("DISK_LIMIT"));
   }
 
+  int help_return = 1;
+
   while (( c = getopt_long(argc, argv, optstr, longopt, &opt_index)) != -1) {
     switch (c) {
     case 'D':
@@ -1121,6 +1125,14 @@ int main (int argc, char *argv[])
       break;
     case 'l':
       disk_limit = atof(optarg);
+      break;
+    case 'h':
+      help_return = 0;
+      help = 1;
+      break;
+    case 'v':
+      printf("4s-backend, built for 4store %s\n", GIT_REV);
+      exit(0);
       break;
     default:
       help = 1;
@@ -1133,10 +1145,10 @@ int main (int argc, char *argv[])
   }
 
   if (help) {
-    fprintf(stderr, "%s revision %s\n", argv[0], FS_BACKEND_VER);
-    fprintf(stderr, "Usage: %s [-D,--deamon] [-l,--limit min-free-space] <kbname>\n", argv[0]);
-    fprintf(stderr, "       env. var. FS_DISK_LIMIT also controls min free disk\n");
-    return 1;
+    fprintf(stdout, "%s revision %s\n", argv[0], FS_BACKEND_VER);
+    fprintf(stdout, "Usage: %s [-D,--deamon] [-l,--limit min-free-space] <kbname>\n", argv[0]);
+    fprintf(stdout, "       env. var. FS_DISK_LIMIT also controls min free disk\n");
+    return help_return;
   }
 
   kb_name = argv[argc - 1];

@@ -31,14 +31,14 @@
 #include <errno.h>
 
 #include "import.h"
-#include "common/datatypes.h"
-#include "common/error.h"
-#include "common/hash.h"
-#include "common/params.h"
-#include "common/4store.h"
-#include "common/rdf-constants.h"
-#include "libs/stemmer/include/libstemmer.h"
-#include "libs/double-metaphone/double_metaphone.h"
+#include "../common/datatypes.h"
+#include "../common/error.h"
+#include "../common/hash.h"
+#include "../common/params.h"
+#include "../common/4store.h"
+#include "../common/rdf-constants.h"
+#include "../libs/stemmer/include/libstemmer.h"
+#include "../libs/double-metaphone/double_metaphone.h"
 
 #define RES_BUF_SIZE 256
 #define QUAD_BUF_SIZE 10000

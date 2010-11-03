@@ -33,12 +33,12 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 
-#include "common/4store.h"
-#include "common/error.h"
-#include "common/params.h"
-#include "common/md5.h"
-#include "backend/backend.h"
-#include "backend/metadata.h"
+#include "../common/4store.h"
+#include "../common/error.h"
+#include "../common/params.h"
+#include "../common/md5.h"
+#include "../backend/backend.h"
+#include "../backend/metadata.h"
 
 typedef struct {
   char *name;
@@ -93,6 +93,8 @@ int main(int argc, char *argv[])
     };
 
     static struct option long_options[] = {
+        { "help", 0, 0, 'h' },
+        { "version", 0, 0, 'V' },
         { "verbose", 0, 0, 'v' },
         { "mirror", 0, 0, 'm' },
         { "model-files", 0, 0, 'f' },
@@ -105,6 +107,7 @@ int main(int argc, char *argv[])
     };
 
     setlocale(LC_ALL, NULL);
+    int help_return = 1;
 
     while ((c = getopt_long (argc, argv, optstring, long_options, &opt_index)) != -1) {
 	if (c == 'v') {
@@ -123,6 +126,12 @@ int main(int argc, char *argv[])
 	    config.segments = atoi(optarg);
 	} else if (c == 'P') {
 	    config.password = optarg;
+	} else if (c == 'h') {
+	    help = 1;
+	    help_return = 0;
+	} else if (c == 'V') {
+	    printf("%s, built for 4store %s\n", basename(argv[0]), GIT_REV);
+	    exit(0);
 	} else {
 	    help++;
 	}
@@ -138,18 +147,18 @@ int main(int argc, char *argv[])
     }
 
     if (help) {
-        fprintf(stderr, "%s revision %s\n", argv[0], FS_BACKEND_VER);
-        fprintf(stderr, "Usage: %s [-v] --node <id> --cluster <size>\n\t--segments <seg> [--password <pw>] <kbname>\n", basename(argv[0]));
-        fprintf(stderr, "   --node <id>       node id 0 ... cluster-1\n");
-        fprintf(stderr, "   --cluster <size>  number of nodes in cluster\n");
-        fprintf(stderr, "   --segments <seg>  number of segments in cluster\n");
-        fprintf(stderr, "   --password <pw>   password for authentication\n");
-        fprintf(stderr, "   -m, --mirror      mirror segments\n");
-        fprintf(stderr, "   --model-files     use a file per-model (for large models)\n");
-        fprintf(stderr, "   -v, --verbose     increase verbosity\n");
-        fprintf(stderr, "   -n, --print-only  dont execute commands, just show\n");
-        fprintf(stderr, "This command creates KBs, if the KB already exists, its contents are lost.\n");
-        return 1;
+        fprintf(stdout, "%s, built for 4store %s\n", basename(argv[0]), GIT_REV);
+        fprintf(stdout, "Usage: %s [-v] --node <id> --cluster <size>\n\t--segments <seg> [--password <pw>] <kbname>\n", basename(argv[0]));
+        fprintf(stdout, "   --node <id>       node id 0 ... cluster-1\n");
+        fprintf(stdout, "   --cluster <size>  number of nodes in cluster\n");
+        fprintf(stdout, "   --segments <seg>  number of segments in cluster\n");
+        fprintf(stdout, "   --password <pw>   password for authentication\n");
+        fprintf(stdout, "   -m, --mirror      mirror segments\n");
+        fprintf(stdout, "   --model-files     use a file per-model (for large models)\n");
+        fprintf(stdout, "   -v, --verbose     increase verbosity\n");
+        fprintf(stdout, "   -n, --print-only  dont execute commands, just show\n");
+        fprintf(stdout, "This command creates KBs, if the KB already exists, its contents are lost.\n");
+        return help_return;
     }
 
     /* check segments is a power of 2 */

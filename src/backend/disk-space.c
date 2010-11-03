@@ -27,8 +27,8 @@
 #include <sys/vfs.h>
 #endif
 
-#include "common/error.h"
-#include "common/params.h"
+#include "../common/error.h"
+#include "../common/params.h"
 
 /* returns the free disk space (in GB) remaining in the filesystem used by the
  * storage system */

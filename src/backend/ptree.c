@@ -30,9 +30,9 @@
 #include "backend.h"
 #include "ptree.h"
 #include "chain.h"
-#include "common/params.h"
-#include "common/hash.h"
-#include "common/error.h"
+#include "../common/params.h"
+#include "../common/hash.h"
+#include "../common/error.h"
 
 #define FS_PTREE_ID 0x4a585031
 #define FS_PTREE_REVISION 0

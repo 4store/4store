@@ -1,7 +1,7 @@
 #ifndef METADATA_H
 #define METADATA_H
 
-#include "common/datatypes.h"
+#include "../common/datatypes.h"
 
 /* metadata properties */
 #define FS_MD_PREFIX			"http://4store.org/metadata#"

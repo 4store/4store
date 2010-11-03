@@ -28,9 +28,9 @@
 #include <errno.h>
 #include <signal.h>
 
-#include "common/error.h"
-#include "common/params.h"
-#include "common/timing.h"
+#include "../common/error.h"
+#include "../common/params.h"
+#include "../common/timing.h"
 #include "backend.h"
 #include "import-backend.h"
 #include "backend-intl.h"
