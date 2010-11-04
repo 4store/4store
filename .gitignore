@@ -21,3 +21,4 @@ ltmain.sh
 depcomp
 install-sh
 config.status
+version.sh
