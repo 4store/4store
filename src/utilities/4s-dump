@@ -134,7 +134,7 @@ sub sparql_query {
 			warn("no header from query");
 			return ();
 		}
-		my @cols = grep(s/^\?//, split("\t", $header));
+		my @cols = grep(s/^[\?\$]//, split("\t", $header));
 		while (my $row = shift @rows) {
 			if ($row =~ /^#/) {
 				print(STDERR "JXT warning: $row\n");
