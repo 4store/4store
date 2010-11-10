@@ -171,7 +171,6 @@ fs_index_node fs_chain_new_bucket(fs_chain *bc)
 
     /* we can reuse a free'd bucket */
     if (bc->header->free_list) {
-fs_error(LOG_INFO, "@@ reusing old bucket %x", bc->header->free_list);
         fs_index_node newb = bc->header->free_list;
         fs_bucket *b = &bc->data[newb];
         bc->header->free_list = b->cont;

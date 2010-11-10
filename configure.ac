@@ -27,7 +27,7 @@ AC_CHECK_LIB([z], [deflateInit])
 PKG_CHECK_MODULES([GLIB], glib-2.0 >= 2.2.0)
 PKG_CHECK_MODULES([GTHREAD], gthread-2.0 >= 2.2.0)
 PKG_CHECK_MODULES([LIBXML], libxml-2.0)
-PKG_CHECK_MODULES([RAPTOR], raptor)
+PKG_CHECK_MODULES([RAPTOR], raptor2)
 PKG_CHECK_MODULES([RASQAL], rasqal >= 0.9.14)
 if $PKG_CONFIG --atleast-version=0.9.16 rasqal; then
 	AC_DEFINE(HAVE_RASQAL_WORLD, [], [Defined if we have rasqal world object])
@@ -91,7 +91,7 @@ AC_CONFIG_FILES([version.sh
                  src/utilities/Makefile])
 AC_OUTPUT
 
-raptor_version=`$PKG_CONFIG raptor --modversion 2>/dev/null`
+raptor_version=`$PKG_CONFIG raptor2 --modversion 2>/dev/null`
 rasqal_version=`$PKG_CONFIG rasqal --modversion 2>/dev/null`
 
 echo

@@ -22,8 +22,9 @@ struct _fs_query_state {
 
 #ifdef HAVE_RASQAL_WORLD
     /* rasqal state */
-    rasqal_world* rasqal_world;
+    rasqal_world *rasqal_world;
 #endif /* HAVE_RASQAL_WORLD */
+    raptor_world *raptor_world;
 };
 
 struct _fs_query {

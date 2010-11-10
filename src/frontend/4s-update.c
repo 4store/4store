@@ -43,7 +43,6 @@ int main(int argc, char *argv[])
       return 2;
     }
 
-    raptor_init();
     fs_hash_init(fsp_hash_type(link));
 
     char *message = NULL;

@@ -36,8 +36,8 @@ Query: CONSTRUCT { ?o ?s ?p } WHERE { ?s ?p ?o } ORDER BY ?o ?s ?p
 "0f585a7b90a5f2d3cceac58f5fd998ebd99b6e71" <local:stripes> <http://xmlns.com/foaf/0.1/mbox_sha1sum> .
 "1.12345678" <mailto:steve@example.net> <http://xmlns.com/foaf/0.1/someDecimal> .
 "1000017.23" <mailto:steve@example.net> <http://xmlns.com/foaf/0.1/someDecimal> .
-"123456789" <mailto:steve@example.net> <http://xmlns.com/foaf/0.1/someInteger> .
-"123deadbeef" <mailto:steve@example.net> <http://xmlns.com/foaf/0.1/someHexNumber> .
+"123456789"^^<http://www.w3.org/2001/XMLSchema#int> <mailto:steve@example.net> <http://xmlns.com/foaf/0.1/someInteger> .
+"123deadbeef"^^<http://example.org/hex> <mailto:steve@example.net> <http://xmlns.com/foaf/0.1/someHexNumber> .
 "289d4d44325d0b0218edc856c8c3904fa3fd2875" <local:libby> <http://xmlns.com/foaf/0.1/mbox_sha1sum> .
 "44bc4fed584a2d1ac8fc55206db67656165d67fd" <mailto:steve@example.net> <http://xmlns.com/foaf/0.1/mbox_sha1sum> .
 "4829af19130151de1c4def299d73d33f33dee0fb" <local:jo> <http://xmlns.com/foaf/0.1/mbox_sha1sum> .
@@ -51,7 +51,7 @@ Query: CONSTRUCT { ?o ?s ?p } WHERE { ?s ?p ?o } ORDER BY ?o ?s ?p
 "Mark Thompson" <local:stripes> <http://xmlns.com/foaf/0.1/name> .
 "Mr" <mailto:steve@example.net> <http://xmlns.com/foaf/0.1/title> .
 "Nick Gibbins" <local:nick> <http://xmlns.com/foaf/0.1/name> .
-"Picture of Steve at ZKM in 2003" <http://www.linuxdj.com/audio/lad/contrib/zkm_meeting_2003/photos/steve_harris.jpg> <http://purl.org/dc/elements/1.1/description> .
+"Picture of Steve at ZKM in 2003"@EN-GB <http://www.linuxdj.com/audio/lad/contrib/zkm_meeting_2003/photos/steve_harris.jpg> <http://purl.org/dc/elements/1.1/description> .
 "Resource Description Framework (RDF)" <http://www.w3.org/RDF/> <http://purl.org/dc/elements/1.1/title> .
 "Semantic Web" <http://www.w3.org/2000/01/sw/> <http://purl.org/dc/elements/1.1/title> .
 "Stephen" <mailto:steve@example.net> <http://xmlns.com/foaf/0.1/givenname> .

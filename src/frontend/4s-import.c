@@ -140,23 +140,24 @@ int main(int argc, char *argv[])
         }
     }
 
-    raptor_init();
+    raptor_world *rw = raptor_new_world();
     if (help || !kb_name || files == 0) {
-            fprintf(stdout, "%s revision %s\n", argv[0], FS_FRONTEND_VER);
-	    fprintf(stdout, "Usage: %s <kbname> <rdf file/URI> ...\n", argv[0]);
-	    fprintf(stdout, " -v --verbose   increase verbosity (can repeat)\n");
-	    fprintf(stdout, " -a --add       add data to models instead of replacing\n");
-	    fprintf(stdout, " -m --model     specify a model URI for the next RDF file\n");
-	    fprintf(stdout, " -M --model-default specify a model URI for all RDF files\n");
-	    fprintf(stdout, " -f --format    specify an RDF syntax for the import\n");
-            fprintf(stdout, "\n   available formats are:\n");
+        fprintf(stdout, "%s revision %s\n", argv[0], FS_FRONTEND_VER);
+        fprintf(stdout, "Usage: %s <kbname> <rdf file/URI> ...\n", argv[0]);
+        fprintf(stdout, " -v --verbose   increase verbosity (can repeat)\n");
+        fprintf(stdout, " -a --add       add data to models instead of replacing\n");
+        fprintf(stdout, " -m --model     specify a model URI for the next RDF file\n");
+        fprintf(stdout, " -M --model-default specify a model URI for all RDF files\n");
+        fprintf(stdout, " -f --format    specify an RDF syntax for the import\n");
+        fprintf(stdout, "\n   available formats are:\n");
 
-            const char *name, *label;
-            for (unsigned int i=0; 1; i++) {
-                if (raptor_parsers_enumerate(i, &name, &label)) break;
-                fprintf(stdout, "    %12s - %s\n", name, label);
-            }
-	    exit(help_return);
+        const char *name, *label;
+        for (unsigned int i=0; 1; i++) {
+            raptor_syntax_description *desc =
+                    raptor_world_get_parser_description(rw, i);
+            fprintf(stdout, "    %12s - %s\n", desc->names[0], desc->label);
+        }
+        exit(help_return);
     }
 
     fsp_syslog_enable();
@@ -280,7 +281,9 @@ read(0, &foo, 1);
     }
 
     fsp_close_link(fsplink);
-    raptor_finish();
+    raptor_free_world(rw);
 
     return 0;
 }
+
+/* vi:set expandtab sts=4 sw=4: */

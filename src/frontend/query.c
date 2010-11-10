@@ -158,23 +158,18 @@ static void fs_query_explain(fs_query *q, char *msg)
     }
 }
 
-static void warning_handler(void *user_data, raptor_locator* locator, const char *message)
+
+
+static void log_handler(void *user_data, raptor_log_message *message)
 {
     fs_query *q = user_data;
 
-    char *msg = g_strdup_printf("parser warning: %s at line %d", message, raptor_locator_line(locator));
+    char *msg = g_strdup_printf("parser %s: %s at line %d", raptor_log_level_get_label(message->level), message->text, raptor_locator_line(message->locator));
     q->warnings = g_slist_prepend(q->warnings, msg);
     fs_query_add_freeable(q, msg);
-}
-
-static void error_handler(void *user_data, raptor_locator* locator, const char *message)
-{
-    fs_query *q = user_data;
-
-    char *msg = g_strdup_printf("parser error: %s at line %d", message, raptor_locator_line(locator));
-    q->warnings = g_slist_prepend(q->warnings, msg);
-    q->errors++;
-    fs_query_add_freeable(q, msg);
+    if (message->level > RAPTOR_LOG_LEVEL_WARN) {
+        q->errors++;
+    }
 }
 
 guint fs_freq_hash(gconstpointer key)
@@ -250,6 +245,10 @@ fs_query_state *fs_query_init(fsp_link *link)
 	return NULL;
     }
 #endif /* HAVE_RASQAL_WORLD */
+    qs->raptor_world = raptor_new_world();
+    if (!qs->raptor_world) {
+        fs_error(LOG_ERR, "failed to allocate raptor world");
+    }
 
     return qs;
 }
@@ -291,6 +290,7 @@ int fs_query_fini(fs_query_state *qs)
         if(qs->rasqal_world)
           rasqal_free_world(qs->rasqal_world);
 #endif /* HAVE_RASQAL_WORLD */
+        if (qs->raptor_world) raptor_free_world(qs->raptor_world);
         free(qs->bind_cache);
         g_static_mutex_free(&qs->cache_mutex);
         free(qs);
@@ -370,8 +370,7 @@ fs_query *fs_query_execute(fs_query_state *qs, fsp_link *link, raptor_uri *bu, c
         q->soft_limit = FS_FANOUT_LIMIT;
     }
     q->boolean = 1;
-    rasqal_query_set_warning_handler(rq, q, warning_handler);
-    rasqal_query_set_error_handler(rq, q, error_handler);
+    rasqal_world_set_log_handler(q->qs->rasqal_world, q, log_handler);
     int ret = rasqal_query_prepare(rq, (unsigned char *)query, bu);
     if (ret) {
 	return q;
@@ -464,7 +463,7 @@ fs_query *fs_query_execute(fs_query_state *qs, fsp_link *link, raptor_uri *bu, c
 
     raptor_sequence *vars = NULL;
     if (q->construct) {
-	vars = raptor_new_sequence(NULL, NULL);
+ 	vars = raptor_new_sequence(NULL, NULL);
 	for (int i=0; 1; i++) {
 	    rasqal_triple *t = rasqal_query_get_construct_triple(rq, i);
 	    if (!t) break;
@@ -1876,6 +1875,9 @@ int fs_bind_slot(fs_query *q, int block, fs_binding *b,
 	    break;
 	case RASQAL_LITERAL_URI: {
             char *uri = (char *)raptor_uri_as_string(l->value.uri);
+            if (!uri) {
+                fs_error(LOG_CRIT, "Got NULL URI from literal %p", l);
+            }
             fs_rid_vector_append(v, fs_hash_uri(uri));
 	    break;
         }

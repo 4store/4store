@@ -365,11 +365,11 @@ static void http_query_worker(gpointer data, gpointer user_data)
 
     fclose(fp);
   }
-  http_close(ctxt);
   if (ql_file) {
     fprintf(ql_file, "#### execution time for Q%u: %fs\n", ctxt->query_id, fs_time() - ctxt->start_time);
     fflush(ql_file);
   }
+  http_close(ctxt);
 }
 
 static void http_answer_query(client_ctxt *ctxt, const char *query)
@@ -465,7 +465,9 @@ static void http_import_start(client_ctxt *ctxt)
 
   fs_rid_vector_free(mvec);
   char *type = just_content_type(ctxt);
-  fs_import_stream_start(fsplink, ctxt->import_uri, type, has_o_index, &global_import_count);
+  if (fs_import_stream_start(fsplink, ctxt->import_uri, type, has_o_index, &global_import_count)) {
+    fs_error(LOG_CRIT, "failed to start stream parse");
+  }
   g_free(type);
 
   guint timeout = 30 + (ctxt->bytes_left / WATCHDOG_RATE);
@@ -1551,13 +1553,10 @@ static void child (int srv, char *kb_name, char *password)
     exit(4);
   }
 
-  raptor_init();
 #ifndef HAVE_RASQAL_WORLD
   rasqal_init();
 #endif /* ! HAVE_RASQAL_WORLD */
   fs_hash_init(fsp_hash_type(fsplink));
-
-  bu = raptor_new_uri((unsigned char *)"local:local");
 
   const char *features = fsp_link_features(fsplink);
   has_o_index = !(strstr(features, "no-o-index")); /* tweak */
@@ -1565,6 +1564,7 @@ static void child (int srv, char *kb_name, char *password)
   query_log_open(kb_name);
 
   query_state = fs_query_init(fsplink);
+  bu = raptor_new_uri(query_state->raptor_world, (unsigned char *)"local:local");
   g_thread_init(NULL);
   pool = g_thread_pool_new(http_query_worker, NULL, QUERY_THREAD_POOL_SIZE, FALSE, NULL);
 

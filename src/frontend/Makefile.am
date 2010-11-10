@@ -15,10 +15,10 @@ test: all filter-test
 	@./tests/run.pl
 
 4s_query_SOURCES = 4s-query.c query.c results.c query-data.c query-datatypes.c query-cache.c filter.c filter-datatypes.c order.c optimiser.c decimal.c
-4s_query_LDADD = ../common/lib4store.a ../common/libsort.a @RASQAL_LIBS@ @MDNS_LIBS@
+4s_query_LDADD = ../common/lib4store.a ../common/libsort.a @RAPTOR_LIBS@ @RASQAL_LIBS@ @MDNS_LIBS@
 
 4s_update_SOURCES = 4s-update.c update.c import.c ../common/gnu-options.c
-4s_update_LDADD = ../common/lib4store.a ../libs/stemmer/libstemmer.a ../libs/double-metaphone/libdouble_metaphone.a @RASQAL_LIBS@ @MDNS_LIBS@
+4s_update_LDADD = ../common/lib4store.a ../libs/stemmer/libstemmer.a ../libs/double-metaphone/libdouble_metaphone.a @RAPTOR_LIBS@ @RASQAL_LIBS@ @MDNS_LIBS@
 
 4s_import_SOURCES = 4s-import.c import.c
 4s_import_LDADD = ../common/lib4store.a ../libs/stemmer/libstemmer.a ../libs/double-metaphone/libdouble_metaphone.a ../common/libsort.a @RAPTOR_LIBS@ @MDNS_LIBS@
@@ -30,7 +30,7 @@ test: all filter-test
 4s_size_LDADD = ../common/lib4store.a -lm @MDNS_LIBS@
 
 4s_info_SOURCES = 4s-info.c query.c query-datatypes.c query-data.c query-cache.c order.c optimiser.c filter.c filter-datatypes.c results.c decimal.c ../common/gnu-options.c
-4s_info_LDADD = ../common/lib4store.a ../common/libsort.a @RASQAL_LIBS@ @MDNS_LIBS@
+4s_info_LDADD = ../common/lib4store.a ../common/libsort.a @RAPTOR_LIBS@ @RASQAL_LIBS@ @MDNS_LIBS@
 
 4s_restore_SOURCES = restore.c restore-trix.c
 4s_restore_LDADD = ../common/lib4store.a ../common/libsort.a @LIBXML_LIBS@ @MDNS_LIBS@

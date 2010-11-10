@@ -42,21 +42,19 @@ struct _fs_metadata {
     int length;
     char *uri;
     struct m_entry *entries;
+    raptor_world *rw;
 };
 
-static void parse_stmt(void *user_data, const raptor_statement *statement)
+static void parse_stmt(void *user_data, raptor_statement *statement)
 {
     fs_metadata *m = (fs_metadata *)user_data;
 
-    char *pred = (char *) raptor_uri_as_string((raptor_uri *)
-                                               statement->predicate);
-    char *obj;
-    if (statement->object_type == RAPTOR_IDENTIFIER_TYPE_LITERAL ||
-        statement->object_type == RAPTOR_IDENTIFIER_TYPE_XML_LITERAL) {
-        obj = (char *)statement->object;
+    char *pred = (char *)raptor_uri_as_string(statement->predicate->value.uri);
+    char *obj = NULL;
+    if (statement->object->type = RAPTOR_TERM_TYPE_LITERAL) {
+        obj = (char *)statement->object->value.literal.string;
     } else {
-        obj = (char *)raptor_uri_as_string((raptor_uri *)
-                                            statement->object);
+        obj = (char *)raptor_uri_as_string(statement->object->value.uri);
     }
 
     fs_metadata_add(m, pred, obj);
@@ -78,14 +76,19 @@ fs_metadata *fs_metadata_open(const char *kb)
         return NULL;
     }
     close(fd);
-    raptor_init();
-    raptor_parser *rdf_parser = raptor_new_parser("turtle");
-    raptor_set_statement_handler(rdf_parser, m, parse_stmt);
+    m->rw = raptor_new_world();
+    if (!m->rw) {
+        fs_error(LOG_CRIT, "failed to initialise raptor");
+
+        return NULL;
+    }
+    raptor_parser *rdf_parser = raptor_new_parser(m->rw, "turtle");
+    raptor_parser_set_statement_handler(rdf_parser, m, parse_stmt);
     char *uri = strdup(m->uri);
-    raptor_uri *ruri = raptor_new_uri((unsigned char *) uri);
-    raptor_uri *muri = raptor_new_uri((unsigned char *) uri);
+    raptor_uri *ruri = raptor_new_uri(m->rw, (unsigned char *) uri);
+    raptor_uri *muri = raptor_new_uri(m->rw, (unsigned char *) uri);
     free(uri);
-    if (raptor_parse_uri(rdf_parser, ruri, muri)) {
+    if (raptor_parser_parse_uri(rdf_parser, ruri, muri)) {
         fs_error(LOG_ERR, "failed to parse metadata file “%s”", m->uri);
 
         return NULL;
@@ -220,29 +223,32 @@ int fs_metadata_get_bool(fs_metadata *m, const char *prop, int def)
 
 int fs_metadata_flush(fs_metadata *m)
 {
-    raptor_serializer *ser = raptor_new_serializer("turtle");
+    raptor_serializer *ser = raptor_new_serializer(m->rw, "turtle");
     if (!ser) {
         fs_error(LOG_CRIT, "cannot create turtle serialiser for metadata");
 
         return 1;
     }
-    raptor_serialize_start_to_filename(ser, m->uri+7);
+    raptor_serializer_start_to_filename(ser, m->uri+7);
 
+    raptor_uri *subject = raptor_new_uri(m->rw, (unsigned char *)m->uri);
     raptor_statement st;
-    st.subject_type = RAPTOR_IDENTIFIER_TYPE_RESOURCE;
-    st.predicate_type = RAPTOR_IDENTIFIER_TYPE_RESOURCE;
-    st.object_type = RAPTOR_IDENTIFIER_TYPE_LITERAL;
-    st.object_literal_datatype = NULL;
-    st.object_literal_language = NULL;
-
     for (int e=0; e < m->length; e++) {
-        st.subject = "";
-        st.predicate = m->entries[e].key;
-        st.object = m->entries[e].val;
-        raptor_serialize_statement(ser, &st);
+        st.subject = raptor_new_term_from_uri(m->rw, subject);
+        raptor_uri *predicate = raptor_new_uri(m->rw,
+            (unsigned char *)m->entries[e].key);
+        st.predicate = raptor_new_term_from_uri(m->rw, predicate);
+        raptor_free_uri(predicate);
+        st.object = raptor_new_term_from_literal(m->rw,
+            (unsigned char *)m->entries[e].val, NULL, NULL);
+        raptor_serializer_serialize_statement(ser, &st);
+        raptor_free_term(st.subject);
+        raptor_free_term(st.predicate);
+        raptor_free_term(st.object);
     }
+    raptor_free_uri(subject);
 
-    raptor_serialize_end(ser);
+    raptor_serializer_serialize_end(ser);
     raptor_free_serializer(ser);
 
     return 0;
