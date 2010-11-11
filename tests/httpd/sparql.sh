@@ -12,6 +12,12 @@ function sparql {
 # usage: put $endpoint $file $mime-type $model
 function put {
 	uriescape $4;
+	curl -s -T "$2" -H "Content-Type: $3" "$1/data/?graph=$escaped" | sed 's/ v[.0-9a-z-]*/ [VERSION]/'
+}
+
+# usage: put-old $endpoint $file $mime-type $model
+function put-old {
+	uriescape $4;
 	curl -s -T "$2" -H "Content-Type: $3" "$1/data/$escaped" | sed 's/ v[.0-9a-z-]*/ [VERSION]/'
 }
 
@@ -27,6 +33,12 @@ function post {
 
 # usage: delete $endpoint $model
 function delete {
+	uriescape $2;
+	curl -s -X 'DELETE' $1/data/?graph=$escaped | sed 's/ v[.0-9a-z-]*/ [VERSION]/'
+}
+
+# usage: delete-old $endpoint $model
+function delete-old {
 	uriescape $2;
 	curl -s -X 'DELETE' $1/data/$escaped | sed 's/ v[.0-9a-z-]*/ [VERSION]/'
 }
