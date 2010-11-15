@@ -1,0 +1,12 @@
+#!
+
+$TESTPATH/frontend/4s-query $1 -f text 'ASK {
+{ ?s <http://www.w3.org/2000/01/rdf-schema#label> "xxxab"@en . }
+UNION
+{ ?s <http://www.w3.org/2000/01/rdf-schema#label> "xxxbc"@en . }
+}'
+$TESTPATH/frontend/4s-query $1 -f sparql 'ASK {
+{ ?s <http://www.w3.org/2000/01/rdf-schema#label> "xxxab"@en . }
+UNION
+{ ?s <http://www.w3.org/2000/01/rdf-schema#label> "xxxbc"@en . }
+}'

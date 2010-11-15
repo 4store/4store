@@ -520,6 +520,10 @@ fs_query *fs_query_execute(fs_query_state *qs, fsp_link *link, raptor_uri *bu, c
             q->expressions++;
         }
     }
+    if (q->num_vars == 0) {
+        /* add a dummy column so we can test ASK/boolean status */
+        fs_binding_add(q->bb[0], "_dummy", FS_RID_NULL, 0);
+    }
 
     rasqal_graph_pattern *pattern = rasqal_query_get_query_graph_pattern(rq);
     q->flags = flags;
@@ -848,6 +852,11 @@ fs_binding_print(q->bb[0], stdout);
     if (q->num_vars == 0) {
 	/* ASK or similar */
         q->length = fs_binding_length(q->bb[0]);
+        if (q->length) {
+            q->boolean = 1;
+        } else {
+            q->boolean = 0;
+        }
 
 	return q;
     }
@@ -1498,6 +1507,9 @@ static int process_results(fs_query *q, int block, fs_binding *oldb,
                 fs_rid_vector_clear(slot[x]);
             }
             fs_binding_free(oldb);
+            if (q->num_vars == 0) {
+                fs_binding_add(b, "_dummy", FS_RID_GONE, 0);
+            }
 
             return 1;
         }
