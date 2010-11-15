@@ -1397,6 +1397,17 @@ static void output_text(fs_query *q, int flags, FILE *out)
 	}
     }
 
+    if (q->ask) {
+        while (q->boolean && fs_query_fetch_row(q));
+        if (q->boolean) {
+            fprintf(out, "true\n");
+        } else {
+            fprintf(out, "false\n");
+        }
+
+        return;
+    }
+
     fs_row *row;
 
     int cols = fs_query_get_columns(q);
