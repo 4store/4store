@@ -42,7 +42,7 @@
 /* enables profiling of write() times in import clients */
 #define FS_PROFILE_WRITE
 
-#define FS_STORE_ROOT "/var/lib/4store"
+#define FS_STORE_ROOT "@FS_STORE_ROOT@"
 #define FS_KB_DIR     FS_STORE_ROOT "/%s/"
 #define FS_MD_FILE    FS_STORE_ROOT "/%s/metadata.nt"
 #define FS_SEG_DIR    FS_STORE_ROOT "/%s/%04x/"
