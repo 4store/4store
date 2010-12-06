@@ -546,11 +546,7 @@ static raptor_term *slot_fill_from_rid(fs_query *q, fs_rid rid)
     if (FS_IS_BNODE(rid)) {
 	return raptor_new_term_from_blank(q->qs->raptor_world, (unsigned char *)r.lex+2);
     } else if (FS_IS_URI(rid)) {
-        raptor_uri *uri = raptor_new_uri(q->qs->raptor_world, (unsigned char *)r.lex);
-        raptor_term *term = raptor_new_term_from_uri(q->qs->raptor_world, uri);
-        raptor_free_uri(uri);
-
-        return term;
+        return raptor_new_term_from_uri_string(q->qs->raptor_world, (unsigned char *)r.lex);
     } else if (FS_IS_LITERAL(rid)) {
         raptor_uri *dt = NULL;
         char *tag = NULL;
@@ -655,11 +651,7 @@ static raptor_term *slot_fill(fs_query *q, rasqal_literal *l, fs_row *row)
         if (FS_IS_BNODE(b->rid)) {
             return raptor_new_term_from_blank(q->qs->raptor_world, (unsigned char *)b->lex+2);
         } else if (FS_IS_URI(b->rid)) {
-            raptor_uri *uri = raptor_new_uri(q->qs->raptor_world, (unsigned char *)b->lex);
-            raptor_term *term = raptor_new_term_from_uri(q->qs->raptor_world, uri);
-            raptor_free_uri(uri);
-
-            return term;
+            return raptor_new_term_from_uri_string(q->qs->raptor_world, (unsigned char *)b->lex);
         } else if (FS_IS_LITERAL(b->rid)) {
             raptor_uri *dt = NULL;
             const unsigned char *tag = NULL;

@@ -51,7 +51,7 @@ static void parse_stmt(void *user_data, raptor_statement *statement)
 
     char *pred = (char *)raptor_uri_as_string(statement->predicate->value.uri);
     char *obj = NULL;
-    if (statement->object->type = RAPTOR_TERM_TYPE_LITERAL) {
+    if (statement->object->type == RAPTOR_TERM_TYPE_LITERAL) {
         obj = (char *)statement->object->value.literal.string;
     } else {
         obj = (char *)raptor_uri_as_string(statement->object->value.uri);
@@ -231,14 +231,10 @@ int fs_metadata_flush(fs_metadata *m)
     }
     raptor_serializer_start_to_filename(ser, m->uri+7);
 
-    raptor_uri *subject = raptor_new_uri(m->rw, (unsigned char *)m->uri);
     raptor_statement st;
     for (int e=0; e < m->length; e++) {
-        st.subject = raptor_new_term_from_uri(m->rw, subject);
-        raptor_uri *predicate = raptor_new_uri(m->rw,
-            (unsigned char *)m->entries[e].key);
-        st.predicate = raptor_new_term_from_uri(m->rw, predicate);
-        raptor_free_uri(predicate);
+        st.subject = raptor_new_term_from_uri_string(m->rw, (unsigned char *)m->uri);
+        st.predicate = raptor_new_term_from_uri_string(m->rw, (unsigned char *)m->entries[e].key);
         st.object = raptor_new_term_from_literal(m->rw,
             (unsigned char *)m->entries[e].val, NULL, NULL);
         raptor_serializer_serialize_statement(ser, &st);
@@ -246,7 +242,6 @@ int fs_metadata_flush(fs_metadata *m)
         raptor_free_term(st.predicate);
         raptor_free_term(st.object);
     }
-    raptor_free_uri(subject);
 
     raptor_serializer_serialize_end(ser);
     raptor_free_serializer(ser);
