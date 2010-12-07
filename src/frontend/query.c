@@ -264,11 +264,13 @@ int fs_query_have_laqrs(void)
         fs_error(LOG_ERR, "failed to allocate rasqal world");
         return 0;
     }
+#if RASQAL_VERSION >= 917
     if (rasqal_world_open(w)) {
         fs_error(LOG_ERR, "failed to initialise rasqal world");
 	rasqal_free_world(w);
 	return 0;
     }
+#endif
     rasqal_query *rq = rasqal_new_query(w, "laqrs", NULL);
 #else
     rasqal_query *rq = rasqal_new_query("laqrs", NULL);
