@@ -244,11 +244,13 @@ fs_query_state *fs_query_init(fsp_link *link)
     if (!qs->rasqal_world) {
         fs_error(LOG_ERR, "failed to allocate rasqal world");
     }
+#if RASQAL_VERSION >= 917
     if (rasqal_world_open(qs->rasqal_world)) {
         fs_error(LOG_ERR, "failed to intialise rasqal world");
 	fs_query_fini(qs);
 	return NULL;
     }
+#endif
 #endif /* HAVE_RASQAL_WORLD */
 
     return qs;
