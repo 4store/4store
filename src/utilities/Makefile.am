@@ -13,8 +13,8 @@ EXTRA_DIST = 4s-cluster-cache 4s-ssh-keyscan
 noinst_PROGRAMS = lex-file-verify 4s-rid
 
 install-data-local: 
-	mkdir -p $(DESTDIR)/var/lib/4store
-	chmod 1777 $(DESTDIR)/var/lib/4store
+	mkdir -p $(DESTDIR)@FS_STORE_ROOT@
+	chmod 1777 $(DESTDIR)@FS_STORE_ROOT@
 
 4s_backend_destroy_SOURCES = backend-destroy.c
 4s_backend_destroy_LDADD = ../common/lib4store.a
