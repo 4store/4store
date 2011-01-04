@@ -590,7 +590,7 @@ void fs_binding_sort(fs_binding *b)
 	return;
     }
 
-    /* fill out the _ord column with intergers in [0,n] */
+    /* fill out the _ord column with integers in [0,n] */
     b[0].vals->length = 0;
     for (int row=0; row<length; row++) {
         fs_rid_vector_append(b[0].vals, row);

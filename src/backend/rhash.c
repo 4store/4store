@@ -549,6 +549,8 @@ int fs_rhash_put_multi(fs_rhash *rh, fs_resource *res, int count)
 
 static inline int get_entry(fs_rhash *rh, fs_rhash_entry *e, fs_resource *res)
 {
+    /* default, some things want to override this */
+    res->attr = e->aval.attr;
     if (e->disp == DISP_I_UTF8) {
         res->lex = malloc(INLINE_STR_LEN+1);
         res->lex[INLINE_STR_LEN] = '\0';
@@ -569,7 +571,8 @@ static inline int get_entry(fs_rhash *rh, fs_rhash_entry *e, fs_resource *res)
             strcpy(res->lex, rh->prefix_strings[pnum]);
             strncpy((res->lex) + plen, (char *)(e->aval.pstr)+1, 7);
             strncat((res->lex) + plen, e->val.str, 15);
-            res->attr = 0;
+            /* URIs have RID NULL */
+            res->attr = FS_RID_NULL;
         }
     } else if (e->disp == DISP_F_UTF8) {
         int32_t lex_len;
@@ -687,7 +690,6 @@ static inline int get_entry(fs_rhash *rh, fs_rhash_entry *e, fs_resource *res)
 
         return 1;
     }
-    res->attr = e->aval.attr;
 
     return 0;
 }
@@ -787,7 +789,7 @@ void fs_rhash_print(fs_rhash *rh, FILE *out, int verbosity)
             if (e.disp == DISP_F_UTF8 || e.disp == DISP_F_ZCOMP) {
                 if (verbosity > 1 || show_next) fprintf(out, "%s %016llx %016llx %c %10lld %s\n", ent_str, e.rid, e.aval.attr, e.disp, (long long)e.val.offset, res.lex);
             } else if (e.disp == DISP_F_PREFIX) {
-                if (verbosity > 1 || show_next) fprintf(out, "%s %016llx %16d %c %10lld %s\n", ent_str, e.rid, e.aval.pstr[0], e.disp, (long long)e.val.offset, res.lex);
+                if (verbosity > 1 || show_next) fprintf(out, "%s %016llx %16d %c %10lld %s\n", ent_str, e.rid, (unsigned char)e.aval.pstr[0], e.disp, (long long)e.val.offset, res.lex);
             } else {
                 if (verbosity > 1 || show_next) fprintf(out, "%s %016llx %016llx %c %s\n", ent_str, e.rid, e.aval.attr, e.disp, res.lex);
             }

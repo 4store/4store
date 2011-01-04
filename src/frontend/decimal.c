@@ -276,6 +276,15 @@ void fs_decimal_copy(const fs_decimal *from, fs_decimal *to)
     memcpy(to, from, sizeof(fs_decimal));
 }
 
+int fs_decimal_is_zero(const fs_decimal *a)
+{
+    for (int i=0; i<FS_D_DIGITS; i++) {
+        if (a->digit[i] != 0) return 0;
+    }
+
+    return 1;
+}
+
 int fs_decimal_equal(const fs_decimal *a, const fs_decimal *b)
 {
     if ((a->flags | FS_D_NEGATIVE) != (b->flags | FS_D_NEGATIVE)) return 0;
@@ -508,6 +517,11 @@ int fs_decimal_divide(const fs_decimal *n, const fs_decimal *d, fs_decimal *q)
 {
     fs_decimal norm;
     int shift = 0;
+
+    /* catch divide by zero error */
+    if (fs_decimal_is_zero(d)) {
+        return 1;
+    }
 
     /* use Newton-Raphson series approximation to calculate 1/d */
     fs_decimal_normalise(d, &norm, &shift);

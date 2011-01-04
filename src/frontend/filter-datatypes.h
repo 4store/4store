@@ -28,13 +28,6 @@ typedef enum {
     FS_ERROR_INVALID_TYPE = 99
 } fs_error;
 
-#if 0
-typedef struct _fs_fixp {
-    int32_t	in;
-    uint32_t	fr;
-} fs_fixp;
-#endif
-
 typedef enum {
     FS_V_RID = 0,
     FS_V_ATTR,
@@ -82,6 +75,9 @@ fs_value fs_value_datetime(time_t d);
 fs_value fs_value_datetime_from_string(const char *s);
 
 fs_value fs_value_promote(fs_query *q, fs_value a, fs_value b);
+
+fs_value fs_value_fill_lexical(fs_query *q, fs_value a);
+fs_value fs_value_fill_rid(fs_query *q, fs_value a);
 
 int fs_is_numeric(fs_value *a);
 int fs_is_error(fs_value a);

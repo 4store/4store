@@ -27,6 +27,7 @@
 
 #include "filter.h"
 #include "filter-datatypes.h"
+#include "query-data.h"
 #include "../common/hash.h"
 #include "../common/error.h"
 
@@ -93,6 +94,7 @@ fs_value fs_value_uri(const char *s)
     v.rid = fs_hash_uri(s);
     v.lex = (char *)s;
     v.valid = fs_valid_bit(FS_V_RID);
+    v.attr = FS_RID_NULL;
 
     return v;
 }
@@ -438,9 +440,12 @@ void fs_value_print(fs_value v)
             printf("plain");
 	}
     } else {
-	printf("0x%llx", v.attr);
+	printf("attr:%llx", v.attr);
     }
 
+    if (v.valid & fs_valid_bit(FS_V_RID)) {
+	printf(" rid:%llx", v.rid);
+    }
     if (v.lex) {
 	printf(" l:%s", v.lex);
     }
@@ -455,6 +460,65 @@ void fs_value_print(fs_value v)
     if (v.valid & fs_valid_bit(FS_V_IN)) {
 	printf(" i:%lld", (long long)v.in);
     }
+}
+
+fs_value fs_value_fill_lexical(fs_query *q, fs_value a)
+{
+    if (a.lex) {
+	return a;
+    }	
+    if (a.valid & fs_valid_bit(FS_V_FP)) {
+	a.lex = g_strdup_printf("%f", a.fp);
+        fs_query_add_freeable(q, a.lex);
+
+	return a;
+    }
+    if (a.valid & fs_valid_bit(FS_V_DE)) {
+	a.lex = fs_decimal_to_lex(&a.de);
+        fs_query_add_freeable(q, a.lex);
+
+	return a;
+    }
+    if (a.valid & fs_valid_bit(FS_V_IN)) {
+	if (a.attr == fs_c.xsd_integer) {
+	    a.lex = g_strdup_printf("%lld", (long long)a.in);
+            fs_query_add_freeable(q, a.lex);
+
+	    return a;
+	}
+
+	if (a.attr == fs_c.xsd_datetime) {
+	    struct tm t;
+	    time_t clock = a.in;
+	    gmtime_r(&clock, &t);
+	    a.lex = g_strdup_printf("%04d-%02d-%02dT%02d:%02d:%02d", 
+		    t.tm_year + 1900, t.tm_mon + 1, t.tm_mday,
+		    t.tm_hour, t.tm_min, t.tm_sec);
+            fs_query_add_freeable(q, a.lex);
+
+	    return a;
+	}
+    }
+
+    return fs_value_error(FS_ERROR_INVALID_TYPE, "bad lexical cast");
+}
+
+fs_value fs_value_fill_rid(fs_query *q, fs_value a)
+{
+    if (a.valid & fs_valid_bit(FS_V_RID)) {
+        return a;
+    }
+
+    if (a.valid & fs_valid_bit(FS_V_TYPE_ERROR)) {
+        a.rid = FS_RID_NULL;
+    }
+
+    fs_value_fill_lexical(q, a);
+
+    a.rid = fs_hash_literal(a.lex, a.attr);
+    a.valid |= fs_valid_bit(FS_V_RID);
+
+    return a;
 }
 
 /* vi:set expandtab sts=4 sw=4: */
