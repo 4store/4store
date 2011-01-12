@@ -251,11 +251,7 @@ fs_value fs_expression_eval(fs_query *q, int row, int block, rasqal_expression *
 	case RASQAL_EXPR_STR_EQ:
 	    return fn_equal(q, fs_expression_eval(q, row, block, e->arg1),
 			       fs_expression_eval(q, row, block, e->arg2));
-#ifdef HAVE_RASQAL_WORLD
-	case RASQAL_EXPR_SAMETERM:
-	    return fn_rdfterm_equal(q, fs_expression_eval(q, row, block, e->arg1),
-			               fs_expression_eval(q, row, block, e->arg2));
-#endif
+
 	case RASQAL_EXPR_NEQ:
 	case RASQAL_EXPR_STR_NEQ:
 	    return fn_not_equal(q, fs_expression_eval(q, row, block, e->arg1),
@@ -493,7 +489,7 @@ fs_value fs_expression_eval(fs_query *q, int row, int block, rasqal_expression *
             char *sep = " ";
             GString *concat = g_string_new("");
             if (e->literal) {
-                sep = rasqal_literal_as_string(e->literal);
+                sep = (char *)rasqal_literal_as_string(e->literal);
             }
             int count = 0;
             for (int r=0; r<q->group_length; r++) {

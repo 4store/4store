@@ -224,7 +224,7 @@ fs_value fs_value_datetime_from_string(const char *s)
     if (g_time_val_from_iso8601(s, &gtime)) {
         v.in = gtime.tv_sec;
         v.valid = fs_valid_bit(FS_V_IN);
-        v.lex = s;
+        v.lex = (char *)s;
 
         return v;
     }

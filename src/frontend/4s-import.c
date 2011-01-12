@@ -151,9 +151,8 @@ int main(int argc, char *argv[])
         fprintf(stdout, " -f --format    specify an RDF syntax for the import\n");
         fprintf(stdout, "\n   available formats are:\n");
 
-        const char *name, *label;
         for (unsigned int i=0; 1; i++) {
-            raptor_syntax_description *desc =
+            const raptor_syntax_description *desc =
                     raptor_world_get_parser_description(rw, i);
             fprintf(stdout, "    %12s - %s\n", desc->names[0], desc->label);
         }

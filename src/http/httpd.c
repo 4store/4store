@@ -1549,9 +1549,6 @@ static void child (int srv, char *kb_name, char *password)
     exit(4);
   }
 
-#ifndef HAVE_RASQAL_WORLD
-  rasqal_init();
-#endif /* ! HAVE_RASQAL_WORLD */
   fs_hash_init(fsp_hash_type(fsplink));
 
   const char *features = fsp_link_features(fsplink);

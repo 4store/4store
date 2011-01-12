@@ -113,11 +113,11 @@ static void add_message(struct update_context *ct, char *m, int freeable)
     }
 }
 
-static void error_handler(void *user_data, raptor_locator* locator, const char *message)
+static void error_handler(void *user_data, raptor_log_message *message)
 {
     struct update_context *ct = user_data;
 
-    char *msg = g_strdup_printf("Parser error: %s at line %d of operation %d", message, raptor_locator_line(locator), ct->opid);
+    char *msg = g_strdup_printf("Parser %s: %s at line %d of operation %d", raptor_log_level_get_label(message->code), message->text, raptor_locator_line(message->locator), ct->opid);
     add_message(ct, msg, 1);
     fs_error(LOG_ERR, "%s", msg);
 }
@@ -234,9 +234,7 @@ int fs_update(fsp_link *l, char *update, char **message, int unsafe)
         return 1;
     }
     struct update_context uctxt;
-    rasqal_query_set_fatal_error_handler(rq, &uctxt, error_handler);
-    rasqal_query_set_error_handler(rq, &uctxt, error_handler);
-    rasqal_query_set_warning_handler(rq, &uctxt, error_handler);
+    rasqal_world_set_log_handler(rworld, &uctxt, error_handler);
     memset(&uctxt, 0, sizeof(uctxt));
     uctxt.link = l;
     uctxt.segments = fsp_link_segments(l);

@@ -236,19 +236,15 @@ fs_query_state *fs_query_init(fsp_link *link)
         }
     }
 
-#ifdef HAVE_RASQAL_WORLD
     qs->rasqal_world = rasqal_new_world();
     if (!qs->rasqal_world) {
         fs_error(LOG_ERR, "failed to allocate rasqal world");
     }
-#if RASQAL_VERSION >= 917
     if (rasqal_world_open(qs->rasqal_world)) {
         fs_error(LOG_ERR, "failed to intialise rasqal world");
 	fs_query_fini(qs);
 	return NULL;
     }
-#endif
-#endif /* HAVE_RASQAL_WORLD */
     qs->raptor_world = raptor_new_world();
     if (!qs->raptor_world) {
         fs_error(LOG_ERR, "failed to allocate raptor world");
@@ -259,43 +255,13 @@ fs_query_state *fs_query_init(fsp_link *link)
 
 int fs_query_have_laqrs(void)
 {
-    int laqrs = 0;
-
-#ifdef HAVE_RASQAL_WORLD
-    rasqal_world *w = rasqal_new_world();
-    if (!w) {
-        fs_error(LOG_ERR, "failed to allocate rasqal world");
-        return 0;
-    }
-#if RASQAL_VERSION >= 917
-    if (rasqal_world_open(w)) {
-        fs_error(LOG_ERR, "failed to initialise rasqal world");
-	rasqal_free_world(w);
-	return 0;
-    }
-#endif
-    rasqal_query *rq = rasqal_new_query(w, "laqrs", NULL);
-#else
-    rasqal_query *rq = rasqal_new_query("laqrs", NULL);
-#endif /* HAVE_RASQAL_WORLD */
-    if (rq) {
-        laqrs = 1;
-        rasqal_free_query(rq);
-    }
-#ifdef HAVE_RASQAL_WORLD
-    rasqal_free_world(w);
-#endif
-
-    return laqrs;
+    return 1;
 }
 
 int fs_query_fini(fs_query_state *qs)
 {
     if (qs) {
-#ifdef HAVE_RASQAL_WORLD
-        if(qs->rasqal_world)
-          rasqal_free_world(qs->rasqal_world);
-#endif /* HAVE_RASQAL_WORLD */
+        if (qs->rasqal_world) rasqal_free_world(qs->rasqal_world);
         if (qs->raptor_world) raptor_free_world(qs->raptor_world);
         free(qs->bind_cache);
         g_static_mutex_free(&qs->cache_mutex);
@@ -345,12 +311,6 @@ fs_query *fs_query_execute(fs_query_state *qs, fsp_link *link, raptor_uri *bu, c
 
     fsp_hit_limits_reset(link);
 
-#ifndef HAVE_RASQAL_WORLD
-    rasqal_query *rq = rasqal_new_query("laqrs", NULL);
-    if (!rq) {
-        rq = rasqal_new_query("sparql", NULL);
-    }
-#else /* HAVE_RASQAL_WORLD */
     rasqal_query *rq = rasqal_new_query(qs->rasqal_world, "sparql11", NULL);
     if (!rq) {
         rq = rasqal_new_query(qs->rasqal_world, "laqrs", NULL);
@@ -358,7 +318,6 @@ fs_query *fs_query_execute(fs_query_state *qs, fsp_link *link, raptor_uri *bu, c
     if (!rq) {
         rq = rasqal_new_query(qs->rasqal_world, "sparql", NULL);
     }
-#endif /* HAVE_RASQAL_WORLD */
     if (!rq) {
         fs_error(LOG_ERR, "failed to initialise query system");
 
