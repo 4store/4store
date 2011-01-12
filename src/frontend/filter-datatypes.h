@@ -64,6 +64,7 @@ fs_value fs_value_error(fs_error e, const char *msg);
 fs_value fs_value_uri(const char *u);
 fs_value fs_value_plain(const char *s);
 fs_value fs_value_plain_with_lang(const char *s, const char *l);
+fs_value fs_value_plain_with_dt(const char *s, const char *l);
 fs_value fs_value_string(const char *s);
 fs_value fs_value_double(double f);
 fs_value fs_value_float(double f);

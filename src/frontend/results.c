@@ -394,17 +394,130 @@ fs_value fs_expression_eval(fs_query *q, int row, int block, rasqal_expression *
 	case RASQAL_EXPR_URI:
             return fn_uri(q, fs_expression_eval(q, row, block, e->arg1));
 
-	case RASQAL_EXPR_IF: {
-                fs_value cond = fn_ebv(fs_expression_eval(q, row, block, e->arg1));
-                /* if arg1 is false or error */
-                if (fs_is_error(cond)) {
-                    return cond;
-                } else if (cond.in) {
-                    return fs_expression_eval(q, row, block, e->arg2);
-                }
+        case RASQAL_EXPR_BNODE:
+            return fn_bnode(q, fs_expression_eval(q, row, block, e->arg1));
 
-                return fs_expression_eval(q, row, block, e->arg3);
+        case RASQAL_EXPR_STRLANG: {
+            fs_value str = fs_expression_eval(q, row, block, e->arg1);
+            if (fs_is_error(str)) {
+                return str;
             }
+            if (str.valid & fs_valid_bit(FS_V_RID) &&
+                (FS_IS_BNODE(str.rid) || FS_IS_URI(str.rid))) {
+                return fs_value_error(FS_ERROR_INVALID_TYPE, NULL);
+            }
+            str = fs_value_fill_lexical(q, str);
+
+            fs_value lang = fs_expression_eval(q, row, block, e->arg2);
+            if (fs_is_error(lang)) {
+                return lang;
+            }
+            if (lang.valid & fs_valid_bit(FS_V_RID) &&
+                (FS_IS_BNODE(lang.rid) || FS_IS_URI(lang.rid))) {
+                return fs_value_error(FS_ERROR_INVALID_TYPE, NULL);
+            }
+            lang = fs_value_fill_lexical(q, lang);
+
+            return fs_value_plain_with_lang(str.lex, lang.lex);
+        }
+
+        case RASQAL_EXPR_STRDT: {
+            fs_value str = fs_expression_eval(q, row, block, e->arg1);
+            if (fs_is_error(str)) {
+                return str;
+            }
+            if (str.valid & fs_valid_bit(FS_V_RID) &&
+                (FS_IS_BNODE(str.rid) || FS_IS_URI(str.rid))) {
+                return fs_value_error(FS_ERROR_INVALID_TYPE, NULL);
+            }
+            str = fs_value_fill_lexical(q, str);
+
+            fs_value dt = fs_expression_eval(q, row, block, e->arg2);
+            if (fs_is_error(dt)) {
+                return dt;
+            }
+            if (dt.valid & fs_valid_bit(FS_V_RID)) {
+                if (!(FS_IS_BNODE(dt.rid) || FS_IS_URI(dt.rid))) {
+                    return fs_value_error(FS_ERROR_INVALID_TYPE, NULL);
+                }
+            } else {
+                return fs_value_error(FS_ERROR_INVALID_TYPE, NULL);
+            }
+            dt = fs_value_fill_lexical(q, dt);
+
+            return fs_value_plain_with_dt(str.lex, dt.lex);
+        }
+
+	case RASQAL_EXPR_NOT_IN:
+	case RASQAL_EXPR_IN: {
+            fs_value comp = fs_expression_eval(q, row, block, e->arg1);
+            for (int i=0; i < raptor_sequence_size(e->args); i++) {
+                fs_value v = fs_expression_eval(q, q->group_rows[row], block, raptor_sequence_get_at(e->args, i));
+                if (fs_value_equal(comp, v)) {
+                    return fs_value_boolean(e->op == RASQAL_EXPR_IN ? 1 : 0);
+                }
+            }
+
+            return fs_value_boolean(e->op == RASQAL_EXPR_IN ? 0 : 1);
+        }
+
+	case RASQAL_EXPR_NOW:
+	case RASQAL_EXPR_CURRENT_DATETIME:
+            return fs_value_datetime(q->start_time);
+
+        case RASQAL_EXPR_FROM_UNIXTIME: {
+            fs_value v = fs_expression_eval(q, row, block, e->arg1);
+            if (fs_is_numeric(&v)) {
+                v = fn_cast_intl(q, v, fs_c.xsd_integer);
+
+                return fs_value_datetime(v.in);
+            }
+
+            return fs_value_error(FS_ERROR_INVALID_TYPE, NULL);
+        }
+
+        case RASQAL_EXPR_TO_UNIXTIME: {
+            fs_value v = fs_expression_eval(q, row, block, e->arg1);
+            if (v.attr == fs_c.xsd_datetime) {
+                return fs_value_integer(v.in);
+            }
+
+            return fs_value_error(FS_ERROR_INVALID_TYPE, NULL);
+        }
+
+        case RASQAL_EXPR_STRLEN: {
+            fs_value v = fs_expression_eval(q, row, block, e->arg1);
+            if (fs_is_error(v)) {
+                return v;
+            }
+            if (FS_IS_BNODE(v.rid) || FS_IS_URI(v.rid)) {
+                return fs_value_error(FS_ERROR_INVALID_TYPE, NULL);
+            }
+            if (v.attr != fs_c.empty && v.attr != fs_c.xsd_string) {
+                return fs_value_error(FS_ERROR_INVALID_TYPE, NULL);
+            }
+            v = fs_value_fill_lexical(q, v);
+
+            return fs_value_integer(strlen(v.lex));
+        }
+
+        case RASQAL_EXPR_ISNUMERIC: {
+            fs_value v = fs_expression_eval(q, row, block, e->arg1);
+
+            return fs_value_boolean(fs_is_numeric(&v));
+        }
+
+	case RASQAL_EXPR_IF: {
+            fs_value cond = fn_ebv(fs_expression_eval(q, row, block, e->arg1));
+            /* if arg1 is false or error */
+            if (fs_is_error(cond)) {
+                return cond;
+            } else if (cond.in) {
+                return fs_expression_eval(q, row, block, e->arg2);
+            }
+
+            return fs_expression_eval(q, row, block, e->arg3);
+        }
 
         case RASQAL_EXPR_SUM: {
             fs_value v = fs_value_integer(0);
@@ -478,6 +591,25 @@ fs_value fs_expression_eval(fs_query *q, int row, int block, rasqal_expression *
             }
 
             return m;
+        }
+
+        case RASQAL_EXPR_CONCAT: {
+            GString *concat = g_string_new("");
+            for (int i=0; i < raptor_sequence_size(e->args); i++) {
+                fs_value v = fs_expression_eval(q, q->group_rows[row], block, raptor_sequence_get_at(e->args, i));
+                if (fs_is_error(v)) {
+                    g_string_free(concat, TRUE);
+
+                    return v;
+                }
+                v = fs_value_fill_lexical(q, v);
+                g_string_append(concat, v.lex);
+            }
+
+            char *str = g_string_free(concat, FALSE);
+            fs_query_add_freeable(q, str);
+
+            return fs_value_plain(str);
         }
 
         case RASQAL_EXPR_GROUP_CONCAT: {

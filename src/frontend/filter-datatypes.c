@@ -121,6 +121,19 @@ fs_value fs_value_plain_with_lang(const char *s, const char *l)
     return v;
 }
 
+fs_value fs_value_plain_with_dt(const char *s, const char *d)
+{
+    fs_value v = fs_value_blank();
+    if (!d || *d == '\0') {
+	v.attr = fs_c.empty;
+    } else {
+	v.attr = fs_hash_uri(d);
+    }
+    v.lex = (char *)s;
+
+    return v;
+}
+
 fs_value fs_value_string(const char *s)
 {
     fs_value v = fs_value_blank();

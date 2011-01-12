@@ -891,6 +891,20 @@ fs_value fn_uri(fs_query *q, fs_value a)
     return v;
 }
 
+fs_value fn_bnode(fs_query *q, fs_value a)
+{
+    a = fs_value_fill_rid(q, a);
+    /* scramble the RID number a bit */
+    fs_value b = fs_value_blank();
+    b.rid = a.rid + q->block * 39916801;
+    b.rid += q->row;
+    b.rid += FS_NUM_BNODE(a.rid & ~0xC000000000000000LL);
+    b.valid = fs_valid_bit(FS_V_RID);
+    b.attr = FS_RID_NULL;
+
+    return b;
+}
+
 fs_value fn_lang(fs_query *q, fs_value a)
 {
     if (a.valid & fs_valid_bit(FS_V_TYPE_ERROR)) {
