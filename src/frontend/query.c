@@ -439,7 +439,6 @@ fs_query *fs_query_execute(fs_query_state *qs, fsp_link *link, raptor_uri *bu, c
 	    check_cons_slot(q, vars, t->object);
 	}
     } else if (q->describe) {
-#if RASQAL_VERSION >= 917
         raptor_sequence *desc = rasqal_query_get_describe_sequence(rq);
         vars = raptor_new_sequence(NULL, NULL);
         for (int i=0; 1; i++) {
@@ -457,13 +456,6 @@ fs_query *fs_query_execute(fs_query_state *qs, fsp_link *link, raptor_uri *bu, c
                 break;
             }
         }
-#else
-        fs_error(LOG_INFO, "sorry, describe is not supported by your version of rasqal");
-	q->num_vars = 0;
-	q->boolean = 0;
-
-        return q;
-#endif
     } else {
 	vars = rasqal_query_get_bound_variable_sequence(rq);
     }
@@ -478,13 +470,11 @@ fs_query *fs_query_execute(fs_query_state *qs, fsp_link *link, raptor_uri *bu, c
     /* add column to denote join ordering */
     fs_binding_add(q->bb[0], "_ord", FS_RID_NULL, 0);
 
-#if RASQAL_VERSION >= 921
     /* test to see if this is explicitly an aggregated query */
     if (rasqal_query_get_group_condition(rq, 0) ||
         rasqal_query_get_having_condition(rq, 0)) {
         q->aggregate = 1;
     }
-#endif
 
     for (int i=0; i < q->num_vars; i++) {
 	rasqal_variable *v = raptor_sequence_get_at(vars, i);
@@ -929,13 +919,9 @@ static void assign_slot(fs_query *q, rasqal_literal *l, int block)
 
 static int is_aggregate(fs_query *q, rasqal_expression *e)
 {
-#if RASQAL_VERSION >= 921
     if (e->flags & RASQAL_EXPR_FLAG_AGGREGATE) {
         return 1;
     }
-#else
-    return 0;
-#endif
 
     int agg = 0;
     if (e->arg1) {
@@ -1129,9 +1115,7 @@ static void graph_pattern_walk(fsp_link *link, rasqal_graph_pattern *pattern,
     } else if (op == RASQAL_GRAPH_PATTERN_OPERATOR_BASIC ||
 	       op == RASQAL_GRAPH_PATTERN_OPERATOR_GRAPH) {
         if (op == RASQAL_GRAPH_PATTERN_OPERATOR_GRAPH) {
-#if RASQAL_VERSION >= 917
             model = rasqal_graph_pattern_get_origin(pattern);
-#endif
             if (!model) {
                 fs_error(LOG_ERR, "expected origin from pattern, but got NULL");
             }
@@ -1139,7 +1123,6 @@ static void graph_pattern_walk(fsp_link *link, rasqal_graph_pattern *pattern,
         (q->block)++;
         q->parent_block[q->block] = parent;
         q->join_type[q->block] = FS_INNER;
-#if RASQAL_VERSION >= 917
     } else if (op == RASQAL_GRAPH_PATTERN_OPERATOR_FILTER) {
         rasqal_expression *e =
             rasqal_graph_pattern_get_filter_expression(pattern);
@@ -1163,7 +1146,6 @@ static void graph_pattern_walk(fsp_link *link, rasqal_graph_pattern *pattern,
 #endif
             raptor_sequence_push(q->constraints[parent], e);
         }
-#endif
     } else if (op == RASQAL_GRAPH_PATTERN_OPERATOR_GROUP) {
         /* do nothing */
     } else {
@@ -1180,11 +1162,7 @@ static void graph_pattern_walk(fsp_link *link, rasqal_graph_pattern *pattern,
 	rasqal_triple *rt = rasqal_graph_pattern_get_triple(pattern, i);
 	if (!rt) break;
         rasqal_triple *t = calloc(1, sizeof(rasqal_triple));
-#if RASQAL_VERSION >= 917
         t->origin = model;
-#else
-        t->origin = rt->origin;
-#endif
         t->subject = rt->subject;
         t->predicate = rt->predicate;
         t->object = rt->object;
@@ -1209,30 +1187,6 @@ static void graph_pattern_walk(fsp_link *link, rasqal_graph_pattern *pattern,
         graph_pattern_walk(link, sgp, q, model, this_block, union_sub);
     }
 
-#if RASQAL_VERSION < 917
-    raptor_sequence *s =
-        rasqal_graph_pattern_get_constraint_sequence(pattern);
-    if (s) {
-        for (int c=0; 1; c++) {
-            rasqal_expression *e = raptor_sequence_get_at(s, c);
-            if (!e) break;
-
-            /* we need to flag if it's a UNION FILTER so we don't
-             * unneccesarily set the selected flag on the variables */
-            check_variables(q, e, uni);
-            if (filter_optimise(q, e, q->block)) {
-                /* stop us from trying to evaluate this expression later */
-                raptor_sequence_set_at(s, c, NULL);
-            }
-        }
-
-        if (q->constraints[this_block]) {
-            raptor_sequence_join(q->constraints[this_block], s);
-        } else {
-            q->constraints[this_block] = s;
-        }
-    }
-#endif
     for (int c=0; 1; c++) {
         rasqal_expression *e = rasqal_query_get_order_condition(q->rq, c);
         if (!e) break;
@@ -1806,10 +1760,8 @@ static fs_rid const_literal_to_rid(fs_query *q, rasqal_literal *l, fs_rid *attr)
             char *uri = (char *)raptor_uri_as_string(l->value.uri);
             return fs_hash_uri(uri);
         }
-#if RASQAL_VERSION >= 917
         case RASQAL_LITERAL_XSD_STRING:
         case RASQAL_LITERAL_UDT:
-#endif
 	case RASQAL_LITERAL_STRING: {
             *attr = fs_c.empty;
             if (l->language) {
@@ -1826,9 +1778,7 @@ static fs_rid const_literal_to_rid(fs_query *q, rasqal_literal *l, fs_rid *attr)
 	    return fs_hash_literal(l->value.integer ?
 			"true" : "false", *attr);
 	case RASQAL_LITERAL_INTEGER:
-#if RASQAL_VERSION >= 920
 	case RASQAL_LITERAL_INTEGER_SUBTYPE:
-#endif
             *attr = fs_c.xsd_integer;
 	    return fs_hash_literal((char *)l->string, *attr);
 	case RASQAL_LITERAL_DOUBLE:
@@ -1911,10 +1861,8 @@ int fs_bind_slot(fs_query *q, int block, fs_binding *b,
             fs_rid_vector_append(v, fs_hash_uri(uri));
 	    break;
         }
-#if RASQAL_VERSION >= 917
         case RASQAL_LITERAL_XSD_STRING:
         case RASQAL_LITERAL_UDT:
-#endif
 	case RASQAL_LITERAL_STRING:
 	    if (!lit_allowed) {
 		return 1;
@@ -1938,9 +1886,7 @@ int fs_bind_slot(fs_query *q, int block, fs_binding *b,
 	    fs_rid_vector_append(v, fs_hash_literal(l->value.integer ?
 			"true" : "false", fs_c.xsd_boolean));
 	    break;
-#if RASQAL_VERSION >= 920
 	case RASQAL_LITERAL_INTEGER_SUBTYPE:
-#endif
 	case RASQAL_LITERAL_INTEGER:
 	    if (!lit_allowed) {
 		return 1;

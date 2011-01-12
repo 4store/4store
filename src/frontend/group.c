@@ -24,7 +24,6 @@
 
 int fs_query_group_block(fs_query *q, int b)
 {
-#if RASQAL_VERSION >= 921
     /* if the query has an ORDER BY clause */
     if (rasqal_query_get_group_condition(q->rq, 0)) {
         for (int i=0; q->bb[b][i].name; i++) {
@@ -55,7 +54,6 @@ int fs_query_group_block(fs_query *q, int b)
 #ifdef DEBUG_MERGE
 printf("Grouped:\n");
 fs_binding_print(q->bb[b], stdout);
-#endif
 #endif
 
     return 0;

@@ -40,17 +40,13 @@ int fs_opt_num_vals(fs_binding *b, rasqal_literal *l)
     if (!l) return 0;
 
     switch (l->type) {
-#if RASQAL_VERSION >= 917
         case RASQAL_LITERAL_XSD_STRING:
         case RASQAL_LITERAL_UDT:
-#endif
 	case RASQAL_LITERAL_URI:
 	case RASQAL_LITERAL_STRING:
 	case RASQAL_LITERAL_BOOLEAN:
 	case RASQAL_LITERAL_INTEGER:
-#if RASQAL_VERSION >= 920
 	case RASQAL_LITERAL_INTEGER_SUBTYPE:
-#endif
 	case RASQAL_LITERAL_DOUBLE:
 	case RASQAL_LITERAL_FLOAT:
 	case RASQAL_LITERAL_DECIMAL:
@@ -82,17 +78,13 @@ int fs_opt_is_const(fs_binding *b, rasqal_literal *l)
     if (!l) return 0;
 
     switch (l->type) {
-#if RASQAL_VERSION >= 917
         case RASQAL_LITERAL_XSD_STRING:
         case RASQAL_LITERAL_UDT:
-#endif
 	case RASQAL_LITERAL_URI:
 	case RASQAL_LITERAL_STRING:
 	case RASQAL_LITERAL_BOOLEAN:
 	case RASQAL_LITERAL_INTEGER:
-#if RASQAL_VERSION >= 920
 	case RASQAL_LITERAL_INTEGER_SUBTYPE:
-#endif
 	case RASQAL_LITERAL_DOUBLE:
 	case RASQAL_LITERAL_FLOAT:
 	case RASQAL_LITERAL_DECIMAL:
@@ -138,13 +130,9 @@ int fs_opt_is_bound(fs_binding *b, rasqal_literal *l)
 
 	}
 
-#if RASQAL_VERSION >= 920
         case RASQAL_LITERAL_INTEGER_SUBTYPE:
-#endif
-#if RASQAL_VERSION >= 917
         case RASQAL_LITERAL_XSD_STRING:
         case RASQAL_LITERAL_UDT:
-#endif
 	case RASQAL_LITERAL_URI:
 	case RASQAL_LITERAL_STRING:
 	case RASQAL_LITERAL_BOOLEAN:
@@ -172,17 +160,13 @@ static char *var_name(rasqal_literal *l)
     if (!l) return NULL;
 
     switch (l->type) {
-#if RASQAL_VERSION >= 917
         case RASQAL_LITERAL_XSD_STRING:
         case RASQAL_LITERAL_UDT:
-#endif
 	case RASQAL_LITERAL_URI:
 	case RASQAL_LITERAL_STRING:
 	case RASQAL_LITERAL_BOOLEAN:
 	case RASQAL_LITERAL_INTEGER:
-#if RASQAL_VERSION >= 920
 	case RASQAL_LITERAL_INTEGER_SUBTYPE:
-#endif
 	case RASQAL_LITERAL_DOUBLE:
 	case RASQAL_LITERAL_FLOAT:
 	case RASQAL_LITERAL_DECIMAL:

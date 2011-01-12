@@ -145,10 +145,8 @@ static fs_value literal_to_value(fs_query *q, int row, int block, rasqal_literal
 	case RASQAL_LITERAL_URI:
 	    return fs_value_uri((char *)raptor_uri_as_string(l->value.uri));
 
-#if RASQAL_VERSION >= 917
         case RASQAL_LITERAL_XSD_STRING:
         case RASQAL_LITERAL_UDT:
-#endif
 	case RASQAL_LITERAL_STRING:
             if (l->language) {
                 attr = fs_hash_literal(l->language, 0);
@@ -164,9 +162,7 @@ static fs_value literal_to_value(fs_query *q, int row, int block, rasqal_literal
 	    return fs_value_boolean(l->value.integer);
 
 	case RASQAL_LITERAL_INTEGER:
-#if RASQAL_VERSION >= 920
 	case RASQAL_LITERAL_INTEGER_SUBTYPE:
-#endif
 	    return fs_value_integer(l->value.integer);
 
 	case RASQAL_LITERAL_DOUBLE:
@@ -394,7 +390,6 @@ fs_value fs_expression_eval(fs_query *q, int row, int block, rasqal_expression *
             return fs_value_integer(count);
         }
 
-#if RASQAL_VERSION >= 920
 	case RASQAL_EXPR_IRI:
 	case RASQAL_EXPR_URI:
             return fn_uri(q, fs_expression_eval(q, row, block, e->arg1));
@@ -530,7 +525,6 @@ fs_value fs_expression_eval(fs_query *q, int row, int block, rasqal_expression *
             }
             return fs_value_error(FS_ERROR_INVALID_TYPE, "no valid arguments to COALESCE");
         }
-#endif
 
         case RASQAL_EXPR_VARSTAR: {
             fs_value v = fs_value_integer(1);
@@ -636,19 +630,15 @@ static raptor_term *slot_fill(fs_query *q, rasqal_literal *l, fs_row *row)
 	return term;
     }
 
-#if RASQAL_VERSION >= 917
     case RASQAL_LITERAL_XSD_STRING:
     case RASQAL_LITERAL_UDT:
-#endif
     case RASQAL_LITERAL_STRING:
     case RASQAL_LITERAL_BOOLEAN:
 	return raptor_new_term_from_literal(q->qs->raptor_world,
             (unsigned char *)l->string, NULL, NULL);
 
     case RASQAL_LITERAL_INTEGER:
-#if RASQAL_VERSION >= 920
     case RASQAL_LITERAL_INTEGER_SUBTYPE:
-#endif
     {
         raptor_uri *dt = raptor_new_uri(q->qs->raptor_world,
             (unsigned char *)XSD_INTEGER);
@@ -754,10 +744,8 @@ static void insert_slot_fill(fs_query *q, fs_rid *rid,
 
 	break;
 
-#if RASQAL_VERSION >= 917
     case RASQAL_LITERAL_XSD_STRING:
     case RASQAL_LITERAL_UDT:
-#endif
     case RASQAL_LITERAL_STRING:
 	res.lex = (char *)l->string;
         res.attr = 0;
@@ -773,9 +761,7 @@ static void insert_slot_fill(fs_query *q, fs_rid *rid,
 	break;
 
     case RASQAL_LITERAL_INTEGER:
-#if RASQAL_VERSION >= 920
     case RASQAL_LITERAL_INTEGER_SUBTYPE:
-#endif
 	res.lex = (char *)l->string;
         res.attr = fs_c.xsd_integer;
         res.rid = fs_hash_literal(res.lex, res.attr);
@@ -1184,7 +1170,6 @@ static void describe_uri(fs_query *q, fs_rid rid, raptor_uri *uri)
 
 static void handle_describe(fs_query *q, const char *type, FILE *output)
 {
-#if RASQAL_VERSION >= 917
     q->ser = raptor_new_serializer(q->qs->raptor_world, type);
     for (int i=0; 1; i++) {
         rasqal_prefix *p = rasqal_query_get_prefix(q->rq, i);
@@ -1221,9 +1206,6 @@ static void handle_describe(fs_query *q, const char *type, FILE *output)
     raptor_serializer_serialize_end(q->ser);
     raptor_free_serializer(q->ser);
     fs_p_vector_free(vars);
-#else
-    fprintf(output, "<?xml version=\"1.0\"?>\n<rdf:RDF xmlns:rdf=\"http://www.w3.org/1999/02/22-rdf-syntax-ns#\"><!-- sorry, DESCRIBE is not supported by this version of rasqal --></rdf:RDF>\n");
-#endif
 }
 
 static void handle_construct(fs_query *q, const char *type, FILE *output)
