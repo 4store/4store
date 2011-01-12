@@ -29,8 +29,6 @@
 #include "../common/hash.h"
 #include "../common/rdf-constants.h"
 
-static fs_value cast_lexical(fs_query *q, fs_value a);
-
 static fs_value cast_double(fs_value a)
 {
     if (a.valid & fs_valid_bit(FS_V_FP)) {
@@ -99,53 +97,12 @@ static fs_value cast_datetime(fs_query *q, fs_value a)
     }
 
     if (a.valid & fs_valid_bit(FS_V_IN) && a.attr == fs_c.xsd_datetime) {
-        fs_value b = cast_lexical(q, a);
+        fs_value b = fs_value_fill_lexical(q, a);
 
         return b;
     }
 
     return fs_value_error(FS_ERROR_INVALID_TYPE, "bad cast to datetime");
-}
-
-static fs_value cast_lexical(fs_query *q, fs_value a)
-{
-    if (a.lex) {
-	return a;
-    }	
-    if (a.valid & fs_valid_bit(FS_V_FP)) {
-	a.lex = g_strdup_printf("%f", a.fp);
-        fs_query_add_freeable(q, a.lex);
-
-	return a;
-    }
-    if (a.valid & fs_valid_bit(FS_V_DE)) {
-	a.lex = fs_decimal_to_lex(&a.de);
-        fs_query_add_freeable(q, a.lex);
-
-	return a;
-    }
-    if (a.valid & fs_valid_bit(FS_V_IN)) {
-	if (a.attr == fs_c.xsd_integer) {
-	    a.lex = g_strdup_printf("%lld", (long long)a.in);
-            fs_query_add_freeable(q, a.lex);
-
-	    return a;
-	}
-
-	if (a.attr == fs_c.xsd_datetime) {
-	    struct tm t;
-	    time_t clock = a.in;
-	    gmtime_r(&clock, &t);
-	    a.lex = g_strdup_printf("%04d-%02d-%02dT%02d:%02d:%02d", 
-		    t.tm_year + 1900, t.tm_mon + 1, t.tm_mday,
-		    t.tm_hour, t.tm_min, t.tm_sec);
-            fs_query_add_freeable(q, a.lex);
-
-	    return a;
-	}
-    }
-
-    return fs_value_error(FS_ERROR_INVALID_TYPE, "bad lexical cast");
 }
 
 static fs_value cast_integer(fs_value a)
@@ -337,7 +294,9 @@ fs_value fn_numeric_divide(fs_query *q, fs_value a, fs_value b)
 
 	    return v;
 	} else if (a.attr == fs_c.xsd_decimal) {
-            fs_decimal_divide(&a.de, &b.de, &v.de);
+            if (fs_decimal_divide(&a.de, &b.de, &v.de)) {
+                return fs_value_error(FS_ERROR_INVALID_TYPE, "divide by zero");
+            }
 	    v.valid = fs_valid_bit(FS_V_DE);
 
 	    return v;
@@ -899,7 +858,7 @@ fs_value fn_str(fs_query *q, fs_value a)
     }
 
     fs_value v = fs_value_plain(NULL);
-    a = cast_lexical(q, a);
+    a = fs_value_fill_lexical(q, a);
     v.lex = a.lex;
 
     return v;
@@ -912,14 +871,21 @@ fs_value fn_uri(fs_query *q, fs_value a)
     }
 
     if (a.valid & fs_valid_bit(FS_V_RID) && FS_IS_BNODE(a.rid)) {
-        return fs_value_error(FS_ERROR_INVALID_TYPE, NULL);
+        fs_value v = fs_value_blank();
+        v.lex = g_strdup_printf("bnode:b%llx", FS_BNODE_NUM(a.rid));
+        fs_query_add_freeable(q, v.lex);
+        v.rid = fs_hash_uri_ignore_bnode(v.lex);
+        v.valid = fs_valid_bit(FS_V_RID);
+        v.attr = FS_RID_NULL;
+
+        return v;
     }
 
     if (a.lex) {
 	return fs_value_uri(a.lex);
     }
 
-    a = cast_lexical(q, a);
+    a = fs_value_fill_lexical(q, a);
     fs_value v = fs_value_uri(a.lex);
 
     return v;
@@ -1103,7 +1069,7 @@ fs_value fn_cast_intl(fs_query *q, fs_value v, fs_rid dt)
     } else if (dt == fs_c.xsd_decimal) {
 	v = cast_decimal(v);
     } else if (dt == fs_c.xsd_string) {
-	v = cast_lexical(q, v);
+	v = fs_value_fill_lexical(q, v);
     } else if (dt == fs_c.xsd_datetime) {
 	v = cast_datetime(q, v);
     } else if (dt == fs_c.xsd_boolean) {

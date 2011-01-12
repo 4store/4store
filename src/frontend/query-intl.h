@@ -70,6 +70,9 @@ struct _fs_query {
     double start_time;
     fs_rid_vector *default_graphs;
     int console;			/* true if the query is being used from a console app */
+    int aggregate;			/* true if the query uses aggregates */
+    long group_length;			/* number of rows in the current group */
+    uint64_t *group_rows;		/* row numbers of the rows in the current group */
 };
 
 #endif

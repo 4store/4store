@@ -19,6 +19,14 @@ if test "X$PKG_CONFIG" = X; then
 	AC_MSG_ERROR([Cannot find pkg-config, you need this to build])
 fi
 
+AC_ARG_WITH([storage_path],
+	[AS_HELP_STRING([--with-storage-path=PATH],
+	                [set directory used to store indexes default=/var/lib/4store])],
+	[],
+	[with_storage_path=/var/lib/4store])
+FS_STORE_ROOT="$with_storage_path"
+AC_SUBST(FS_STORE_ROOT)
+
 # Checks for libraries.
 AC_CHECK_LIB([m], [sin])
 AC_CHECK_LIB([ncurses], [initscr])
@@ -88,7 +96,8 @@ AC_CONFIG_FILES([version.sh
                  src/libs/Makefile
                  src/libs/double-metaphone/Makefile
                  src/libs/stemmer/Makefile
-                 src/utilities/Makefile])
+                 src/utilities/Makefile
+                 src/common/params.h])
 AC_OUTPUT
 
 raptor_version=`$PKG_CONFIG raptor2 --modversion 2>/dev/null`

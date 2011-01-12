@@ -74,6 +74,10 @@ static void setup_l1_cache()
 
 static int resolve(fs_query *q, fs_rid rid, fs_resource *res)
 {
+    res->rid = FS_RID_NULL;
+    res->attr = FS_RID_NULL;
+    res->lex = NULL;
+
     if (rid == FS_RID_NULL) {
 	res->rid = rid;
         res->attr = FS_RID_NULL;
@@ -89,10 +93,10 @@ static int resolve(fs_query *q, fs_rid rid, fs_resource *res)
 
 	return 0;
     }
-    g_static_mutex_lock (&cache_mutex);
+    g_static_mutex_lock(&cache_mutex);
     if (res_l2_cache[rid & CACHE_MASK].rid == rid) {
 	memcpy(res, &res_l2_cache[rid & CACHE_MASK], sizeof(fs_resource));
-        g_static_mutex_unlock (&cache_mutex);
+        g_static_mutex_unlock(&cache_mutex);
 
 	return 0;
     }
@@ -103,11 +107,11 @@ static int resolve(fs_query *q, fs_rid rid, fs_resource *res)
     gpointer hit;
     if ((hit = g_hash_table_lookup(res_l1_cache, &rid))) {
 	memcpy(res, hit, sizeof(fs_resource));
-        g_static_mutex_unlock (&cache_mutex);
+        g_static_mutex_unlock(&cache_mutex);
 
         return 0;
     }
-    g_static_mutex_unlock (&cache_mutex);
+    g_static_mutex_unlock(&cache_mutex);
 
     fs_rid_vector *r = fs_rid_vector_new(1);
     r->data[0] = rid;
@@ -121,9 +125,9 @@ printf("resolving %016llx\n", rid);
     tres->rid = res->rid;
     tres->attr = res->attr;
     tres->lex = res->lex;
-    g_static_mutex_lock (&cache_mutex);
+    g_static_mutex_lock(&cache_mutex);
     g_hash_table_insert(res_l1_cache, trid, tres);
-    g_static_mutex_unlock (&cache_mutex);
+    g_static_mutex_unlock(&cache_mutex);
     fs_rid_vector_free(r);
 
     return 0;
@@ -376,13 +380,12 @@ fs_value fs_expression_eval(fs_query *q, int row, int block, rasqal_expression *
         }
 
         case RASQAL_EXPR_COUNT: {
-            int length = fs_binding_length(q->bb[block]);
             if (e->arg1->op == RASQAL_EXPR_VARSTAR) {
-                return fs_value_integer(length);
+                return fs_value_integer(q->group_length);
             }
             int count = 0;
-            for (int r=0; r<length; r++) {
-                fs_value v = fs_expression_eval(q, r, block, e->arg1);
+            for (int r=0; r<q->group_length; r++) {
+                fs_value v = fs_expression_eval(q, q->group_rows[r], block, e->arg1);
                 if (v.valid & fs_valid_bit(FS_V_TYPE_ERROR) ||
                     ((v.attr == fs_c.empty || v.attr == FS_RID_NULL) &&
                       v.rid == FS_RID_NULL)) {
@@ -400,23 +403,36 @@ fs_value fs_expression_eval(fs_query *q, int row, int block, rasqal_expression *
 	case RASQAL_EXPR_URI:
             return fn_uri(q, fs_expression_eval(q, row, block, e->arg1));
 
+	case RASQAL_EXPR_IF: {
+                fs_value cond = fn_ebv(fs_expression_eval(q, row, block, e->arg1));
+                /* if arg1 is false or error */
+                if (fs_is_error(cond)) {
+                    return cond;
+                } else if (cond.in) {
+                    return fs_expression_eval(q, row, block, e->arg2);
+                }
+
+                return fs_expression_eval(q, row, block, e->arg3);
+            }
+
         case RASQAL_EXPR_SUM: {
-            int length = fs_binding_length(q->bb[block]);
             fs_value v = fs_value_integer(0);
-            for (int r=0; r<length; r++) {
-                v = fn_numeric_add(q, v, fs_expression_eval(q, r, block, e->arg1));
+            for (int r=0; r<q->group_length; r++) {
+                v = fn_numeric_add(q, v, fs_expression_eval(q, q->group_rows[r], block, e->arg1));
             }
 
             return v;
         }
 
         case RASQAL_EXPR_AVG: {
-            int length = fs_binding_length(q->bb[block]);
             fs_value sum = fs_value_integer(0);
             int count = 0;
-            for (int r=0; r<length; r++) {
-                fs_value expr = fs_expression_eval(q, r, block, e-> arg1);
+            for (int r=0; r<q->group_length; r++) {
+                fs_value expr = fs_expression_eval(q, q->group_rows[r], block, e->arg1);
                 sum = fn_numeric_add(q, sum, expr);
+                if (sum.valid & fs_valid_bit(FS_V_TYPE_ERROR)) {
+                    return sum;
+                }
                 if (expr.valid & fs_valid_bit(FS_V_TYPE_ERROR) ||
                     ((expr.attr == fs_c.empty || expr.attr == FS_RID_NULL) &&
                       expr.rid == FS_RID_NULL)) {
@@ -430,24 +446,22 @@ fs_value fs_expression_eval(fs_query *q, int row, int block, rasqal_expression *
         }
 
         case RASQAL_EXPR_SAMPLE: {
-            int length = fs_binding_length(q->bb[block]);
-            if (length > 0) {
-                return fs_expression_eval(q, 0, block, e->arg1);
+            if (q->group_length > 0) {
+                return fs_expression_eval(q, q->group_rows[0], block, e->arg1);
             }
 
             return fs_value_error(FS_ERROR_INVALID_TYPE, NULL);
         }
 
         case RASQAL_EXPR_MIN: {
-            int length = fs_binding_length(q->bb[block]);
             fs_value m;
-            if (length > 0) {
-                m = fs_expression_eval(q, 0, block, e->arg1);
+            if (q->group_length > 0) {
+                m = fs_expression_eval(q, q->group_rows[0], block, e->arg1);
             } else {
                 m = fs_value_error(FS_ERROR_INVALID_TYPE, NULL);
             }
-            for (int r=1; r<length; r++) {
-                fs_value expr = fs_expression_eval(q, r, block, e->arg1);
+            for (int r=1; r<q->group_length; r++) {
+                fs_value expr = fs_expression_eval(q, q->group_rows[r], block, e->arg1);
                 int order = fs_order_by_cmp(m, expr);
                 if (order > 0) {
                     m = expr;
@@ -458,15 +472,14 @@ fs_value fs_expression_eval(fs_query *q, int row, int block, rasqal_expression *
         }
 
         case RASQAL_EXPR_MAX: {
-            int length = fs_binding_length(q->bb[block]);
             fs_value m;
-            if (length > 0) {
-                m = fs_expression_eval(q, 0, block, e->arg1);
+            if (q->group_length > 0) {
+                m = fs_expression_eval(q, q->group_rows[0], block, e->arg1);
             } else {
                 m = fs_value_error(FS_ERROR_INVALID_TYPE, NULL);
             }
-            for (int r=1; r<length; r++) {
-                fs_value expr = fs_expression_eval(q, r, block, e->arg1);
+            for (int r=1; r<q->group_length; r++) {
+                fs_value expr = fs_expression_eval(q, q->group_rows[r], block, e->arg1);
                 int order = fs_order_by_cmp(m, expr);
                 if (order < 0) {
                     m = expr;
@@ -474,6 +487,52 @@ fs_value fs_expression_eval(fs_query *q, int row, int block, rasqal_expression *
             }
 
             return m;
+        }
+
+        case RASQAL_EXPR_GROUP_CONCAT: {
+            char *sep = " ";
+            GString *concat = g_string_new("");
+            if (e->literal) {
+                sep = rasqal_literal_as_string(e->literal);
+            }
+            int count = 0;
+            for (int r=0; r<q->group_length; r++) {
+                for (int i=0; i < raptor_sequence_size(e->args); i++) {
+                    fs_value v = fs_expression_eval(q, q->group_rows[r], block, raptor_sequence_get_at(e->args, i));
+                    if (fs_is_error(v)) {
+                        g_string_free(concat, TRUE);
+
+                        return v;
+                    }
+                    v = fs_value_fill_lexical(q, v);
+                    if (count++ > 0) {
+                        g_string_append(concat, sep);
+                    }
+                    g_string_append(concat, v.lex);
+                }
+            }
+
+            char *str = g_string_free(concat, FALSE);
+            fs_query_add_freeable(q, str);
+
+            return fs_value_plain(str);
+        }
+
+        case RASQAL_EXPR_SAMETERM:
+            return fn_rdfterm_equal(q, fs_expression_eval(q, row, block, e->arg1),
+                                       fs_expression_eval(q, row, block, e->arg2));
+
+        case RASQAL_EXPR_COALESCE: {
+            fs_value v;
+            for (int i=0; raptor_sequence_get_at(e->args, i); i++) {
+                rasqal_expression *ea = (rasqal_expression *)raptor_sequence_get_at(e->args, i);
+                v = fs_expression_eval(q, row, block, ea);
+                if (!fs_is_error(v) &&
+                    !(v.valid & fs_valid_bit(FS_V_RID) && v.rid == FS_RID_NULL)) {
+                    return v;
+                }
+            }
+            return fs_value_error(FS_ERROR_INVALID_TYPE, "no valid arguments to COALESCE");
         }
 #endif
 
@@ -497,11 +556,11 @@ fs_value fs_expression_eval(fs_query *q, int row, int block, rasqal_expression *
 
 static int resolve_precache_all(fsp_link *l, fs_rid_vector *rv[], int segments)
 {
-    g_static_mutex_lock (&cache_mutex);
+    g_static_mutex_lock(&cache_mutex);
     if (!res_l1_cache) {
         setup_l1_cache();
     }
-    g_static_mutex_unlock (&cache_mutex);
+    g_static_mutex_unlock(&cache_mutex);
 
     fs_resource *res[segments];
     for (int s=0; s<segments; s++) {
@@ -516,7 +575,7 @@ static int resolve_precache_all(fsp_link *l, fs_rid_vector *rv[], int segments)
         return 1;
     }
 
-    g_static_mutex_lock (&cache_mutex);
+    g_static_mutex_lock(&cache_mutex);
     for (int s=0; s<segments; s++) {
         for (int i=0; i<rv[s]->length; i++) {
             if (res[s][i].rid == FS_RID_NULL) break;
@@ -529,7 +588,7 @@ static int resolve_precache_all(fsp_link *l, fs_rid_vector *rv[], int segments)
             g_hash_table_insert(res_l1_cache, trid, tres);
         }
     }
-    g_static_mutex_unlock (&cache_mutex);
+    g_static_mutex_unlock(&cache_mutex);
 
     for (int s=0; s<segments; s++) {
         free(res[s]);
@@ -1199,7 +1258,6 @@ static void handle_construct(fs_query *q, const char *type, FILE *output)
         raptor_serializer_start_to_file_handle(q->ser, q->base, output);
     }
 
-
     while ((row = fs_query_fetch_row(q))) {
         if (q->flags & FS_RESULT_FLAG_CONSTRUCT_AS_INSERT) {
             for (int i=0; 1; i++) {
@@ -1393,6 +1451,17 @@ static void output_text(fs_query *q, int flags, FILE *out)
 	} else {
 	    fprintf(out, "Content-Type: text/tab-separated-values; charset=utf-8\r\n\r\n");
 	}
+    }
+
+    if (q->ask) {
+        while (q->boolean && fs_query_fetch_row(q));
+        if (q->boolean) {
+            fprintf(out, "true\n");
+        } else {
+            fprintf(out, "false\n");
+        }
+
+        return;
     }
 
     fs_row *row;
@@ -1746,23 +1815,40 @@ fs_row *fs_query_fetch_row(fs_query *q)
 {
     if (!q) return NULL;
 
-    /* catch the case where we project only expressions */
-    if (q->expressions == q->num_vars && q->num_vars > 0) {
-        if (q->row > 0) return NULL;
+nextrow: ;
+    long int next_row = q->row + 1;
+    fs_rid_vector *grows = NULL;
 
-        for (int i=0; i<q->num_vars; i++) {
-            fs_value val = fs_expression_eval(q, q->row, 0, q->bb[0][i+1].expression);
-            fs_value_to_row(q, val, q->resrow+i);
+    /* handle aggregates */
+    if (q->aggregate) {
+        if (q->row >= q->length) {
+            return NULL;
         }
-        q->row++;
-        q->boolean = 1;
-
-        return q->resrow;
+        fs_rid_vector *groups = fs_binding_get_vals(q->bt, "_group", NULL);
+        fs_rid_vector *ord = q->bt[0].vals;
+        if (groups) {
+            fs_rid group = groups->data[ord->data[q->row]];
+            grows = fs_rid_vector_new(0);
+            fs_rid_vector_append(grows, ord->data[q->row]);
+            while (next_row < q->length && groups->data[ord->data[next_row]] == group) {
+                fs_rid_vector_append(grows, ord->data[next_row]);
+                next_row++;
+            }
+        } else {
+            long len = fs_binding_length(q->bt);
+            grows = fs_rid_vector_new(len);
+            for (long i=0; i<len; i++) {
+                grows->data[i] = i;
+            }
+            next_row = len;
+        }
+        q->group_length = grows->length;
+        q->group_rows = grows->data;
     }
 
-nextrow: ;
     const int rows = q->length;
     if (q->limit >= 0 && q->rows_output >= q->limit) {
+        if (grows) fs_rid_vector_free(grows);
 	return NULL;
     }
     if (q->row >= rows) {
@@ -1772,27 +1858,12 @@ nextrow: ;
 	    q->warnings = g_slist_prepend(q->warnings, msg);
 	    fs_query_add_freeable(q, msg);
 	}
+        if (grows) fs_rid_vector_free(grows);
 	return NULL;
     }
 
     if (!q->resrow) {
 	fs_query_fetch_header_row(q);
-    }
-
-    if (q->flags & FS_QUERY_COUNT) {
-        if (q->row == 0) {
-            q->resrow[0].rid = 1; // fake RID number
-            q->resrow[0].lex = g_strdup_printf("%d", rows);
-            q->resrow[0].dt = XSD_INTEGER;
-            q->resrow[0].lang = NULL;
-            q->resrow[0].type = FS_TYPE_LITERAL;
-            (q->row)++;
-            q->boolean = 1;
-
-            return q->resrow;
-        } else {
-            return NULL;
-        }
     }
 
     /* prefech a load of lexical data */
@@ -1826,22 +1897,30 @@ nextrow: ;
 		fs_rid_vector_append(q->pending[FS_RID_SEGMENT(rid, q->segments)], rid);
 	    }
 	}
-        g_static_mutex_unlock (&cache_mutex);
+        g_static_mutex_unlock(&cache_mutex);
         if (q->pending) {
             resolve_precache_all(q->link, q->pending, q->segments);
         }
 	q->lastrow = q->row + lookup_buffer_size;
     }
 
-    const int row = q->ordering ? q->ordering[q->row] : q->row;
+    int row = q->row;
+    /* consquence of this if is that you can't have grouping and ordering */
+    if (q->aggregate) {
+        /* set row number to first row in group */
+        row = q->group_rows[0];
+    } else if (q->ordering) {
+        row = q->ordering[q->row];
+    }
 
     if (!apply_constraints(q, row)) {
         q->boolean = 0;
         /* if we dont need any bindings we may as well stop */
         if (q->num_vars == 0) {
+            if (grows) fs_rid_vector_free(grows);
             return NULL;
         }
-	q->row++;
+        q->row = next_row;
 	goto nextrow;
     }
 
@@ -1853,6 +1932,16 @@ nextrow: ;
         if (last_rid != q->resrow[i].rid) repeat_row = 0;
         if (q->bt[i+1].expression) {
             fs_value val = fs_expression_eval(q, row, 0, q->bt[i+1].expression);
+            if (fs_is_error(val)) {
+                if (val.lex) {
+                    if (!q->warnings || !g_slist_find(q->warnings, val.lex)) {
+                        q->warnings = g_slist_prepend(q->warnings, val.lex);
+                    }
+                }
+
+                q->row = next_row;
+                goto nextrow;
+            }
             fs_value_to_row(q, val, q->resrow+i);
         } else {
             fs_resource r;
@@ -1885,12 +1974,13 @@ nextrow: ;
      * distincting to do */
     /* TODO could add REDUCED handling here too */
     if (q->flags & FS_BIND_DISTINCT && repeat_row) {
-        q->row++;
+        q->row = next_row;
 	goto nextrow;
     }
 
-    q->row++;
+    q->row = next_row;
     q->rows_output++;
+    if (grows) fs_rid_vector_free(grows);
 
     return q->resrow;
 }

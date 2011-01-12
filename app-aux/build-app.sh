@@ -18,8 +18,8 @@ for i in src/frontend/4s-* src/backend/4s-* src/utilities/4s-{backend,cluster}-*
 done
 cp -p /usr/local/lib/librasqal*.dylib /usr/local/lib/libraptor*.dylib \
 	/sw/lib/libglib-2*.dylib /sw/lib/libintl*.dylib \
-	/sw/lib/libiconv*.dylib /sw/lib/libxml*.dylib /sw/lib/libpcre*.dylib \
-	/sw/lib/libintl*.dylib /sw/lib/libiconv*.dylib /sw/lib/libxml*.dylib \
+	/sw/lib/libiconv*.dylib /sw/lib/libpcre*.dylib \
+	/sw/lib/libintl*.dylib /sw/lib/libiconv*.dylib \
 	/sw/lib/libpcre*.dylib /sw/lib/libreadline*.dylib \
 	/sw/lib/ncurses/libncurses*.dylib /sw/lib/libgthread-*.dylib \
 	4store.app/Contents/MacOS/lib/

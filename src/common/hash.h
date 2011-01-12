@@ -62,8 +62,10 @@ void fs_hash_init(fsp_hash_enum type);
 void fs_hash_freshen(void);
 void fs_hash_fini(void);
 
-extern fs_rid (*fs_hash_uri)(const char *str);
-extern fs_rid (*fs_hash_literal)(const char *str, fs_rid attr);
+fs_rid fs_hash_uri(const char *str);
+fs_rid fs_hash_uri_ignore_bnode(const char *str);
+fs_rid fs_hash_literal(const char *str, fs_rid attr);
+
 GHashTable * fs_hash_bnids(void);
 
 void umac_crypto_hash(const char *str, char *result);

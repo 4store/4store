@@ -34,6 +34,7 @@
 #include "filter.h"
 #include "filter-datatypes.h"
 #include "order.h"
+#include "group.h"
 #include "import.h"
 #include "debug.h"
 #include "../common/4store.h"
@@ -54,6 +55,7 @@ static int fs_handle_query_triple(fs_query *q, int block, rasqal_triple *t);
 static int fs_handle_query_triple_multi(fs_query *q, int block, int count, rasqal_triple *t[]);
 static fs_rid const_literal_to_rid(fs_query *q, rasqal_literal *l, fs_rid *attr);
 static void check_variables(fs_query *q, rasqal_expression *e, int dont_select);
+static int is_aggregate(fs_query *q, rasqal_expression *e);
 static void filter_optimise_disjunct_equality(fs_query *q,
             rasqal_expression *e, int block, char **var, fs_rid_vector *res);
 static void fs_query_explain(fs_query *q, char *msg);
@@ -239,11 +241,13 @@ fs_query_state *fs_query_init(fsp_link *link)
     if (!qs->rasqal_world) {
         fs_error(LOG_ERR, "failed to allocate rasqal world");
     }
+#if RASQAL_VERSION >= 917
     if (rasqal_world_open(qs->rasqal_world)) {
         fs_error(LOG_ERR, "failed to intialise rasqal world");
 	fs_query_fini(qs);
 	return NULL;
     }
+#endif
 #endif /* HAVE_RASQAL_WORLD */
     qs->raptor_world = raptor_new_world();
     if (!qs->raptor_world) {
@@ -263,11 +267,13 @@ int fs_query_have_laqrs(void)
         fs_error(LOG_ERR, "failed to allocate rasqal world");
         return 0;
     }
+#if RASQAL_VERSION >= 917
     if (rasqal_world_open(w)) {
         fs_error(LOG_ERR, "failed to initialise rasqal world");
 	rasqal_free_world(w);
 	return 0;
     }
+#endif
     rasqal_query *rq = rasqal_new_query(w, "laqrs", NULL);
 #else
     rasqal_query *rq = rasqal_new_query("laqrs", NULL);
@@ -341,16 +347,18 @@ fs_query *fs_query_execute(fs_query_state *qs, fsp_link *link, raptor_uri *bu, c
 
 #ifndef HAVE_RASQAL_WORLD
     rasqal_query *rq = rasqal_new_query("laqrs", NULL);
-#else /* HAVE_RASQAL_WORLD */
-    rasqal_query *rq = rasqal_new_query(qs->rasqal_world, "laqrs", NULL);
-#endif /* HAVE_RASQAL_WORLD */
     if (!rq) {
-#ifndef HAVE_RASQAL_WORLD
         rq = rasqal_new_query("sparql", NULL);
-#else /* HAVE_RASQAL_WORLD */
-        rq = rasqal_new_query(qs->rasqal_world, "sparql", NULL);
-#endif /* HAVE_RASQAL_WORLD */
     }
+#else /* HAVE_RASQAL_WORLD */
+    rasqal_query *rq = rasqal_new_query(qs->rasqal_world, "sparql11", NULL);
+    if (!rq) {
+        rq = rasqal_new_query(qs->rasqal_world, "laqrs", NULL);
+    }
+    if (!rq) {
+        rq = rasqal_new_query(qs->rasqal_world, "sparql", NULL);
+    }
+#endif /* HAVE_RASQAL_WORLD */
     if (!rq) {
         fs_error(LOG_ERR, "failed to initialise query system");
 
@@ -511,13 +519,29 @@ fs_query *fs_query_execute(fs_query_state *qs, fsp_link *link, raptor_uri *bu, c
     /* add column to denote join ordering */
     fs_binding_add(q->bb[0], "_ord", FS_RID_NULL, 0);
 
+#if RASQAL_VERSION >= 921
+    /* test to see if this is explicitly an aggregated query */
+    if (rasqal_query_get_group_condition(rq, 0) ||
+        rasqal_query_get_having_condition(rq, 0)) {
+        q->aggregate = 1;
+    }
+#endif
+
     for (int i=0; i < q->num_vars; i++) {
 	rasqal_variable *v = raptor_sequence_get_at(vars, i);
 	fs_binding_add(q->bb[0], (char *)v->name, FS_RID_NULL, 1);
         if (v->expression) {
             fs_binding_set_expression(q->bb[0], (char *)v->name, v->expression);
             q->expressions++;
+            /* test to see if it's implicitly aggregated */
+            if (!q->aggregate && is_aggregate(q, v->expression)) {
+                q->aggregate = 1;
+            }
         }
+    }
+    if (q->num_vars == 0) {
+        /* add a dummy column so we can test ASK/boolean status */
+        fs_binding_add(q->bb[0], "_dummy", FS_RID_NULL, 0);
     }
 
     rasqal_graph_pattern *pattern = rasqal_query_get_query_graph_pattern(rq);
@@ -562,12 +586,18 @@ fs_query *fs_query_execute(fs_query_state *qs, fsp_link *link, raptor_uri *bu, c
         }
     }
 
-    /* make sure variables in expressions are marked as needed */
+    /* make sure variables in project expressions are marked as needed */
     for (int i=0; i < q->num_vars; i++) {
 	rasqal_variable *v = raptor_sequence_get_at(vars, i);
         if (v->expression) {
             check_variables(q, v->expression, 0);
         }
+    }
+
+    /* make sure variables in GROUP BY are marked as needed */
+    for (int i=0; rasqal_query_get_group_condition(q->rq, i); i++) {
+        rasqal_expression *e = rasqal_query_get_group_condition(q->rq, i);
+        check_variables(q, e, 0);
     }
 
     for (int i=0; i <= q->block; i++) {
@@ -768,6 +798,9 @@ printf("\n");
 	return q;
     }
 
+    fs_query_group_block(q, 0);
+
+    /* handle DISTINCT */
     if (q->flags & FS_BIND_DISTINCT) {
         int sortable = 0;
 	for (int i=0; q->bb[0][i].name; i++) {
@@ -783,13 +816,18 @@ printf("\n");
             fs_binding_uniq(q->bb[0]);
         }
     }
-    /* this is neccesary because the DISTINCT phase may have
-     * reduced the length of the projected columns */
+
     q->length = 0;
-    for (int col=1; col < q->num_vars+1; col++) {
-        if (!q->bb[0][col].proj) continue;
-        if (q->bb[0][col].vals->length > q->length) {
-            q->length = q->bb[0][col].vals->length;
+    if (q->num_vars == q->expressions && q->num_vars > 0) {
+        q->length = fs_binding_length(q->bb[0]);
+    } else {
+        /* this is neccesary because the DISTINCT phase may have
+         * reduced the length of the projected columns */
+        for (int col=1; col < q->num_vars+1; col++) {
+            if (!q->bb[0][col].proj) continue;
+            if (q->bb[0][col].vals->length > q->length) {
+                q->length = q->bb[0][col].vals->length;
+            }
         }
     }
 #if DEBUG_MERGE > 1
@@ -847,18 +885,13 @@ fs_binding_print(q->bb[0], stdout);
     if (q->num_vars == 0) {
 	/* ASK or similar */
         q->length = fs_binding_length(q->bb[0]);
+        if (q->length) {
+            q->boolean = 1;
+        } else {
+            q->boolean = 0;
+        }
 
 	return q;
-    }
-
-    if (q->flags & FS_QUERY_COUNT) {
-        fs_binding_free(q->bb[0]);
-        q->bb[0] = fs_binding_new();
-        q->bt = q->bb[0];
-        /* add column to denote join ordering */
-        fs_binding_add(q->bb[0], "_ord", FS_RID_NULL, 0);
-        q->num_vars = 1;
-        fs_binding_add(q->bb[0], "count", 0, 1);
     }
 
     if (rasqal_query_get_order_condition(q->rq, 0)) {
@@ -933,6 +966,41 @@ static void assign_slot(fs_query *q, rasqal_literal *l, int block)
 	    vb->appears = block;
 	}
     }
+}
+
+static int is_aggregate(fs_query *q, rasqal_expression *e)
+{
+#if RASQAL_VERSION >= 921
+    if (e->flags & RASQAL_EXPR_FLAG_AGGREGATE) {
+        return 1;
+    }
+#else
+    return 0;
+#endif
+
+    int agg = 0;
+    if (e->arg1) {
+	agg += is_aggregate(q, e->arg1);
+    }
+    if (agg) return 1;
+    if (e->arg2) {
+	agg += is_aggregate(q, e->arg2);
+    }
+    if (agg) return 1;
+    if (e->arg3) {
+	agg += is_aggregate(q, e->arg3);
+    }
+    if (agg) return 1;
+    if (e->args) {
+        const int len = raptor_sequence_size(e->args);
+        for (int i=0; i<len; i++) {
+            rasqal_expression *ae = raptor_sequence_get_at(e->args, i);
+            agg += is_aggregate(q, ae);
+            if (agg) return 1;
+        }
+    }
+
+    return 0;
 }
 
 static void check_variables(fs_query *q, rasqal_expression *e, int dont_select)
@@ -1497,6 +1565,9 @@ static int process_results(fs_query *q, int block, fs_binding *oldb,
                 fs_rid_vector_clear(slot[x]);
             }
             fs_binding_free(oldb);
+            if (q->num_vars == 0) {
+                fs_binding_add(b, "_dummy", FS_RID_GONE, 0);
+            }
 
             return 1;
         }

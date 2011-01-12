@@ -1,0 +1,8 @@
+#!/bin/bash
+
+source sparql.sh
+
+put-old "$EPR" ../../data/swh.xrdf 'application/rdf+xml' 'http://example.com/test.ttl'
+sparql "$EPR" 'CONSTRUCT { ?x ?y "$NAME" } WHERE { ?x ?y "Steve Harris" }' | sort
+delete-old "$EPR" 'http://example.com/test.ttl'
+sparql "$EPR" 'SELECT * WHERE { ?x ?y ?z } ORDER BY ?x ?y ?z'

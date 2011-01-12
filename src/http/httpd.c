@@ -576,12 +576,10 @@ static void http_put_finished(client_ctxt *ctxt, const char *msg)
 
 static void http_put_request(client_ctxt *ctxt, gchar *url, gchar *protocol)
 {
-  /* special case, allow /sparql/http://example.com/ as an alias for
-                         http://example.com/ */
-  if (!strncmp(url, "/sparql/", 8)) {
-    url += 8;
+  if (!strncmp(url, "/data/?graph=", 13)) { /* SPARQL 1.1 way */
+    url += 13;
     url_decode(url);
-  } else if (!strncmp(url, "/data/", 6)) { /* we want to move people towards /data/ */
+  } else if (!strncmp(url, "/data/", 6)) { /* pre-SPARQL 1.1 4store way */
     url += 6;
     url_decode(url);
   } else if (!strncmp(url, "/", 1)) {
@@ -610,12 +608,10 @@ static void http_put_request(client_ctxt *ctxt, gchar *url, gchar *protocol)
 
 static void http_delete_request(client_ctxt *ctxt, gchar *url, gchar *protocol)
 {
-  /* special case, allow /sparql/http://example.com/ as an alias for
-                         http://example.com/ */
-  if (!strncmp(url, "/sparql/", 8)) {
-    url += 8;
+  if (!strncmp(url, "/data/?graph=", 13)) { /* SPARQL 1.1 way */
+    url += 13;
     url_decode(url);
-  } else if (!strncmp(url, "/data/", 6)) { /* we want to move people towards /data/ */
+  } else if (!strncmp(url, "/data/", 6)) { /* pre-SPARQL 1.1 4store syntax */
     url += 6;
     url_decode(url);
   } else if (!strncmp(url, "/", 1)) {
