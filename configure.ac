@@ -81,6 +81,11 @@ AC_FUNC_REALLOC
 AC_FUNC_STRTOD
 AC_CHECK_FUNCS([atexit ftime ftruncate gethostname gettimeofday memmove mempcpy memset mkdir munmap select setlocale socket strcasecmp strchr strdup strerror strncasecmp strrchr strstr strtol strtoull])
 
+oLIBS=$LIBS
+LIBS="$GLIB_LIBS"
+AC_CHECK_FUNCS([g_uri_escape_string])
+LIBS=$oLIBS
+
 AC_CONFIG_FILES([version.sh
                  Makefile
                  man/Makefile

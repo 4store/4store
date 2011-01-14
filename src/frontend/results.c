@@ -1123,6 +1123,16 @@ static char *uri_escape(const char *str, int length)
     return to;
 }
 
+char *fs_uri_escape(const char *str)
+{
+    int esclen;
+    if (uri_needs_escape(str, &esclen)) {
+        return uri_escape(str, esclen);
+    }
+
+    return g_strdup(str);
+}
+
 static int tsv_needs_escape(const char *str, int *escaped_length)
 {
     int esc_len = 0;

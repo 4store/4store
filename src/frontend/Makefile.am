@@ -47,7 +47,7 @@ test: all filter-test
 4s_dump_SOURCES = dump.c
 4s_dump_LDADD = ../common/lib4store.a ../common/libsort.a @LIBXML_LIBS@ @MDNS_LIBS@
 
-filter_test_SOURCES = filter-test.c filter.c filter-datatypes.c query-data.c decimal.c
-filter_test_LDADD = ../common/lib4store.a ../common/libsort.a @MDNS_LIBS@
+filter_test_SOURCES = filter-test.c filter.c filter-datatypes.c query-data.c decimal.c results.c query.c query-datatypes.c query-cache.c order.c group.c optimiser.c
+filter_test_LDADD = ../common/lib4store.a ../common/libsort.a @MDNS_LIBS@ @RASQAL_LIBS@
 
 decimal_test_SOURCES = decimal-test.c decimal.c

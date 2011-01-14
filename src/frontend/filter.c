@@ -1216,7 +1216,11 @@ fs_value fn_encode_for_uri(fs_query *q, fs_value v)
         return fs_value_error(FS_ERROR_INVALID_TYPE, NULL);
     }
     v = fs_value_fill_lexical(q, v);
+#ifdef HAVE_G_URI_ESCAPE_STRING
     char *lex = g_uri_escape_string(v.lex, NULL, TRUE);
+#else
+    char *lex = fs_uri_escape(v.lex);
+#endif
     fs_query_add_freeable(q, lex);
     fs_value ret = fs_value_plain(lex);
 
