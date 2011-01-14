@@ -547,6 +547,39 @@ fs_value fs_expression_eval(fs_query *q, int row, int block, rasqal_expression *
             return fs_value_plain(str);
         }
 
+        case RASQAL_EXPR_YEAR:
+            return fn_year(q, fs_expression_eval(q, row, block, e->arg1));
+
+        case RASQAL_EXPR_MONTH:
+            return fn_month(q, fs_expression_eval(q, row, block, e->arg1));
+
+        case RASQAL_EXPR_DAY:
+            return fn_day(q, fs_expression_eval(q, row, block, e->arg1));
+
+        case RASQAL_EXPR_HOURS:
+            return fn_hours(q, fs_expression_eval(q, row, block, e->arg1));
+
+        case RASQAL_EXPR_MINUTES:
+            return fn_minutes(q, fs_expression_eval(q, row, block, e->arg1));
+
+        case RASQAL_EXPR_SECONDS:
+            return fn_seconds(q, fs_expression_eval(q, row, block, e->arg1));
+
+        case RASQAL_EXPR_TIMEZONE:
+            return fn_timezone(q, fs_expression_eval(q, row, block, e->arg1));
+
+        case RASQAL_EXPR_STRSTARTS:
+            return fn_strstarts(q, fs_expression_eval(q, row, block, e->arg1),
+                                   fs_expression_eval(q, row, block, e->arg2));
+
+        case RASQAL_EXPR_STRENDS:
+            return fn_strends(q, fs_expression_eval(q, row, block, e->arg1),
+                                 fs_expression_eval(q, row, block, e->arg2));
+
+        case RASQAL_EXPR_CONTAINS:
+            return fn_contains(q, fs_expression_eval(q, row, block, e->arg1),
+                                  fs_expression_eval(q, row, block, e->arg2));
+
         /* aggregates */
 
         case RASQAL_EXPR_SUM: {
