@@ -49,9 +49,14 @@ fs_value fn_bnode(fs_query *q, fs_value a);
 fs_value fn_lang(fs_query *q, fs_value a);
 fs_value fn_datatype(fs_query *q, fs_value a);
 
-/* --end-process-- */
+/* SPARQL 1.1 functions */
 
-/* casts */
+fs_value fn_substring(fs_query *q, fs_value str, fs_value start, fs_value length);
+fs_value fn_ucase(fs_query *q, fs_value v);
+fs_value fn_lcase(fs_query *q, fs_value v);
+fs_value fn_encode_for_uri(fs_query *q, fs_value v);
+
+/* casts and similar */
 fs_value fn_cast(fs_query *q, fs_value v, fs_value d);
 fs_value fn_cast_intl(fs_query *q, fs_value v, fs_rid dt);
 fs_value fn_ebv(fs_value a);

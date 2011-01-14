@@ -365,6 +365,21 @@ int fs_is_error(fs_value a)
     return 0;
 }
 
+int fs_is_plain_or_string(fs_value v)
+{
+    if (fs_is_error(v)) {
+        return 0;
+    }
+    if (FS_IS_BNODE(v.rid) || FS_IS_URI(v.rid)) {
+        return 0;
+    }
+    if (v.attr != fs_c.empty && v.attr != fs_c.xsd_string) {
+        return 0;
+    }
+
+    return 1;
+}
+
 int fs_value_is_true(fs_value a)
 {
     if (a.attr == fs_c.xsd_boolean) {

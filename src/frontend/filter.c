@@ -1139,4 +1139,88 @@ fs_value fn_ebv(fs_value a)
     return fs_value_error(FS_ERROR_INVALID_TYPE, NULL);
 }
 
+fs_value fn_substring(fs_query *q, fs_value str, fs_value start, fs_value length)
+{
+    if (!fs_is_plain_or_string(str)) {
+        return fs_value_error(FS_ERROR_INVALID_TYPE, NULL);
+    }
+    if (!fs_is_numeric(&start)) {
+        return fs_value_error(FS_ERROR_INVALID_TYPE, NULL);
+    }
+    start = cast_integer(start);
+    /* 2 arg form */
+    if (length.rid == FS_RID_NULL) {
+        length = fs_value_integer(INT_MAX);
+    } else {
+        if (!fs_is_numeric(&length)) {
+            return fs_value_error(FS_ERROR_INVALID_TYPE, NULL);
+        }
+        length = cast_integer(length);
+    }
+    str = fs_value_fill_lexical(q, str);
+    const int slen = g_utf8_strlen(str.lex, -1);
+    if (start.in > slen || length.in <= 0) {
+        fs_value ret = fs_value_plain("");
+        ret.attr = str.attr;
+
+        return ret;
+    }
+    gchar *spos = g_utf8_offset_to_pointer(str.lex, start.in - 1);
+    int retlen_utf8 = g_utf8_strlen(spos, -1);
+    if (retlen_utf8 > length.in) {
+        retlen_utf8 = length.in;
+    }
+    gchar *epos = g_utf8_offset_to_pointer(spos, retlen_utf8);
+    int retlen_bytes = epos - spos + 1;
+    char *retstr = g_malloc(retlen_bytes+1);
+    retstr[retlen_bytes] = '\0';
+    g_utf8_strncpy(retstr, spos, retlen_utf8);
+    fs_query_add_freeable(q, retstr);
+    fs_value ret = fs_value_plain(retstr);
+    ret.attr = str.attr;
+
+    return ret;
+}
+
+fs_value fn_ucase(fs_query *q, fs_value v)
+{
+    if (!fs_is_plain_or_string(v)) {
+        return fs_value_error(FS_ERROR_INVALID_TYPE, NULL);
+    }
+    v = fs_value_fill_lexical(q, v);
+    char *lex = g_utf8_strup(v.lex, -1);
+    fs_query_add_freeable(q, lex);
+    fs_value ret = fs_value_plain(lex);
+    ret.attr = v.attr;
+
+    return ret;
+}
+
+fs_value fn_lcase(fs_query *q, fs_value v)
+{
+    if (!fs_is_plain_or_string(v)) {
+        return fs_value_error(FS_ERROR_INVALID_TYPE, NULL);
+    }
+    v = fs_value_fill_lexical(q, v);
+    char *lex = g_utf8_strdown(v.lex, -1);
+    fs_query_add_freeable(q, lex);
+    fs_value ret = fs_value_plain(lex);
+    ret.attr = v.attr;
+
+    return ret;
+}
+
+fs_value fn_encode_for_uri(fs_query *q, fs_value v)
+{
+    if (!fs_is_plain_or_string(v)) {
+        return fs_value_error(FS_ERROR_INVALID_TYPE, NULL);
+    }
+    v = fs_value_fill_lexical(q, v);
+    char *lex = g_uri_escape_string(v.lex, NULL, TRUE);
+    fs_query_add_freeable(q, lex);
+    fs_value ret = fs_value_plain(lex);
+
+    return ret;
+}
+
 /* vi:set expandtab sts=4 sw=4: */

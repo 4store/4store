@@ -487,13 +487,7 @@ fs_value fs_expression_eval(fs_query *q, int row, int block, rasqal_expression *
 
         case RASQAL_EXPR_STRLEN: {
             fs_value v = fs_expression_eval(q, row, block, e->arg1);
-            if (fs_is_error(v)) {
-                return v;
-            }
-            if (FS_IS_BNODE(v.rid) || FS_IS_URI(v.rid)) {
-                return fs_value_error(FS_ERROR_INVALID_TYPE, NULL);
-            }
-            if (v.attr != fs_c.empty && v.attr != fs_c.xsd_string) {
+            if (!fs_is_plain_or_string(v)) {
                 return fs_value_error(FS_ERROR_INVALID_TYPE, NULL);
             }
             v = fs_value_fill_lexical(q, v);
@@ -518,6 +512,42 @@ fs_value fs_expression_eval(fs_query *q, int row, int block, rasqal_expression *
 
             return fs_expression_eval(q, row, block, e->arg3);
         }
+
+        case RASQAL_EXPR_SUBSTR: {
+            return fn_substring(q, fs_expression_eval(q, row, block, e->arg1),
+                                fs_expression_eval(q, row, block, e->arg2),
+                                fs_expression_eval(q, row, block, e->arg3));
+        }
+
+        case RASQAL_EXPR_UCASE:
+            return fn_ucase(q, fs_expression_eval(q, row, block, e->arg1));
+
+        case RASQAL_EXPR_LCASE:
+            return fn_lcase(q, fs_expression_eval(q, row, block, e->arg1));
+
+        case RASQAL_EXPR_ENCODE_FOR_URI:
+            return fn_encode_for_uri(q, fs_expression_eval(q, row, block, e->arg1));
+
+        case RASQAL_EXPR_CONCAT: {
+            GString *concat = g_string_new("");
+            for (int i=0; i < raptor_sequence_size(e->args); i++) {
+                fs_value v = fs_expression_eval(q, q->group_rows[row], block, raptor_sequence_get_at(e->args, i));
+                if (fs_is_error(v)) {
+                    g_string_free(concat, TRUE);
+
+                    return v;
+                }
+                v = fs_value_fill_lexical(q, v);
+                g_string_append(concat, v.lex);
+            }
+
+            char *str = g_string_free(concat, FALSE);
+            fs_query_add_freeable(q, str);
+
+            return fs_value_plain(str);
+        }
+
+        /* aggregates */
 
         case RASQAL_EXPR_SUM: {
             fs_value v = fs_value_integer(0);
@@ -591,25 +621,6 @@ fs_value fs_expression_eval(fs_query *q, int row, int block, rasqal_expression *
             }
 
             return m;
-        }
-
-        case RASQAL_EXPR_CONCAT: {
-            GString *concat = g_string_new("");
-            for (int i=0; i < raptor_sequence_size(e->args); i++) {
-                fs_value v = fs_expression_eval(q, q->group_rows[row], block, raptor_sequence_get_at(e->args, i));
-                if (fs_is_error(v)) {
-                    g_string_free(concat, TRUE);
-
-                    return v;
-                }
-                v = fs_value_fill_lexical(q, v);
-                g_string_append(concat, v.lex);
-            }
-
-            char *str = g_string_free(concat, FALSE);
-            fs_query_add_freeable(q, str);
-
-            return fs_value_plain(str);
         }
 
         case RASQAL_EXPR_GROUP_CONCAT: {

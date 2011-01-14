@@ -82,6 +82,7 @@ fs_value fs_value_fill_rid(fs_query *q, fs_value a);
 
 int fs_is_numeric(fs_value *a);
 int fs_is_error(fs_value a);
+int fs_is_plain_or_string(fs_value v);
 int fs_value_is_true(fs_value a);
 int fs_value_equal(fs_value a, fs_value b);
 
