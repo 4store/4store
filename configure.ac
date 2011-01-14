@@ -36,7 +36,7 @@ PKG_CHECK_MODULES([GLIB], glib-2.0 >= 2.2.0)
 PKG_CHECK_MODULES([GTHREAD], gthread-2.0 >= 2.2.0)
 PKG_CHECK_MODULES([LIBXML], libxml-2.0)
 PKG_CHECK_MODULES([RAPTOR], raptor2)
-PKG_CHECK_MODULES([RASQAL], rasqal >= 0.9.21)
+PKG_CHECK_MODULES([RASQAL], rasqal >= 0.9.22)
 AC_CHECK_LIB([pcre], [pcre_compile])
 AC_CHECK_PROG(WITH_PCRE_CONFIG, pcre-config, yes, no)
 if test $WITH_PCRE_CONFIG = no; then
