@@ -746,6 +746,21 @@ static void store_stmt(void *user_data, raptor_statement *statement)
     char *obj;
     fs_rid m, s, p, o;
 
+    if (statement->graph && strcmp(data->model,
+        (char *)raptor_uri_as_string(statement->graph->value.uri))) {
+        if (statement->graph->type == RAPTOR_TERM_TYPE_URI) {
+            char *graph = (char *) raptor_uri_as_string(statement->graph->value.uri);
+            if (data->model) {
+                g_free(data->model);
+            }
+            data->model = g_strdup(graph);
+            data->model_hash = fs_hash_uri(graph);
+            buffer_res(data->link, data->segments, data->model_hash,
+                graph, FS_RID_NULL, data->dryrun);
+        } else {
+            fs_error(LOG_CRIT, "found non-URI graph ID in quad");
+        }
+    }
     m = data->model_hash;
 
     if (statement->subject->type == RAPTOR_TERM_TYPE_BLANK) {
