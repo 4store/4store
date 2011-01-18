@@ -362,6 +362,7 @@ fs_query *fs_query_execute(fs_query_state *qs, fsp_link *link, raptor_uri *bu, c
         break;
     case RASQAL_QUERY_VERB_SELECT:
         /* nothing */
+        break;
     case RASQAL_QUERY_VERB_INSERT:
     case RASQAL_QUERY_VERB_DELETE:
     case RASQAL_QUERY_VERB_UPDATE:

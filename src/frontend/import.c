@@ -545,7 +545,7 @@ static int process_quads(fs_parse_stuff *data)
 
 static fs_rid bnodenext = 1, bnodemax = 0;
 
-static fs_rid fs_bnode_id(fsp_link *link, raptor_term_blank_value blank)
+fs_rid fs_bnode_id(fsp_link *link, raptor_term_blank_value blank)
 {
     char *bnode = (char *)blank.string;
     GHashTable *bnids = fs_hash_bnids();

@@ -59,7 +59,7 @@ int fs_load(struct update_context *uc, char *resuri, char *graphuri);
 
 int fs_clear(struct update_context *uc, char *graphuri);
 
-fs_rid fs_hash_rasqal_literal(rasqal_literal *l);
+fs_rid fs_hash_rasqal_literal(struct update_context *uc, rasqal_literal *l);
 void fs_resource_from_rasqal_literal(struct update_context *uctxt,
                                      rasqal_literal *l, fs_resource *res);
 
@@ -149,6 +149,7 @@ static int update_op(struct update_context *ct)
     const int dellen = ct->op->delete_templates ? raptor_sequence_size(ct->op->delete_templates) : 0;
     const int inslen = ct->op->insert_templates ? raptor_sequence_size(ct->op->insert_templates) : 0;
     fs_rid_vector *vec[4];
+    fs_hash_freshen();
     if (dellen) {
         for (int s=0; s<4; s++) {
             vec[s] = fs_rid_vector_new(0);
@@ -157,7 +158,7 @@ static int update_op(struct update_context *ct)
             rasqal_triple *triple = raptor_sequence_get_at(ct->op->delete_templates, t);
             if (triple->origin) {
                 fs_rid_vector_append(vec[0],
-                    fs_hash_rasqal_literal(triple->origin));
+                    fs_hash_rasqal_literal(ct, triple->origin));
             } else if (ct->op->graph_uri) {
                 fs_rid m = fs_hash_uri
                     ((char *)raptor_uri_as_string(ct->op->graph_uri));
@@ -165,9 +166,9 @@ static int update_op(struct update_context *ct)
             } else {
                 fs_rid_vector_append(vec[0], fs_c.default_graph);
             }
-            fs_rid_vector_append(vec[1], fs_hash_rasqal_literal(triple->subject));
-            fs_rid_vector_append(vec[2], fs_hash_rasqal_literal(triple->predicate));
-            fs_rid_vector_append(vec[3], fs_hash_rasqal_literal(triple->object));
+            fs_rid_vector_append(vec[1], fs_hash_rasqal_literal(ct, triple->subject));
+            fs_rid_vector_append(vec[2], fs_hash_rasqal_literal(ct, triple->predicate));
+            fs_rid_vector_append(vec[3], fs_hash_rasqal_literal(ct, triple->object));
             if (fs_rid_vector_length(vec[0]) > 999) {
                 fsp_delete_quads_all(ct->link, vec);
                 for (int s=0; s<4; s++) {
@@ -188,7 +189,7 @@ static int update_op(struct update_context *ct)
         fs_resource res;
         if (triple->origin) {
             fs_resource_from_rasqal_literal(ct, triple->origin, &res);
-            quad_buf[0][0] = fs_hash_rasqal_literal(triple->origin);
+            quad_buf[0][0] = fs_hash_rasqal_literal(ct, triple->origin);
         } else if (ct->op->graph_uri) {
             res.lex = (char *)raptor_uri_as_string(ct->op->graph_uri);
             res.attr = FS_RID_NULL;
@@ -199,9 +200,9 @@ static int update_op(struct update_context *ct)
             res.lex = FS_DEFAULT_GRAPH;
             res.attr = FS_RID_NULL;
         }
-        quad_buf[0][1] = fs_hash_rasqal_literal(triple->subject);
-        quad_buf[0][2] = fs_hash_rasqal_literal(triple->predicate);
-        quad_buf[0][3] = fs_hash_rasqal_literal(triple->object);
+        quad_buf[0][1] = fs_hash_rasqal_literal(ct, triple->subject);
+        quad_buf[0][2] = fs_hash_rasqal_literal(ct, triple->predicate);
+        quad_buf[0][3] = fs_hash_rasqal_literal(ct, triple->object);
         res.rid = quad_buf[0][0];
         fsp_res_import(ct->link, FS_RID_SEGMENT(quad_buf[0][0], ct->segments), 1, &res);
         res.rid = quad_buf[0][1];
@@ -216,6 +217,7 @@ static int update_op(struct update_context *ct)
         fsp_quad_import(ct->link, FS_RID_SEGMENT(quad_buf[0][1], ct->segments), FS_BIND_BY_SUBJECT, 1, quad_buf);
 //printf("I %016llx %016llx %016llx %016llx\n", quad_buf[0][0], quad_buf[0][1], quad_buf[0][2], quad_buf[0][3]);
     }
+    fs_hash_freshen();
 
     return 0;
 }
@@ -421,18 +423,20 @@ int fs_update_XXXoldXXX(fsp_link *l, char *update, char **message, int unsafe)
     return errors;
 }
 
-fs_rid fs_hash_rasqal_literal(rasqal_literal *l)
+fs_rid fs_hash_rasqal_literal(struct update_context *ct, rasqal_literal *l)
 {
     if (!l) return FS_RID_NULL;
 
     rasqal_literal_type type = rasqal_literal_get_rdf_term_type(l);
-    if (type == RASQAL_LITERAL_UNKNOWN) {
+    switch (type) {
+    case RASQAL_LITERAL_UNKNOWN:
         fs_error(LOG_ERR, "unknown literal type received");
 
         return FS_RID_NULL;
-    } else if (type == RASQAL_LITERAL_URI) {
+    case RASQAL_LITERAL_URI:
 	return fs_hash_uri((char *)raptor_uri_as_string(l->value.uri));
-    } else if (type == RASQAL_LITERAL_STRING) {
+    case RASQAL_LITERAL_STRING:
+    case RASQAL_LITERAL_XSD_STRING: {
         fs_rid attr = 0;
         if (l->datatype) {
             attr = fs_hash_uri((char *)raptor_uri_as_string(l->datatype));
@@ -442,8 +446,28 @@ fs_rid fs_hash_rasqal_literal(rasqal_literal *l)
 
         return fs_hash_literal((char *)rasqal_literal_as_string(l), attr);
     }
+    case RASQAL_LITERAL_BLANK: {
+        raptor_term_blank_value bnode;
+        bnode.string = (unsigned char *)rasqal_literal_as_string(l);
+        bnode.string_len = strlen(bnode.string);
 
-    fs_error(LOG_ERR, "bad rasqal literal (type %d) in hash", type);
+        return fs_bnode_id(ct->link, bnode);
+    }
+    case RASQAL_LITERAL_VARIABLE:
+    case RASQAL_LITERAL_QNAME:
+    case RASQAL_LITERAL_PATTERN:
+    case RASQAL_LITERAL_BOOLEAN:
+    case RASQAL_LITERAL_INTEGER:
+    case RASQAL_LITERAL_INTEGER_SUBTYPE:
+    case RASQAL_LITERAL_DECIMAL:
+    case RASQAL_LITERAL_FLOAT:
+    case RASQAL_LITERAL_DOUBLE:
+    case RASQAL_LITERAL_DATETIME:
+    case RASQAL_LITERAL_UDT:
+        fs_error(LOG_ERR, "bad rasqal literal (type %d)", type);
+    }
+
+    fs_error(LOG_ERR, "bad rasqal literal (type %d)", type);
 
     return FS_RID_NULL;
 }
