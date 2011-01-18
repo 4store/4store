@@ -452,7 +452,7 @@ fs_rid fs_hash_rasqal_literal(struct update_context *ct, rasqal_literal *l)
     case RASQAL_LITERAL_BLANK: {
         raptor_term_blank_value bnode;
         bnode.string = (unsigned char *)rasqal_literal_as_string(l);
-        bnode.string_len = strlen(bnode.string);
+        bnode.string_len = strlen((char *)bnode.string);
 
         return fs_bnode_id(ct->link, bnode);
     }
