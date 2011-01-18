@@ -154,6 +154,9 @@ int main(int argc, char *argv[])
         for (unsigned int i=0; 1; i++) {
             const raptor_syntax_description *desc =
                     raptor_world_get_parser_description(rw, i);
+            if (!desc) {
+                break;
+            }
             fprintf(stdout, "    %12s - %s\n", desc->names[0], desc->label);
         }
         exit(help_return);
