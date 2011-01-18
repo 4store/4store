@@ -350,17 +350,26 @@ fs_query *fs_query_execute(fs_query_state *qs, fsp_link *link, raptor_uri *bu, c
     q->segments = fsp_link_segments(link);
     q->base = bu;
     rasqal_query_verb verb = rasqal_query_get_verb(rq);
-    if (verb == RASQAL_QUERY_VERB_CONSTRUCT ||
-        verb == RASQAL_QUERY_VERB_INSERT) {
+    switch (verb) {
+    case RASQAL_QUERY_VERB_CONSTRUCT:
 	q->construct = 1;
-    } else if (verb == RASQAL_QUERY_VERB_ASK) {
+        break;
+    case RASQAL_QUERY_VERB_ASK:
         q->ask = 1;
-    } else if (verb == RASQAL_QUERY_VERB_DESCRIBE) {
+        break;
+    case RASQAL_QUERY_VERB_DESCRIBE:
         q->describe = 1;
-    } else if (verb == RASQAL_QUERY_VERB_SELECT) {
+        break;
+    case RASQAL_QUERY_VERB_SELECT:
         /* nothing */
-    } else {
-        fs_error(LOG_ERR, "Unknown query verb %d", verb);
+    case RASQAL_QUERY_VERB_INSERT:
+    case RASQAL_QUERY_VERB_DELETE:
+    case RASQAL_QUERY_VERB_UPDATE:
+        fs_error(LOG_ERR, "Query endpoints don't support SPARQL Update verbs (%s)", rasqal_query_verb_as_string(verb));
+        break;
+    case RASQAL_QUERY_VERB_UNKNOWN:
+        fs_error(LOG_ERR, "Unknown query verb");
+        break;
     }
     if (rasqal_query_get_order_condition(rq, 0)) {
         q->order = 1;
