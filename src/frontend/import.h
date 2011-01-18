@@ -18,4 +18,6 @@ int fs_import_stream_data(fsp_link *link, unsigned char *data, size_t count);
 int fs_import_stream_finish(fsp_link *link, int *count, int *errors);
 void fs_import_reread_config();
 
+fs_rid fs_bnode_id(fsp_link *link, const char *bnode);
+
 #endif

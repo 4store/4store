@@ -513,7 +513,7 @@ static int process_quads(fs_parse_stuff *data)
 
 static fs_rid bnodenext = 1, bnodemax = 0;
 
-static fs_rid fs_bnode_id(fsp_link *link, const char *bnode)
+fs_rid fs_bnode_id(fsp_link *link, const char *bnode)
 {
     GHashTable *bnids = fs_hash_bnids();
     fs_rid bn = (fs_rid) (unsigned long) g_hash_table_lookup(bnids, bnode);
