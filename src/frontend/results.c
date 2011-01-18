@@ -22,6 +22,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "4store-config.h"
 #include "results.h"
 #include "order.h"
 #include "query-datatypes.h"
@@ -144,10 +145,8 @@ static fs_value literal_to_value(fs_query *q, int row, int block, rasqal_literal
 	case RASQAL_LITERAL_URI:
 	    return fs_value_uri((char *)raptor_uri_as_string(l->value.uri));
 
-#if RASQAL_VERSION >= 917
         case RASQAL_LITERAL_XSD_STRING:
         case RASQAL_LITERAL_UDT:
-#endif
 	case RASQAL_LITERAL_STRING:
             if (l->language) {
                 attr = fs_hash_literal(l->language, 0);
@@ -163,9 +162,7 @@ static fs_value literal_to_value(fs_query *q, int row, int block, rasqal_literal
 	    return fs_value_boolean(l->value.integer);
 
 	case RASQAL_LITERAL_INTEGER:
-#if RASQAL_VERSION >= 920
 	case RASQAL_LITERAL_INTEGER_SUBTYPE:
-#endif
 	    return fs_value_integer(l->value.integer);
 
 	case RASQAL_LITERAL_DOUBLE:
@@ -250,11 +247,7 @@ fs_value fs_expression_eval(fs_query *q, int row, int block, rasqal_expression *
 	case RASQAL_EXPR_STR_EQ:
 	    return fn_equal(q, fs_expression_eval(q, row, block, e->arg1),
 			       fs_expression_eval(q, row, block, e->arg2));
-#ifdef HAVE_RASQAL_WORLD
-	case RASQAL_EXPR_SAMETERM:
-	    return fn_rdfterm_equal(q, fs_expression_eval(q, row, block, e->arg1),
-			               fs_expression_eval(q, row, block, e->arg2));
-#endif
+
 	case RASQAL_EXPR_NEQ:
 	case RASQAL_EXPR_STR_NEQ:
 	    return fn_not_equal(q, fs_expression_eval(q, row, block, e->arg1),
@@ -397,22 +390,197 @@ fs_value fs_expression_eval(fs_query *q, int row, int block, rasqal_expression *
             return fs_value_integer(count);
         }
 
-#if RASQAL_VERSION >= 920
 	case RASQAL_EXPR_IRI:
 	case RASQAL_EXPR_URI:
             return fn_uri(q, fs_expression_eval(q, row, block, e->arg1));
 
-	case RASQAL_EXPR_IF: {
-                fs_value cond = fn_ebv(fs_expression_eval(q, row, block, e->arg1));
-                /* if arg1 is false or error */
-                if (fs_is_error(cond)) {
-                    return cond;
-                } else if (cond.in) {
-                    return fs_expression_eval(q, row, block, e->arg2);
-                }
+        case RASQAL_EXPR_BNODE:
+            return fn_bnode(q, fs_expression_eval(q, row, block, e->arg1));
 
-                return fs_expression_eval(q, row, block, e->arg3);
+        case RASQAL_EXPR_STRLANG: {
+            fs_value str = fs_expression_eval(q, row, block, e->arg1);
+            if (fs_is_error(str)) {
+                return str;
             }
+            if (str.valid & fs_valid_bit(FS_V_RID) &&
+                (FS_IS_BNODE(str.rid) || FS_IS_URI(str.rid))) {
+                return fs_value_error(FS_ERROR_INVALID_TYPE, NULL);
+            }
+            str = fs_value_fill_lexical(q, str);
+
+            fs_value lang = fs_expression_eval(q, row, block, e->arg2);
+            if (fs_is_error(lang)) {
+                return lang;
+            }
+            if (lang.valid & fs_valid_bit(FS_V_RID) &&
+                (FS_IS_BNODE(lang.rid) || FS_IS_URI(lang.rid))) {
+                return fs_value_error(FS_ERROR_INVALID_TYPE, NULL);
+            }
+            lang = fs_value_fill_lexical(q, lang);
+
+            return fs_value_plain_with_lang(str.lex, lang.lex);
+        }
+
+        case RASQAL_EXPR_STRDT: {
+            fs_value str = fs_expression_eval(q, row, block, e->arg1);
+            if (fs_is_error(str)) {
+                return str;
+            }
+            if (str.valid & fs_valid_bit(FS_V_RID) &&
+                (FS_IS_BNODE(str.rid) || FS_IS_URI(str.rid))) {
+                return fs_value_error(FS_ERROR_INVALID_TYPE, NULL);
+            }
+            str = fs_value_fill_lexical(q, str);
+
+            fs_value dt = fs_expression_eval(q, row, block, e->arg2);
+            if (fs_is_error(dt)) {
+                return dt;
+            }
+            if (dt.valid & fs_valid_bit(FS_V_RID)) {
+                if (!(FS_IS_BNODE(dt.rid) || FS_IS_URI(dt.rid))) {
+                    return fs_value_error(FS_ERROR_INVALID_TYPE, NULL);
+                }
+            } else {
+                return fs_value_error(FS_ERROR_INVALID_TYPE, NULL);
+            }
+            dt = fs_value_fill_lexical(q, dt);
+
+            return fs_value_plain_with_dt(str.lex, dt.lex);
+        }
+
+	case RASQAL_EXPR_NOT_IN:
+	case RASQAL_EXPR_IN: {
+            fs_value comp = fs_expression_eval(q, row, block, e->arg1);
+            for (int i=0; i < raptor_sequence_size(e->args); i++) {
+                fs_value v = fs_expression_eval(q, q->group_rows[row], block, raptor_sequence_get_at(e->args, i));
+                if (fs_value_equal(comp, v)) {
+                    return fs_value_boolean(e->op == RASQAL_EXPR_IN ? 1 : 0);
+                }
+            }
+
+            return fs_value_boolean(e->op == RASQAL_EXPR_IN ? 0 : 1);
+        }
+
+	case RASQAL_EXPR_NOW:
+	case RASQAL_EXPR_CURRENT_DATETIME:
+            return fs_value_datetime(q->start_time);
+
+        case RASQAL_EXPR_FROM_UNIXTIME: {
+            fs_value v = fs_expression_eval(q, row, block, e->arg1);
+            if (fs_is_numeric(&v)) {
+                v = fn_cast_intl(q, v, fs_c.xsd_integer);
+
+                return fs_value_datetime(v.in);
+            }
+
+            return fs_value_error(FS_ERROR_INVALID_TYPE, NULL);
+        }
+
+        case RASQAL_EXPR_TO_UNIXTIME: {
+            fs_value v = fs_expression_eval(q, row, block, e->arg1);
+            if (v.attr == fs_c.xsd_datetime) {
+                return fs_value_integer(v.in);
+            }
+
+            return fs_value_error(FS_ERROR_INVALID_TYPE, NULL);
+        }
+
+        case RASQAL_EXPR_STRLEN: {
+            fs_value v = fs_expression_eval(q, row, block, e->arg1);
+            if (!fs_is_plain_or_string(v)) {
+                return fs_value_error(FS_ERROR_INVALID_TYPE, NULL);
+            }
+            v = fs_value_fill_lexical(q, v);
+
+            return fs_value_integer(strlen(v.lex));
+        }
+
+        case RASQAL_EXPR_ISNUMERIC: {
+            fs_value v = fs_expression_eval(q, row, block, e->arg1);
+
+            return fs_value_boolean(fs_is_numeric(&v));
+        }
+
+	case RASQAL_EXPR_IF: {
+            fs_value cond = fn_ebv(fs_expression_eval(q, row, block, e->arg1));
+            /* if arg1 is false or error */
+            if (fs_is_error(cond)) {
+                return cond;
+            } else if (cond.in) {
+                return fs_expression_eval(q, row, block, e->arg2);
+            }
+
+            return fs_expression_eval(q, row, block, e->arg3);
+        }
+
+        case RASQAL_EXPR_SUBSTR: {
+            return fn_substring(q, fs_expression_eval(q, row, block, e->arg1),
+                                fs_expression_eval(q, row, block, e->arg2),
+                                fs_expression_eval(q, row, block, e->arg3));
+        }
+
+        case RASQAL_EXPR_UCASE:
+            return fn_ucase(q, fs_expression_eval(q, row, block, e->arg1));
+
+        case RASQAL_EXPR_LCASE:
+            return fn_lcase(q, fs_expression_eval(q, row, block, e->arg1));
+
+        case RASQAL_EXPR_ENCODE_FOR_URI:
+            return fn_encode_for_uri(q, fs_expression_eval(q, row, block, e->arg1));
+
+        case RASQAL_EXPR_CONCAT: {
+            GString *concat = g_string_new("");
+            for (int i=0; i < raptor_sequence_size(e->args); i++) {
+                fs_value v = fs_expression_eval(q, q->group_rows[row], block, raptor_sequence_get_at(e->args, i));
+                if (fs_is_error(v)) {
+                    g_string_free(concat, TRUE);
+
+                    return v;
+                }
+                v = fs_value_fill_lexical(q, v);
+                g_string_append(concat, v.lex);
+            }
+
+            char *str = g_string_free(concat, FALSE);
+            fs_query_add_freeable(q, str);
+
+            return fs_value_plain(str);
+        }
+
+        case RASQAL_EXPR_YEAR:
+            return fn_year(q, fs_expression_eval(q, row, block, e->arg1));
+
+        case RASQAL_EXPR_MONTH:
+            return fn_month(q, fs_expression_eval(q, row, block, e->arg1));
+
+        case RASQAL_EXPR_DAY:
+            return fn_day(q, fs_expression_eval(q, row, block, e->arg1));
+
+        case RASQAL_EXPR_HOURS:
+            return fn_hours(q, fs_expression_eval(q, row, block, e->arg1));
+
+        case RASQAL_EXPR_MINUTES:
+            return fn_minutes(q, fs_expression_eval(q, row, block, e->arg1));
+
+        case RASQAL_EXPR_SECONDS:
+            return fn_seconds(q, fs_expression_eval(q, row, block, e->arg1));
+
+        case RASQAL_EXPR_TIMEZONE:
+            return fn_timezone(q, fs_expression_eval(q, row, block, e->arg1));
+
+        case RASQAL_EXPR_STRSTARTS:
+            return fn_strstarts(q, fs_expression_eval(q, row, block, e->arg1),
+                                   fs_expression_eval(q, row, block, e->arg2));
+
+        case RASQAL_EXPR_STRENDS:
+            return fn_strends(q, fs_expression_eval(q, row, block, e->arg1),
+                                 fs_expression_eval(q, row, block, e->arg2));
+
+        case RASQAL_EXPR_CONTAINS:
+            return fn_contains(q, fs_expression_eval(q, row, block, e->arg1),
+                                  fs_expression_eval(q, row, block, e->arg2));
+
+        /* aggregates */
 
         case RASQAL_EXPR_SUM: {
             fs_value v = fs_value_integer(0);
@@ -492,7 +660,7 @@ fs_value fs_expression_eval(fs_query *q, int row, int block, rasqal_expression *
             char *sep = " ";
             GString *concat = g_string_new("");
             if (e->literal) {
-                sep = rasqal_literal_as_string(e->literal);
+                sep = (char *)rasqal_literal_as_string(e->literal);
             }
             int count = 0;
             for (int r=0; r<q->group_length; r++) {
@@ -533,7 +701,6 @@ fs_value fs_expression_eval(fs_query *q, int row, int block, rasqal_expression *
             }
             return fs_value_error(FS_ERROR_INVALID_TYPE, "no valid arguments to COALESCE");
         }
-#endif
 
         case RASQAL_EXPR_VARSTAR: {
             fs_value v = fs_value_integer(1);
@@ -596,94 +763,104 @@ static int resolve_precache_all(fsp_link *l, fs_rid_vector *rv[], int segments)
     return 0;
 }
 
-static raptor_identifier_type slot_fill_from_rid(fs_query *q, void **data, fs_rid rid, raptor_uri **dt, const unsigned char **tag)
+static raptor_term *slot_fill_from_rid(fs_query *q, fs_rid rid)
 {
     fs_resource r;
     resolve(q, rid, &r);
 
     if (FS_IS_BNODE(rid)) {
-        *data = g_strdup(r.lex+2);
-        fs_query_add_freeable(q, *data);
-
-	return RAPTOR_IDENTIFIER_TYPE_ANONYMOUS;
+	return raptor_new_term_from_blank(q->qs->raptor_world, (unsigned char *)r.lex+2);
     } else if (FS_IS_URI(rid)) {
-        *data = raptor_new_uri((unsigned char *)r.lex);
-
-        return RAPTOR_IDENTIFIER_TYPE_RESOURCE;
+        return raptor_new_term_from_uri_string(q->qs->raptor_world, (unsigned char *)r.lex);
     } else if (FS_IS_LITERAL(rid)) {
-        *data = g_strdup(r.lex);
-        fs_query_add_freeable(q, *data);
+        raptor_uri *dt = NULL;
+        char *tag = NULL;
         if (r.attr && r.attr != FS_RID_NULL) {
             fs_resource ar;
             resolve(q, r.attr, &ar);
             if (FS_IS_URI(r.attr)) {
-                *dt = raptor_new_uri((unsigned char *)ar.lex);
+                dt = raptor_new_uri(q->qs->raptor_world, (unsigned char *)ar.lex);
             } else {
-                *tag = (unsigned char *)g_strdup(ar.lex);
-                fs_query_add_freeable(q, (void *)*tag);
+                tag = ar.lex;
             }
         }
-	return RAPTOR_IDENTIFIER_TYPE_LITERAL;
+	return raptor_new_term_from_literal(q->qs->raptor_world, (unsigned char *)r.lex, dt, (unsigned char *)tag);
     }
 
-    return RAPTOR_IDENTIFIER_TYPE_UNKNOWN;
+    return raptor_new_term_from_blank(q->qs->raptor_world, (unsigned char *)"unknown");
 }
 
-static raptor_identifier_type slot_fill(fs_query *q, void **data,
-                                        rasqal_literal *l, fs_row *row,
-                                        raptor_uri **dt)
+static raptor_term *slot_fill(fs_query *q, rasqal_literal *l, fs_row *row)
 {
     switch (l->type) {
     case RASQAL_LITERAL_URI:
-	*data = l->value.uri;
-
-	return RAPTOR_IDENTIFIER_TYPE_RESOURCE;
+	return raptor_new_term_from_uri(q->qs->raptor_world, l->value.uri);
 
     case RASQAL_LITERAL_BLANK:
-        *data = g_strdup_printf("%s_%d", l->string, q->row);
-        fs_query_add_freeable(q, *data);
+    {
+        char *label = g_strdup_printf("%s_%d", l->string, q->row);
+        raptor_term *term = raptor_new_term_from_blank(q->qs->raptor_world,
+            (unsigned char *)label);
+        g_free(label);
 
-	return RAPTOR_IDENTIFIER_TYPE_ANONYMOUS;
+	return term;
+    }
 
-#if RASQAL_VERSION >= 917
     case RASQAL_LITERAL_XSD_STRING:
     case RASQAL_LITERAL_UDT:
-#endif
     case RASQAL_LITERAL_STRING:
     case RASQAL_LITERAL_BOOLEAN:
-	*data = (void *)l->string;
-
-	return RAPTOR_IDENTIFIER_TYPE_LITERAL;
+	return raptor_new_term_from_literal(q->qs->raptor_world,
+            (unsigned char *)l->string, NULL, NULL);
 
     case RASQAL_LITERAL_INTEGER:
-#if RASQAL_VERSION >= 920
-	case RASQAL_LITERAL_INTEGER_SUBTYPE:
-#endif
-	*data = (void *)l->string;
-        if (dt) *dt = raptor_new_uri((unsigned char *)XSD_INTEGER);
+    case RASQAL_LITERAL_INTEGER_SUBTYPE:
+    {
+        raptor_uri *dt = raptor_new_uri(q->qs->raptor_world,
+            (unsigned char *)XSD_INTEGER);
+        raptor_term *term = raptor_new_term_from_literal(q->qs->raptor_world,
+            l->string, dt, NULL);
+        raptor_free_uri(dt);
 
-	return RAPTOR_IDENTIFIER_TYPE_LITERAL;
+	return term;
+    }
 
     case RASQAL_LITERAL_DECIMAL:
-	*data = (void *)l->string;
-        if (dt) *dt = raptor_new_uri((unsigned char *)XSD_DECIMAL);
+    {
+        raptor_uri *dt = raptor_new_uri(q->qs->raptor_world,
+            (unsigned char *)XSD_DECIMAL);
+        raptor_term *term = raptor_new_term_from_literal(q->qs->raptor_world,
+            l->string, dt, NULL);
+        raptor_free_uri(dt);
 
-	return RAPTOR_IDENTIFIER_TYPE_LITERAL;
+	return term;
+    }
 
     case RASQAL_LITERAL_DOUBLE:
     case RASQAL_LITERAL_FLOAT:
-	*data = (void *)l->string;
-        if (dt) *dt = raptor_new_uri((unsigned char *)XSD_DOUBLE);
+    {
+        raptor_uri *dt = raptor_new_uri(q->qs->raptor_world,
+            (unsigned char *)XSD_DOUBLE);
+        raptor_term *term = raptor_new_term_from_literal(q->qs->raptor_world,
+            l->string, dt, NULL);
+        raptor_free_uri(dt);
 
-	return RAPTOR_IDENTIFIER_TYPE_LITERAL;
+	return term;
+    }
 
     case RASQAL_LITERAL_DATETIME:
-	*data = (void *)l->string;
-        if (dt) *dt = raptor_new_uri((unsigned char *)XSD_DATETIME);
+    {
+        raptor_uri *dt = raptor_new_uri(q->qs->raptor_world,
+            (unsigned char *)XSD_DATETIME);
+        raptor_term *term = raptor_new_term_from_literal(q->qs->raptor_world,
+            l->string, dt, NULL);
+        raptor_free_uri(dt);
 
-	return RAPTOR_IDENTIFIER_TYPE_LITERAL;
+	return term;
+    }
 
-    case RASQAL_LITERAL_VARIABLE: {
+    case RASQAL_LITERAL_VARIABLE:
+    {
 	fs_row *b = NULL;
 	int col;
 	for (col=0; row[col].name; col++) {
@@ -692,38 +869,32 @@ static raptor_identifier_type slot_fill(fs_query *q, void **data,
                 break;
 	    }
 	}
-	if (b == NULL || b->rid == FS_RID_NULL) {
-	    *data = NULL;
-
-	    return RAPTOR_IDENTIFIER_TYPE_UNKNOWN;
-	}
-	*data = (void *)(b->lex);
-
-	if (b->type == FS_TYPE_URI) {
-	    return RAPTOR_IDENTIFIER_TYPE_RESOURCE;
-	} else if (b->type == FS_TYPE_BNODE) {
-            *data += 2;
-
-	    return RAPTOR_IDENTIFIER_TYPE_ANONYMOUS;
-	}
-
-        if (dt && b->dt) {
-	    *dt = raptor_new_uri((unsigned char *)b->dt);
+        if (FS_IS_BNODE(b->rid)) {
+            return raptor_new_term_from_blank(q->qs->raptor_world, (unsigned char *)b->lex+2);
+        } else if (FS_IS_URI(b->rid)) {
+            return raptor_new_term_from_uri_string(q->qs->raptor_world, (unsigned char *)b->lex);
+        } else if (FS_IS_LITERAL(b->rid)) {
+            raptor_uri *dt = NULL;
+            const unsigned char *tag = NULL;
+            if (b->dt) {
+                dt = raptor_new_uri(q->qs->raptor_world, (unsigned char *)b->dt);
+            }
+            if (b->lang) {
+                tag = (unsigned char *)b->lang;
+            }
+            return raptor_new_term_from_literal(q->qs->raptor_world, (unsigned char *)b->lex, dt, tag);
         }
-
-	return RAPTOR_IDENTIFIER_TYPE_LITERAL;
     }
 
     /* this should never happen */
     case RASQAL_LITERAL_PATTERN:
     case RASQAL_LITERAL_QNAME:
     case RASQAL_LITERAL_UNKNOWN:
+        fs_error(LOG_CRIT, "fell through result handler");
 	break;
     }
 
-    *data = NULL;
-
-    return RAPTOR_IDENTIFIER_TYPE_UNKNOWN;
+    return raptor_new_term_from_blank(q->qs->raptor_world, (unsigned char *)"unknown");
 }
 
 static void insert_slot_fill(fs_query *q, fs_rid *rid,
@@ -749,10 +920,8 @@ static void insert_slot_fill(fs_query *q, fs_rid *rid,
 
 	break;
 
-#if RASQAL_VERSION >= 917
     case RASQAL_LITERAL_XSD_STRING:
     case RASQAL_LITERAL_UDT:
-#endif
     case RASQAL_LITERAL_STRING:
 	res.lex = (char *)l->string;
         res.attr = 0;
@@ -768,9 +937,7 @@ static void insert_slot_fill(fs_query *q, fs_rid *rid,
 	break;
 
     case RASQAL_LITERAL_INTEGER:
-#if RASQAL_VERSION >= 920
     case RASQAL_LITERAL_INTEGER_SUBTYPE:
-#endif
 	res.lex = (char *)l->string;
         res.attr = fs_c.xsd_integer;
         res.rid = fs_hash_literal(res.lex, res.attr);
@@ -954,6 +1121,16 @@ static char *uri_escape(const char *str, int length)
     *outp = '\0';
 
     return to;
+}
+
+char *fs_uri_escape(const char *str)
+{
+    int esclen;
+    if (uri_needs_escape(str, &esclen)) {
+        return uri_escape(str, esclen);
+    }
+
+    return g_strdup(str);
 }
 
 static int tsv_needs_escape(const char *str, int *escaped_length)
@@ -1141,7 +1318,9 @@ static char *xml_escape(const char *from, int len)
 static void describe_uri(fs_query *q, fs_rid rid, raptor_uri *uri)
 {
     if (rid == FS_RID_NULL) {
-        rid = fs_hash_uri((char *)raptor_uri_as_string(uri));
+        if (uri) {
+            rid = fs_hash_uri((char *)raptor_uri_as_string(uri));
+        }
     }
     raptor_statement st;
     fs_rid_vector *ms = fs_rid_vector_new(0);
@@ -1152,31 +1331,38 @@ static void describe_uri(fs_query *q, fs_rid rid, raptor_uri *uri)
     fsp_bind_limit(q->link, FS_RID_SEGMENT(rid, q->segments),
         FS_BIND_BY_SUBJECT | FS_BIND_PREDICATE | FS_BIND_OBJECT, ms, ss,
         ps, os, &result, 0, q->soft_limit);
-    st.object_literal_datatype = NULL;
-    st.object_literal_language = NULL;
-    st.subject = uri;
     if (FS_IS_BNODE(rid)) {
-        st.subject_type = RAPTOR_IDENTIFIER_TYPE_ANONYMOUS;
+        if (uri) {
+            st.subject = raptor_new_term_from_blank(q->qs->raptor_world,
+                raptor_uri_as_string(uri));
+        } else {
+            char tmp[256];
+            sprintf(tmp, "b%016llx", rid);
+            st.subject = raptor_new_term_from_blank(q->qs->raptor_world,
+                (unsigned char *)tmp);
+        }
     } else {
-        st.subject_type = RAPTOR_IDENTIFIER_TYPE_RESOURCE;
+        st.subject = raptor_new_term_from_uri(q->qs->raptor_world, uri);
     }
     for (int row = 0; row < result[0]->length; row++) {
-        st.predicate_type = slot_fill_from_rid(q, (void **)&(st.predicate), result[0]->data[row], NULL, NULL);
-        st.object_type = slot_fill_from_rid(q, (void **)&(st.object), result[1]->data[row], &(st.object_literal_datatype), &(st.object_literal_language));
-        raptor_serialize_statement(q->ser, &st);
+        st.predicate = slot_fill_from_rid(q, result[0]->data[row]);
+        st.object = slot_fill_from_rid(q, result[1]->data[row]);
+        raptor_serializer_serialize_statement(q->ser, &st);
+        raptor_free_term(st.predicate);
+        raptor_free_term(st.object);
     }
+    raptor_free_term(st.subject);
 }
 
 static void handle_describe(fs_query *q, const char *type, FILE *output)
 {
-#if RASQAL_VERSION >= 917
-    q->ser = raptor_new_serializer(type);
+    q->ser = raptor_new_serializer(q->qs->raptor_world, type);
     for (int i=0; 1; i++) {
         rasqal_prefix *p = rasqal_query_get_prefix(q->rq, i);
         if (!p) break;
-        raptor_serialize_set_namespace(q->ser, p->uri, p->prefix);
+        raptor_serializer_set_namespace(q->ser, p->uri, p->prefix);
     }
-    raptor_serialize_start_to_file_handle(q->ser, q->base, output);
+    raptor_serializer_start_to_file_handle(q->ser, q->base, output);
 
     fs_p_vector *vars = fs_p_vector_new(0);
     raptor_sequence *desc = rasqal_query_get_describe_sequence(q->rq);
@@ -1193,17 +1379,19 @@ static void handle_describe(fs_query *q, const char *type, FILE *output)
     fs_row *row;
     while ((row = fs_query_fetch_row(q))) {
         for (int i=0; i<vars->length; i++) {
-            raptor_uri *duri;
-            slot_fill(q, (void **)&duri, vars->data[i], row, NULL);
-            describe_uri(q, row[i].rid, duri);
+            raptor_term *dterm = slot_fill(q, vars->data[i], row);
+            /* can only describe URIs or bNodes */
+            if (dterm->type == RAPTOR_TERM_TYPE_URI) {
+                describe_uri(q, row[i].rid, dterm->value.uri);
+            } else if (dterm->type == RAPTOR_TERM_TYPE_BLANK) {
+                describe_uri(q, row[i].rid, NULL);
+            }
+            raptor_free_term(dterm);
         }
     }
-    raptor_serialize_end(q->ser);
+    raptor_serializer_serialize_end(q->ser);
     raptor_free_serializer(q->ser);
     fs_p_vector_free(vars);
-#else
-    fprintf(output, "<?xml version=\"1.0\"?>\n<rdf:RDF xmlns:rdf=\"http://www.w3.org/1999/02/22-rdf-syntax-ns#\"><!-- sorry, DESCRIBE is not supported by this version of rasqal --></rdf:RDF>\n");
-#endif
 }
 
 static void handle_construct(fs_query *q, const char *type, FILE *output)
@@ -1225,13 +1413,13 @@ static void handle_construct(fs_query *q, const char *type, FILE *output)
         models->data[0] = quad[0];
         fsp_new_model_all(q->link, models);
     } else {
-        q->ser = raptor_new_serializer(type);
+        q->ser = raptor_new_serializer(q->qs->raptor_world, type);
         for (int i=0; 1; i++) {
             rasqal_prefix *p = rasqal_query_get_prefix(q->rq, i);
             if (!p) break;
-            raptor_serialize_set_namespace(q->ser, p->uri, p->prefix);
+            raptor_serializer_set_namespace(q->ser, p->uri, p->prefix);
         }
-        raptor_serialize_start_to_file_handle(q->ser, q->base, output);
+        raptor_serializer_start_to_file_handle(q->ser, q->base, output);
     }
 
     while ((row = fs_query_fetch_row(q))) {
@@ -1248,29 +1436,16 @@ static void handle_construct(fs_query *q, const char *type, FILE *output)
             }
         } else {
             raptor_statement st;
-            st.object_literal_datatype = NULL;
-            st.object_literal_language = NULL;
 
             for (int i=0; 1; i++) {
                 rasqal_triple *trip =
                    rasqal_query_get_construct_triple(q->rq, i);
                 if (!trip) break;
 
-                st.subject_type = slot_fill(q, (void **)&st.subject,
-                       trip->subject, row, NULL);
-                st.predicate_type = slot_fill(q, (void **)&st.predicate,
-                       trip->predicate, row, NULL);
-                st.object_type = slot_fill(q, (void **)&st.object,
-                       trip->object, row, &(st.object_literal_datatype));
-                if (st.subject_type != RAPTOR_IDENTIFIER_TYPE_UNKNOWN &&
-                    st.predicate_type != RAPTOR_IDENTIFIER_TYPE_UNKNOWN &&
-                    st.object_type != RAPTOR_IDENTIFIER_TYPE_UNKNOWN) {
-                    raptor_serialize_statement(q->ser, &st);
-                }
-		if (st.object_literal_datatype) {
-		    raptor_free_uri(st.object_literal_datatype);
-                    st.object_literal_datatype = NULL;
-		}
+                st.subject = slot_fill(q, trip->subject, row);
+                st.predicate = slot_fill(q, trip->predicate, row);
+                st.object = slot_fill(q, trip->object, row);
+                raptor_serializer_serialize_statement(q->ser, &st);
             }
         }
     }
@@ -1290,29 +1465,16 @@ static void handle_construct(fs_query *q, const char *type, FILE *output)
             }
         } else {
             raptor_statement st;
-            st.object_literal_datatype = NULL;
-            st.object_literal_language = NULL;
 
             for (int i=0; 1; i++) {
                 rasqal_triple *trip =
                    rasqal_query_get_construct_triple(q->rq, i);
                 if (!trip) break;
 
-                st.subject_type = slot_fill(q, (void **)&st.subject,
-                       trip->subject, row, NULL);
-                st.predicate_type = slot_fill(q, (void **)&st.predicate,
-                       trip->predicate, row, NULL);
-                st.object_type = slot_fill(q, (void **)&st.object,
-                       trip->object, row, &(st.object_literal_datatype));
-                if (st.subject_type != RAPTOR_IDENTIFIER_TYPE_UNKNOWN &&
-                    st.predicate_type != RAPTOR_IDENTIFIER_TYPE_UNKNOWN &&
-                    st.object_type != RAPTOR_IDENTIFIER_TYPE_UNKNOWN) {
-                    raptor_serialize_statement(q->ser, &st);
-                }
-		if (st.object_literal_datatype) {
-		    raptor_free_uri(st.object_literal_datatype);
-                    st.object_literal_datatype = NULL;
-		}
+                st.subject = slot_fill(q, trip->subject, row);
+                st.predicate = slot_fill(q, trip->predicate, row);
+                st.object = slot_fill(q, trip->object, row);
+                raptor_serializer_serialize_statement(q->ser, &st);
             }
         }
     }
@@ -1324,7 +1486,7 @@ static void handle_construct(fs_query *q, const char *type, FILE *output)
         }
         fsp_stop_import_all(q->link);
     } else {
-        raptor_serialize_end(q->ser);
+        raptor_serializer_serialize_end(q->ser);
         raptor_free_serializer(q->ser);
     }
 }

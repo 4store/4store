@@ -891,6 +891,20 @@ fs_value fn_uri(fs_query *q, fs_value a)
     return v;
 }
 
+fs_value fn_bnode(fs_query *q, fs_value a)
+{
+    a = fs_value_fill_rid(q, a);
+    /* scramble the RID number a bit */
+    fs_value b = fs_value_blank();
+    b.rid = a.rid + q->block * 39916801;
+    b.rid += q->row;
+    b.rid += FS_NUM_BNODE(a.rid & ~0xC000000000000000LL);
+    b.valid = fs_valid_bit(FS_V_RID);
+    b.attr = FS_RID_NULL;
+
+    return b;
+}
+
 fs_value fn_lang(fs_query *q, fs_value a)
 {
     if (a.valid & fs_valid_bit(FS_V_TYPE_ERROR)) {
@@ -1123,6 +1137,255 @@ fs_value fn_ebv(fs_value a)
     }
 
     return fs_value_error(FS_ERROR_INVALID_TYPE, NULL);
+}
+
+fs_value fn_substring(fs_query *q, fs_value str, fs_value start, fs_value length)
+{
+    if (!fs_is_plain_or_string(str)) {
+        return fs_value_error(FS_ERROR_INVALID_TYPE, NULL);
+    }
+    if (!fs_is_numeric(&start)) {
+        return fs_value_error(FS_ERROR_INVALID_TYPE, NULL);
+    }
+    start = cast_integer(start);
+    /* 2 arg form */
+    if (length.rid == FS_RID_NULL) {
+        length = fs_value_integer(INT_MAX);
+    } else {
+        if (!fs_is_numeric(&length)) {
+            return fs_value_error(FS_ERROR_INVALID_TYPE, NULL);
+        }
+        length = cast_integer(length);
+    }
+    str = fs_value_fill_lexical(q, str);
+    const int slen = g_utf8_strlen(str.lex, -1);
+    if (start.in > slen || length.in <= 0) {
+        fs_value ret = fs_value_plain("");
+        ret.attr = str.attr;
+
+        return ret;
+    }
+    gchar *spos = g_utf8_offset_to_pointer(str.lex, start.in - 1);
+    int retlen_utf8 = g_utf8_strlen(spos, -1);
+    if (retlen_utf8 > length.in) {
+        retlen_utf8 = length.in;
+    }
+    gchar *epos = g_utf8_offset_to_pointer(spos, retlen_utf8);
+    int retlen_bytes = epos - spos + 1;
+    char *retstr = g_malloc(retlen_bytes+1);
+    retstr[retlen_bytes] = '\0';
+    g_utf8_strncpy(retstr, spos, retlen_utf8);
+    fs_query_add_freeable(q, retstr);
+    fs_value ret = fs_value_plain(retstr);
+    ret.attr = str.attr;
+
+    return ret;
+}
+
+fs_value fn_ucase(fs_query *q, fs_value v)
+{
+    if (!fs_is_plain_or_string(v)) {
+        return fs_value_error(FS_ERROR_INVALID_TYPE, NULL);
+    }
+    v = fs_value_fill_lexical(q, v);
+    char *lex = g_utf8_strup(v.lex, -1);
+    fs_query_add_freeable(q, lex);
+    fs_value ret = fs_value_plain(lex);
+    ret.attr = v.attr;
+
+    return ret;
+}
+
+fs_value fn_lcase(fs_query *q, fs_value v)
+{
+    if (!fs_is_plain_or_string(v)) {
+        return fs_value_error(FS_ERROR_INVALID_TYPE, NULL);
+    }
+    v = fs_value_fill_lexical(q, v);
+    char *lex = g_utf8_strdown(v.lex, -1);
+    fs_query_add_freeable(q, lex);
+    fs_value ret = fs_value_plain(lex);
+    ret.attr = v.attr;
+
+    return ret;
+}
+
+fs_value fn_encode_for_uri(fs_query *q, fs_value v)
+{
+    if (!fs_is_plain_or_string(v)) {
+        return fs_value_error(FS_ERROR_INVALID_TYPE, NULL);
+    }
+    v = fs_value_fill_lexical(q, v);
+#ifdef HAVE_G_URI_ESCAPE_STRING
+    char *lex = g_uri_escape_string(v.lex, NULL, TRUE);
+#else
+    char *lex = fs_uri_escape(v.lex);
+#endif
+    fs_query_add_freeable(q, lex);
+    fs_value ret = fs_value_plain(lex);
+
+    return ret;
+}
+
+/* make a GDate from an ISO8601 string, returns NULL on failure, result must be
+ * freed with g_date_free() */
+static GDate *gdate_from_iso8601(char *iso)
+{
+    GTimeVal tv;
+    if (!g_time_val_from_iso8601(iso, &tv)) {
+        return NULL;
+    }
+    GDate *d = g_date_new();
+    g_date_set_time_val(d, &tv);
+
+    return d;
+}
+
+fs_value fn_year(fs_query *q, fs_value v)
+{
+    if (v.attr != fs_c.xsd_datetime) {
+        return fs_value_error(FS_ERROR_INVALID_TYPE, NULL);
+    }
+    v = fs_value_fill_lexical(q, v);
+    GDate *d = gdate_from_iso8601(v.lex);
+    if (!d) {
+        return fs_value_error(FS_ERROR_INVALID_TYPE, "cannot get year from xsd:date");
+    }
+    long int year = g_date_get_year(d);
+    if (year == G_DATE_BAD_YEAR) {
+        return fs_value_error(FS_ERROR_INVALID_TYPE, "bad year in xsd:date");
+    }
+    fs_value ret = fs_value_integer(year);
+    g_date_free(d);
+
+    return ret;
+}
+
+fs_value fn_month(fs_query *q, fs_value v)
+{
+    if (v.attr != fs_c.xsd_datetime) {
+        return fs_value_error(FS_ERROR_INVALID_TYPE, NULL);
+    }
+    v = fs_value_fill_lexical(q, v);
+    GDate *d = gdate_from_iso8601(v.lex);
+    if (!d) {
+        return fs_value_error(FS_ERROR_INVALID_TYPE, "cannot get month from xsd:date");
+    }
+    long int month = g_date_get_month(d);
+    if (month == G_DATE_BAD_MONTH) {
+        return fs_value_error(FS_ERROR_INVALID_TYPE, "bad month in xsd:date");
+    }
+    fs_value ret = fs_value_integer(month);
+    g_date_free(d);
+
+    return ret;
+}
+
+fs_value fn_day(fs_query *q, fs_value v)
+{
+    if (v.attr != fs_c.xsd_datetime) {
+        return fs_value_error(FS_ERROR_INVALID_TYPE, NULL);
+    }
+    v = fs_value_fill_lexical(q, v);
+    GDate *d = gdate_from_iso8601(v.lex);
+    if (!d) {
+        return fs_value_error(FS_ERROR_INVALID_TYPE, "cannot get day from xsd:date");
+    }
+    long int day = g_date_get_day(d);
+    if (day == G_DATE_BAD_DAY) {
+        return fs_value_error(FS_ERROR_INVALID_TYPE, "bad day in xsd:date");
+    }
+    fs_value ret = fs_value_integer(day);
+    g_date_free(d);
+
+    return ret;
+}
+
+fs_value fn_hours(fs_query *q, fs_value v)
+{
+    if (v.attr != fs_c.xsd_datetime) {
+        return fs_value_error(FS_ERROR_INVALID_TYPE, NULL);
+    }
+    v = fs_value_fill_lexical(q, v);
+    GTimeVal tv;
+    if (!g_time_val_from_iso8601(v.lex, &tv)) {
+        return fs_value_error(FS_ERROR_INVALID_TYPE, "cannot get hours from xsd:date");
+    }
+
+    return fs_value_integer((tv.tv_sec / 3600) % 24);
+}
+
+fs_value fn_minutes(fs_query *q, fs_value v)
+{
+    if (v.attr != fs_c.xsd_datetime) {
+        return fs_value_error(FS_ERROR_INVALID_TYPE, NULL);
+    }
+    v = fs_value_fill_lexical(q, v);
+    GTimeVal tv;
+    if (!g_time_val_from_iso8601(v.lex, &tv)) {
+        return fs_value_error(FS_ERROR_INVALID_TYPE, "cannot get minutes from xsd:date");
+    }
+
+    return fs_value_integer((tv.tv_sec / 60) % 60);
+}
+
+fs_value fn_seconds(fs_query *q, fs_value v)
+{
+    if (v.attr != fs_c.xsd_datetime) {
+        return fs_value_error(FS_ERROR_INVALID_TYPE, NULL);
+    }
+    v = fs_value_fill_lexical(q, v);
+    GTimeVal tv;
+    if (!g_time_val_from_iso8601(v.lex, &tv)) {
+        return fs_value_error(FS_ERROR_INVALID_TYPE, "cannot get seconds from xsd:date");
+    }
+
+    return fs_value_integer(tv.tv_sec % 60);
+}
+
+fs_value fn_timezone(fs_query *q, fs_value v)
+{
+    return fs_value_error(FS_ERROR_INVALID_TYPE, "TIMEZONE() function not suported");
+}
+
+fs_value fn_strstarts(fs_query *q, fs_value arg1, fs_value arg2)
+{
+    if (!fs_is_plain_or_string(arg1) || !fs_is_plain_or_string(arg2)) {
+        return fs_value_error(FS_ERROR_INVALID_TYPE, NULL);
+    }
+    arg1 = fs_value_fill_lexical(q, arg1);
+    arg2 = fs_value_fill_lexical(q, arg2);
+
+    return fs_value_boolean(strncmp(arg1.lex, arg2.lex, strlen(arg2.lex)) == 0);
+}
+
+fs_value fn_strends(fs_query *q, fs_value arg1, fs_value arg2)
+{
+    if (!fs_is_plain_or_string(arg1) || !fs_is_plain_or_string(arg2)) {
+        return fs_value_error(FS_ERROR_INVALID_TYPE, NULL);
+    }
+    arg1 = fs_value_fill_lexical(q, arg1);
+    arg2 = fs_value_fill_lexical(q, arg2);
+
+    const int a1l = strlen(arg1.lex);
+    const int a2l = strlen(arg2.lex);
+
+    if (a2l > a1l) {
+        return fs_value_boolean(0);
+    }
+
+    return fs_value_boolean(strncmp(arg1.lex + a1l - a2l, arg2.lex, a2l) == 0);
+}
+
+fs_value fn_contains(fs_query *q, fs_value arg1, fs_value arg2)
+{
+    if (!fs_is_plain_or_string(arg1) || !fs_is_plain_or_string(arg2)) {
+        return fs_value_error(FS_ERROR_INVALID_TYPE, NULL);
+    }
+    arg1 = fs_value_fill_lexical(q, arg1);
+    arg2 = fs_value_fill_lexical(q, arg2);
+
+    return fs_value_boolean(strstr(arg1.lex, arg2.lex) != NULL);
 }
 
 /* vi:set expandtab sts=4 sw=4: */

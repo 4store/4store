@@ -160,23 +160,18 @@ static void fs_query_explain(fs_query *q, char *msg)
     }
 }
 
-static void warning_handler(void *user_data, raptor_locator* locator, const char *message)
+
+
+static void log_handler(void *user_data, raptor_log_message *message)
 {
     fs_query *q = user_data;
 
-    char *msg = g_strdup_printf("parser warning: %s at line %d", message, raptor_locator_line(locator));
+    char *msg = g_strdup_printf("parser %s: %s at line %d", raptor_log_level_get_label(message->level), message->text, raptor_locator_line(message->locator));
     q->warnings = g_slist_prepend(q->warnings, msg);
     fs_query_add_freeable(q, msg);
-}
-
-static void error_handler(void *user_data, raptor_locator* locator, const char *message)
-{
-    fs_query *q = user_data;
-
-    char *msg = g_strdup_printf("parser error: %s at line %d", message, raptor_locator_line(locator));
-    q->warnings = g_slist_prepend(q->warnings, msg);
-    q->errors++;
-    fs_query_add_freeable(q, msg);
+    if (message->level > RAPTOR_LOG_LEVEL_WARN) {
+        q->errors++;
+    }
 }
 
 guint fs_freq_hash(gconstpointer key)
@@ -241,62 +236,33 @@ fs_query_state *fs_query_init(fsp_link *link)
         }
     }
 
-#ifdef HAVE_RASQAL_WORLD
     qs->rasqal_world = rasqal_new_world();
     if (!qs->rasqal_world) {
         fs_error(LOG_ERR, "failed to allocate rasqal world");
     }
-#if RASQAL_VERSION >= 917
     if (rasqal_world_open(qs->rasqal_world)) {
         fs_error(LOG_ERR, "failed to intialise rasqal world");
 	fs_query_fini(qs);
 	return NULL;
     }
-#endif
-#endif /* HAVE_RASQAL_WORLD */
+    qs->raptor_world = raptor_new_world();
+    if (!qs->raptor_world) {
+        fs_error(LOG_ERR, "failed to allocate raptor world");
+    }
 
     return qs;
 }
 
 int fs_query_have_laqrs(void)
 {
-    int laqrs = 0;
-
-#ifdef HAVE_RASQAL_WORLD
-    rasqal_world *w = rasqal_new_world();
-    if (!w) {
-        fs_error(LOG_ERR, "failed to allocate rasqal world");
-        return 0;
-    }
-#if RASQAL_VERSION >= 917
-    if (rasqal_world_open(w)) {
-        fs_error(LOG_ERR, "failed to initialise rasqal world");
-	rasqal_free_world(w);
-	return 0;
-    }
-#endif
-    rasqal_query *rq = rasqal_new_query(w, "laqrs", NULL);
-#else
-    rasqal_query *rq = rasqal_new_query("laqrs", NULL);
-#endif /* HAVE_RASQAL_WORLD */
-    if (rq) {
-        laqrs = 1;
-        rasqal_free_query(rq);
-    }
-#ifdef HAVE_RASQAL_WORLD
-    rasqal_free_world(w);
-#endif
-
-    return laqrs;
+    return 1;
 }
 
 int fs_query_fini(fs_query_state *qs)
 {
     if (qs) {
-#ifdef HAVE_RASQAL_WORLD
-        if(qs->rasqal_world)
-          rasqal_free_world(qs->rasqal_world);
-#endif /* HAVE_RASQAL_WORLD */
+        if (qs->rasqal_world) rasqal_free_world(qs->rasqal_world);
+        if (qs->raptor_world) raptor_free_world(qs->raptor_world);
         free(qs->bind_cache);
         g_static_mutex_free(&qs->cache_mutex);
         free(qs);
@@ -345,12 +311,6 @@ fs_query *fs_query_execute(fs_query_state *qs, fsp_link *link, raptor_uri *bu, c
 
     fsp_hit_limits_reset(link);
 
-#ifndef HAVE_RASQAL_WORLD
-    rasqal_query *rq = rasqal_new_query("laqrs", NULL);
-    if (!rq) {
-        rq = rasqal_new_query("sparql", NULL);
-    }
-#else /* HAVE_RASQAL_WORLD */
     rasqal_query *rq = rasqal_new_query(qs->rasqal_world, "sparql11", NULL);
     if (!rq) {
         rq = rasqal_new_query(qs->rasqal_world, "laqrs", NULL);
@@ -358,7 +318,6 @@ fs_query *fs_query_execute(fs_query_state *qs, fsp_link *link, raptor_uri *bu, c
     if (!rq) {
         rq = rasqal_new_query(qs->rasqal_world, "sparql", NULL);
     }
-#endif /* HAVE_RASQAL_WORLD */
     if (!rq) {
         fs_error(LOG_ERR, "failed to initialise query system");
 
@@ -378,8 +337,7 @@ fs_query *fs_query_execute(fs_query_state *qs, fsp_link *link, raptor_uri *bu, c
         q->soft_limit = FS_FANOUT_LIMIT;
     }
     q->boolean = 1;
-    rasqal_query_set_warning_handler(rq, q, warning_handler);
-    rasqal_query_set_error_handler(rq, q, error_handler);
+    rasqal_world_set_log_handler(q->qs->rasqal_world, q, log_handler);
     int ret = rasqal_query_prepare(rq, (unsigned char *)query, bu);
     if (ret) {
 	return q;
@@ -392,17 +350,27 @@ fs_query *fs_query_execute(fs_query_state *qs, fsp_link *link, raptor_uri *bu, c
     q->segments = fsp_link_segments(link);
     q->base = bu;
     rasqal_query_verb verb = rasqal_query_get_verb(rq);
-    if (verb == RASQAL_QUERY_VERB_CONSTRUCT ||
-        verb == RASQAL_QUERY_VERB_INSERT) {
+    switch (verb) {
+    case RASQAL_QUERY_VERB_CONSTRUCT:
 	q->construct = 1;
-    } else if (verb == RASQAL_QUERY_VERB_ASK) {
+        break;
+    case RASQAL_QUERY_VERB_ASK:
         q->ask = 1;
-    } else if (verb == RASQAL_QUERY_VERB_DESCRIBE) {
+        break;
+    case RASQAL_QUERY_VERB_DESCRIBE:
         q->describe = 1;
-    } else if (verb == RASQAL_QUERY_VERB_SELECT) {
+        break;
+    case RASQAL_QUERY_VERB_SELECT:
         /* nothing */
-    } else {
-        fs_error(LOG_ERR, "Unknown query verb %d", verb);
+        break;
+    case RASQAL_QUERY_VERB_INSERT:
+    case RASQAL_QUERY_VERB_DELETE:
+    case RASQAL_QUERY_VERB_UPDATE:
+        fs_error(LOG_ERR, "Query endpoints don't support SPARQL Update verbs (%s)", rasqal_query_verb_as_string(verb));
+        break;
+    case RASQAL_QUERY_VERB_UNKNOWN:
+        fs_error(LOG_ERR, "Unknown query verb");
+        break;
     }
     if (rasqal_query_get_order_condition(rq, 0)) {
         q->order = 1;
@@ -472,7 +440,7 @@ fs_query *fs_query_execute(fs_query_state *qs, fsp_link *link, raptor_uri *bu, c
 
     raptor_sequence *vars = NULL;
     if (q->construct) {
-	vars = raptor_new_sequence(NULL, NULL);
+ 	vars = raptor_new_sequence(NULL, NULL);
 	for (int i=0; 1; i++) {
 	    rasqal_triple *t = rasqal_query_get_construct_triple(rq, i);
 	    if (!t) break;
@@ -481,7 +449,6 @@ fs_query *fs_query_execute(fs_query_state *qs, fsp_link *link, raptor_uri *bu, c
 	    check_cons_slot(q, vars, t->object);
 	}
     } else if (q->describe) {
-#if RASQAL_VERSION >= 917
         raptor_sequence *desc = rasqal_query_get_describe_sequence(rq);
         vars = raptor_new_sequence(NULL, NULL);
         for (int i=0; 1; i++) {
@@ -499,13 +466,6 @@ fs_query *fs_query_execute(fs_query_state *qs, fsp_link *link, raptor_uri *bu, c
                 break;
             }
         }
-#else
-        fs_error(LOG_INFO, "sorry, describe is not supported by your version of rasqal");
-	q->num_vars = 0;
-	q->boolean = 0;
-
-        return q;
-#endif
     } else {
 	vars = rasqal_query_get_bound_variable_sequence(rq);
     }
@@ -520,13 +480,11 @@ fs_query *fs_query_execute(fs_query_state *qs, fsp_link *link, raptor_uri *bu, c
     /* add column to denote join ordering */
     fs_binding_add(q->bb[0], "_ord", FS_RID_NULL, 0);
 
-#if RASQAL_VERSION >= 921
     /* test to see if this is explicitly an aggregated query */
     if (rasqal_query_get_group_condition(rq, 0) ||
         rasqal_query_get_having_condition(rq, 0)) {
         q->aggregate = 1;
     }
-#endif
 
     for (int i=0; i < q->num_vars; i++) {
 	rasqal_variable *v = raptor_sequence_get_at(vars, i);
@@ -971,13 +929,9 @@ static void assign_slot(fs_query *q, rasqal_literal *l, int block)
 
 static int is_aggregate(fs_query *q, rasqal_expression *e)
 {
-#if RASQAL_VERSION >= 921
     if (e->flags & RASQAL_EXPR_FLAG_AGGREGATE) {
         return 1;
     }
-#else
-    return 0;
-#endif
 
     int agg = 0;
     if (e->arg1) {
@@ -1171,9 +1125,7 @@ static void graph_pattern_walk(fsp_link *link, rasqal_graph_pattern *pattern,
     } else if (op == RASQAL_GRAPH_PATTERN_OPERATOR_BASIC ||
 	       op == RASQAL_GRAPH_PATTERN_OPERATOR_GRAPH) {
         if (op == RASQAL_GRAPH_PATTERN_OPERATOR_GRAPH) {
-#if RASQAL_VERSION >= 917
             model = rasqal_graph_pattern_get_origin(pattern);
-#endif
             if (!model) {
                 fs_error(LOG_ERR, "expected origin from pattern, but got NULL");
             }
@@ -1181,7 +1133,6 @@ static void graph_pattern_walk(fsp_link *link, rasqal_graph_pattern *pattern,
         (q->block)++;
         q->parent_block[q->block] = parent;
         q->join_type[q->block] = FS_INNER;
-#if RASQAL_VERSION >= 917
     } else if (op == RASQAL_GRAPH_PATTERN_OPERATOR_FILTER) {
         rasqal_expression *e =
             rasqal_graph_pattern_get_filter_expression(pattern);
@@ -1205,7 +1156,6 @@ static void graph_pattern_walk(fsp_link *link, rasqal_graph_pattern *pattern,
 #endif
             raptor_sequence_push(q->constraints[parent], e);
         }
-#endif
     } else if (op == RASQAL_GRAPH_PATTERN_OPERATOR_GROUP) {
         /* do nothing */
     } else {
@@ -1222,11 +1172,7 @@ static void graph_pattern_walk(fsp_link *link, rasqal_graph_pattern *pattern,
 	rasqal_triple *rt = rasqal_graph_pattern_get_triple(pattern, i);
 	if (!rt) break;
         rasqal_triple *t = calloc(1, sizeof(rasqal_triple));
-#if RASQAL_VERSION >= 917
         t->origin = model;
-#else
-        t->origin = rt->origin;
-#endif
         t->subject = rt->subject;
         t->predicate = rt->predicate;
         t->object = rt->object;
@@ -1251,30 +1197,6 @@ static void graph_pattern_walk(fsp_link *link, rasqal_graph_pattern *pattern,
         graph_pattern_walk(link, sgp, q, model, this_block, union_sub);
     }
 
-#if RASQAL_VERSION < 917
-    raptor_sequence *s =
-        rasqal_graph_pattern_get_constraint_sequence(pattern);
-    if (s) {
-        for (int c=0; 1; c++) {
-            rasqal_expression *e = raptor_sequence_get_at(s, c);
-            if (!e) break;
-
-            /* we need to flag if it's a UNION FILTER so we don't
-             * unneccesarily set the selected flag on the variables */
-            check_variables(q, e, uni);
-            if (filter_optimise(q, e, q->block)) {
-                /* stop us from trying to evaluate this expression later */
-                raptor_sequence_set_at(s, c, NULL);
-            }
-        }
-
-        if (q->constraints[this_block]) {
-            raptor_sequence_join(q->constraints[this_block], s);
-        } else {
-            q->constraints[this_block] = s;
-        }
-    }
-#endif
     for (int c=0; 1; c++) {
         rasqal_expression *e = rasqal_query_get_order_condition(q->rq, c);
         if (!e) break;
@@ -1848,10 +1770,8 @@ static fs_rid const_literal_to_rid(fs_query *q, rasqal_literal *l, fs_rid *attr)
             char *uri = (char *)raptor_uri_as_string(l->value.uri);
             return fs_hash_uri(uri);
         }
-#if RASQAL_VERSION >= 917
         case RASQAL_LITERAL_XSD_STRING:
         case RASQAL_LITERAL_UDT:
-#endif
 	case RASQAL_LITERAL_STRING: {
             *attr = fs_c.empty;
             if (l->language) {
@@ -1868,9 +1788,7 @@ static fs_rid const_literal_to_rid(fs_query *q, rasqal_literal *l, fs_rid *attr)
 	    return fs_hash_literal(l->value.integer ?
 			"true" : "false", *attr);
 	case RASQAL_LITERAL_INTEGER:
-#if RASQAL_VERSION >= 920
 	case RASQAL_LITERAL_INTEGER_SUBTYPE:
-#endif
             *attr = fs_c.xsd_integer;
 	    return fs_hash_literal((char *)l->string, *attr);
 	case RASQAL_LITERAL_DOUBLE:
@@ -1947,13 +1865,14 @@ int fs_bind_slot(fs_query *q, int block, fs_binding *b,
 	    break;
 	case RASQAL_LITERAL_URI: {
             char *uri = (char *)raptor_uri_as_string(l->value.uri);
+            if (!uri) {
+                fs_error(LOG_CRIT, "Got NULL URI from literal %p", l);
+            }
             fs_rid_vector_append(v, fs_hash_uri(uri));
 	    break;
         }
-#if RASQAL_VERSION >= 917
         case RASQAL_LITERAL_XSD_STRING:
         case RASQAL_LITERAL_UDT:
-#endif
 	case RASQAL_LITERAL_STRING:
 	    if (!lit_allowed) {
 		return 1;
@@ -1977,9 +1896,7 @@ int fs_bind_slot(fs_query *q, int block, fs_binding *b,
 	    fs_rid_vector_append(v, fs_hash_literal(l->value.integer ?
 			"true" : "false", fs_c.xsd_boolean));
 	    break;
-#if RASQAL_VERSION >= 920
 	case RASQAL_LITERAL_INTEGER_SUBTYPE:
-#endif
 	case RASQAL_LITERAL_INTEGER:
 	    if (!lit_allowed) {
 		return 1;

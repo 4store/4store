@@ -3,9 +3,10 @@ To make a release:
 Make sure your git tree is in sync.
 $ git tag -a 'vx.y.z' -m "Version x.y.z"
 $ git push --tags
+$ ./configure
 $ make dist
 
-Copy tarball to http-a
+Copy tarball to 4store.org:/var/www/html/4store/download/
 
 make macdmg
 

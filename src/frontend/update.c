@@ -27,8 +27,6 @@
 #include "../common/error.h"
 #include "../common/rdf-constants.h"
 
-#if RASQAL_VERSION > 917
-
 enum update_op {
     OP_LOAD, OP_CLEAR
 };
@@ -113,11 +111,11 @@ static void add_message(struct update_context *ct, char *m, int freeable)
     }
 }
 
-static void error_handler(void *user_data, raptor_locator* locator, const char *message)
+static void error_handler(void *user_data, raptor_log_message *message)
 {
     struct update_context *ct = user_data;
 
-    char *msg = g_strdup_printf("Parser error: %s at line %d of operation %d", message, raptor_locator_line(locator), ct->opid);
+    char *msg = g_strdup_printf("Parser %s: %s at line %d of operation %d", raptor_log_level_get_label(message->code), message->text, raptor_locator_line(message->locator), ct->opid);
     add_message(ct, msg, 1);
     fs_error(LOG_ERR, "%s", msg);
 }
@@ -236,9 +234,7 @@ int fs_update(fsp_link *l, char *update, char **message, int unsafe)
         return 1;
     }
     struct update_context uctxt;
-    rasqal_query_set_fatal_error_handler(rq, &uctxt, error_handler);
-    rasqal_query_set_error_handler(rq, &uctxt, error_handler);
-    rasqal_query_set_warning_handler(rq, &uctxt, error_handler);
+    rasqal_world_set_log_handler(rworld, &uctxt, error_handler);
     memset(&uctxt, 0, sizeof(uctxt));
     uctxt.link = l;
     uctxt.segments = fsp_link_segments(l);
@@ -437,8 +433,10 @@ fs_rid fs_hash_rasqal_literal(struct update_context *ct, rasqal_literal *l)
         fs_error(LOG_ERR, "unknown literal type received");
 
         return FS_RID_NULL;
+
     case RASQAL_LITERAL_URI:
 	return fs_hash_uri((char *)raptor_uri_as_string(l->value.uri));
+
     case RASQAL_LITERAL_STRING:
     case RASQAL_LITERAL_XSD_STRING: {
         fs_rid attr = 0;
@@ -450,9 +448,15 @@ fs_rid fs_hash_rasqal_literal(struct update_context *ct, rasqal_literal *l)
 
         return fs_hash_literal((char *)rasqal_literal_as_string(l), attr);
     }
+
     case RASQAL_LITERAL_BLANK: {
-        return fs_bnode_id(ct->link, (char *)rasqal_literal_as_string(l));
+        raptor_term_blank_value bnode;
+        bnode.string = (unsigned char *)rasqal_literal_as_string(l);
+        bnode.string_len = strlen(bnode.string);
+
+        return fs_bnode_id(ct->link, bnode);
     }
+
     case RASQAL_LITERAL_VARIABLE:
     case RASQAL_LITERAL_QNAME:
     case RASQAL_LITERAL_PATTERN:
@@ -464,9 +468,8 @@ fs_rid fs_hash_rasqal_literal(struct update_context *ct, rasqal_literal *l)
     case RASQAL_LITERAL_DOUBLE:
     case RASQAL_LITERAL_DATETIME:
     case RASQAL_LITERAL_UDT:
-        fs_error(LOG_ERR, "bad rasqal literal (type %d)", type);
+        break;
     }
-
     fs_error(LOG_ERR, "bad rasqal literal (type %d)", type);
 
     return FS_RID_NULL;
@@ -570,7 +573,5 @@ int fs_clear(struct update_context *uc, char *graphuri)
 
     return errors;
 }
-
-#endif
 
 /* vi:set expandtab sts=4 sw=4: */

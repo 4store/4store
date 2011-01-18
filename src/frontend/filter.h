@@ -45,12 +45,28 @@ fs_value fn_is_blank(fs_query *q, fs_value a);
 fs_value fn_is_literal(fs_query *q, fs_value a);
 fs_value fn_str(fs_query *q, fs_value a);
 fs_value fn_uri(fs_query *q, fs_value a);
+fs_value fn_bnode(fs_query *q, fs_value a);
 fs_value fn_lang(fs_query *q, fs_value a);
 fs_value fn_datatype(fs_query *q, fs_value a);
 
-/* --end-process-- */
+/* SPARQL 1.1 functions */
 
-/* casts */
+fs_value fn_substring(fs_query *q, fs_value str, fs_value start, fs_value length);
+fs_value fn_ucase(fs_query *q, fs_value v);
+fs_value fn_lcase(fs_query *q, fs_value v);
+fs_value fn_encode_for_uri(fs_query *q, fs_value v);
+fs_value fn_year(fs_query *q, fs_value v);
+fs_value fn_month(fs_query *q, fs_value v);
+fs_value fn_day(fs_query *q, fs_value v);
+fs_value fn_hours(fs_query *q, fs_value v);
+fs_value fn_minutes(fs_query *q, fs_value v);
+fs_value fn_seconds(fs_query *q, fs_value v);
+fs_value fn_timezone(fs_query *q, fs_value v);
+fs_value fn_strstarts(fs_query *q, fs_value arg1, fs_value arg2);
+fs_value fn_strends(fs_query *q, fs_value arg1, fs_value arg2);
+fs_value fn_contains(fs_query *q, fs_value arg1, fs_value arg2);
+
+/* casts and similar */
 fs_value fn_cast(fs_query *q, fs_value v, fs_value d);
 fs_value fn_cast_intl(fs_query *q, fs_value v, fs_rid dt);
 fs_value fn_ebv(fs_value a);

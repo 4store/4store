@@ -1,0 +1,33 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML 2.0//EN">
+<html><head><title>201 imported successfully</title></head>
+<body><h1>201 imported successfully</h1>
+<p>This is a 4store SPARQL server.</p><p>4store [VERSION]</p></body></html>
+Query: SELECT ?d WHERE { <test:data> <test:bcdate> ?d . FILTER(YEAR(?d) = 1969) } ORDER BY ?d
+?d
+"1969-05-23"^^<http://www.w3.org/2001/XMLSchema#dateTime>
+"1969-05-23T23:05:00Z"^^<http://www.w3.org/2001/XMLSchema#dateTime>
+Query: SELECT ?d WHERE { <test:data> <test:bcdate> ?d . FILTER(MONTH(?d) = 5.0) } ORDER BY ?d
+?d
+"1969-05-23"^^<http://www.w3.org/2001/XMLSchema#dateTime>
+"1969-05-23T23:05:00Z"^^<http://www.w3.org/2001/XMLSchema#dateTime>
+Query: SELECT (DAY(?d) AS ?dd) WHERE { <test:data> <test:bcdate> ?d }
+?dd
+"16"^^<http://www.w3.org/2001/XMLSchema#integer>
+"23"^^<http://www.w3.org/2001/XMLSchema#integer>
+"24"^^<http://www.w3.org/2001/XMLSchema#integer>
+Query: SELECT (SUBSTR(?s, 1, 3) AS ?ss) WHERE { <test:data> <test:bcd> ?s. FILTER(?s = "012345678901234567890123456789012") }
+?ss
+"012"
+Query: SELECT (STRSTARTS(?s, "012") AS ?sw) WHERE { <test:data> <test:bcd> ?s. FILTER(?s = "012345678901234567890123456789012") }
+?sw
+"true"^^<http://www.w3.org/2001/XMLSchema#boolean>
+Query: SELECT (STRENDS(?s, "012") AS ?ew) WHERE { <test:data> <test:bcd> ?s. FILTER(?s = "012345678901234567890123456789012") }
+?ew
+"true"^^<http://www.w3.org/2001/XMLSchema#boolean>
+Query: SELECT (CONCAT("CC") AS ?co) WHERE { <test:data> <test:bcd> ?s } ORDER BY ?co
+?co
+Query: SELECT (CONCAT("BEFORE-∂-",?s, "-§-AFTER") AS ?co) WHERE { <test:data> <test:bcd> ?s } ORDER BY ?co
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML 2.0//EN">
+<html><head><title>200 deleted successfully</title></head>
+<body><h1>200 deleted successfully</h1>
+<p>This is a 4store SPARQL server.</p><p>4store [VERSION]</p></body></html>

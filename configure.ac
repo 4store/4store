@@ -35,11 +35,8 @@ AC_CHECK_LIB([z], [deflateInit])
 PKG_CHECK_MODULES([GLIB], glib-2.0 >= 2.2.0)
 PKG_CHECK_MODULES([GTHREAD], gthread-2.0 >= 2.2.0)
 PKG_CHECK_MODULES([LIBXML], libxml-2.0)
-PKG_CHECK_MODULES([RAPTOR], raptor)
-PKG_CHECK_MODULES([RASQAL], rasqal >= 0.9.14)
-if $PKG_CONFIG --atleast-version=0.9.16 rasqal; then
-	AC_DEFINE(HAVE_RASQAL_WORLD, [], [Defined if we have rasqal world object])
-fi
+PKG_CHECK_MODULES([RAPTOR], raptor2)
+PKG_CHECK_MODULES([RASQAL], rasqal >= 0.9.22)
 AC_CHECK_LIB([pcre], [pcre_compile])
 AC_CHECK_PROG(WITH_PCRE_CONFIG, pcre-config, yes, no)
 if test $WITH_PCRE_CONFIG = no; then
@@ -84,6 +81,11 @@ AC_FUNC_REALLOC
 AC_FUNC_STRTOD
 AC_CHECK_FUNCS([atexit ftime ftruncate gethostname gettimeofday memmove mempcpy memset mkdir munmap select setlocale socket strcasecmp strchr strdup strerror strncasecmp strrchr strstr strtol strtoull])
 
+oLIBS=$LIBS
+LIBS="$GLIB_LIBS"
+AC_CHECK_FUNCS([g_uri_escape_string])
+LIBS=$oLIBS
+
 AC_CONFIG_FILES([version.sh
                  Makefile
                  man/Makefile
@@ -100,7 +102,7 @@ AC_CONFIG_FILES([version.sh
                  src/common/params.h])
 AC_OUTPUT
 
-raptor_version=`$PKG_CONFIG raptor --modversion 2>/dev/null`
+raptor_version=`$PKG_CONFIG raptor2 --modversion 2>/dev/null`
 rasqal_version=`$PKG_CONFIG rasqal --modversion 2>/dev/null`
 
 echo

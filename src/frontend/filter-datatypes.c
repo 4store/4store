@@ -121,6 +121,19 @@ fs_value fs_value_plain_with_lang(const char *s, const char *l)
     return v;
 }
 
+fs_value fs_value_plain_with_dt(const char *s, const char *d)
+{
+    fs_value v = fs_value_blank();
+    if (!d || *d == '\0') {
+	v.attr = fs_c.empty;
+    } else {
+	v.attr = fs_hash_uri(d);
+    }
+    v.lex = (char *)s;
+
+    return v;
+}
+
 fs_value fs_value_string(const char *s)
 {
     fs_value v = fs_value_blank();
@@ -224,7 +237,7 @@ fs_value fs_value_datetime_from_string(const char *s)
     if (g_time_val_from_iso8601(s, &gtime)) {
         v.in = gtime.tv_sec;
         v.valid = fs_valid_bit(FS_V_IN);
-        v.lex = s;
+        v.lex = (char *)s;
 
         return v;
     }
@@ -350,6 +363,21 @@ int fs_is_error(fs_value a)
     }
 
     return 0;
+}
+
+int fs_is_plain_or_string(fs_value v)
+{
+    if (fs_is_error(v)) {
+        return 0;
+    }
+    if (FS_IS_BNODE(v.rid) || FS_IS_URI(v.rid)) {
+        return 0;
+    }
+    if (v.attr != fs_c.empty && v.attr != fs_c.xsd_string) {
+        return 0;
+    }
+
+    return 1;
 }
 
 int fs_value_is_true(fs_value a)

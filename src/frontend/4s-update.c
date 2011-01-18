@@ -27,7 +27,6 @@ int main(int argc, char *argv[])
 {
     fs_gnu_options(argc, argv, "<kb-name> <sparql-update-request>\n");
 
-#if RASQAL_VERSION > 917
     if (argc != 3) {
         printf("Usage: %s <kb-name> <sparql-update-request>\n", argv[0]);
 
@@ -43,7 +42,6 @@ int main(int argc, char *argv[])
       return 2;
     }
 
-    raptor_init();
     fs_hash_init(fsp_hash_type(link));
 
     char *message = NULL;
@@ -51,11 +49,6 @@ int main(int argc, char *argv[])
     if (message) printf("%s\n", message);
 
     return ret;
-#else
-    fprintf(stderr, "%s requires rasqal > 0.9.17 to work\n", argv[0]);
-
-    return 1;
-#endif
 }
 
 /* vi:set expandtab sts=4 sw=4: */

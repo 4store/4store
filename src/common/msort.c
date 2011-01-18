@@ -29,7 +29,7 @@
 
 /* swh: various bits of hackery to make this code run outside of glibc */
 
-#ifndef mempcpy
+#ifndef HAVE_MEMPCPY
 static void *mempcpy(void *s1, void *s2, size_t n)
 {
   memcpy(s1, s2, n);

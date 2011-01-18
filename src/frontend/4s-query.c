@@ -42,8 +42,8 @@
 #include "../common/hash.h"
 #include "../common/error.h"
 
-static void interactive(fsp_link *link, raptor_uri *bu, const char *result_format, int verbosity, int opt_levelo, int result_flags, int soft_limit);
-static void programatic_io(fsp_link *link, raptor_uri *bu, const char *query_lang, const char *result_format, fs_query_timing *timing, int verbosity, int opt_level, unsigned int result_flags, int soft_limit);
+static void interactive(fsp_link *link, raptor_uri *bu, const char *result_format, int verbosity, int opt_levelo, int result_flags, int soft_limit, raptor_world *rw);
+static void programatic_io(fsp_link *link, raptor_uri *bu, const char *query_lang, const char *result_format, fs_query_timing *timing, int verbosity, int opt_level, unsigned int result_flags, int soft_limit, raptor_world *rw);
 
 static int show_timing;
 
@@ -72,6 +72,7 @@ int main(int argc, char *argv[])
     int soft_limit = 0;
     int default_graph = 0;
     char *base_uri = "local:";
+    raptor_world *rw = NULL;
 
     static struct option long_options[] = {
         { "help", 0, 0, 'h' },
@@ -186,13 +187,10 @@ int main(int argc, char *argv[])
       return 2;
     }
 
-    raptor_init();
-#ifndef HAVE_RASQAL_WORLD
-    rasqal_init();
-#endif /* ! HAVE_RASQAL_WORLD */
+    rw = raptor_new_world();
     fs_hash_init(fsp_hash_type(link));
 
-    raptor_uri *bu = raptor_new_uri((unsigned char *)base_uri);
+    raptor_uri *bu = raptor_new_uri(rw, (unsigned char *)base_uri);
 
     unsigned int flags = FS_QUERY_CONSOLE_OUTPUT; /* signal that we're using the */
                              /* console, allows better explain functionality */
@@ -202,11 +200,12 @@ int main(int argc, char *argv[])
 
     if (programatic) {
 	programatic_io(link, bu, "sparql", format, timing, verbosity, opt_level,
-            FS_RESULT_FLAG_HEADERS | flags, soft_limit);
+            FS_RESULT_FLAG_HEADERS | flags, soft_limit, rw);
     } else if (!query) {
         if (!format) format = "text";
         interactive(link, bu, format, verbosity, opt_level,
-            insert_mode ? FS_RESULT_FLAG_CONSTRUCT_AS_INSERT : flags, soft_limit);
+            insert_mode ? FS_RESULT_FLAG_CONSTRUCT_AS_INSERT : flags,
+            soft_limit, rw);
     }
 
     int ret = 0;
@@ -239,10 +238,7 @@ int main(int argc, char *argv[])
     }
 
     raptor_free_uri(bu);
-    raptor_finish();
-#ifndef HAVE_RASQAL_WORLD
-    rasqal_finish();
-#endif /* ! HAVE_RASQAL_WORLD */
+    raptor_free_world(rw);
 
     fs_query_cache_flush(qs, verbosity);
     fs_query_fini(qs);
@@ -254,7 +250,7 @@ int main(int argc, char *argv[])
 
 #define MAX_Q_SIZE 1000000
 
-static void programatic_io(fsp_link *link, raptor_uri *bu, const char *query_lang, const char *result_format, fs_query_timing *timing, int verbosity, int opt_level, unsigned int result_flags, int soft_limit)
+static void programatic_io(fsp_link *link, raptor_uri *bu, const char *query_lang, const char *result_format, fs_query_timing *timing, int verbosity, int opt_level, unsigned int result_flags, int soft_limit, raptor_world *rw)
 {
     char query[MAX_Q_SIZE];
     char *pos;
@@ -325,17 +321,13 @@ static void programatic_io(fsp_link *link, raptor_uri *bu, const char *query_lan
 
     raptor_free_uri(bu);
     fsp_close_link(link);
-    raptor_finish();
-#ifndef HAVE_RASQAL_WORLD
-    rasqal_finish();
-#endif /* ! HAVE_RASQAL_WORLD */
+    raptor_free_world(rw);
 
     fs_query_cache_flush(qs, verbosity);
     fs_query_fini(qs);
 
     exit(0);
 }
-
 
 static char **resource_completion (const char *text, int start, int end)
 {
@@ -360,7 +352,7 @@ static void save_history_dotfile(void)
     g_free(dotfile);
 }
 
-static void interactive(fsp_link *link, raptor_uri *bu, const char *result_format, int verbosity, int opt_level, int result_flags, int soft_limit)
+static void interactive(fsp_link *link, raptor_uri *bu, const char *result_format, int verbosity, int opt_level, int result_flags, int soft_limit, raptor_world *rw)
 {
     char *query = NULL;
 
@@ -428,10 +420,7 @@ static void interactive(fsp_link *link, raptor_uri *bu, const char *result_forma
 
     raptor_free_uri(bu);
     fsp_close_link(link);
-    raptor_finish();
-#ifndef HAVE_RASQAL_WORLD
-    rasqal_finish();
-#endif /* ! HAVE_RASQAL_WORLD */
+    raptor_free_world(rw);
 
     save_history_dotfile();
 

@@ -24,7 +24,6 @@
 #include <string.h>
 #include <glib.h>
 #include <rasqal.h>
-#include <rasqal.h>
 #include <libgen.h>
 
 #include "query.h"

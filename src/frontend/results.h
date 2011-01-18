@@ -42,4 +42,8 @@ fs_row *fs_query_fetch_header_row(fs_query *q);
 fs_row *fs_query_fetch_row(fs_query *q);
 void fs_query_results_output(fs_query *q, const char *fmt, int flags, FILE *out);
 
+/* escape URI, return result must be g_free'd */
+
+char *fs_uri_escape(const char *str);
+
 #endif

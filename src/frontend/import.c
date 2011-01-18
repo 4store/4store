@@ -66,7 +66,8 @@ typedef struct {
     char *quad_fn;
     int segments;
     int has_o_index;
-    raptor_uri muri;
+    raptor_world *world;
+    raptor_uri *muri;
     raptor_parser *parser;
 } fs_parse_stuff;
 
@@ -87,8 +88,7 @@ static fs_rid_set *token_set = NULL;
 static fs_rid_set *metaphone_set = NULL;
 static fs_rid_set *stem_set = NULL;
 
-static void store_stmt(void *user_data,
-		       const raptor_statement * statement);
+static void store_stmt(void *user_data, raptor_statement *statement);
 
 static int process_quads(fs_parse_stuff *data);
 
@@ -142,38 +142,49 @@ static int inited = 0;
 
 static fs_parse_stuff parse_data;
 
-void rdf_parser_warning(void *user_data, raptor_locator* locator, const char *message)
+static void rdf_parser_log(void *user_data, raptor_log_message *message)
 {
-    parse_data.count_warn++;
-    fs_error(LOG_ERR, "raptor parser warning: %s line %d", message,
-             raptor_locator_line(locator));
-}
-
-void rdf_parser_error(void *user_data, raptor_locator* locator, const char *message)
-{
-    parse_data.count_err++;
-    fs_error(LOG_ERR, "raptor parser error: %s line %d", message,
-             raptor_locator_line(locator));
-}
-
-void fatal_rdf_parser_error(void *user_data, raptor_locator* locator, const char *message)
-{
-    parse_data.count_err++;
-    fs_error(LOG_ERR, "fatal raptor parser error: %s line %d", message,
-             raptor_locator_line(locator));
-}
-
-void graph_handler(void *user_data, raptor_uri *graph)
-{
-    g_free(parse_data.model);
-    if (graph == NULL) {
-        parse_data.model = g_strdup((char *) raptor_uri_as_string(parse_data.muri));
-    } else {
-        parse_data.model = g_strdup((char *) raptor_uri_as_string(graph));
+    switch (message->level) {
+    case RAPTOR_LOG_LEVEL_NONE:
+    case RAPTOR_LOG_LEVEL_TRACE:
+    case RAPTOR_LOG_LEVEL_DEBUG:
+    case RAPTOR_LOG_LEVEL_INFO:
+        fs_error(LOG_INFO, "%s at %d", message->text,
+                 raptor_locator_line(message->locator));
+        break;
+    case RAPTOR_LOG_LEVEL_WARN:
+        parse_data.count_warn++;
+        fs_error(LOG_INFO, "Warning: %s at %d", message->text,
+                 raptor_locator_line(message->locator));
+        break;
+    case RAPTOR_LOG_LEVEL_ERROR:
+        parse_data.count_err++;
+        fs_error(LOG_INFO, "Error: %s at %d", message->text,
+                 raptor_locator_line(message->locator));
+        break;
+    case RAPTOR_LOG_LEVEL_FATAL:
+        parse_data.count_err++;
+        fs_error(LOG_INFO, "Fatal error: %s at %d", message->text,
+                 raptor_locator_line(message->locator));
+        break;
     }
+}
 
-    parse_data.model_hash = fs_hash_uri(parse_data.model);
-    buffer_res(parse_data.link, parse_data.segments, parse_data.model_hash, parse_data.model, FS_RID_NULL, parse_data.dryrun);
+void graph_handler(void *user_data, raptor_uri *graph, int flags)
+{
+    if (flags & RAPTOR_GRAPH_MARK_START) {
+        g_free(parse_data.model);
+        if (graph == NULL) {
+            parse_data.model = g_strdup((char *) raptor_uri_as_string(parse_data.muri));
+        } else {
+            parse_data.model = g_strdup((char *) raptor_uri_as_string(graph));
+        }
+
+        parse_data.model_hash = fs_hash_uri(parse_data.model);
+        buffer_res(parse_data.link, parse_data.segments, parse_data.model_hash, parse_data.model, FS_RID_NULL, parse_data.dryrun);
+    } else {
+        /* end of graph */
+    }
 }
 
 /* ..._start and ..._finish share an int * count parameter
@@ -182,7 +193,13 @@ int fs_import_stream_start(fsp_link *link, const char *model_uri, const char *mi
 {
     if (inited == 0) {
         memset(&parse_data, 0, sizeof(parse_data));
+        parse_data.world = raptor_new_world();
         inited = 1;
+        if (!parse_data.world) {
+            fs_error(LOG_CRIT, "Failed to create raptor world");
+
+            return 1;
+        }
     }
 
     parse_data.link = link;
@@ -201,10 +218,12 @@ int fs_import_stream_start(fsp_link *link, const char *model_uri, const char *mi
     parse_data.quad_fd = mkstemp(parse_data.quad_fn);
     if (parse_data.quad_fd < 0) {
         fs_error(LOG_ERR, "Cannot create tmp file “%s”", parse_data.quad_fn);
+
         return 1;
     }
 
-    parse_data.muri = raptor_new_uri((unsigned char *) model_uri);
+    parse_data.muri = raptor_new_uri(parse_data.world,
+         (unsigned char *)model_uri);
 
     parse_data.model = g_strdup(model_uri);
     parse_data.model_hash = fs_hash_uri(model_uri);
@@ -217,23 +236,26 @@ int fs_import_stream_start(fsp_link *link, const char *model_uri, const char *mi
     /* store the model uri */
     buffer_res(link, parse_data.segments, parse_data.model_hash, parse_data.model, FS_RID_NULL, parse_data.dryrun);
 
-    parse_data.parser = raptor_new_parser_for_content(NULL, mimetype, NULL, 0, (unsigned char *) parse_data.model);
-
+    parse_data.parser = raptor_new_parser_for_content(parse_data.world, NULL, mimetype, NULL, 0, (unsigned char *) parse_data.model);
     if (!parse_data.parser) {
+        /* if you couldn't guess a parser, fall back to RDF/XML */
+        parse_data.parser = raptor_new_parser_for_content(parse_data.world, NULL, "application/rdf+xml", NULL, 0, NULL);
+    }
+    if (!parse_data.parser) {
+        fs_error(LOG_CRIT, "failed to create parser with raptor_new_parser_for_content(%p, NULL, %s, NULL, 0, %s)", parse_data.world, mimetype, parse_data.model);
+
         return 1;
     }
 
     /* use us as a vector for an indirect attack? no thanks */
-    raptor_set_feature(parse_data.parser, RAPTOR_FEATURE_NO_NET, 0);
+    raptor_parser_set_option(parse_data.parser, RAPTOR_OPTION_NO_NET, NULL, 0);
 
-    raptor_set_warning_handler(parse_data.parser, link, rdf_parser_warning);
-    raptor_set_error_handler(parse_data.parser, link, rdf_parser_error);
-    raptor_set_fatal_error_handler(parse_data.parser, link, fatal_rdf_parser_error);
+    raptor_world_set_log_handler(parse_data.world, link, rdf_parser_log);
 
-    raptor_set_statement_handler(parse_data.parser, &parse_data, store_stmt);
-    raptor_set_graph_handler(parse_data.parser, &parse_data, graph_handler);
+    raptor_parser_set_statement_handler(parse_data.parser, &parse_data, store_stmt);
+    raptor_parser_set_graph_mark_handler(parse_data.parser, &parse_data, graph_handler);
 
-    raptor_start_parse(parse_data.parser, parse_data.muri);
+    raptor_parser_parse_start(parse_data.parser, parse_data.muri);
 
     fs_hash_freshen(); /* blank nodes are unique per file */
 
@@ -242,12 +264,17 @@ int fs_import_stream_start(fsp_link *link, const char *model_uri, const char *mi
 
 int fs_import_stream_data(fsp_link *link, unsigned char *data, size_t count)
 {
-    return raptor_parse_chunk(parse_data.parser, data, count, 0);
+    if (!parse_data.parser) {
+        fs_error(LOG_CRIT, "No parser object found");
+
+        return 0;
+    }
+    return raptor_parser_parse_chunk(parse_data.parser, data, count, 0);
 }
 
 int fs_import_stream_finish(fsp_link *link, int *count, int *errors)
 {
-    raptor_parse_chunk(parse_data.parser, NULL, 0, 1); /* finish */
+    raptor_parser_parse_chunk(parse_data.parser, NULL, 0, 1); /* finish */
     raptor_free_parser(parse_data.parser);
     raptor_free_uri(parse_data.muri);
     g_free(parse_data.model);
@@ -308,7 +335,7 @@ int fs_import(fsp_link *link, const char *model_uri, char *resource_uri,
               FILE *msg, int *count)
 {
     raptor_parser *rdf_parser = NULL;
-    raptor_uri ruri = NULL;
+    raptor_uri *ruri = NULL;
     int ret = 0;
 
     const int segments = fsp_link_segments(link);
@@ -316,6 +343,7 @@ int fs_import(fsp_link *link, const char *model_uri, char *resource_uri,
     parse_data.ext_count = count;
     if (!inited) {
         inited = 1;
+        parse_data.world = raptor_new_world();
         parse_data.link = link;
         parse_data.segments = fsp_link_segments(link);
 
@@ -348,25 +376,25 @@ int fs_import(fsp_link *link, const char *model_uri, char *resource_uri,
     buffer_res(link, segments, parse_data.model_hash, parse_data.model, FS_RID_NULL, dryrun);
 
     if (strcmp(format, "auto")) {
-       rdf_parser = raptor_new_parser(format);
+        rdf_parser = raptor_new_parser(parse_data.world, format);
     } else if (strstr(resource_uri, ".n3") || strstr(resource_uri, ".ttl")) {
-        rdf_parser = raptor_new_parser("turtle");
+        rdf_parser = raptor_new_parser(parse_data.world, "turtle");
     } else if (strstr(resource_uri, ".nt")) {
-        rdf_parser = raptor_new_parser("ntriples");
+        rdf_parser = raptor_new_parser(parse_data.world, "ntriples");
     } else {
-        rdf_parser = raptor_new_parser("rdfxml");
+        rdf_parser = raptor_new_parser(parse_data.world, "rdfxml");
     }
     if (!rdf_parser) {
         fs_error(LOG_ERR, "failed to create RDF parser");
         return 1;
     }
 
-    raptor_set_statement_handler(rdf_parser, &parse_data, store_stmt);
-    raptor_set_graph_handler(rdf_parser, &parse_data, graph_handler);
-    ruri = raptor_new_uri((unsigned char *) resource_uri);
-    parse_data.muri = raptor_new_uri((unsigned char *) model_uri);
+    raptor_parser_set_statement_handler(rdf_parser, &parse_data, store_stmt);
+    raptor_parser_set_graph_mark_handler(rdf_parser, &parse_data, graph_handler);
+    ruri = raptor_new_uri(parse_data.world, (unsigned char *) resource_uri);
+    parse_data.muri = raptor_new_uri(parse_data.world, (unsigned char *) model_uri);
 
-    if (raptor_parse_uri(rdf_parser, ruri, parse_data.muri)) {
+    if (raptor_parser_parse_uri(rdf_parser, ruri, parse_data.muri)) {
         fs_error(LOG_ERR, "failed to parse file “%s”", resource_uri);
         ret++;
     }
@@ -439,6 +467,10 @@ int fs_import_commit(fsp_link *link, int verbosity, int dryrun, int has_o_index,
 	}
     }
 
+    if (parse_data.world) {
+        raptor_free_world(parse_data.world);
+        parse_data.world = NULL;
+    }
     inited = 0;
 
     return 0;
@@ -513,8 +545,9 @@ static int process_quads(fs_parse_stuff *data)
 
 static fs_rid bnodenext = 1, bnodemax = 0;
 
-fs_rid fs_bnode_id(fsp_link *link, const char *bnode)
+fs_rid fs_bnode_id(fsp_link *link, raptor_term_blank_value blank)
 {
+    char *bnode = (char *)blank.string;
     GHashTable *bnids = fs_hash_bnids();
     fs_rid bn = (fs_rid) (unsigned long) g_hash_table_lookup(bnids, bnode);
     if (!bn) {
@@ -666,7 +699,7 @@ static void buffer_stems(fs_parse_stuff *data, fs_rid quad[4], const char *str, 
     sb_stemmer_delete(stemmer);
 }
 
-static void store_stmt(void *user_data, const raptor_statement * statement)
+static void store_stmt(void *user_data, raptor_statement *statement)
 {
     fs_parse_stuff *data = (fs_parse_stuff *) user_data;
     if (read_config == 0) {
@@ -708,38 +741,56 @@ static void store_stmt(void *user_data, const raptor_statement * statement)
         }
         read_config = 1;
     }
-    char *subj = (char *) raptor_uri_as_string((raptor_uri *)
-					       statement->subject);
+    char *subj;
     char *pred;
     char *obj;
     fs_rid m, s, p, o;
-    char tmpp[512];
 
+    if (statement->graph && strcmp(data->model,
+        (char *)raptor_uri_as_string(statement->graph->value.uri))) {
+        if (statement->graph->type == RAPTOR_TERM_TYPE_URI) {
+            char *graph = (char *) raptor_uri_as_string(statement->graph->value.uri);
+            if (data->model) {
+                g_free(data->model);
+            }
+            data->model = g_strdup(graph);
+            data->model_hash = fs_hash_uri(graph);
+            buffer_res(data->link, data->segments, data->model_hash,
+                graph, FS_RID_NULL, data->dryrun);
+        } else {
+            fs_error(LOG_CRIT, "found non-URI graph ID in quad");
+        }
+    }
     m = data->model_hash;
 
-    if (statement->subject_type == RAPTOR_IDENTIFIER_TYPE_ANONYMOUS) {
-        s = fs_bnode_id(data->link, statement->subject);
-        subj = (char *) statement->subject;
-    } else {
+    if (statement->subject->type == RAPTOR_TERM_TYPE_BLANK) {
+        s = fs_bnode_id(data->link, statement->subject->value.blank);
+        subj = (char *) statement->subject->value.blank.string;
+    } else if (statement->subject->type == RAPTOR_TERM_TYPE_URI) {
+        subj = (char *) raptor_uri_as_string((raptor_uri *)
+					       statement->subject->value.uri);
 	s = fs_hash_uri(subj);
+    } else {
+        fs_error(LOG_CRIT, "found non-URI/bNode subject");
+
+        return;
     }
 
-    if (statement->predicate_type == RAPTOR_IDENTIFIER_TYPE_ORDINAL) {
-        sprintf(tmpp, MEMBER_PREFIX "%d", *((int *)statement->predicate));
-        pred = tmpp;
+    if (statement->predicate->type == RAPTOR_TERM_TYPE_URI) {
+        pred = (char *) raptor_uri_as_string(statement->predicate->value.uri);
+        p = fs_hash_uri(pred);
     } else {
-        pred = (char *) raptor_uri_as_string((raptor_uri *)
-					       statement->predicate);
+        fs_error(LOG_CRIT, "found non-URI predicate");
+
+        return;
     }
-    p = fs_hash_uri(pred);
 
     fs_rid attr = fs_c.empty;
-    if (statement->object_type == RAPTOR_IDENTIFIER_TYPE_LITERAL ||
-	statement->object_type == RAPTOR_IDENTIFIER_TYPE_XML_LITERAL) {
-	obj = (char *) statement->object;
+    if (statement->object->type == RAPTOR_TERM_TYPE_LITERAL) {
+	obj = (char *) statement->object->value.literal.string;
         char *langtag = NULL;
-	if (statement->object_literal_language) {
-	    langtag = (char *)statement->object_literal_language;
+	if (statement->object->value.literal.language) {
+	    langtag = (char *)statement->object->value.literal.language;
             for (char *pos = langtag; *pos; pos++) {
                 if (islower(*pos)) {
                     *pos = toupper(*pos);
@@ -747,9 +798,10 @@ static void store_stmt(void *user_data, const raptor_statement * statement)
             }
 	    attr = fs_hash_literal(langtag, 0);
 	    buffer_res(data->link, data->segments, attr, langtag, fs_c.empty, data->dryrun);
-	} else if (raptor_uri_as_string(statement->object_literal_datatype)) {
-	    char *dt = (char *)raptor_uri_as_string(statement->object_literal_datatype);
-	    
+	} else if (statement->object->value.literal.datatype &&
+                   raptor_uri_as_string(statement->object->
+                                        value.literal.datatype)) {
+	    char *dt = (char *)raptor_uri_as_string(statement->object->value.literal.datatype);
 	    attr = fs_hash_uri(dt);
 	    buffer_res(data->link, data->segments, attr, dt, FS_RID_NULL, data->dryrun);
 	}
@@ -766,14 +818,18 @@ static void store_stmt(void *user_data, const raptor_statement * statement)
             fs_rid quad[4] = { m, s, p, FS_RID_NULL };
             buffer_stems(data, quad, obj, langtag);
         }
-    } else if (statement->object_type == RAPTOR_IDENTIFIER_TYPE_ANONYMOUS) {
-	o = fs_bnode_id(data->link, statement->object);
-	obj = (char *) statement->object;
-    } else {
-	obj = (char *) raptor_uri_as_string((raptor_uri *) statement->
-					    object);
+    } else if (statement->object->type == RAPTOR_TERM_TYPE_BLANK) {
+	o = fs_bnode_id(data->link, statement->object->value.blank);
+	obj = (char *) statement->object->value.blank.string;
+        attr = FS_RID_NULL;
+    } else if (statement->object->type == RAPTOR_TERM_TYPE_URI) {
+	obj = (char *) raptor_uri_as_string(statement->object->value.uri);
         attr = FS_RID_NULL;
 	o = fs_hash_uri(obj);
+    } else {
+        fs_error(LOG_CRIT, "found non-URI/bNode/Literal object");
+
+        return;
     }
 
     buffer_res(data->link, data->segments, s, subj, FS_RID_NULL, data->dryrun);

@@ -64,6 +64,7 @@ fs_value fs_value_error(fs_error e, const char *msg);
 fs_value fs_value_uri(const char *u);
 fs_value fs_value_plain(const char *s);
 fs_value fs_value_plain_with_lang(const char *s, const char *l);
+fs_value fs_value_plain_with_dt(const char *s, const char *l);
 fs_value fs_value_string(const char *s);
 fs_value fs_value_double(double f);
 fs_value fs_value_float(double f);
@@ -81,6 +82,7 @@ fs_value fs_value_fill_rid(fs_query *q, fs_value a);
 
 int fs_is_numeric(fs_value *a);
 int fs_is_error(fs_value a);
+int fs_is_plain_or_string(fs_value v);
 int fs_value_is_true(fs_value a);
 int fs_value_equal(fs_value a, fs_value b);
 
