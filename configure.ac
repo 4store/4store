@@ -35,7 +35,7 @@ AC_CHECK_LIB([z], [deflateInit])
 PKG_CHECK_MODULES([GLIB], glib-2.0 >= 2.2.0)
 PKG_CHECK_MODULES([GTHREAD], gthread-2.0 >= 2.2.0)
 PKG_CHECK_MODULES([LIBXML], libxml-2.0)
-PKG_CHECK_MODULES([RAPTOR], raptor)
+PKG_CHECK_MODULES([RAPTOR], raptor < 2.0.0)
 PKG_CHECK_MODULES([RASQAL], rasqal >= 0.9.14)
 if $PKG_CONFIG --atleast-version=0.9.16 rasqal; then
 	AC_DEFINE(HAVE_RASQAL_WORLD, [], [Defined if we have rasqal world object])
