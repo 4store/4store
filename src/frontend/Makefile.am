@@ -2,7 +2,7 @@ bin_PROGRAMS = 4s-query 4s-import 4s-delete-model 4s-size 4s-info 4s-update
 
 noinst_PROGRAMS = filter-test decimal-test 4s-bind 4s-reverse-bind 4s-resolve 4s-dump 4s-restore
 
-noinst_HEADERS = debug.h decimal.h filter-datatypes.h filter.h import.h optimiser.h order.h query-cache.h query-data.h query-datatypes.h query-intl.h query.h results.h update.h
+noinst_HEADERS = debug.h decimal.h filter-datatypes.h filter.h import.h optimiser.h order.h query-cache.h query-data.h query-datatypes.h query-intl.h query.h results.h update.h group.h
 
 # PROFILE = -pg
 AM_CFLAGS = -std=gnu99 -fno-strict-aliasing -Wall $(PROFILE) -g -O2 -I./ -I../ -DGIT_REV=@GIT_REV@ @GLIB_CFLAGS@ @RAPTOR_CFLAGS@ @RASQAL_CFLAGS@ @LIBXML_CFLAGS@ `pcre-config --cflags`
