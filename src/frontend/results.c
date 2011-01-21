@@ -1357,6 +1357,11 @@ static void describe_uri(fs_query *q, fs_rid rid, raptor_uri *uri)
 static void handle_describe(fs_query *q, const char *type, FILE *output)
 {
     q->ser = raptor_new_serializer(q->qs->raptor_world, type);
+    if (!q->ser) {
+        fs_error(LOG_ERR, "no such serialiser '%s'", type);
+
+        return;
+    }
     for (int i=0; 1; i++) {
         rasqal_prefix *p = rasqal_query_get_prefix(q->rq, i);
         if (!p) break;
@@ -1628,6 +1633,12 @@ static void output_text(fs_query *q, int flags, FILE *out)
         return;
     }
 
+    if (q->describe) {
+        handle_describe(q, "turtle", out);
+
+        return;
+    }
+
     fs_row *row;
 
     int cols = fs_query_get_columns(q);
@@ -1740,6 +1751,10 @@ static void output_json(fs_query *q, int flags, FILE *out)
             g_slist_free(q->warnings);
             q->warnings = NULL;
         }
+
+        return;
+    } else if (q->describe) {
+        handle_describe(q, "json-triples", out);
 
         return;
     }
@@ -1863,6 +1878,10 @@ static void output_testcase(fs_query *q, int flags, FILE *out)
 	output_text(q, flags, out);
 
 	return;
+    } else if (q->describe) {
+        handle_describe(q, "turtle", out);
+
+        return;
     }
 
     if (flags & FS_RESULT_FLAG_HEADERS) {
