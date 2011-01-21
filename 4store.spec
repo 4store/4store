@@ -1,4 +1,4 @@
-Summary: 4store RDF storage engine and SPARQL query engine
+Summary: 4store RDF storage and SPARQL query engine
 Name: 4store
 Version: 1.0
 Release: 1
@@ -10,7 +10,7 @@ Prefix: /usr/local
 
 %description
 4store is a distributed RDF storage engine and SPARQL query engine. 4store runs
-on a loose cluster of machines.
+on a single node, or a loose cluster of machines.
 %prep
 %setup -q
 %build
