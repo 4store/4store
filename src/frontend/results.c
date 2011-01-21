@@ -1323,6 +1323,8 @@ static void describe_uri(fs_query *q, fs_rid rid, raptor_uri *uri)
         }
     }
     raptor_statement st;
+    raptor_statement_init(&st, q->qs->raptor_world);
+    st.graph = NULL;
     fs_rid_vector *ms = fs_rid_vector_new(0);
     fs_rid_vector *ss = fs_rid_vector_new_from_args(1, rid);
     fs_rid_vector *ps = fs_rid_vector_new(0);
@@ -1331,27 +1333,28 @@ static void describe_uri(fs_query *q, fs_rid rid, raptor_uri *uri)
     fsp_bind_limit(q->link, FS_RID_SEGMENT(rid, q->segments),
         FS_BIND_BY_SUBJECT | FS_BIND_PREDICATE | FS_BIND_OBJECT, ms, ss,
         ps, os, &result, 0, q->soft_limit);
+    raptor_term *subject;
     if (FS_IS_BNODE(rid)) {
         if (uri) {
-            st.subject = raptor_new_term_from_blank(q->qs->raptor_world,
+            subject = raptor_new_term_from_blank(q->qs->raptor_world,
                 raptor_uri_as_string(uri));
         } else {
             char tmp[256];
             sprintf(tmp, "b%016llx", rid);
-            st.subject = raptor_new_term_from_blank(q->qs->raptor_world,
-                (unsigned char *)tmp);
+            subject = raptor_new_term_from_blank(q->qs->raptor_world, (unsigned char *)tmp);
         }
     } else {
-        st.subject = raptor_new_term_from_uri(q->qs->raptor_world, uri);
+        subject = raptor_new_term_from_uri(q->qs->raptor_world, uri);
     }
     for (int row = 0; row < result[0]->length; row++) {
+        st.subject = subject;
         st.predicate = slot_fill_from_rid(q, result[0]->data[row]);
         st.object = slot_fill_from_rid(q, result[1]->data[row]);
         raptor_serializer_serialize_statement(q->ser, &st);
         raptor_free_term(st.predicate);
         raptor_free_term(st.object);
     }
-    raptor_free_term(st.subject);
+    raptor_free_term(subject);
 }
 
 static void handle_describe(fs_query *q, const char *type, FILE *output)
@@ -1441,6 +1444,8 @@ static void handle_construct(fs_query *q, const char *type, FILE *output)
             }
         } else {
             raptor_statement st;
+            raptor_statement_init(&st, q->qs->raptor_world);
+            st.graph = NULL;
 
             for (int i=0; 1; i++) {
                 rasqal_triple *trip =
@@ -1470,6 +1475,8 @@ static void handle_construct(fs_query *q, const char *type, FILE *output)
             }
         } else {
             raptor_statement st;
+            raptor_statement_init(&st, q->qs->raptor_world);
+            st.graph = NULL;
 
             for (int i=0; 1; i++) {
                 rasqal_triple *trip =
@@ -1754,7 +1761,7 @@ static void output_json(fs_query *q, int flags, FILE *out)
 
         return;
     } else if (q->describe) {
-        handle_describe(q, "json-triples", out);
+        handle_describe(q, "json", out);
 
         return;
     }
