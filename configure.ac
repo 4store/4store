@@ -27,6 +27,13 @@ AC_ARG_WITH([storage_path],
 FS_STORE_ROOT="$with_storage_path"
 AC_SUBST(FS_STORE_ROOT)
 
+FS_INSERT_DEDUP=0
+AC_ARG_ENABLE([dedup-insert],
+	[AS_HELP_STRING([--enable-dedup-insert],
+                        [don't allow duplicate triples when inserting data])],
+	[FS_INSERT_DEDUP=1])
+AC_SUBST(FS_INSERT_DEDUP)
+
 # Checks for libraries.
 AC_CHECK_LIB([m], [sin])
 AC_CHECK_LIB([ncurses], [initscr])

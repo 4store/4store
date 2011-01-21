@@ -485,6 +485,12 @@ int fs_ptree_add(fs_ptree *pt, fs_rid pk, fs_rid pair[2], int force)
     nodeid lid = get_or_create_leaf(pt, pk);
     if (!pair) return 1;
     leaf *lref = LEAF_REF(pt, lid);
+#ifdef FS_INSERT_DEDUP
+    if (lref->block && fs_ptable_pair_exists(pt->table, lref->block, pair)) {
+        /* nothing to be done */
+        return 0;
+    }
+#endif
     fs_row_id new_block = fs_ptable_add_pair(pt->table, lref->block, pair);
     if (new_block) {
         lref->length++;

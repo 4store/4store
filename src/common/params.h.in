@@ -65,6 +65,10 @@
 
 #define FS_LEGAL_KB_CHARS "abcdefghijklmnopqrstuvwxyz" \
                            "ABCDEFGHIJKLMNOPQRSTUVWXYZ" \
-                           "0123456789_"
+                           "0123456789_-"
+
+#if @FS_INSERT_DEDUP@
+#define FS_INSERT_DEDUP
+#endif
 
 #endif
