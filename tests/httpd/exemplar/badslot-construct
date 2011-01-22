@@ -1,7 +1,5 @@
-<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML 2.0//EN">
-<html><head><title>201 imported successfully</title></head>
-<body><h1>201 imported successfully</h1>
-<p>This is a 4store SPARQL server.</p><p>4store [VERSION]</p></body></html>
+201 imported successfully
+This is a 4store SPARQL server [VERSION]
 Query: CONSTRUCT { ?o ?s ?p } WHERE { ?s ?p ?o } ORDER BY ?o ?s ?p
 <http://example.org/swh.xrdf.asc> <http://example.org/foaf> <http://xmlns.com/wot/0.1/assurance> .
 <http://inanna.ecs.soton.ac.uk/> <mailto:steve@example.net> <http://xmlns.com/foaf/0.1/homepage> .
@@ -64,7 +62,5 @@ Query: CONSTRUCT { ?o ?s ?p } WHERE { ?s ?p ?o } ORDER BY ?o ?s ?p
 "nmg" <local:nick> <http://xmlns.com/foaf/0.1/nick> .
 "swh" <mailto:steve@example.net> <http://xmlns.com/foaf/0.1/nick> .
 "zool" <local:jo> <http://xmlns.com/foaf/0.1/nick> .
-<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML 2.0//EN">
-<html><head><title>200 deleted successfully</title></head>
-<body><h1>200 deleted successfully</h1>
-<p>This is a 4store SPARQL server.</p><p>4store [VERSION]</p></body></html>
+200 deleted successfully
+This is a 4store SPARQL server [VERSION]

@@ -1,16 +1,12 @@
-<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML 2.0//EN">
-<html><head><title>201 imported successfully</title></head>
-<body><h1>201 imported successfully</h1>
-<p>This is a 4store SPARQL server.</p><p>4store [VERSION]</p></body></html>
+201 imported successfully
+This is a 4store SPARQL server [VERSION]
 Query: SELECT * WHERE { GRAPH <system:config> { ?x ?y ?z } } ORDER BY ?x ?y ?z
 ?x	?y	?z
 <http://example.org/text#stem>	<http://4store.org/fulltext#index>	<http://4store.org/fulltext#stem>
 <http://example.org/text#token>	<http://4store.org/fulltext#index>	<http://4store.org/fulltext#token>
 <http://www.w3.org/2000/01/rdf-schema#label>	<http://4store.org/fulltext#index>	<http://4store.org/fulltext#dmetaphone>
-<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML 2.0//EN">
-<html><head><title>201 imported successfully</title></head>
-<body><h1>201 imported successfully</h1>
-<p>This is a 4store SPARQL server.</p><p>4store [VERSION]</p></body></html>
+201 imported successfully
+This is a 4store SPARQL server [VERSION]
 Query: SELECT * WHERE { GRAPH <http://example.com/texttest> { ?x ?y ?z } } ORDER BY ?x DESC(?y) ?z
 ?x	?y	?z
 <ex:de>	<http://example.org/text#stem>	"Alle Menschen sind frei und gleich an Würde und Rechten geboren. Sie sind mit Vernunft und Gewissen begabt und sollen einander im Geist der Brüderlichkeit begegnen."@DE
@@ -77,14 +73,10 @@ Query: SELECT * WHERE { GRAPH <http://example.com/texttest> { ?x ?y ?z } } ORDER
 <ex:ru>	<http://4store.org/fulltext#stem>	"коров"
 <ex:ru>	<http://4store.org/fulltext#stem>	"морфолог"
 <ex:ru>	<http://4store.org/fulltext#stem>	"хайнак"
-<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML 2.0//EN">
-<html><head><title>200 deleted successfully</title></head>
-<body><h1>200 deleted successfully</h1>
-<p>This is a 4store SPARQL server.</p><p>4store [VERSION]</p></body></html>
-<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML 2.0//EN">
-<html><head><title>201 imported successfully</title></head>
-<body><h1>201 imported successfully</h1>
-<p>This is a 4store SPARQL server.</p><p>4store [VERSION]</p></body></html>
+200 deleted successfully
+This is a 4store SPARQL server [VERSION]
+201 imported successfully
+This is a 4store SPARQL server [VERSION]
 Query: SELECT * WHERE { GRAPH <http://example.com/texttest> { ?x ?y ?z } } ORDER BY ?x DESC(?y) ?z
 ?x	?y	?z
 <ex:de>	<http://example.org/text#stem>	"Alle Menschen sind frei und gleich an Würde und Rechten geboren. Sie sind mit Vernunft und Gewissen begabt und sollen einander im Geist der Brüderlichkeit begegnen."@DE
@@ -94,7 +86,5 @@ Query: SELECT * WHERE { GRAPH <http://example.com/texttest> { ?x ?y ?z } } ORDER
 <ex:en4>	<http://example.org/text#stem>	"This should get stemmed\nit has several\nlines."
 <ex:it>	<http://example.org/text#stem>	"Rane mangiano le mosche, ma non può volare"@IT-GB
 <ex:ru>	<http://example.org/text#stem>	"Корова Хайнак Морфология"@RU
-<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML 2.0//EN">
-<html><head><title>200 deleted successfully</title></head>
-<body><h1>200 deleted successfully</h1>
-<p>This is a 4store SPARQL server.</p><p>4store [VERSION]</p></body></html>
+200 deleted successfully
+This is a 4store SPARQL server [VERSION]

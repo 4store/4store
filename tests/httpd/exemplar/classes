@@ -1,13 +1,9 @@
-<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML 2.0//EN">
-<html><head><title>201 imported successfully</title></head>
-<body><h1>201 imported successfully</h1>
-<p>This is a 4store SPARQL server.</p><p>4store [VERSION]</p></body></html>
+201 imported successfully
+This is a 4store SPARQL server [VERSION]
 Query: SELECT DISTINCT ?class WHERE { [] a ?class } ORDER BY ?class
 ?class
 <http://xmlns.com/foaf/0.1/Image>
 <http://xmlns.com/foaf/0.1/Person>
 <http://xmlns.com/foaf/0.1/Project>
-<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML 2.0//EN">
-<html><head><title>200 deleted successfully</title></head>
-<body><h1>200 deleted successfully</h1>
-<p>This is a 4store SPARQL server.</p><p>4store [VERSION]</p></body></html>
+200 deleted successfully
+This is a 4store SPARQL server [VERSION]

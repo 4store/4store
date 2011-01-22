@@ -1,26 +1,18 @@
-<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML 2.0//EN">
-<html><head><title>200 added successfully</title></head>
-<body><h1>200 added successfully</h1>
-<p>This is a 4store SPARQL server.</p><p>4store [VERSION]</p></body></html>
+200 added successfully
+This is a 4store SPARQL server [VERSION]
 Query: SELECT * WHERE { ?x ?y ?z } ORDER BY ?x ?y ?z
 ?x	?y	?z
 <test:a>	<test:b>	<test:c>
-<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML 2.0//EN">
-<html><head><title>200 added successfully</title></head>
-<body><h1>200 added successfully</h1>
-<p>This is a 4store SPARQL server.</p><p>4store [VERSION]</p></body></html>
+200 added successfully
+This is a 4store SPARQL server [VERSION]
 Query: SELECT * WHERE { ?x ?y ?z } ORDER BY ?x ?y ?z
 ?x	?y	?z
 <test:a>	<test:b>	<test:c>
 <test:d>	<test:e>	<test:f>
 <test:d>	<test:g>	"text\nwith\tspaces"
-<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML 2.0//EN">
-<html><head><title>201 imported successfully</title></head>
-<body><h1>201 imported successfully</h1>
-<p>This is a 4store SPARQL server.</p><p>4store [VERSION]</p></body></html>
+201 imported successfully
+This is a 4store SPARQL server [VERSION]
 Query: SELECT * WHERE { ?x ?y ?z } ORDER BY ?x ?y ?z
 ?x	?y	?z
-<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML 2.0//EN">
-<html><head><title>200 deleted successfully</title></head>
-<body><h1>200 deleted successfully</h1>
-<p>This is a 4store SPARQL server.</p><p>4store [VERSION]</p></body></html>
+200 deleted successfully
+This is a 4store SPARQL server [VERSION]

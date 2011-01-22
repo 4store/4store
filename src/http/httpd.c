@@ -243,16 +243,10 @@ static void http_code(client_ctxt *ctxt, const char *code)
 {
   http_send(ctxt, "HTTP/1.0 "); http_send(ctxt, code); http_send(ctxt, "\r\n");
   http_send(ctxt, "Server: 4s-httpd/" GIT_REV "\r\n");
-  http_send(ctxt, "Content-Type: text/html; charset=UTF-8\r\n");
+  http_send(ctxt, "Content-Type: text/plain; charset=UTF-8\r\n");
   http_send(ctxt, "\r\n");
-  http_send(ctxt, "<!DOCTYPE HTML PUBLIC \"-//IETF//DTD HTML 2.0//EN\">\n");
-  http_send(ctxt, "<html><head><title>");
-  http_send(ctxt, code); http_send(ctxt, "</title></head>\n");
-  http_send(ctxt, "<body><h1>");
-  http_send(ctxt, code);
-  http_send(ctxt, "</h1>\n<p>This is a 4store SPARQL server.</p>");
-  http_send(ctxt, "<p>4store " GIT_REV "</p>");
-  http_send(ctxt, "</body></html>\n");
+  http_send(ctxt, code); http_send(ctxt, "\n");
+  http_send(ctxt, "This is a 4store SPARQL server " GIT_REV "\n");
 }
 
 static void http_404(client_ctxt *ctxt, const char *url)
@@ -260,15 +254,11 @@ static void http_404(client_ctxt *ctxt, const char *url)
   fs_error(LOG_INFO, "HTTP 404 for %s", url);
   http_send(ctxt, "HTTP/1.0 404 Not found\r\n");
   http_send(ctxt, "Server: 4s-httpd/" GIT_REV "\r\n");
-  http_send(ctxt, "Content-Type: text/html; charset=UTF-8\r\n");
+  http_send(ctxt, "Content-Type: text/plain; charset=UTF-8\r\n");
   http_send(ctxt, "\r\n");
-  http_send(ctxt, "<!DOCTYPE HTML PUBLIC \"-//IETF//DTD HTML 2.0//EN\">\n");
-  http_send(ctxt, "<html><head><title>Not found</title></head>\n");
-  http_send(ctxt, "<body><h1>Not found</h1>\n");
-  http_send(ctxt, "<p>This is a 4store SPARQL server.</p>");
-  http_send(ctxt, "<p>Check <a href=\"/status/\">the status page</a>.</p>");
-  http_send(ctxt, "<p>4store " GIT_REV "</p>");
-  http_send(ctxt, "</body></html>\n");
+  http_send(ctxt, "Not found\n");
+  http_send(ctxt, "This is a 4store SPARQL server " GIT_REV "\n");
+  http_send(ctxt, "Check /status/ for more info\n");
 }
 
 static void http_error(client_ctxt *ctxt, const char *error)
@@ -321,6 +311,29 @@ static void http_query_worker(gpointer data, gpointer user_data)
 
   ctxt->start_time = fs_time();
   ctxt->qr = fs_query_execute(query_state, fsplink, bu, ctxt->query_string, ctxt->query_flags, opt_level, ctxt->soft_limit);
+  if (ctxt->qr->errors) {
+    http_error(ctxt, "400 Parser error");
+    GSList *w = ctxt->qr->warnings;
+    if (w) {
+       http_send(ctxt, "\n");
+    }
+    while (w) {
+       http_send(ctxt, w->data);
+       http_send(ctxt, "\n");
+       w = w->next;
+    }
+    http_close(ctxt);
+    fs_query_free(ctxt->qr);
+    ctxt->qr = NULL;
+    free(ctxt->query_string);
+    ctxt->query_string = NULL;
+    if (ctxt->output) {
+      g_free(ctxt->output);
+      ctxt->output = NULL;
+    }
+
+    return;
+  }
 
   http_send(ctxt, "HTTP/1.0 200 OK\r\n");
   http_send(ctxt, "Server: 4s-httpd/" GIT_REV "\r\n");
@@ -925,7 +938,7 @@ static void http_head_request(client_ctxt *ctxt, gchar *url, gchar *protocol)
   } else if (!strcmp(path, "/test/")) {
     http_header(ctxt, "200", "text/html; charset=UTF-8");
   } else {
-    http_header(ctxt, "404", "text/html; charset=UTF-8");
+    http_header(ctxt, "404", "text/plain; charset=UTF-8");
   }
 
   http_close(ctxt);

@@ -1,7 +1,5 @@
-<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML 2.0//EN">
-<html><head><title>201 imported successfully</title></head>
-<body><h1>201 imported successfully</h1>
-<p>This is a 4store SPARQL server.</p><p>4store [VERSION]</p></body></html>
+201 imported successfully
+This is a 4store SPARQL server [VERSION]
 Query: SELECT ?d WHERE { <test:data> <test:bcdate> ?d . FILTER(YEAR(?d) = 1969) } ORDER BY ?d
 ?d
 "1969-05-23"^^<http://www.w3.org/2001/XMLSchema#dateTime>
@@ -42,7 +40,5 @@ Query: SELECT (CONCAT("BEFORE-∂-",?s, "-§-AFTER") AS ?co) WHERE { <test:data>
 "BEFORE-∂-01234567890123456789012345678901-§-AFTER"
 "BEFORE-∂-012345678901234567890123456789012-§-AFTER"
 "BEFORE-∂-23.0e999999999999999999999999-§-AFTER"
-<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML 2.0//EN">
-<html><head><title>200 deleted successfully</title></head>
-<body><h1>200 deleted successfully</h1>
-<p>This is a 4store SPARQL server.</p><p>4store [VERSION]</p></body></html>
+200 deleted successfully
+This is a 4store SPARQL server [VERSION]

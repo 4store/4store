@@ -160,13 +160,11 @@ static void fs_query_explain(fs_query *q, char *msg)
     }
 }
 
-
-
 static void log_handler(void *user_data, raptor_log_message *message)
 {
     fs_query *q = user_data;
 
-    char *msg = g_strdup_printf("parser %s: %s at line %d", raptor_log_level_get_label(message->level), message->text, raptor_locator_line(message->locator));
+    char *msg = g_strdup_printf("parser %s: %s, on line %d", raptor_log_level_get_label(message->level), message->text, raptor_locator_line(message->locator));
     q->warnings = g_slist_prepend(q->warnings, msg);
     fs_query_add_freeable(q, msg);
     if (message->level > RAPTOR_LOG_LEVEL_WARN) {

@@ -1,27 +1,15 @@
-<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML 2.0//EN">
-<html><head><title>200 added successfully</title></head>
-<body><h1>200 added successfully</h1>
-<p>This is a 4store SPARQL server.</p><p>4store [VERSION]</p></body></html>
-<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML 2.0//EN">
-<html><head><title>200 added successfully</title></head>
-<body><h1>200 added successfully</h1>
-<p>This is a 4store SPARQL server.</p><p>4store [VERSION]</p></body></html>
-<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML 2.0//EN">
-<html><head><title>200 added successfully</title></head>
-<body><h1>200 added successfully</h1>
-<p>This is a 4store SPARQL server.</p><p>4store [VERSION]</p></body></html>
-<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML 2.0//EN">
-<html><head><title>200 added successfully</title></head>
-<body><h1>200 added successfully</h1>
-<p>This is a 4store SPARQL server.</p><p>4store [VERSION]</p></body></html>
-<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML 2.0//EN">
-<html><head><title>200 added successfully</title></head>
-<body><h1>200 added successfully</h1>
-<p>This is a 4store SPARQL server.</p><p>4store [VERSION]</p></body></html>
-<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML 2.0//EN">
-<html><head><title>200 added successfully</title></head>
-<body><h1>200 added successfully</h1>
-<p>This is a 4store SPARQL server.</p><p>4store [VERSION]</p></body></html>
+200 added successfully
+This is a 4store SPARQL server [VERSION]
+200 added successfully
+This is a 4store SPARQL server [VERSION]
+200 added successfully
+This is a 4store SPARQL server [VERSION]
+200 added successfully
+This is a 4store SPARQL server [VERSION]
+200 added successfully
+This is a 4store SPARQL server [VERSION]
+200 added successfully
+This is a 4store SPARQL server [VERSION]
 Query: SELECT * WHERE { GRAPH ?g { ?x ?y ?z } } ORDER BY ?x ?y ?z ?g
 ?g	?x	?y	?z
 <http://example.org/test1>	<test:a>	<test:b>	"turtle"
@@ -29,21 +17,13 @@ Query: SELECT * WHERE { GRAPH ?g { ?x ?y ?z } } ORDER BY ?x ?y ?z ?g
 <http://example.org/test1>	<test:x>	<test:y>	"ntriples"
 <http://example.org/test1>	<test:x>	<test:y>	"rdfxml"
 <http://example.org/test1.rdf>	<test:x>	<test:y>	"rdfxml"
-<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML 2.0//EN">
-<html><head><title>200 deleted successfully</title></head>
-<body><h1>200 deleted successfully</h1>
-<p>This is a 4store SPARQL server.</p><p>4store [VERSION]</p></body></html>
-<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML 2.0//EN">
-<html><head><title>200 deleted successfully</title></head>
-<body><h1>200 deleted successfully</h1>
-<p>This is a 4store SPARQL server.</p><p>4store [VERSION]</p></body></html>
-<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML 2.0//EN">
-<html><head><title>200 deleted successfully</title></head>
-<body><h1>200 deleted successfully</h1>
-<p>This is a 4store SPARQL server.</p><p>4store [VERSION]</p></body></html>
-<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML 2.0//EN">
-<html><head><title>200 deleted successfully</title></head>
-<body><h1>200 deleted successfully</h1>
-<p>This is a 4store SPARQL server.</p><p>4store [VERSION]</p></body></html>
+200 deleted successfully
+This is a 4store SPARQL server [VERSION]
+200 deleted successfully
+This is a 4store SPARQL server [VERSION]
+200 deleted successfully
+This is a 4store SPARQL server [VERSION]
+200 deleted successfully
+This is a 4store SPARQL server [VERSION]
 Query: SELECT * WHERE { ?x ?y ?z } ORDER BY ?x ?y ?z
 ?x	?y	?z
