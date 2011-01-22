@@ -10,11 +10,11 @@ Query: SELECT ?d WHERE { <test:data> <test:bcdate> ?d . FILTER(MONTH(?d) = 5.0) 
 ?d
 "1969-05-23"^^<http://www.w3.org/2001/XMLSchema#dateTime>
 "1969-05-23T23:05:00Z"^^<http://www.w3.org/2001/XMLSchema#dateTime>
-Query: SELECT (DAY(?d) AS ?dd) WHERE { <test:data> <test:bcdate> ?d }
+Query: SELECT (DAY(?d) AS ?dd) WHERE { <test:data> <test:bcdate> ?d } ORDER BY ?d
 ?dd
-"16"^^<http://www.w3.org/2001/XMLSchema#integer>
+"17"^^<http://www.w3.org/2001/XMLSchema#integer>
 "23"^^<http://www.w3.org/2001/XMLSchema#integer>
-"24"^^<http://www.w3.org/2001/XMLSchema#integer>
+"23"^^<http://www.w3.org/2001/XMLSchema#integer>
 Query: SELECT (SUBSTR(?s, 1, 3) AS ?ss) WHERE { <test:data> <test:bcd> ?s. FILTER(?s = "012345678901234567890123456789012") }
 ?ss
 "012"
@@ -26,7 +26,22 @@ Query: SELECT (STRENDS(?s, "012") AS ?ew) WHERE { <test:data> <test:bcd> ?s. FIL
 "true"^^<http://www.w3.org/2001/XMLSchema#boolean>
 Query: SELECT (CONCAT("CC") AS ?co) WHERE { <test:data> <test:bcd> ?s } ORDER BY ?co
 ?co
-Query: SELECT (CONCAT("BEFORE-∂-",?s, "-§-AFTER") AS ?co) WHERE { <test:data> <test:bcd> ?s } ORDER BY ?co
+Query: SELECT (CONCAT("BEFORE-∂-",?s, "-§-AFTER") AS ?co) WHERE { <test:data> <test:bcd> ?s } ORDER BY ?s
+?co
+"BEFORE-∂--1234-§-AFTER"
+"BEFORE-∂--1234567890.23239300-§-AFTER"
+"BEFORE-∂--1234567890.23239300-§-AFTER"
+"BEFORE-∂-.-+e.-+e.-+e.-+e.-+e.-+e.-+e-§-AFTER"
+"BEFORE-∂-..........----------++++++++++-§-AFTER"
+"BEFORE-∂-0123......................5678-§-AFTER"
+"BEFORE-∂-0123............3210-§-AFTER"
+"BEFORE-∂-0123456789.0123456789012345678-§-AFTER"
+"BEFORE-∂-01234567890123456789012345678-§-AFTER"
+"BEFORE-∂-012345678901234567890123456789-§-AFTER"
+"BEFORE-∂-0123456789012345678901234567890-§-AFTER"
+"BEFORE-∂-01234567890123456789012345678901-§-AFTER"
+"BEFORE-∂-012345678901234567890123456789012-§-AFTER"
+"BEFORE-∂-23.0e999999999999999999999999-§-AFTER"
 <!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML 2.0//EN">
 <html><head><title>200 deleted successfully</title></head>
 <body><h1>200 deleted successfully</h1>
