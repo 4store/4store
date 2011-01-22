@@ -364,9 +364,13 @@ fs_query *fs_query_execute(fs_query_state *qs, fsp_link *link, raptor_uri *bu, c
     case RASQAL_QUERY_VERB_INSERT:
     case RASQAL_QUERY_VERB_DELETE:
     case RASQAL_QUERY_VERB_UPDATE:
+        q->errors++;
+        q->warnings = g_slist_prepend(q->warnings, "Query endpoints don't support SPARQL Update verbs");
         fs_error(LOG_ERR, "Query endpoints don't support SPARQL Update verbs (%s)", rasqal_query_verb_as_string(verb));
         break;
     case RASQAL_QUERY_VERB_UNKNOWN:
+        q->errors++;
+        q->warnings = g_slist_prepend(q->warnings, "Unknown query verb");
         fs_error(LOG_ERR, "Unknown query verb");
         break;
     }
