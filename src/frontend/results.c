@@ -531,7 +531,7 @@ fs_value fs_expression_eval(fs_query *q, int row, int block, rasqal_expression *
         case RASQAL_EXPR_CONCAT: {
             GString *concat = g_string_new("");
             for (int i=0; i < raptor_sequence_size(e->args); i++) {
-                fs_value v = fs_expression_eval(q, q->group_rows[row], block, raptor_sequence_get_at(e->args, i));
+                fs_value v = fs_expression_eval(q, row, block, raptor_sequence_get_at(e->args, i));
                 if (fs_is_error(v)) {
                     g_string_free(concat, TRUE);
 

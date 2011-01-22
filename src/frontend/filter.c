@@ -29,6 +29,12 @@
 #include "../common/hash.h"
 #include "../common/rdf-constants.h"
 
+typedef struct _fs_date_fields {
+    int year;
+    int month;
+    int day;
+} fs_date_fields;
+
 static fs_value cast_double(fs_value a)
 {
     if (a.valid & fs_valid_bit(FS_V_FP)) {
@@ -1227,18 +1233,21 @@ fs_value fn_encode_for_uri(fs_query *q, fs_value v)
     return ret;
 }
 
-/* make a GDate from an ISO8601 string, returns NULL on failure, result must be
- * freed with g_date_free() */
-static GDate *gdate_from_iso8601(char *iso)
+/* make a date struct from an ISO8601 string, returns non-0 on failure */
+static int date_from_iso8601(char *iso, fs_date_fields *df)
 {
-    GTimeVal tv;
-    if (!g_time_val_from_iso8601(iso, &tv)) {
-        return NULL;
+    int matches = sscanf(iso, "%d-%d-%d", &(df->year), &(df->month), &(df->day));
+    if (matches != 3) {
+        return 1;
     }
-    GDate *d = g_date_new();
-    g_date_set_time_val(d, &tv);
+    if (df->month < 1 || df->month > 12) {
+        return 1;
+    }
+    if (df->day < 1 || df->day > 31) {
+        return 1;
+    }
 
-    return d;
+    return 0;
 }
 
 fs_value fn_year(fs_query *q, fs_value v)
@@ -1247,18 +1256,15 @@ fs_value fn_year(fs_query *q, fs_value v)
         return fs_value_error(FS_ERROR_INVALID_TYPE, NULL);
     }
     v = fs_value_fill_lexical(q, v);
-    GDate *d = gdate_from_iso8601(v.lex);
-    if (!d) {
-        return fs_value_error(FS_ERROR_INVALID_TYPE, "cannot get year from xsd:date");
-    }
-    long int year = g_date_get_year(d);
-    if (year == G_DATE_BAD_YEAR) {
-        return fs_value_error(FS_ERROR_INVALID_TYPE, "bad year in xsd:date");
-    }
-    fs_value ret = fs_value_integer(year);
-    g_date_free(d);
+    fs_date_fields df;
+    if (date_from_iso8601(v.lex, &df)) {
+        char *err = g_strdup_printf("cannot get year from xsd:dateTime %s", v.lex);
+        fs_query_add_freeable(q, err);
 
-    return ret;
+        return fs_value_error(FS_ERROR_INVALID_TYPE, err);
+    }
+
+    return fs_value_integer(df.year);
 }
 
 fs_value fn_month(fs_query *q, fs_value v)
@@ -1267,18 +1273,12 @@ fs_value fn_month(fs_query *q, fs_value v)
         return fs_value_error(FS_ERROR_INVALID_TYPE, NULL);
     }
     v = fs_value_fill_lexical(q, v);
-    GDate *d = gdate_from_iso8601(v.lex);
-    if (!d) {
-        return fs_value_error(FS_ERROR_INVALID_TYPE, "cannot get month from xsd:date");
+    fs_date_fields df;
+    if (date_from_iso8601(v.lex, &df)) {
+        return fs_value_error(FS_ERROR_INVALID_TYPE, "cannot get month from xsd:dateTime");
     }
-    long int month = g_date_get_month(d);
-    if (month == G_DATE_BAD_MONTH) {
-        return fs_value_error(FS_ERROR_INVALID_TYPE, "bad month in xsd:date");
-    }
-    fs_value ret = fs_value_integer(month);
-    g_date_free(d);
 
-    return ret;
+    return fs_value_integer(df.month);
 }
 
 fs_value fn_day(fs_query *q, fs_value v)
@@ -1287,18 +1287,12 @@ fs_value fn_day(fs_query *q, fs_value v)
         return fs_value_error(FS_ERROR_INVALID_TYPE, NULL);
     }
     v = fs_value_fill_lexical(q, v);
-    GDate *d = gdate_from_iso8601(v.lex);
-    if (!d) {
-        return fs_value_error(FS_ERROR_INVALID_TYPE, "cannot get day from xsd:date");
+    fs_date_fields df;
+    if (date_from_iso8601(v.lex, &df)) {
+        return fs_value_error(FS_ERROR_INVALID_TYPE, "cannot get day from xsd:dateTime");
     }
-    long int day = g_date_get_day(d);
-    if (day == G_DATE_BAD_DAY) {
-        return fs_value_error(FS_ERROR_INVALID_TYPE, "bad day in xsd:date");
-    }
-    fs_value ret = fs_value_integer(day);
-    g_date_free(d);
 
-    return ret;
+    return fs_value_integer(df.day);
 }
 
 fs_value fn_hours(fs_query *q, fs_value v)
