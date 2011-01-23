@@ -203,7 +203,7 @@ static int insert_rasqal_triple(struct update_context *ct, rasqal_triple *triple
     fs_resource_from_rasqal_literal(ct, triple->object, &res, 0);
     if (res.lex) fsp_res_import(ct->link, FS_RID_SEGMENT(quad_buf[0][3], ct->segments), 1, &res);
     fsp_quad_import(ct->link, FS_RID_SEGMENT(quad_buf[0][1], ct->segments), FS_BIND_BY_SUBJECT, 1, quad_buf);
-printf("I %016llx %016llx %016llx %016llx\n", quad_buf[0][0], quad_buf[0][1], quad_buf[0][2], quad_buf[0][3]);
+//printf("I %016llx %016llx %016llx %016llx\n", quad_buf[0][0], quad_buf[0][1], quad_buf[0][2], quad_buf[0][3]);
 
     return 0;
 }
