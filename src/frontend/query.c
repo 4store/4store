@@ -60,7 +60,7 @@ static void filter_optimise_disjunct_equality(fs_query *q,
             rasqal_expression *e, int block, char **var, fs_rid_vector *res);
 static void fs_query_explain(fs_query *q, char *msg);
 
-static void check_cons_slot(fs_query *q, raptor_sequence *vars, rasqal_literal *l)
+void fs_check_cons_slot(fs_query *q, raptor_sequence *vars, rasqal_literal *l)
 {
     if (l->type == RASQAL_LITERAL_VARIABLE) {
         int dup = 0;
@@ -72,6 +72,7 @@ static void check_cons_slot(fs_query *q, raptor_sequence *vars, rasqal_literal *
         }
         if (!dup) {
             raptor_sequence_push(vars, l->value.variable);
+printf("@@ added ?%s\n", l->value.variable->name);
         }
     }
 }
@@ -164,7 +165,7 @@ static void log_handler(void *user_data, raptor_log_message *message)
 {
     fs_query *q = user_data;
 
-    char *msg = g_strdup_printf("parser %s: %s, on line %d", raptor_log_level_get_label(message->level), message->text, raptor_locator_line(message->locator));
+    char *msg = g_strdup_printf("parser %s: %s on line %d", raptor_log_level_get_label(message->level), message->text, raptor_locator_line(message->locator));
     q->warnings = g_slist_prepend(q->warnings, msg);
     fs_query_add_freeable(q, msg);
     if (message->level > RAPTOR_LOG_LEVEL_WARN) {
@@ -207,7 +208,7 @@ static void insert_freq(GHashTable *h, fs_quad_freq *f)
     old->freq += ponly.freq;
 }
 
-fs_query_state *fs_query_init(fsp_link *link)
+fs_query_state *fs_query_init(fsp_link *link, rasqal_world *rasworld, raptor_world *rapworld)
 {
     fs_query_state *qs = calloc(1, sizeof(fs_query_state));
     g_static_mutex_init(&qs->cache_mutex);
@@ -234,7 +235,11 @@ fs_query_state *fs_query_init(fsp_link *link)
         }
     }
 
-    qs->rasqal_world = rasqal_new_world();
+    if (rasworld) {
+        qs->rasqal_world = rasworld;
+    } else {
+        qs->rasqal_world = rasqal_new_world();
+    }
     if (!qs->rasqal_world) {
         fs_error(LOG_ERR, "failed to allocate rasqal world");
     }
@@ -243,7 +248,11 @@ fs_query_state *fs_query_init(fsp_link *link)
 	fs_query_fini(qs);
 	return NULL;
     }
-    qs->raptor_world = raptor_new_world();
+    if (rapworld) {
+        qs->raptor_world = rapworld;
+    } else {
+        qs->raptor_world = raptor_new_world();
+    }
     if (!qs->raptor_world) {
         fs_error(LOG_ERR, "failed to allocate raptor world");
     }
@@ -260,8 +269,11 @@ int fs_query_fini(fs_query_state *qs)
 {
     if (qs) {
         if (qs->rasqal_world) rasqal_free_world(qs->rasqal_world);
+        qs->rasqal_world = NULL;
         if (qs->raptor_world) raptor_free_world(qs->raptor_world);
+        qs->raptor_world = NULL;
         free(qs->bind_cache);
+        qs->bind_cache = NULL;
         g_static_mutex_free(&qs->cache_mutex);
         free(qs);
     }
@@ -446,9 +458,9 @@ fs_query *fs_query_execute(fs_query_state *qs, fsp_link *link, raptor_uri *bu, c
 	for (int i=0; 1; i++) {
 	    rasqal_triple *t = rasqal_query_get_construct_triple(rq, i);
 	    if (!t) break;
-	    check_cons_slot(q, vars, t->subject);
-	    check_cons_slot(q, vars, t->predicate);
-	    check_cons_slot(q, vars, t->object);
+	    fs_check_cons_slot(q, vars, t->subject);
+	    fs_check_cons_slot(q, vars, t->predicate);
+	    fs_check_cons_slot(q, vars, t->object);
 	}
     } else if (q->describe) {
         raptor_sequence *desc = rasqal_query_get_describe_sequence(rq);
@@ -500,10 +512,6 @@ fs_query *fs_query_execute(fs_query_state *qs, fsp_link *link, raptor_uri *bu, c
             }
         }
     }
-    if (q->num_vars == 0) {
-        /* add a dummy column so we can test ASK/boolean status */
-        fs_binding_add(q->bb[0], "_dummy", FS_RID_NULL, 0);
-    }
 
     rasqal_graph_pattern *pattern = rasqal_query_get_query_graph_pattern(rq);
     q->flags = flags;
@@ -511,7 +519,134 @@ fs_query *fs_query_execute(fs_query_state *qs, fsp_link *link, raptor_uri *bu, c
 	q->flags |= FS_BIND_DISTINCT;
     }
 
-    graph_pattern_walk(link, pattern, q, NULL, 0, 0);
+    /* make sure variables in GROUP BY are marked as needed */
+    for (int i=0; rasqal_query_get_group_condition(q->rq, i); i++) {
+        rasqal_expression *e = rasqal_query_get_group_condition(q->rq, i);
+        check_variables(q, e, 0);
+    }
+
+    /* this is where most of the actual work happens */
+    fs_query_process_pattern(q, pattern, vars);
+
+#ifdef DEBUG_MERGE
+    explain = flags & FS_QUERY_EXPLAIN;
+#endif
+
+    if (explain) {
+	return q;
+    }
+
+    /* handle DISTINCT */
+    if (q->flags & FS_BIND_DISTINCT) {
+        int sortable = 0;
+	for (int i=0; q->bb[0][i].name; i++) {
+	    if (q->bb[0][i].proj || q->bb[0][i].selected) {
+		q->bb[0][i].sort = 1;
+                sortable = 1;
+	    } else {
+		q->bb[0][i].sort = 0;
+	    }
+	}
+        if (sortable) {
+            fs_binding_sort(q->bb[0]);
+            fs_binding_uniq(q->bb[0]);
+        }
+    }
+
+    q->length = 0;
+    if (q->num_vars == q->expressions && q->num_vars > 0) {
+        q->length = fs_binding_length(q->bb[0]);
+    } else {
+        /* this is neccesary because the DISTINCT phase may have
+         * reduced the length of the projected columns */
+        for (int col=1; col < q->num_vars+1; col++) {
+            if (!q->bb[0][col].proj) continue;
+            if (q->bb[0][col].vals->length > q->length) {
+                q->length = q->bb[0][col].vals->length;
+            }
+        }
+    }
+#if DEBUG_MERGE > 1
+printf("After DISINTCT\n");
+fs_binding_print(q->bb[0], stdout);
+#endif
+
+    int selected_not_projected = 0;
+    for (int col = 1; q->bb[0][col].name; col++) {
+        if (q->bb[0][col].selected && !q->bb[0][col].proj) {
+            selected_not_projected = 1;
+            break;
+        }
+    }
+    /* If there are selected variables that are not projected then we might
+     * not have performed a full distinct yet, so we need to run thorugh
+     * q->offset disinct rows to make sure the OFFSET is correct */
+    if (q->offset > 0 && selected_not_projected) {
+        int offsetted = 0;
+        while (offsetted < q->offset && q->row < q->length) {
+            if (q->row > 0) {
+                int dup = 1;
+                /* scan right to left cos we'll find a difference quicker that
+                 * way */
+                for (int col=(q->num_vars); col > 0; col--) {
+                    if (q->bb[0][col].vals->data[q->row] != q->bb[0][col].vals->data[(q->row)-1]) {
+                        dup = 0;
+                        break;
+                    }
+                }
+                if (dup) {
+                    (q->row)++;
+                    continue;
+                }
+            }
+            offsetted++;
+            (q->row)++;
+        }
+    } else {
+        q->row = q->offset;
+    }
+
+    if (q->row < 0) q->row = 0;
+    q->lastrow = q->row;
+    q->rows_output = 0;
+    q->pending = calloc(q->segments, sizeof(fs_rid_vector *));
+    for (int i=0; i<q->segments; i++) {
+	q->pending[i] = fs_rid_vector_new(0);
+    }
+
+    if (q->offset < 0) {
+	q->offset = 0;
+    }
+
+    if (q->num_vars == 0) {
+	/* ASK or similar */
+        q->length = fs_binding_length(q->bb[0]);
+        if (q->length) {
+            q->boolean = 1;
+        } else {
+            q->boolean = 0;
+        }
+
+	return q;
+    }
+
+    if (rasqal_query_get_order_condition(q->rq, 0)) {
+	fs_query_order(q);
+    }
+
+    return q;
+}
+
+int fs_query_process_pattern(fs_query *q, rasqal_graph_pattern *pattern, raptor_sequence *vars)
+{
+    const int explain = q->flags & FS_QUERY_EXPLAIN;
+
+    if (q->num_vars == 0) {
+        /* add a dummy column so we can test ASK/boolean status */
+        fs_binding_add(q->bb[0], "_dummy", FS_RID_NULL, 0);
+    }
+
+    graph_pattern_walk(q->link, pattern, q, NULL, 0, 0);
 
     tree_compact(q);
 
@@ -548,17 +683,13 @@ fs_query *fs_query_execute(fs_query_state *qs, fsp_link *link, raptor_uri *bu, c
     }
 
     /* make sure variables in project expressions are marked as needed */
-    for (int i=0; i < q->num_vars; i++) {
-	rasqal_variable *v = raptor_sequence_get_at(vars, i);
-        if (v->expression) {
-            check_variables(q, v->expression, 0);
+    if (vars) {
+        for (int i=0; i < q->num_vars; i++) {
+            rasqal_variable *v = raptor_sequence_get_at(vars, i);
+            if (v->expression) {
+                check_variables(q, v->expression, 0);
+            }
         }
-    }
-
-    /* make sure variables in GROUP BY are marked as needed */
-    for (int i=0; rasqal_query_get_group_condition(q->rq, i); i++) {
-        rasqal_expression *e = rasqal_query_get_group_condition(q->rq, i);
-        check_variables(q, e, 0);
     }
 
     for (int i=0; i <= q->block; i++) {
@@ -751,115 +882,9 @@ printf("\n");
         }
     }
 
-#ifdef DEBUG_MERGE
-    explain = flags & FS_QUERY_EXPLAIN;
-#endif
-
-    if (explain) {
-	return q;
-    }
-
     fs_query_group_block(q, 0);
 
-    /* handle DISTINCT */
-    if (q->flags & FS_BIND_DISTINCT) {
-        int sortable = 0;
-	for (int i=0; q->bb[0][i].name; i++) {
-	    if (q->bb[0][i].proj || q->bb[0][i].selected) {
-		q->bb[0][i].sort = 1;
-                sortable = 1;
-	    } else {
-		q->bb[0][i].sort = 0;
-	    }
-	}
-        if (sortable) {
-            fs_binding_sort(q->bb[0]);
-            fs_binding_uniq(q->bb[0]);
-        }
-    }
-
-    q->length = 0;
-    if (q->num_vars == q->expressions && q->num_vars > 0) {
-        q->length = fs_binding_length(q->bb[0]);
-    } else {
-        /* this is neccesary because the DISTINCT phase may have
-         * reduced the length of the projected columns */
-        for (int col=1; col < q->num_vars+1; col++) {
-            if (!q->bb[0][col].proj) continue;
-            if (q->bb[0][col].vals->length > q->length) {
-                q->length = q->bb[0][col].vals->length;
-            }
-        }
-    }
-#if DEBUG_MERGE > 1
-printf("After DISINTCT\n");
-fs_binding_print(q->bb[0], stdout);
-#endif
-
-    int selected_not_projected = 0;
-    for (int col = 1; q->bb[0][col].name; col++) {
-        if (q->bb[0][col].selected && !q->bb[0][col].proj) {
-            selected_not_projected = 1;
-            break;
-        }
-    }
-    /* If there are selected variables that are not projected then we might
-     * not have performed a full distinct yet, so we need to run thorugh
-     * q->offset disinct rows to make sure the OFFSET is correct */
-    if (q->offset > 0 && selected_not_projected) {
-        int offsetted = 0;
-        while (offsetted < q->offset && q->row < q->length) {
-            if (q->row > 0) {
-                int dup = 1;
-                /* scan right to left cos we'll find a difference quicker that
-                 * way */
-                for (int col=(q->num_vars); col > 0; col--) {
-                    if (q->bb[0][col].vals->data[q->row] != q->bb[0][col].vals->data[(q->row)-1]) {
-                        dup = 0;
-                        break;
-                    }
-                }
-                if (dup) {
-                    (q->row)++;
-                    continue;
-                }
-            }
-            offsetted++;
-            (q->row)++;
-        }
-    } else {
-        q->row = q->offset;
-    }
-
-    if (q->row < 0) q->row = 0;
-    q->lastrow = q->row;
-    q->rows_output = 0;
-    q->pending = calloc(q->segments, sizeof(fs_rid_vector *));
-    for (int i=0; i<q->segments; i++) {
-	q->pending[i] = fs_rid_vector_new(0);
-    }
-
-    if (q->offset < 0) {
-	q->offset = 0;
-    }
-
-    if (q->num_vars == 0) {
-	/* ASK or similar */
-        q->length = fs_binding_length(q->bb[0]);
-        if (q->length) {
-            q->boolean = 1;
-        } else {
-            q->boolean = 0;
-        }
-
-	return q;
-    }
-
-    if (rasqal_query_get_order_condition(q->rq, 0)) {
-	fs_query_order(q);
-    }
-
-    return q;
+    return 0;
 }
 
 void fs_query_free(fs_query *q)

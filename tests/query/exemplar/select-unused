@@ -1,5 +1,5 @@
-# parser warning: Variable a was selected but is unused in the query. at line 1
-# parser warning: Variable b was selected but is unused in the query. at line 1
+# parser warning: Variable a was selected but is unused in the query. on line 1
+# parser warning: Variable b was selected but is unused in the query. on line 1
 ?a	?b	?name
 NULL	NULL	"Dave Beckett"
 NULL	NULL	"Jo Walsh"

@@ -18,6 +18,7 @@
 #include <raptor.h>
 #include <rasqal.h>
 
+#include "query.h"
 #include "update.h"
 #include "../common/hash.h"
 #include "../common/error.h"
@@ -44,9 +45,11 @@ int main(int argc, char *argv[])
 
     fs_hash_init(fsp_hash_type(link));
 
+    fs_query_state *qs = fs_query_init(link, NULL, NULL);
     char *message = NULL;
-    int ret = fs_update(link, argv[2], &message, TRUE);
+    int ret = fs_update(qs, argv[2], &message, TRUE);
     if (message) printf("%s\n", message);
+    fs_query_fini(qs);
 
     return ret;
 }

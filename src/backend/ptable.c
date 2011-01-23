@@ -415,12 +415,32 @@ fs_row_id fs_ptable_remove_pair(fs_ptable *pt, fs_row_id b, fs_rid pair[2], int 
         return ret;
     }
 
+    /* NULL, NULL means remove everything */
+    if (pair[0] == FS_RID_NULL && pair[1] == FS_RID_NULL) {
+        *removed += fs_ptable_chain_length(pt, b, 0);
+        fs_ptable_remove_chain(pt, b);
+
+        return 0;
+    }
+
     row *prevr = NULL;
     while (b != 0) {
         row *r = &(pt->data[b]);
         fs_row_id nextb = r->cont;
         if (pair[0] != FS_RID_NULL && pair[1] == FS_RID_NULL) {
             if (r->data[0] == pair[0]) {
+                if (prevr) {
+                    prevr->cont = nextb;
+                } else {
+                    ret = nextb;
+                }
+                fs_ptable_free_row(pt, b);
+                (*removed)++;
+            } else {
+                prevr = r;
+            }
+        } else if (pair[0] == FS_RID_NULL && pair[1] != FS_RID_NULL) {
+            if (r->data[1] == pair[1]) {
                 if (prevr) {
                     prevr->cont = nextb;
                 } else {

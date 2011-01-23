@@ -69,7 +69,7 @@ int main(int argc, char *argv[])
 
         return 0;
     } else if (!strcmp(argv[2], "freq")) {
-        fs_query_state *qs = fs_query_init(link);
+        fs_query_state *qs = fs_query_init(link, NULL, NULL);
         fs_optimiser_freq_print(qs);
     }
 

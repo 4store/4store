@@ -413,7 +413,7 @@ static void http_import_start(client_ctxt *ctxt)
   if (ctxt->update_string) {
 #if RASQAL_VERSION > 917
     char *message = NULL;
-    int ret = fs_update(fsplink, ctxt->update_string, &message, unsafe);
+    int ret = fs_update(query_state, ctxt->update_string, &message, unsafe);
     fs_query_cache_flush(query_state, 0);
     http_import_queue_remove(ctxt);
     if (ret == 0) {
@@ -1569,7 +1569,7 @@ static void child (int srv, char *kb_name, char *password)
 
   query_log_open(kb_name);
 
-  query_state = fs_query_init(fsplink);
+  query_state = fs_query_init(fsplink, NULL, NULL);
   bu = raptor_new_uri(query_state->raptor_world, (unsigned char *)"local:local");
   g_thread_init(NULL);
   pool = g_thread_pool_new(http_query_worker, NULL, QUERY_THREAD_POOL_SIZE, FALSE, NULL);
