@@ -72,7 +72,6 @@ void fs_check_cons_slot(fs_query *q, raptor_sequence *vars, rasqal_literal *l)
         }
         if (!dup) {
             raptor_sequence_push(vars, l->value.variable);
-printf("@@ added ?%s\n", l->value.variable->name);
         }
     }
 }

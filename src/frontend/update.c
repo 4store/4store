@@ -93,17 +93,15 @@ static int any_vars(rasqal_triple *t)
 
 static int assign_gp(rasqal_graph_pattern *gp, rasqal_literal *graph, struct pattern_data *pd)
 {
-printf("GP=%p\n", gp);
-printf("OP=%d\n", rasqal_graph_pattern_get_operator(gp));
+//printf("OP=%d\n", rasqal_graph_pattern_get_operator(gp));
     if (rasqal_graph_pattern_get_origin(gp)) {
         graph = rasqal_graph_pattern_get_origin(gp);
-printf("ORIGIN=");
-rasqal_literal_print(graph, stdout);
-printf("\n");
+//printf("ORIGIN=");
+//rasqal_literal_print(graph, stdout);
+//printf("\n");
     }
     for (int i=0; rasqal_graph_pattern_get_triple(gp, i); i++) {
         rasqal_triple *otr = rasqal_graph_pattern_get_triple(gp, i);
-rasqal_triple_print(otr, stdout); printf("\n");
         if (any_vars(otr)) {
             rasqal_triple *tr = rasqal_new_triple_from_triple(otr);
             if (graph) {
@@ -128,6 +126,42 @@ rasqal_triple_print(otr, stdout); printf("\n");
     return 0;
 }
 
+static int delete_rasqal_triple(struct update_context *ct, fs_rid_vector *vec[], rasqal_triple *triple, int row)
+{
+    fs_rid m, s, p, o;
+
+    if (triple->origin) {
+        m = fs_hash_rasqal_literal(ct, triple->origin, row);
+        if (m == FS_RID_NULL) return 1;
+    } else if (ct->op->graph_uri) {
+        m = fs_hash_uri((char *)raptor_uri_as_string(ct->op->graph_uri));
+    } else {
+        /* m can be wildcard in the absence of GRAPH, WITH etc. */
+        m = FS_RID_NULL;
+    }
+    s = fs_hash_rasqal_literal(ct, triple->subject, row);
+    if (s == FS_RID_NULL) return 1;
+    p = fs_hash_rasqal_literal(ct, triple->predicate, row);
+    if (p == FS_RID_NULL) return 1;
+    o = fs_hash_rasqal_literal(ct, triple->object, row);
+    if (o == FS_RID_NULL) return 1;
+
+    /* as long as s, p, and o are bound, we can add this quad */
+    fs_rid_vector_append(vec[0], m);
+    fs_rid_vector_append(vec[1], s);
+    fs_rid_vector_append(vec[2], p);
+    fs_rid_vector_append(vec[3], o);
+
+    if (fs_rid_vector_length(vec[0]) > 999) {
+        fsp_delete_quads_all(ct->link, vec);
+        for (int s=0; s<4; s++) {
+            fs_rid_vector_truncate(vec[s], 0);
+        }
+    }
+
+    return 0;
+}
+
 static int insert_rasqal_triple(struct update_context *ct, rasqal_triple *triple, int row)
 {
     fs_rid quad_buf[1][4];
@@ -145,8 +179,17 @@ static int insert_rasqal_triple(struct update_context *ct, rasqal_triple *triple
         res.lex = FS_DEFAULT_GRAPH;
         res.attr = FS_RID_NULL;
     }
+    if (!FS_IS_URI(quad_buf[0][0])) {
+        return 1;
+    }
     quad_buf[0][1] = fs_hash_rasqal_literal(ct, triple->subject, row);
+    if (FS_IS_LITERAL(quad_buf[0][1])) {
+        return 1;
+    }
     quad_buf[0][2] = fs_hash_rasqal_literal(ct, triple->predicate, row);
+    if (!FS_IS_URI(quad_buf[0][2])) {
+        return 1;
+    }
     quad_buf[0][3] = fs_hash_rasqal_literal(ct, triple->object, row);
     res.rid = quad_buf[0][0];
     if (res.lex) fsp_res_import(ct->link, FS_RID_SEGMENT(quad_buf[0][0], ct->segments), 1, &res);
@@ -215,24 +258,26 @@ static int update_op(struct update_context *ct)
         /* add column to denote join ordering */
         fs_binding_add(q->bb[0], "_ord", FS_RID_NULL, 0);
 
-        struct pattern_data pd;
-        pd.q = q;
-        pd.patterns = todel_p;
-        pd.fixed = todel;
-        pd.vars = vars;
+        struct pattern_data pd = { .q = q, .vars = vars, .patterns = NULL, .fixed = NULL };
 
-        for (int t=0; t<raptor_sequence_size(ct->op->delete_templates); t++) {
-            rasqal_graph_pattern *gp = raptor_sequence_get_at(ct->op->delete_templates, t);
-            assign_gp(gp, NULL, &pd);
+        if (ct->op->delete_templates) {
+            pd.patterns = todel_p;
+            pd.fixed = todel;
+
+            for (int t=0; t<raptor_sequence_size(ct->op->delete_templates); t++) {
+                rasqal_graph_pattern *gp = raptor_sequence_get_at(ct->op->delete_templates, t);
+                assign_gp(gp, NULL, &pd);
+            }
         }
 
-        pd.patterns = toins_p;
-        pd.fixed = toins;
+        if (ct->op->insert_templates) {
+            pd.patterns = toins_p;
+            pd.fixed = toins;
 
-        for (int t=0; t<raptor_sequence_size(ct->op->insert_templates); t++) {
-            rasqal_graph_pattern *gp = raptor_sequence_get_at(ct->op->insert_templates, t);
-rasqal_graph_pattern_print(gp, stdout); printf("\n");
-            assign_gp(gp, NULL, &pd);
+            for (int t=0; t<raptor_sequence_size(ct->op->insert_templates); t++) {
+                rasqal_graph_pattern *gp = raptor_sequence_get_at(ct->op->insert_templates, t);
+                assign_gp(gp, NULL, &pd);
+            }
         }
 
         q->num_vars = raptor_sequence_size(vars);
@@ -250,7 +295,6 @@ rasqal_graph_pattern_print(gp, stdout); printf("\n");
         fs_query_process_pattern(q, ct->op->where, vars);
 
         q->length = fs_binding_length(q->bb[0]);
-printf("@@ length = %d, patterns = %d\n", q->length, raptor_sequence_size(toins_p));
 
         for (int s=0; s<4; s++) {
             vec[s] = fs_rid_vector_new(0);
@@ -258,46 +302,17 @@ printf("@@ length = %d, patterns = %d\n", q->length, raptor_sequence_size(toins_
         for (int t=0; t<raptor_sequence_size(todel_p); t++) {
             rasqal_triple *triple = raptor_sequence_get_at(todel_p, t);
             for (int row=0; row < q->length; row++) {
-                fs_rid m, s, p, o;
-                if (triple->origin) {
-                    m = fs_hash_rasqal_literal(ct, triple->origin, row);
-                    if (m == FS_RID_NULL) continue;
-                } else if (ct->op->graph_uri) {
-                    m = fs_hash_uri((char *)raptor_uri_as_string(ct->op->graph_uri));
-                } else {
-                    /* m can be wildcard in the absence of GRAPH, WITH etc. */
-                    m = FS_RID_NULL;
-                }
-                s = fs_hash_rasqal_literal(ct, triple->subject, row);
-                if (s == FS_RID_NULL) continue;
-                p = fs_hash_rasqal_literal(ct, triple->predicate, row);
-                if (p == FS_RID_NULL) continue;
-                o = fs_hash_rasqal_literal(ct, triple->object, row);
-                if (o == FS_RID_NULL) continue;
-
-                /* as long as s, p, and o are bound, we can add this quad */
-                fs_rid_vector_append(vec[0], m);
-                fs_rid_vector_append(vec[1], s);
-                fs_rid_vector_append(vec[2], p);
-                fs_rid_vector_append(vec[3], o);
-
-                if (fs_rid_vector_length(vec[0]) > 999) {
+                delete_rasqal_triple(ct, vec, triple, row);
+                if (fs_rid_vector_length(vec[0]) > 0) {
                     fsp_delete_quads_all(ct->link, vec);
-                    for (int s=0; s<4; s++) {
-                        fs_rid_vector_truncate(vec[s], 0);
-                    }
                 }
             }
-        }
-        if (fs_rid_vector_length(vec[0]) > 0) {
-            fsp_delete_quads_all(ct->link, vec);
         }
         for (int s=0; s<4; s++) {
 //fs_rid_vector_print(vec[s], 0, stdout);
             fs_rid_vector_free(vec[s]);
         }
 
-        /* XXX */
         for (int t=0; t<raptor_sequence_size(toins_p); t++) {
             rasqal_triple *triple = raptor_sequence_get_at(toins_p, t);
             for (int row=0; row < q->length; row++) {
@@ -314,35 +329,17 @@ printf("@@ length = %d, patterns = %d\n", q->length, raptor_sequence_size(toins_
         toins = ct->op->insert_templates;
     }
 
+    /* delete constant triples */
     if (todel) {
         for (int s=0; s<4; s++) {
             vec[s] = fs_rid_vector_new(0);
         }
         for (int t=0; t<raptor_sequence_size(todel); t++) {
             rasqal_triple *triple = raptor_sequence_get_at(todel, t);
-rasqal_triple_print(triple, stdout); printf("\n");
             if (any_vars(triple)) {
                 continue;
             }
-            if (triple->origin) {
-                fs_rid_vector_append(vec[0],
-                    fs_hash_rasqal_literal(ct, triple->origin, 0));
-            } else if (ct->op->graph_uri) {
-                fs_rid m = fs_hash_uri
-                    ((char *)raptor_uri_as_string(ct->op->graph_uri));
-                fs_rid_vector_append(vec[0], m);
-            } else {
-                fs_rid_vector_append(vec[0], fs_c.default_graph);
-            }
-            fs_rid_vector_append(vec[1], fs_hash_rasqal_literal(ct, triple->subject, 0));
-            fs_rid_vector_append(vec[2], fs_hash_rasqal_literal(ct, triple->predicate, 0));
-            fs_rid_vector_append(vec[3], fs_hash_rasqal_literal(ct, triple->object, 0));
-            if (fs_rid_vector_length(vec[0]) > 999) {
-                fsp_delete_quads_all(ct->link, vec);
-                for (int s=0; s<4; s++) {
-                    fs_rid_vector_truncate(vec[s], 0);
-                }
-            }
+            delete_rasqal_triple(ct, vec, triple, 0);
         }
         if (fs_rid_vector_length(vec[0]) > 0) {
             fsp_delete_quads_all(ct->link, vec);
@@ -351,10 +348,11 @@ rasqal_triple_print(triple, stdout); printf("\n");
             fs_rid_vector_free(vec[s]);
         }
     }
+
+    /* insert constant triples */
     if (toins) {
         for (int t=0; t<raptor_sequence_size(toins); t++) {
             rasqal_triple *triple = raptor_sequence_get_at(toins, t);
-rasqal_triple_print(triple, stdout); printf("\n");
             if (any_vars(triple)) {
                 continue;
             }
