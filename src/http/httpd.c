@@ -1655,10 +1655,13 @@ int main(int argc, char *argv[])
       case 'O':
 	opt_level = atoi(optarg);
 	break;
+      default:
+	help = 1;
+	break;
     }
   }
 
-  if (help || optind >= argc) {
+  if (help || optind >= argc || optind < argc - 1) {
     fprintf(stdout, "Usage: %s [-D] [-H host] [-p port] [-U] [-s limit] <kbname>\n", basename(argv[0]));
     fprintf(stdout, "       -H   specify host to listen on\n");
     fprintf(stdout, "       -p   specify port to listen on\n");
