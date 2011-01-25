@@ -1,6 +1,7 @@
 #!/usr/bin/perl -w
 
 use Term::ANSIColor;
+use POSIX ":sys_wait_h";
 
 $kb_name = "http_test_".$ENV{'USER'};
 
@@ -14,6 +15,9 @@ my $errs = 1;
 my $spawn = 1;
 
 $SIG{USR2} = 'IGNORE';
+$SIG{TERM} = 'IGNORE';
+
+print join("\n", keys %SIG);
 
 if ($ARGV[0]) {
 	if ($ARGV[0] eq "--exemplar") {
@@ -107,6 +111,12 @@ if ($pid = fork()) {
 	} else {
 		waitpid($pid, 0);
 	}
+
+	if ($fails) {
+		exit(1);
+	}
+
+	exit(0);
 } else {
 	# child
 	if ($spawn) {
