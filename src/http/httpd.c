@@ -963,7 +963,7 @@ static void http_post_request(client_ctxt *ctxt, gchar *url, gchar *protocol)
     ctxt->bytes_left = length ? atol(length) : 0;
 
     if (ctxt->bytes_left == 0) {
-      http_error(ctxt, "500 SPARQL protocol error, empty");
+      http_error(ctxt, "411 content length required");
       http_close(ctxt);
       return;
     }
@@ -976,7 +976,7 @@ static void http_post_request(client_ctxt *ctxt, gchar *url, gchar *protocol)
       GIOStatus result;
       do {
         result = g_io_channel_read_chars(ctxt->ioch, buffer, ctxt->bytes_left, &read, NULL);
-      } while (result == G_IO_STATUS_AGAIN);
+      } while (result == G_IO_STATUS_AGAIN && read > 0);
       if (result !=  G_IO_STATUS_NORMAL) {
         fs_error(LOG_ERR, "unexpected IO status %u during POST request", result);
         g_free(form);
@@ -1037,7 +1037,7 @@ static void http_post_request(client_ctxt *ctxt, gchar *url, gchar *protocol)
     ctxt->bytes_left = length ? atol(length) : 0;
 
     if (ctxt->bytes_left == 0) {
-      http_error(ctxt, "500 SPARQL protocol error, empty");
+      http_error(ctxt, "411 content length required");
       http_close(ctxt);
       return;
     }
@@ -1050,7 +1050,7 @@ static void http_post_request(client_ctxt *ctxt, gchar *url, gchar *protocol)
       GIOStatus result;
       do {
         result = g_io_channel_read_chars(ctxt->ioch, buffer, ctxt->bytes_left, &read, NULL);
-      } while (result == G_IO_STATUS_AGAIN);
+      } while (result == G_IO_STATUS_AGAIN && read > 0);
       if (result !=  G_IO_STATUS_NORMAL) {
         fs_error(LOG_ERR, "unexpected IO status %u during POST request", result);
         g_free(form);
@@ -1110,7 +1110,7 @@ static void http_post_request(client_ctxt *ctxt, gchar *url, gchar *protocol)
     ctxt->bytes_left = length ? atol(length) : 0;
 
     if (ctxt->bytes_left == 0) {
-      http_error(ctxt, "500 SPARQL REST protocol error, empty");
+      http_error(ctxt, "411 content length required");
       http_close(ctxt);
       return;
     }
@@ -1123,7 +1123,7 @@ static void http_post_request(client_ctxt *ctxt, gchar *url, gchar *protocol)
       GIOStatus result;
       do {
         result = g_io_channel_read_chars(ctxt->ioch, buffer, ctxt->bytes_left, &read, NULL);
-      } while (result == G_IO_STATUS_AGAIN);
+      } while (result == G_IO_STATUS_AGAIN && read > 0);
       if (result !=  G_IO_STATUS_NORMAL) {
         fs_error(LOG_ERR, "unexpected IO status %u during POST request", result);
         g_free(form);
