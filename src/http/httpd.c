@@ -963,7 +963,7 @@ static void http_post_request(client_ctxt *ctxt, gchar *url, gchar *protocol)
     ctxt->bytes_left = length ? atol(length) : 0;
 
     if (ctxt->bytes_left == 0) {
-      http_error(ctxt, "500 SPARQL protocol error, empty");
+      http_error(ctxt, "411 content length required");
       http_close(ctxt);
       return;
     }
@@ -1037,7 +1037,7 @@ static void http_post_request(client_ctxt *ctxt, gchar *url, gchar *protocol)
     ctxt->bytes_left = length ? atol(length) : 0;
 
     if (ctxt->bytes_left == 0) {
-      http_error(ctxt, "500 SPARQL protocol error, empty");
+      http_error(ctxt, "411 content length required");
       http_close(ctxt);
       return;
     }
@@ -1110,7 +1110,7 @@ static void http_post_request(client_ctxt *ctxt, gchar *url, gchar *protocol)
     ctxt->bytes_left = length ? atol(length) : 0;
 
     if (ctxt->bytes_left == 0) {
-      http_error(ctxt, "500 SPARQL REST protocol error, empty");
+      http_error(ctxt, "411 content length required");
       http_close(ctxt);
       return;
     }
