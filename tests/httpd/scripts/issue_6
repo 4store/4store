@@ -1,0 +1,8 @@
+#!/bin/bash
+# test case for Issue #6 - a bad Content-Length causes an infinite loop
+
+source sparql.sh
+
+query='SELECT * WHERE { ?x ?y ?z }'
+uriescape "$query";
+curl --max-time 5 -s -H "Content-Length: 1000\r\nAccept: text/plain" "$EPR/sparql/" -d "?query=$escaped" | sed q
