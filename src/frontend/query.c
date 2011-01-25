@@ -298,7 +298,7 @@ static void tree_compact(fs_query *q)
                 }
             }
 #ifdef DEBUG_MERGE
-printf("Merge B%d to B%d\n", block, parent);
+            printf("Merge B%d to B%d\n", block, parent);
 #endif
             q->blocks[block].length = 0;
             for (int j=1; j<=q->block; j++) {
@@ -398,7 +398,7 @@ fs_query *fs_query_execute(fs_query_state *qs, fsp_link *link, raptor_uri *bu, c
     int explain = flags & FS_QUERY_EXPLAIN;
 #ifdef DEBUG_MERGE
     explain = 1;
-    //rasqal_query_print(rq, stdout);
+    rasqal_query_print(rq, stdout);
 #endif
 
 #if 0
@@ -566,8 +566,8 @@ fs_query *fs_query_execute(fs_query_state *qs, fsp_link *link, raptor_uri *bu, c
         }
     }
 #if DEBUG_MERGE > 1
-printf("After DISINTCT\n");
-fs_binding_print(q->bb[0], stdout);
+    printf("After DISINTCT\n");
+    fs_binding_print(q->bb[0], stdout);
 #endif
 
     int selected_not_projected = 0;
@@ -638,7 +638,10 @@ fs_binding_print(q->bb[0], stdout);
 
 int fs_query_process_pattern(fs_query *q, rasqal_graph_pattern *pattern, raptor_sequence *vars)
 {
-    const int explain = q->flags & FS_QUERY_EXPLAIN;
+    int explain = q->flags & FS_QUERY_EXPLAIN;
+#ifdef DEBUG_MERGE
+    explain = 1;
+#endif
 
     if (q->num_vars == 0) {
         /* add a dummy column so we can test ASK/boolean status */
@@ -693,7 +696,7 @@ int fs_query_process_pattern(fs_query *q, rasqal_graph_pattern *pattern, raptor_
 
     for (int i=0; i <= q->block; i++) {
 #if DEBUG_MERGE
-printf("Processing B%d, parent is B%d\n", i, q->parent_block[i]);
+        printf("Processing B%d, parent is B%d\n", i, q->parent_block[i]);
 #endif
         if (q->blocks[i].length == 0) {
             continue;
@@ -718,7 +721,7 @@ printf("Processing B%d, parent is B%d\n", i, q->parent_block[i]);
 		} else {
                     for (int k=0; k<chunk; k++) {
                         if (k) {
-                            fprintf(msg, " ");
+                            fprintf(msg, "\n");
                         }
                         rasqal_triple_print(q->blocks[i].data[j+k], msg);
                     }
@@ -778,9 +781,9 @@ printf("Processing B%d, parent is B%d\n", i, q->parent_block[i]);
             }
 	}
 #if DEBUG_MERGE > 1
-printf("table after processing B%d:\n", i);
-fs_binding_print(q->bb[i], stdout);
-printf("\n");
+        printf("table after processing B%d:\n", i);
+        fs_binding_print(q->bb[i], stdout);
+        printf("\n");
 #endif
     }
 
@@ -1149,7 +1152,8 @@ static void graph_pattern_walk(fsp_link *link, rasqal_graph_pattern *pattern,
         (q->unions)++;
         union_sub = q->unions;
     } else if (op == RASQAL_GRAPH_PATTERN_OPERATOR_BASIC ||
-	       op == RASQAL_GRAPH_PATTERN_OPERATOR_GRAPH) {
+               op == RASQAL_GRAPH_PATTERN_OPERATOR_GRAPH ||
+               op == RASQAL_GRAPH_PATTERN_OPERATOR_GROUP) {
         if (op == RASQAL_GRAPH_PATTERN_OPERATOR_GRAPH) {
             model = rasqal_graph_pattern_get_origin(pattern);
             if (!model) {
@@ -1182,8 +1186,6 @@ static void graph_pattern_walk(fsp_link *link, rasqal_graph_pattern *pattern,
 #endif
             raptor_sequence_push(q->constraints[parent], e);
         }
-    } else if (op == RASQAL_GRAPH_PATTERN_OPERATOR_GROUP) {
-        /* do nothing */
     } else {
 	fs_error(LOG_ERR, "Unknown GP operator %d not supported", op);
     }
