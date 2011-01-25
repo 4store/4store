@@ -64,8 +64,8 @@
 #define FS_TBCHAIN    FS_STORE_ROOT "/%s/%04x/%s.tbchain"
 
 #define FS_LEGAL_KB_CHARS "abcdefghijklmnopqrstuvwxyz" \
-                           "ABCDEFGHIJKLMNOPQRSTUVWXYZ" \
-                           "0123456789_-"
+                          "ABCDEFGHIJKLMNOPQRSTUVWXYZ" \
+                          "0123456789_"
 
 #if @FS_INSERT_DEDUP@
 #define FS_INSERT_DEDUP
