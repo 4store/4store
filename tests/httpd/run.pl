@@ -17,8 +17,6 @@ my $spawn = 1;
 $SIG{USR2} = 'IGNORE';
 $SIG{TERM} = 'IGNORE';
 
-print join("\n", keys %SIG);
-
 if ($ARGV[0]) {
 	if ($ARGV[0] eq "--exemplar") {
 		$outdir = "exemplar";
