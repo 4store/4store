@@ -256,7 +256,7 @@ static int update_op(struct update_context *ct)
         q->bb[0] = fs_binding_new();
         q->bt = q->bb[0];
         /* add column to denote join ordering */
-        fs_binding_add(q->bb[0], "_ord", FS_RID_NULL, 0);
+        fs_binding_create(q->bb[0], "_ord", FS_RID_NULL, 0);
 
         struct pattern_data pd = { .q = q, .vars = vars, .patterns = NULL, .fixed = NULL };
 
@@ -284,11 +284,11 @@ static int update_op(struct update_context *ct)
 
         for (int i=0; i < q->num_vars; i++) {
             rasqal_variable *v = raptor_sequence_get_at(vars, i);
-            fs_binding *b = fs_binding_get(q->bb[0], (char *)v->name);
+            fs_binding *b = fs_binding_get_var(q->bb[0], v);
             if (b) {
                 b->need_val = 1;
             } else {
-                fs_binding_add(q->bb[0], (char *)v->name, FS_RID_NULL, 1);
+                fs_binding_add(q->bb[0], v, FS_RID_NULL, 1);
             }
         }
 

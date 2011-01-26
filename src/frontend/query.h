@@ -24,7 +24,7 @@ double fs_query_start_time(fs_query *q);
 int fs_query_flags(fs_query *q);
 int fs_query_errors(fs_query *q);
 int fs_bind_slot(fs_query *q, int block, fs_binding *b, 
-        rasqal_literal *l, fs_rid_vector *v, int *bind, char **vname,
+        rasqal_literal *l, fs_rid_vector *v, int *bind, rasqal_variable **var,
         int lit_allowed);
 int fs_query_have_laqrs(void);
 

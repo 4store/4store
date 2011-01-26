@@ -186,11 +186,11 @@ static fs_value literal_to_value(fs_query *q, int row, int block, rasqal_literal
 
 	case RASQAL_LITERAL_VARIABLE:
 	    {
-		char *name = (char *)l->value.variable->name;
 #ifdef DEBUG_FILTER
+		char *name = (char *)l->value.variable->name;
                 printf("getting value of ?%s, row %d from B%d\n", name, row, block);
 #endif
-		fs_binding *b = fs_binding_get(q->bt, name);
+		fs_binding *b = fs_binding_get_var(q->bt, l->value.variable);
                 /* TODO this code needs to be tested when the parser handles
                  * { FILTER() } correctly, but not block can be -1 if we dont
                  * care about scope */

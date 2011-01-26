@@ -29,7 +29,7 @@ int fs_query_group_block(fs_query *q, int b)
         for (int i=0; q->bb[b][i].name; i++) {
             q->bb[b][i].sort = 0;
         }
-        fs_binding *gr = fs_binding_add(q->bb[b], "_group", FS_RID_NULL, 0);
+        fs_binding *gr = fs_binding_create(q->bb[b], "_group", FS_RID_NULL, 0);
         gr->bound = 1;
         gr->sort = 1;
         const long length = fs_binding_length(q->bb[b]);

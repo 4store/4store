@@ -1,20 +1,20 @@
 /*
-    4store - a clustered RDF storage and query engine
-
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
-/*
+ *  4store - a clustered RDF storage and query engine
+ *
+ *  This program is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ *
  *  Copyright (C) 2006 Steve Harris for Garlik
  */
 
@@ -85,6 +85,7 @@ int fs_binding_set_expression(fs_binding *b, const char *name, rasqal_expression
 {
     for (int i=0; 1; i++) {
 	if (!b[i].name) break;
+fprintf(stderr, "STRCMP at %s:%d\n", __FILE__, __LINE__);
 	if (!strcmp(b[i].name, name)) {
             b[i].expression = ex;
 
@@ -111,6 +112,7 @@ int fs_binding_bound_intersects(fs_query *q, int block, fs_binding *b, rasqal_li
     for (int i=0; b[i].name; i++) {
 	if (b[i].bound) {
 	    for (int j=0; j<4; j++) {
+fprintf(stderr, "STRCMP at %s:%d\n", __FILE__, __LINE__);
 		if (l[j] && l[j]->type == RASQAL_LITERAL_VARIABLE &&
 		    !strcmp((char *)l[j]->value.variable->name, b[i].name)) {
 		    /* if this var is bound only in this union block, and its
@@ -150,50 +152,78 @@ int fs_binding_width(fs_binding *b)
     return width;
 }
 
-fs_binding *fs_binding_add(fs_binding *b, const char *name, fs_rid val, int projected)
+fs_binding *fs_binding_create(fs_binding *b, const char *name, fs_rid val, int projected)
 {
     int i;
+    for (i=0; i < FS_BINDING_MAX_VARS && b[i].name; i++);
+    if (i == FS_BINDING_MAX_VARS) {
+        fs_error(LOG_ERR, "variable limit of %d exceeded", FS_BINDING_MAX_VARS);
 
+        return NULL;
+    }
+
+    b[i].name = g_strdup(name);
+    if (val != FS_RID_NULL) {
+        if (b[i].vals) {
+            fs_error(LOG_WARNING, "loosing pointer to rid_vector");
+        }
+        b[i].vals = fs_rid_vector_new_from_args(1, val);
+        b[i].bound = 1;
+    } else {
+        if (b[i].vals) {
+            fs_error(LOG_WARNING, "loosing pointer to rid_vector");
+        }
+        b[i].vals = fs_rid_vector_new(0);
+    }
+    b[i].proj = projected;
+    b[i].need_val = projected;
+
+    return b+i;
+}
+
+fs_binding *fs_binding_add(fs_binding *b, rasqal_variable *var, fs_rid val, int projected)
+{
 #ifdef DEBUG_BINDING
     if (strcmp(DEBUG_BINDING, name)) printf("@@ add("DEBUG_BINDING", %016llx, %d)\n", val, projected);
 #endif
-    for (i=0; 1; i++) {
-	if (b[i].name == NULL) {
-	    if (i == FS_BINDING_MAX_VARS) {
-		fs_error(LOG_ERR, "variable limit of %d exceeded",
-			FS_BINDING_MAX_VARS);
+    fs_binding *bv = fs_binding_get_var(b, var);
+    if (bv) {
+        fs_rid_vector_append(bv->vals, val);
+        bv->bound = 1;
+        bv->proj |= projected;
+        bv->need_val |= projected;
 
-		return NULL;
-	    }
-	    b[i].name = g_strdup(name);
-	    if (val != FS_RID_NULL) {
-                if (b[i].vals) {
-                    fs_error(LOG_WARNING, "loosing pointer to rid_vector");
-                }
-		b[i].vals = fs_rid_vector_new_from_args(1, val);
-		b[i].bound = 1;
-	    } else {
-                if (b[i].vals) {
-                    fs_error(LOG_WARNING, "loosing pointer to rid_vector");
-                }
-		b[i].vals = fs_rid_vector_new(0);
-	    }
-	    b[i].proj = projected;
-	    b[i].need_val = projected;
-
-	    return b+i;
-	}
-	if (!strcmp(b[i].name, name)) {
-	    fs_rid_vector_append(b[i].vals, val);
-	    b[i].bound = 1;
-	    b[i].proj |= projected;
-	    b[i].need_val |= projected;
-
-	    return b+i;
-	}
+        return bv;
     }
 
-    return NULL;
+    long i;
+    for (i=0; i < FS_BINDING_MAX_VARS && b[i].name; i++);
+
+    if (i == FS_BINDING_MAX_VARS) {
+	fs_error(LOG_ERR, "variable limit (%d) exceeded",
+		FS_BINDING_MAX_VARS);
+
+	return NULL;
+    }
+
+    b[i].name = g_strdup((char *)var->name);
+    if (val != FS_RID_NULL) {
+        if (b[i].vals) {
+            fs_error(LOG_WARNING, "loosing pointer to rid_vector");
+        }
+        b[i].vals = fs_rid_vector_new_from_args(1, val);
+        b[i].bound = 1;
+    } else {
+        if (b[i].vals) {
+            fs_error(LOG_WARNING, "loosing pointer to rid_vector");
+        }
+        b[i].vals = fs_rid_vector_new(0);
+    }
+    b[i].proj = projected;
+    b[i].need_val = projected;
+    var->user_data = (void *)i;
+
+    return b+i;
 }
 
 void fs_binding_clear_vector(fs_binding *b, const char *name)
@@ -203,6 +233,7 @@ void fs_binding_clear_vector(fs_binding *b, const char *name)
 #endif
     for (int i=0; 1; i++) {
 	if (!b[i].name) break;
+fprintf(stderr, "STRCMP at %s:%d\n", __FILE__, __LINE__);
 	if (!strcmp(b[i].name, name)) {
 	    b[i].vals->length = 0;
 	    return;
@@ -277,22 +308,21 @@ void fs_binding_clear(fs_binding *b)
     }
 }
 
-void fs_binding_add_vector(fs_binding *b, const char *name, fs_rid_vector *vals)
+void fs_binding_add_vector(fs_binding *b, rasqal_variable *var, fs_rid_vector *vals)
 {
 #ifdef DEBUG_BINDING
     if (!strcmp(DEBUG_BINDING, name)) printf("@@ add_vector("DEBUG_BINDING", %p)\n", vals);
 #endif
-    int i;
-    for (i=0; 1; i++) {
-	if (!b[i].name) break;
-	if (!strcmp(b[i].name, name)) {
-	    for (int j=0; vals && j<vals->length; j++) {
-		fs_rid_vector_append(b[i].vals, vals->data[j]);
-	    }
-	    b[i].bound = 1;
-	    return;
-	}
+    fs_binding *bv = fs_binding_get_var(b, var);
+    if (bv) {
+        fs_rid_vector_append_vector(bv->vals, vals);
+        bv->bound = 1;
+
+        return;
     }
+
+    int i;
+    for (i=0; i < FS_BINDING_MAX_VARS && b[i].name; i++);
 
     if (i == FS_BINDING_MAX_VARS) {
 	fs_error(LOG_ERR, "variable limit (%d) exceeded",
@@ -302,11 +332,9 @@ void fs_binding_add_vector(fs_binding *b, const char *name, fs_rid_vector *vals)
     }
 
     /* name wasn't found, add it */
-    if (!b[i].name) {
-	b[i].name = g_strdup(name);
-	b[i].vals = fs_rid_vector_copy(vals);
-	b[i].bound = 1;
-    }
+    b[i].name = g_strdup((char *)var->name);
+    b[i].vals = fs_rid_vector_copy(vals);
+    b[i].bound = 1;
 }
 
 fs_binding *fs_binding_get(fs_binding *b, const char *name)
@@ -316,12 +344,39 @@ fs_binding *fs_binding_get(fs_binding *b, const char *name)
 #endif
     for (int i=0; 1; i++) {
 	if (!b[i].name) break;
+fprintf(stderr, "@@ STRCMP %s at %s:%d\n", name, __FILE__, __LINE__);
 	if (!strcmp(b[i].name, name)) {
 	    return b+i;
 	}
     }
 
     return NULL;
+}
+
+fs_binding *fs_binding_get_var(fs_binding *b, rasqal_variable *var)
+{
+#ifdef DEBUG_BINDING
+    if (!strcmp(DEBUG_BINDING, name)) printf("@@ get_var("DEBUG_BINDING")\n");
+#endif
+    if (var->user_data) {
+        long col = (long)var->user_data;
+
+        return b+col;
+    }
+
+    const char *vname = (char *)var->name;
+    fs_binding *vb = NULL;
+    long i;
+    for (i=0; b[i].name; i++) {
+	if (!strcmp(b[i].name, vname)) {
+	    vb = b+i;
+            var->user_data = (void *)i;
+
+            break;
+	}
+    }
+
+    return vb;
 }
 
 fs_rid fs_binding_get_val(fs_binding *b, const char *name, int idx, int *bound)
@@ -333,6 +388,7 @@ fs_rid fs_binding_get_val(fs_binding *b, const char *name, int idx, int *bound)
 
     for (i=0; 1; i++) {
 	if (!b[i].name) break;
+fprintf(stderr, "STRCMP at %s:%d\n", __FILE__, __LINE__);
 	if (!strcmp(b[i].name, name)) {
             if (!b[i].need_val) return FS_RID_GONE;
 	    if (bound) *bound = b[i].bound;
@@ -360,6 +416,7 @@ fs_rid_vector *fs_binding_get_vals(fs_binding *b, const char *name, int *bound)
 
     for (i=0; 1; i++) {
 	if (!b[i].name) break;
+fprintf(stderr, "STRCMP at %s:%d\n", __FILE__, __LINE__);
 	if (!strcmp(b[i].name, name)) {
 	    if (bound) *bound = b[i].bound;
 	    return b[i].vals;
@@ -384,17 +441,16 @@ void fs_binding_clear_used_all(fs_binding *b)
     }
 }
 
-void fs_binding_set_used(fs_binding *b, const char *name)
+void fs_binding_set_used(fs_binding *b, rasqal_variable *var)
 {
 #ifdef DEBUG_BINDING
     if (!strcmp(DEBUG_BINDING, name)) printf("@@ set_used("DEBUG_BINDING")\n");
 #endif
-    for (int i=0; 1; i++) {
-	if (!b[i].name) break;
-	if (!strcmp(b[i].name, name)) {
-	    b[i].used = 1;
-	    break;
-	}
+    fs_binding *vb = fs_binding_get_var(b, var);
+    if (vb) {
+        vb->used = 1;
+    } else {
+        fs_error(LOG_ERR, "tried to set 'used' on unknown varaible %s", var->name);
     }
 }
 
@@ -405,6 +461,7 @@ int fs_binding_get_projected(fs_binding *b, const char *name)
 #endif
     for (int i=0; 1; i++) {
 	if (!b[i].name) break;
+fprintf(stderr, "STRCMP at %s:%d\n", __FILE__, __LINE__);
 	if (!strcmp(b[i].name, name)) {
 	    return b[i].proj;
 	}

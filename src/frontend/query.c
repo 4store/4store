@@ -57,7 +57,7 @@ static fs_rid const_literal_to_rid(fs_query *q, rasqal_literal *l, fs_rid *attr)
 static void check_variables(fs_query *q, rasqal_expression *e, int dont_select);
 static int is_aggregate(fs_query *q, rasqal_expression *e);
 static void filter_optimise_disjunct_equality(fs_query *q,
-            rasqal_expression *e, int block, char **var, fs_rid_vector *res);
+            rasqal_expression *e, int block, rasqal_variable **var, fs_rid_vector *res);
 static void fs_query_explain(fs_query *q, char *msg);
 
 void fs_check_cons_slot(fs_query *q, raptor_sequence *vars, rasqal_literal *l)
@@ -491,7 +491,7 @@ fs_query *fs_query_execute(fs_query_state *qs, fsp_link *link, raptor_uri *bu, c
     q->bb[0] = fs_binding_new();
     q->bt = q->bb[0];
     /* add column to denote join ordering */
-    fs_binding_add(q->bb[0], "_ord", FS_RID_NULL, 0);
+    fs_binding_create(q->bb[0], "_ord", FS_RID_NULL, 0);
 
     /* test to see if this is explicitly an aggregated query */
     if (rasqal_query_get_group_condition(rq, 0) ||
@@ -501,7 +501,7 @@ fs_query *fs_query_execute(fs_query_state *qs, fsp_link *link, raptor_uri *bu, c
 
     for (int i=0; i < q->num_vars; i++) {
 	rasqal_variable *v = raptor_sequence_get_at(vars, i);
-	fs_binding_add(q->bb[0], (char *)v->name, FS_RID_NULL, 1);
+	fs_binding_add(q->bb[0], v, FS_RID_NULL, 1);
         if (v->expression) {
             fs_binding_set_expression(q->bb[0], (char *)v->name, v->expression);
             q->expressions++;
@@ -645,7 +645,7 @@ int fs_query_process_pattern(fs_query *q, rasqal_graph_pattern *pattern, raptor_
 
     if (q->num_vars == 0) {
         /* add a dummy column so we can test ASK/boolean status */
-        fs_binding_add(q->bb[0], "_dummy", FS_RID_NULL, 0);
+        fs_binding_create(q->bb[0], "_dummy", FS_RID_NULL, 0);
     }
 
     graph_pattern_walk(q->link, pattern, q, NULL, 0, 0);
@@ -943,10 +943,12 @@ static void assign_slot(fs_query *q, rasqal_literal *l, int block)
 	    free(tmp);
 	    l->value.variable->type = RASQAL_VARIABLE_TYPE_NORMAL;
 	}
-	fs_binding *vb = fs_binding_get(q->bb[0], vname);
+	fs_binding *vb = fs_binding_get_var(q->bb[0], l->value.variable);
 	if (!vb) {
-	    vb = fs_binding_add(q->bb[0], vname, FS_RID_NULL, 0);
+	    vb = fs_binding_create(q->bb[0], vname, FS_RID_NULL, 0);
 	}
+        long col = vb - q->bb[0];
+        l->value.variable->user_data = (void *)col;
 	if (!vb->need_val && vb->appears != -1) {
 	    vb->need_val = 1;
 	}
@@ -990,8 +992,7 @@ static int is_aggregate(fs_query *q, rasqal_expression *e)
 static void check_variables(fs_query *q, rasqal_expression *e, int dont_select)
 {
     if (e->literal && e->literal->type == RASQAL_LITERAL_VARIABLE) {
-	rasqal_variable *v = e->literal->value.variable;
-	fs_binding *b = fs_binding_get(q->bb[0], (char *)v->name);
+	fs_binding *b = fs_binding_get_var(q->bb[0], e->literal->value.variable);
 	if (b) {
             b->need_val = 1;
             if (!dont_select) {
@@ -1030,7 +1031,7 @@ static void check_variables(fs_query *q, rasqal_expression *e, int dont_select)
 }
 
 static void filter_optimise_disjunct_equality(fs_query *q,
-            rasqal_expression *e, int block, char **var, fs_rid_vector *res)
+            rasqal_expression *e, int block, rasqal_variable **var, fs_rid_vector *res)
 {
     /* check it's a disjuntive expression */
     if (e->op == RASQAL_EXPR_OR) {
@@ -1080,9 +1081,9 @@ static void filter_optimise_disjunct_equality(fs_query *q,
             return;
         }
         if (!*var) {
-            *var = (char *)v->name;
+            *var = v;
         } else {
-            if (strcmp(*var, (char *)v->name)) {
+            if (*var != v) {
                 /* disjunt variable name doesn't match previous, can't trivally
                  * optimise */
                 fs_rid_vector_truncate(res, 0);
@@ -1114,13 +1115,13 @@ static void filter_optimise_disjunct_equality(fs_query *q,
 static int filter_optimise(fs_query *q, rasqal_expression *e, int block)
 {
     fs_rid_vector *res = fs_rid_vector_new(0);
-    char *name = NULL;
+    rasqal_variable *var = NULL;
     int retval = 0;
-    filter_optimise_disjunct_equality(q, e, block, &name, res);
+    filter_optimise_disjunct_equality(q, e, block, &var, res);
     if (res->length) {
-        fs_binding *b = fs_binding_get(q->bb[0], name);
+        fs_binding *b = fs_binding_get_var(q->bb[0], var);
         if (!b) {
-            fs_error(LOG_ERR, "no binding for %s", name);
+            fs_error(LOG_ERR, "no binding for %s", var->name);
 
             return 0;
         }
@@ -1305,16 +1306,16 @@ static void desc_action(int flags, fs_rid_vector *slots[], char out[4][DESC_SIZE
     }
 }
 
-static void check_occurances(char *pattern, char *vars[4], int bits, int *occur)
+static void check_occurances(char *pattern, rasqal_variable *vars[4], int bits, int *occur)
 {
-    char *a = NULL, *b = NULL;
+    rasqal_variable *a = NULL, *b = NULL;
 
     for (int s=0; s<4; s++) {
 	if (pattern[s] == 'A') {
 	    if (a == NULL && vars[s] != NULL) {
 		a = vars[s];
 	    } else {
-		if (!a || !vars[s] || strcmp(a, vars[s])) {
+		if (!a || !vars[s] || a != vars[s]) {
 		    return;
 		}
 	    }
@@ -1322,7 +1323,7 @@ static void check_occurances(char *pattern, char *vars[4], int bits, int *occur)
 	    if (b == NULL && vars[s] != NULL) {
 		b = vars[s];
 	    } else {
-		if (!b || !vars[s] || strcmp(b, vars[s])) {
+		if (!b || !vars[s] || b != vars[s]) {
 		    return;
 		}
 	    }
@@ -1332,19 +1333,19 @@ static void check_occurances(char *pattern, char *vars[4], int bits, int *occur)
     *occur = bits;
 }
 
-static int bind_pattern(fs_query *q, int block, fs_binding *b, rasqal_triple *t, fs_rid_vector *slot[4], char *varnames[], int *numbindings, int *tobind)
+static int bind_pattern(fs_query *q, int block, fs_binding *b, rasqal_triple *t, fs_rid_vector *slot[4], rasqal_variable *vars[], int *numbindings, int *tobind)
 {
     int ret;
     int bind = 0;
 
-    ret = fs_bind_slot(q, block, b, t->origin, slot[0], &bind, &varnames[*numbindings], 0);
+    ret = fs_bind_slot(q, block, b, t->origin, slot[0], &bind, &vars[*numbindings], 0);
     if (ret) {
 #ifdef DEBUG_BIND
         fs_error(LOG_ERR, "bind model failed");
 #endif
         return ret;
     }
-    if (bind || (*tobind & FS_BIND_MODEL && varnames[*numbindings])) {
+    if (bind || (*tobind & FS_BIND_MODEL && vars[*numbindings])) {
 	*tobind |= FS_BIND_MODEL;
 	(*numbindings)++;
     } else {
@@ -1360,7 +1361,7 @@ static int bind_pattern(fs_query *q, int block, fs_binding *b, rasqal_triple *t,
             *tobind |= FS_QUERY_DEFAULT_GRAPH;
         }
     }
-    ret = fs_bind_slot(q, block, b, t->subject, slot[1], &bind, &varnames[*numbindings], 0);
+    ret = fs_bind_slot(q, block, b, t->subject, slot[1], &bind, &vars[*numbindings], 0);
     if (ret) {
 #ifdef DEBUG_BIND
         fs_error(LOG_ERR, "bind subject failed");
@@ -1369,19 +1370,19 @@ static int bind_pattern(fs_query *q, int block, fs_binding *b, rasqal_triple *t,
     }
     if (bind) {
 	for (int i=0; i<*numbindings; i++) {
-	    if (!strcmp(varnames[i], varnames[*numbindings])) {
+	    if (vars[i] == vars[*numbindings]) {
 		bind = 0;
 		break;
 	    }
 	}
     }
-    if (bind || (*tobind & FS_BIND_SUBJECT && varnames[*numbindings])) {
+    if (bind || (*tobind & FS_BIND_SUBJECT && vars[*numbindings])) {
 	*tobind |= FS_BIND_SUBJECT;
 	(*numbindings)++;
     } else {
         *tobind &= ~FS_BIND_SUBJECT;
     }
-    ret = fs_bind_slot(q, block, b, t->predicate, slot[2], &bind, &varnames[*numbindings], 0);
+    ret = fs_bind_slot(q, block, b, t->predicate, slot[2], &bind, &vars[*numbindings], 0);
     if (ret) {
 #ifdef DEBUG_BIND
         fs_error(LOG_ERR, "bind predicte failed");
@@ -1390,19 +1391,19 @@ static int bind_pattern(fs_query *q, int block, fs_binding *b, rasqal_triple *t,
     }
     if (bind) {
 	for (int i=0; i<*numbindings; i++) {
-	    if (!strcmp(varnames[i], varnames[*numbindings])) {
+	    if (vars[i] == vars[*numbindings]) {
 		bind = 0;
 		break;
 	    }
 	}
     }
-    if (bind || (*tobind & FS_BIND_PREDICATE && varnames[*numbindings])) {
+    if (bind || (*tobind & FS_BIND_PREDICATE && vars[*numbindings])) {
 	*tobind |= FS_BIND_PREDICATE;
 	(*numbindings)++;
     } else {
         *tobind &= ~FS_BIND_PREDICATE;
     }
-    ret = fs_bind_slot(q, block, b, t->object, slot[3], &bind, &varnames[*numbindings], 1);
+    ret = fs_bind_slot(q, block, b, t->object, slot[3], &bind, &vars[*numbindings], 1);
     if (ret) {
 #ifdef DEBUG_BIND
         fs_error(LOG_ERR, "bind object failed");
@@ -1411,13 +1412,13 @@ static int bind_pattern(fs_query *q, int block, fs_binding *b, rasqal_triple *t,
     }
     if (bind) {
 	for (int i=0; i<*numbindings; i++) {
-	    if (!strcmp(varnames[i], varnames[*numbindings])) {
+	    if (vars[i] == vars[*numbindings]) {
 		bind = 0;
 		break;
 	    }
 	}
     }
-    if (bind || (*tobind & FS_BIND_OBJECT && varnames[*numbindings])) {
+    if (bind || (*tobind & FS_BIND_OBJECT && vars[*numbindings])) {
 	*tobind |= FS_BIND_OBJECT;
 	(*numbindings)++;
     } else {
@@ -1431,30 +1432,30 @@ static int bind_pattern(fs_query *q, int block, fs_binding *b, rasqal_triple *t,
     }
 
     /* check for co-occurance of variables in pattern */
-    char *vars[4] = {
+    rasqal_variable *vs[4] = {
 	t->origin && t->origin->type == RASQAL_LITERAL_VARIABLE ?
-	    (char *)t->origin->value.variable->name : NULL,
+	    t->origin->value.variable : NULL,
 	t->subject->type == RASQAL_LITERAL_VARIABLE ?
-	    (char *)t->subject->value.variable->name : NULL,
+	    t->subject->value.variable : NULL,
 	t->predicate->type == RASQAL_LITERAL_VARIABLE ?
-	    (char *)t->predicate->value.variable->name : NULL,
+	    t->predicate->value.variable : NULL,
 	t->object->type == RASQAL_LITERAL_VARIABLE ?
-	    (char *)t->object->value.variable->name : NULL
+	    t->object->value.variable : NULL
     };
 
     int occur = 0;
-    if (vars[0] && vars[1] && !strcmp(vars[0], vars[1])) occur++;
-    if (vars[0] && vars[2] && !strcmp(vars[0], vars[2])) occur++;
-    if (vars[0] && vars[3] && !strcmp(vars[0], vars[3])) occur++;
-    if (vars[1] && vars[2] && !strcmp(vars[1], vars[2])) occur++;
-    if (vars[1] && vars[3] && !strcmp(vars[1], vars[3])) occur++;
-    if (vars[2] && vars[3] && !strcmp(vars[2], vars[3])) occur++;
+    if (vs[0] && vs[1] && vs[0] == vs[1]) occur++;
+    if (vs[0] && vs[2] && vs[0] == vs[2]) occur++;
+    if (vs[0] && vs[3] && vs[0] == vs[3]) occur++;
+    if (vs[1] && vs[2] && vs[1] == vs[2]) occur++;
+    if (vs[1] && vs[3] && vs[1] == vs[3]) occur++;
+    if (vs[2] && vs[3] && vs[2] == vs[3]) occur++;
 
     if (occur == 0) return 0;
 
     occur = 0;
 
-#define CHECK_O(p) check_occurances(#p, vars, FS_BIND_SAME_ ## p, &occur)
+#define CHECK_O(p) check_occurances(#p, vs, FS_BIND_SAME_ ## p, &occur)
     CHECK_O(XXAA);
     CHECK_O(XAXA);
     CHECK_O(XAAX);
@@ -1499,7 +1500,7 @@ results = { vector->length > 0 )
 
 static int process_results(fs_query *q, int block, fs_binding *oldb,
         fs_binding *b, int flags,
-	fs_rid_vector *results[], char *varnames[], int numbindings,
+	fs_rid_vector *results[], rasqal_variable *vars[], int numbindings,
 	fs_rid_vector *slot[4])
 {
     int ret = 0;
@@ -1517,33 +1518,33 @@ static int process_results(fs_query *q, int block, fs_binding *oldb,
             }
             fs_binding_free(oldb);
             if (q->num_vars == 0) {
-                fs_binding_add(b, "_dummy", FS_RID_GONE, 0);
+                fs_binding_create(b, "_dummy", FS_RID_GONE, 0);
             }
 
             return 1;
         }
 
 	for (int col=0; col<numbindings; col++) {
-	    if (varnames[col]) {
-                fs_binding *bv = fs_binding_get(b, varnames[col]);
+	    if (vars[col]) {
+                fs_binding *bv = fs_binding_get_var(b, vars[col]);
+                if (!bv) {
+                    fs_error(LOG_CRIT, "unmatched variable name '%s'", vars[col]->name);
+                    continue;
+                }
                 /* if the varaible is repeated in one triple pattern then it
                  * will appear more than once, but we need to make sure not to
                  * add it twice */
                 if (col > 0 && fs_binding_length(bv) > 0) {
                     int repeat = 0;
                     for (int colb = 0; colb < col; colb++) {
-                        if (!strcmp(varnames[col], varnames[colb])) {
+                        if (vars[col] == vars[colb]) {
                             repeat = 1;
                             break;
                         }
                     }
                     if (repeat) continue;
                 }
-                if (!bv) {
-                    fs_error(LOG_CRIT, "unmatched variable name '%s'", varnames[col]);
-                    continue;
-                }
-		fs_binding_add_vector(b, varnames[col], results[col]);
+		fs_binding_add_vector(b, vars[col], results[col]);
                 ret += results[col] ? results[col]->length : 0;
 	    } else {
 		fs_error(LOG_ERR, "column %d has no varname in sub results", col);
@@ -1603,7 +1604,7 @@ static int fs_handle_query_triple(fs_query *q, int block, rasqal_triple *t)
     const int explain = tobind & FS_QUERY_EXPLAIN;
 #endif
 
-    char *varnames[4] = { NULL, NULL, NULL, NULL };
+    rasqal_variable *vars[4] = { NULL, NULL, NULL, NULL };
     fs_binding_clear_used_all(b);
     fs_binding *oldb = fs_binding_copy_and_clear(b);
     fs_rid_vector **results = NULL;
@@ -1617,7 +1618,7 @@ static int fs_handle_query_triple(fs_query *q, int block, rasqal_triple *t)
 	int numbindings = 0;
 	tobind |= FS_BIND_SUBJECT;
 
-	if (bind_pattern(q, block, oldb, t, slot, varnames, &numbindings, &tobind)) {
+	if (bind_pattern(q, block, oldb, t, slot, vars, &numbindings, &tobind)) {
             for (int x=0; x<4; x++) {
                 fs_rid_vector_free(slot[x]);
             }
@@ -1637,7 +1638,7 @@ static int fs_handle_query_triple(fs_query *q, int block, rasqal_triple *t)
 	    fs_query_explain(q, g_strdup_printf("mmmms (%s,%s,%s,%s) -> %d", desc[0], desc[1], desc[2], desc[3], results ? (results[0] ? results[0]->length : -1) : -2));
 	}
 
-        ret = process_results(q, block, oldb, b, tobind, results, varnames, numbindings, slot);
+        ret = process_results(q, block, oldb, b, tobind, results, vars, numbindings, slot);
         for (int x=0; x<4; x++) {
             fs_rid_vector_free(slot[x]);
         }
@@ -1651,7 +1652,7 @@ static int fs_handle_query_triple(fs_query *q, int block, rasqal_triple *t)
 	int numbindings = 0;
 	tobind |= FS_BIND_OBJECT;
 
-	if (bind_pattern(q, block, oldb, t, slot, varnames, &numbindings, &tobind)) {
+	if (bind_pattern(q, block, oldb, t, slot, vars, &numbindings, &tobind)) {
             for (int x=0; x<4; x++) {
                 fs_rid_vector_free(slot[x]);
             }
@@ -1673,7 +1674,7 @@ static int fs_handle_query_triple(fs_query *q, int block, rasqal_triple *t)
 	    fs_query_explain(q, g_strdup_printf("%so (%s,%s,%s,%s) -> %d", scope, desc[0], desc[1], desc[2], desc[3], results ? (results[0] ? results[0]->length : -1) : -2));
 	}
 
-	ret = process_results(q, block, oldb, b, tobind, results, varnames, numbindings, slot);
+	ret = process_results(q, block, oldb, b, tobind, results, vars, numbindings, slot);
         for (int x=0; x<4; x++) {
             fs_rid_vector_free(slot[x]);
         }
@@ -1685,7 +1686,7 @@ static int fs_handle_query_triple(fs_query *q, int block, rasqal_triple *t)
      * need to bind_all. */
     int numbindings = 0;
 
-    if (bind_pattern(q, block, oldb, t, slot, varnames, &numbindings, &tobind)) {
+    if (bind_pattern(q, block, oldb, t, slot, vars, &numbindings, &tobind)) {
         for (int x=0; x<4; x++) {
             fs_rid_vector_free(slot[x]);
         }
@@ -1705,7 +1706,7 @@ static int fs_handle_query_triple(fs_query *q, int block, rasqal_triple *t)
         fs_query_explain(q, g_strdup_printf("nnnns (%s,%s,%s,%s) -> %d", desc[0], desc[1], desc[2], desc[3], results ? (results[0] ? results[0]->length : -1) : -2));
     }
 
-    ret = process_results(q, block, oldb, b, tobind, results, varnames, numbindings, slot);
+    ret = process_results(q, block, oldb, b, tobind, results, vars, numbindings, slot);
     for (int x=0; x<4; x++) {
 	fs_rid_vector_free(slot[x]);
     }
@@ -1729,7 +1730,7 @@ static int fs_handle_query_triple_multi(fs_query *q, int block, int count, rasqa
 
     const int explain = tobind & FS_QUERY_EXPLAIN;
 
-    char *varnames[4] = { NULL, NULL, NULL, NULL };
+    rasqal_variable *vars[4] = { NULL, NULL, NULL, NULL };
     fs_binding_clear_used_all(b);
     fs_binding *oldb = fs_binding_copy_and_clear(b);
     fs_rid_vector **results = NULL;
@@ -1751,7 +1752,7 @@ static int fs_handle_query_triple_multi(fs_query *q, int block, int count, rasqa
     int numbindings = 0;
     tobind |= FS_BIND_SUBJECT;
 
-    if (bind_pattern(q, block, oldb, t[0], slot, varnames, &numbindings, &tobind)) {
+    if (bind_pattern(q, block, oldb, t[0], slot, vars, &numbindings, &tobind)) {
         for (int x=0; x<4; x++) {
             fs_rid_vector_free(slot[x]);
         }
@@ -1765,7 +1766,7 @@ static int fs_handle_query_triple_multi(fs_query *q, int block, int count, rasqa
     int use_model = 0;
     for (int i=1; i<count; i++) {
         int bind;
-        char *v;
+        rasqal_variable *v;
         if (t[i]->origin) use_model = 1;
         fs_bind_slot(q, block, oldb, t[i]->origin, slot[0], &bind, &v, 0);
         fs_bind_slot(q, block, oldb, t[i]->subject, slot[1], &bind, &v, 0);
@@ -1783,7 +1784,7 @@ static int fs_handle_query_triple_multi(fs_query *q, int block, int count, rasqa
         fs_query_explain(q, g_strdup_printf("nnnnr (%s,%s,%s,%s) -> %d", desc[0], desc[1], desc[2], desc[3], results ? (results[0] ? results[0]->length : -1) : -2));
     }
 
-    ret = process_results(q, block, oldb, b, tobind, results, varnames, numbindings, slot);
+    ret = process_results(q, block, oldb, b, tobind, results, vars, numbindings, slot);
     for (int x=0; x<4; x++) {
         fs_rid_vector_free(slot[x]);
     }
@@ -1847,26 +1848,26 @@ static fs_rid const_literal_to_rid(fs_query *q, rasqal_literal *l, fs_rid *attr)
 }
 
 int fs_bind_slot(fs_query *q, int block, fs_binding *b,
-        rasqal_literal *l, fs_rid_vector *v, int *bind, char **vname,
+        rasqal_literal *l, fs_rid_vector *v, int *bind, rasqal_variable **var,
         int lit_allowed)
 {
     *bind = 0;
 
     if (!l) return 0;
     fs_rid attr;
-    *vname = NULL;
+    *var = NULL;
 
     switch (l->type) {
 	case RASQAL_LITERAL_VARIABLE:
-	    *vname = (char *)l->value.variable->name;
-	    fs_binding *vb = fs_binding_get(b, *vname);
+	    *var = l->value.variable;
+	    fs_binding *vb = fs_binding_get_var(b, l->value.variable);
 	    if (!vb) {
 		break;
 	    }
 
             int bound_in_this_union = 0;
             if (block != -1) {
-                fs_binding *b0 = fs_binding_get(q->bb[0], *vname);
+                fs_binding *b0 = fs_binding_get_var(q->bb[0], l->value.variable);
                 (b0->bound_in_block[block])++;
                 if (q->union_group[block] > 0 &&
                     q->union_group[block] == q->union_group[vb->appears] &&
@@ -1877,10 +1878,10 @@ int fs_bind_slot(fs_query *q, int block, fs_binding *b,
 
 	    if ((!vb->bound || bound_in_this_union) && vb->need_val) {
 		*bind = 1;
-                if (block != -1) fs_binding_set_used(b, *vname);
+                if (block != -1) fs_binding_set_used(b, *var);
 	    } else if (vb->bound) {
 		*bind = 1;
-                if (block != -1) fs_binding_set_used(b, *vname);
+                if (block != -1) fs_binding_set_used(b, *var);
                 if (lit_allowed) {
                     fs_rid_vector_append_vector_no_nulls(v, vb->vals);
                 } else {
