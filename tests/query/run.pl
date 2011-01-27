@@ -114,7 +114,7 @@ if ($pid = fork()) {
 } else {
 	# child
 	if ($spawn) {
-		exec("../../src/backend/4s-backend", "-D", "-l", "2.0", "$kb_name");
+		exec("../../src/backend/4s-backend", "-D", "$kb_name");
 		die "failed to exec sever: $!";
 	}
 }
