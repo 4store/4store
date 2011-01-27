@@ -71,4 +71,8 @@
 #define FS_INSERT_DEDUP
 #endif
 
+#if @FS_DISABLE_PREFIXES@
+#define FS_DISABLE_PREFIXES
+#endif
+
 #endif

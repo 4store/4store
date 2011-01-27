@@ -34,6 +34,13 @@ AC_ARG_ENABLE([dedup-insert],
 	[FS_INSERT_DEDUP=1])
 AC_SUBST(FS_INSERT_DEDUP)
 
+FS_DISABLE_PREFIXES=0
+AC_ARG_ENABLE([no-prefixes],
+	[AS_HELP_STRING([--enable-no-prefixes],
+                        [don't compress common URI prefixes])],
+	[FS_DISABLE_PREFIXES=1])
+AC_SUBST(FS_DISABLE_PREFIXES)
+
 # Checks for libraries.
 AC_CHECK_LIB([m], [sin])
 AC_CHECK_LIB([ncurses], [initscr])

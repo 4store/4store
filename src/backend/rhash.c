@@ -192,6 +192,7 @@ fs_rhash *fs_rhash_open_filename(const char *filename, int flags)
         mode = "r";
     }
     const off_t file_length = lseek(rh->fd, 0, SEEK_END);
+#ifndef FS_DISABLE_PREFIXES
     rh->prefixes = fs_prefix_trie_new();
     rh->ptrie = fs_prefix_trie_new();
     char *prefix_filename = g_strdup_printf("%s.prefixes", rh->filename);
@@ -205,6 +206,7 @@ fs_rhash *fs_rhash_open_filename(const char *filename, int flags)
         rh->prefix_strings[pre.code] = g_strdup(pre.prefix);
         (rh->prefix_count)++;
     }
+#endif
     if ((flags & O_TRUNC) || file_length == 0) {
         fs_rhash_write_header(rh);
     } else {
@@ -280,7 +282,9 @@ int fs_rhash_close(fs_rhash *rh)
     }
 
     fclose(rh->lex_f);
-    fs_list_close(rh->prefix_file);
+    if (rh->prefix_file) {
+        fs_list_close(rh->prefix_file);
+    }
     if (rh->locked) flock(rh->fd, LOCK_UN);
     const size_t len = sizeof(struct rhash_header) + ((size_t) rh->size) * ((size_t) rh->bucket_size) * sizeof(fs_rhash_entry);
     munmap(rh->entries - sizeof(struct rhash_header), len);
@@ -340,7 +344,7 @@ int fs_rhash_put(fs_rhash *rh, fs_resource *res)
             fs_error(LOG_ERR, "failed to compress '%s' as BCDate", res->lex);
         }
         e.disp = DISP_I_DATE;
-    } else if (FS_IS_URI(res->rid) &&
+    } else if (rh->prefixes && FS_IS_URI(res->rid) &&
                fs_prefix_trie_get_code(rh->prefixes, res->lex, NULL)) {
         int length = 0;
         int code = fs_prefix_trie_get_code(rh->prefixes, res->lex, &length);
