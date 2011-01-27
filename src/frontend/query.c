@@ -282,32 +282,45 @@ int fs_query_fini(fs_query_state *qs)
 
 static void tree_compact(fs_query *q)
 {
-    for (int block = 1; block <= q->block; block++) {
-        int parent = q->parent_block[block];
-        if (q->join_type[block] == FS_INNER &&
-            (q->constraints[block] == NULL || q->constraints[parent] == NULL)) {
-            /* if there's nothing special about this block, merge up */
-            fs_p_vector_append_vector(q->blocks+parent, q->blocks+block);
-            if (q->constraints[parent] == NULL) {
-                q->constraints[parent] = q->constraints[block];
-                q->constraints[block] = NULL;
-            }
-            for (int col=0; q->bb[0][col].name; col++) {
-                if (q->bb[0][col].appears == block) {
-                    q->bb[0][col].appears = parent;
+    int done_something;
+    do {
+        done_something = 0;
+        for (int block = 1; block <= q->block; block++) {
+            int parent = q->parent_block[block];
+            int mergable = 0;
+            if (q->join_type[block] == FS_INNER && q->blocks[block].length > 0) {
+                if (q->constraints[block] == NULL) {
+                    /* if there's nothing special about this block, merge up */
+                    mergable = 1;
+                } else if (q->constraints[parent] == NULL && q->blocks[parent].length == 0) {
+                    mergable = 1;
                 }
             }
+            if (mergable) {
 #ifdef DEBUG_MERGE
-            printf("Merge B%d to B%d\n", block, parent);
+                printf("Merge B%d to B%d\n", block, parent);
 #endif
-            q->blocks[block].length = 0;
-            for (int j=1; j<=q->block; j++) {
-                if (q->parent_block[j] == block) {
-                    q->parent_block[j] = parent;
+                done_something = 1;
+                fs_p_vector_append_vector(q->blocks+parent, q->blocks+block);
+                if (q->constraints[parent] == NULL) {
+                    q->constraints[parent] = q->constraints[block];
+                    q->constraints[block] = NULL;
                 }
+                for (int col=0; q->bb[0][col].name; col++) {
+                    if (q->bb[0][col].appears == block) {
+                        q->bb[0][col].appears = parent;
+                    }
+                }
+                q->blocks[block].length = 0;
+                for (int j=1; j<=q->block; j++) {
+                    if (q->parent_block[j] == block) {
+                        q->parent_block[j] = parent;
+                    }
+                }
+                done_something = 1;
             }
         }
-    }
+    } while (done_something);
 }
 
 fs_query *fs_query_execute(fs_query_state *qs, fsp_link *link, raptor_uri *bu, const char *query, unsigned int flags, int opt_level, int soft_limit)
@@ -498,6 +511,14 @@ fs_query *fs_query_execute(fs_query_state *qs, fsp_link *link, raptor_uri *bu, c
         rasqal_query_get_having_condition(rq, 0)) {
         q->aggregate = 1;
     }
+#if 0
+// This nees to be be refined so it only applies ot queries without FILTERs etc.
+ else {
+        if (!rasqal_query_get_distinct(rq) && q->limit) {
+            q->soft_limit = q->limit * 100;
+        }
+    }
+#endif
 
     for (int i=0; i < q->num_vars; i++) {
 	rasqal_variable *v = raptor_sequence_get_at(vars, i);
@@ -652,6 +673,30 @@ int fs_query_process_pattern(fs_query *q, rasqal_graph_pattern *pattern, raptor_
 
     tree_compact(q);
 
+#ifdef DEBUG_MERGE
+    printf("\nAfter compact:\n");
+    for (int b=0; b<q->block; b++) {
+        if (q->blocks[b].length == 0 &&
+            (!q->constraints[b] || raptor_sequence_size(q->constraints[b]) == 0)) {
+            continue;
+        }
+        printf("B%d, join %s, parent B%d\n", b, fs_join_type_as_string(q->join_type[b]), q->parent_block[b]);
+        for (int p=0; p<q->blocks[b].length; p++) {
+            printf("  P%d ", p);
+            rasqal_triple_print(q->blocks[b].data[p], stdout);
+            printf("\n");
+        }
+        if (!q->constraints[b]) {
+            continue;
+        }
+        for (int c=0; c<raptor_sequence_size(q->constraints[b]); c++) {
+            printf("  C%d ", c);
+            rasqal_expression_print(raptor_sequence_get_at(q->constraints[b], c), stdout);
+            printf("\n");
+        }
+    }
+    printf("\n");
+#endif
     /* if we have more than one variable that has been prebound we need to
      * compute the combinatorial cross product of thier values so the we
      * correctly enumerate the possibiliities during execution. Fun. */ 
@@ -871,6 +916,14 @@ int fs_query_process_pattern(fs_query *q, rasqal_graph_pattern *pattern, raptor_
 #ifdef DEBUG_MERGE
                     printf("block join B%d =X] B%d\n", i, j);
 #endif
+                    /* apply filters to the block that's going to be left
+                     * joined, if we do it later it's very hard to get the
+                     * right result set */
+                    fs_binding *old = q->bb[j];
+                    q->bb[j] = fs_binding_apply_filters(q, j, q->bb[j], q->constraints[j]);
+                    fs_binding_free(old);
+                    q->constraints[j] = NULL;
+                    /* do the left join */
                     fs_binding *nb = fs_binding_join(q, q->bb[i], q->bb[j], FS_LEFT);
                     fs_binding_free(q->bb[i]);
                     q->bb[i] = nb;

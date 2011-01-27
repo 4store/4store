@@ -50,11 +50,11 @@ int fs_query_group_block(fs_query *q, int b)
             }
         }
         fs_binding_sort(q->bb[b]);
-    }
 #ifdef DEBUG_MERGE
-printf("Grouped:\n");
-fs_binding_print(q->bb[b], stdout);
+        printf("Grouped:\n");
+        fs_binding_print(q->bb[b], stdout);
 #endif
+    }
 
     return 0;
 }

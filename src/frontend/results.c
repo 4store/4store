@@ -1032,16 +1032,7 @@ static int apply_constraints(fs_query *q, int row)
 	    }
 	    fs_value result = fn_ebv(v);
 	    if (result.valid & fs_valid_bit(FS_V_TYPE_ERROR) || !result.in) {
-                /* if the block ID is 0 or 1, the it must be an inner join */
-		if (block < 2) {
-		    return 0;
-                }
-                /* TODO should check the bind types between here and B0 */
-                for (int c=0; q->bt[c].name; c++) {
-                    if (q->bt[c].appears == block) {
-                        q->bt[c].vals->data[row] = FS_RID_NULL;
-                    }
-                }
+                return 0;
 	    }
 	}
     }
@@ -2033,7 +2024,7 @@ nextrow: ;
             next_row = len;
         }
         q->group_length = grows->length;
-        q->group_rows = grows->data;
+        q->group_rows = (uint64_t *)grows->data;
     }
 
     const int rows = q->length;
@@ -2056,10 +2047,10 @@ nextrow: ;
 	fs_query_fetch_header_row(q);
     }
 
-    /* prefech a load of lexical data */
+    /* prefetch a load of lexical data */
     if (q->row == q->lastrow) {
 	for (int i=0; i<q->segments; i++) {
-	    if (q->pending) fs_rid_vector_clear(q->pending[i]);
+	    fs_rid_vector_clear(q->pending[i]);
 	}
 
         /* dump L1 cache into L2 */
@@ -2088,9 +2079,7 @@ nextrow: ;
 	    }
 	}
         g_static_mutex_unlock(&cache_mutex);
-        if (q->pending) {
-            resolve_precache_all(q->link, q->pending, q->segments);
-        }
+        resolve_precache_all(q->link, q->pending, q->segments);
 	q->lastrow = q->row + lookup_buffer_size;
     }
 
