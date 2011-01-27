@@ -379,30 +379,26 @@ fs_binding *fs_binding_get_var(fs_binding *b, rasqal_variable *var)
     return vb;
 }
 
-fs_rid fs_binding_get_val(fs_binding *b, const char *name, int idx, int *bound)
+fs_rid fs_binding_get_val(fs_binding *b, rasqal_variable *var, int idx, int *bound)
 {
 #ifdef DEBUG_BINDING
     if (!strcmp(DEBUG_BINDING, name)) printf("@@ get_val("DEBUG_BINDING", %d)\n", idx);
 #endif
-    int i;
+    fs_binding *bv = fs_binding_get_var(b, var);
+    if (!bv) {
+        if (bound) *bound = 0;
 
-    for (i=0; 1; i++) {
-	if (!b[i].name) break;
-fprintf(stderr, "STRCMP at %s:%d\n", __FILE__, __LINE__);
-	if (!strcmp(b[i].name, name)) {
-            if (!b[i].need_val) return FS_RID_GONE;
-	    if (bound) *bound = b[i].bound;
-	    if (!b[i].bound) {
-		return FS_RID_NULL;
-	    }
-	    if (idx >= 0 && idx < b[i].vals->length) {
-		return b[i].vals->data[idx];
-	    }
-	    fs_error(LOG_ERR, "val request out of range for variable '%s'", name);
-
-	    return FS_RID_NULL;
-	}
+        return FS_RID_NULL;
     }
+    if (!bv->need_val) return FS_RID_GONE;
+    if (bound) *bound = bv->bound;
+    if (!bv->bound) {
+        return FS_RID_NULL;
+    }
+    if (idx >= 0 && idx < bv->vals->length) {
+        return bv->vals->data[idx];
+    }
+    fs_error(LOG_ERR, "val request out of range for variable '%s'", var->name);
 
     return FS_RID_NULL;
 }

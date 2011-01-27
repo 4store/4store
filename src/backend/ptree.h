@@ -15,7 +15,7 @@ fs_ptree *fs_ptree_open_filename(const char *filename, int flags, fs_ptable *cha
 int fs_ptree_write_header(fs_ptree *pt);
 
 int fs_ptree_add(fs_ptree *pt, fs_rid pk, fs_rid pair[2], int force);
-int fs_ptree_remove(fs_ptree *pt, fs_rid pk, fs_rid pair[2]);
+int fs_ptree_remove(fs_ptree *pt, fs_rid pk, fs_rid pair[2], fs_rid_set *models);
 int fs_ptree_remove_all(fs_ptree *pt, fs_rid pair[2]);
 
 fs_ptree_it *fs_ptree_search(fs_ptree *pt, fs_rid pk, fs_rid pair[2]);

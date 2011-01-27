@@ -41,13 +41,6 @@ struct update_context {
     int opid;
 };
 
-struct pattern_data {
-    fs_query *q;
-    raptor_sequence *fixed;
-    raptor_sequence *patterns;
-    raptor_sequence *vars;
-};
-
 int fs_load(struct update_context *uc, char *resuri, char *graphuri);
 
 int fs_clear(struct update_context *uc, char *graphuri);
@@ -86,41 +79,6 @@ static int any_vars(rasqal_triple *t)
     }
     if (t->object->type == RASQAL_LITERAL_VARIABLE) {
         return 1;
-    }
-
-    return 0;
-}
-
-static int assign_gp(rasqal_graph_pattern *gp, rasqal_literal *graph, struct pattern_data *pd)
-{
-//printf("OP=%d\n", rasqal_graph_pattern_get_operator(gp));
-    if (rasqal_graph_pattern_get_origin(gp)) {
-        graph = rasqal_graph_pattern_get_origin(gp);
-//printf("ORIGIN=");
-//rasqal_literal_print(graph, stdout);
-//printf("\n");
-    }
-    for (int i=0; rasqal_graph_pattern_get_triple(gp, i); i++) {
-        rasqal_triple *otr = rasqal_graph_pattern_get_triple(gp, i);
-        if (any_vars(otr)) {
-            rasqal_triple *tr = rasqal_new_triple_from_triple(otr);
-            if (graph) {
-                tr->origin = graph;
-            }
-            if (tr->origin) {
-                fs_check_cons_slot(pd->q, pd->vars, tr->origin);
-            }
-            fs_check_cons_slot(pd->q, pd->vars, tr->subject);
-            fs_check_cons_slot(pd->q, pd->vars, tr->predicate);
-            fs_check_cons_slot(pd->q, pd->vars, tr->object);
-            raptor_sequence_push(pd->patterns, tr);
-        } else {
-            raptor_sequence_push(pd->fixed, otr);
-        }
-    }
-
-    for (int s=0; rasqal_graph_pattern_get_sub_graph_pattern(gp, s); s++) {
-        assign_gp(rasqal_graph_pattern_get_sub_graph_pattern(gp, s), graph, pd);
     }
 
     return 0;
@@ -237,6 +195,7 @@ static int update_op(struct update_context *ct)
     raptor_sequence *todel = NULL;
     raptor_sequence *toins = NULL;
 
+#if RASQAL_VERSION >= 923
     if (ct->op->where) {
         todel = raptor_new_sequence(NULL, NULL);
         toins = raptor_new_sequence(NULL, NULL);
@@ -258,25 +217,31 @@ static int update_op(struct update_context *ct)
         /* add column to denote join ordering */
         fs_binding_create(q->bb[0], "_ord", FS_RID_NULL, 0);
 
-        struct pattern_data pd = { .q = q, .vars = vars, .patterns = NULL, .fixed = NULL };
-
         if (ct->op->delete_templates) {
-            pd.patterns = todel_p;
-            pd.fixed = todel;
-
             for (int t=0; t<raptor_sequence_size(ct->op->delete_templates); t++) {
-                rasqal_graph_pattern *gp = raptor_sequence_get_at(ct->op->delete_templates, t);
-                assign_gp(gp, NULL, &pd);
+                rasqal_triple *tr = raptor_sequence_get_at(ct->op->delete_templates, t);
+                if (any_vars(tr)) {
+                    fs_check_cons_slot(q, vars, tr->subject);
+                    fs_check_cons_slot(q, vars, tr->predicate);
+                    fs_check_cons_slot(q, vars, tr->object);
+                    raptor_sequence_push(todel_p, tr);
+                } else {
+                    raptor_sequence_push(todel, tr);
+                }
             }
         }
 
         if (ct->op->insert_templates) {
-            pd.patterns = toins_p;
-            pd.fixed = toins;
-
             for (int t=0; t<raptor_sequence_size(ct->op->insert_templates); t++) {
-                rasqal_graph_pattern *gp = raptor_sequence_get_at(ct->op->insert_templates, t);
-                assign_gp(gp, NULL, &pd);
+                rasqal_triple *tr = raptor_sequence_get_at(ct->op->insert_templates, t);
+                if (any_vars(tr)) {
+                    fs_check_cons_slot(q, vars, tr->subject);
+                    fs_check_cons_slot(q, vars, tr->predicate);
+                    fs_check_cons_slot(q, vars, tr->object);
+                    raptor_sequence_push(toins_p, tr);
+                } else {
+                    raptor_sequence_push(toins, tr);
+                }
             }
         }
 
@@ -292,6 +257,7 @@ static int update_op(struct update_context *ct)
             }
         }
 
+        /* perform the WHERE match */
         fs_query_process_pattern(q, ct->op->where, vars);
 
         q->length = fs_binding_length(q->bb[0]);
@@ -303,14 +269,18 @@ static int update_op(struct update_context *ct)
             rasqal_triple *triple = raptor_sequence_get_at(todel_p, t);
             for (int row=0; row < q->length; row++) {
                 delete_rasqal_triple(ct, vec, triple, row);
-                if (fs_rid_vector_length(vec[0]) > 0) {
-                    fsp_delete_quads_all(ct->link, vec);
-                }
             }
+            if (fs_rid_vector_length(vec[0]) > 1000) {
+                fsp_delete_quads_all(ct->link, vec);
+            }
+        }
+        if (fs_rid_vector_length(vec[0]) > 0) {
+            fsp_delete_quads_all(ct->link, vec);
         }
         for (int s=0; s<4; s++) {
 //fs_rid_vector_print(vec[s], 0, stdout);
             fs_rid_vector_free(vec[s]);
+            vec[s] = NULL;
         }
 
         for (int t=0; t<raptor_sequence_size(toins_p); t++) {
@@ -328,6 +298,13 @@ static int update_op(struct update_context *ct)
         todel = ct->op->delete_templates;
         toins = ct->op->insert_templates;
     }
+#else
+    if (ct->op->where) {
+        fs_error(LOG_ERR, "DELETE/INSERT WHERE requires Rasqal 0.9.23 or newer");
+        add_message(ct, "DELETE/INSERT WHERE requires Rasqal 0.9.23 or newer", 0);
+    }
+#endif
+    
 
     /* delete constant triples */
     if (todel) {
@@ -346,6 +323,7 @@ static int update_op(struct update_context *ct)
         }
         for (int s=0; s<4; s++) {
             fs_rid_vector_free(vec[s]);
+            vec[s] = NULL;
         }
     }
 
@@ -459,10 +437,7 @@ fs_rid fs_hash_rasqal_literal(struct update_context *ct, rasqal_literal *l, int 
 
     case RASQAL_LITERAL_VARIABLE:
         if (ct->q) {
-            fs_binding *bt = ct->q->bb[0];
-            char *name = (char *)l->value.variable->name;
-
-            return fs_binding_get_val(bt, name, row, NULL);
+            return fs_binding_get_val(ct->q->bb[0], l->value.variable, row, NULL);
         } else {
             fs_error(LOG_ERR, "no variables bound");
         }

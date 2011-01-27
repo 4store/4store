@@ -30,6 +30,7 @@
 #include "backend.h"
 #include "ptree.h"
 #include "chain.h"
+#include "../common/datatypes.h"
 #include "../common/params.h"
 #include "../common/hash.h"
 #include "../common/error.h"
@@ -516,7 +517,7 @@ static enum recurse_action remove_all_recurse(fs_ptree *pt, fs_rid pair[2], node
             int sub_removed = 0; 
             if (lref->block) {
                 fs_row_id newblock = fs_ptable_remove_pair(pt->table,
-                                            lref->block, pair, &sub_removed);
+                                        lref->block, pair, &sub_removed, NULL);
                 if (lref->block != newblock) {
                     lref->block = newblock;
                 }
@@ -635,7 +636,7 @@ int fs_ptree_remove_all(fs_ptree *pt, fs_rid pair[2])
     return 1;
 }
 
-int fs_ptree_remove(fs_ptree *pt, fs_rid pk, fs_rid pair[2])
+int fs_ptree_remove(fs_ptree *pt, fs_rid pk, fs_rid pair[2], fs_rid_set *models)
 {
     if (!pt) {
         fs_error(LOG_ERR, "tried to remove from to NULL ptree");
@@ -657,7 +658,7 @@ int fs_ptree_remove(fs_ptree *pt, fs_rid pk, fs_rid pair[2])
     }
 
     int removed = 0;
-    fs_row_id newblock = fs_ptable_remove_pair(pt->table, lref->block, pair, &removed);
+    fs_row_id newblock = fs_ptable_remove_pair(pt->table, lref->block, pair, &removed, models);
     if (lref->block != newblock) {
         lref->block = newblock;
     }

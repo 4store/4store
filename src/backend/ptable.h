@@ -36,9 +36,8 @@ int fs_ptable_get_row(fs_ptable *pt, fs_row_id b, fs_rid pair[2]);
 /* return true if the pair exists in the chain */
 int fs_ptable_pair_exists(fs_ptable *pt, fs_row_id b, fs_rid pair[2]);
 
-/* remove all pairs matching pair[] */
-fs_row_id fs_ptable_remove_pair(fs_ptable *pt, fs_row_id b, fs_rid pair[2],
-				int *removed);
+/* remove all pairs matching pair[], fill models out with any models modified */
+fs_row_id fs_ptable_remove_pair(fs_ptable *pt, fs_row_id b, fs_rid pair[2], int *removed, fs_rid_set *models);
 
 /* move a row onto the free list - caller is responsible for cleaning up the
  * links */

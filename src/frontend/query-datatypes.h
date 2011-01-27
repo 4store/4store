@@ -48,7 +48,7 @@ void fs_binding_intersect_vector(fs_binding *b, const char *name,
 		        fs_rid_vector *vals);
 fs_binding *fs_binding_get(fs_binding *b, const char *name);
 fs_binding *fs_binding_get_var(fs_binding *b, rasqal_variable *var);
-fs_rid fs_binding_get_val(fs_binding *b, const char *name, int idx, int *bound);
+fs_rid fs_binding_get_val(fs_binding *b, rasqal_variable *var, int idx, int *bound);
 fs_rid_vector *fs_binding_get_vals(fs_binding *b, const char *name, int *bound);
 int fs_binding_get_projected(fs_binding *b, const char *name);
 void fs_binding_clear_used_all(fs_binding *b);

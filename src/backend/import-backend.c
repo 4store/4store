@@ -391,7 +391,9 @@ int fs_delete_quads(fs_backend *be, fs_rid_vector *quads[4])
     }
     fs_rid_set *models = fs_rid_set_new();
     for (int i=0; i<quads[0]->length; i++) {
-	fs_rid_set_add(models, quads[0]->data[i]);
+	if (quads[0]->data[i] != FS_RID_NULL) {
+	    fs_rid_set_add(models, quads[0]->data[i]);
+	}
     }
     fs_rid pred;
     fs_rid_set_rewind(preds);
@@ -414,9 +416,9 @@ int fs_delete_quads(fs_backend *be, fs_rid_vector *quads[4])
 	for (int i=0; i<quads[2]->length; i++) {
 	    if (quads[2]->data[i] == pred) {
 		fs_rid spair[2] = { quads[0]->data[i], quads[3]->data[i] };
-		fs_ptree_remove(sfp, quads[1]->data[i], spair);
+		fs_ptree_remove(sfp, quads[1]->data[i], spair, models);
 		fs_rid opair[2] = { quads[0]->data[i], quads[1]->data[i] };
-		fs_ptree_remove(ofp, quads[3]->data[i], opair);
+		fs_ptree_remove(ofp, quads[3]->data[i], opair, models);
 	    }
 	}
     }
@@ -468,12 +470,12 @@ static int remove_by_search(fs_backend *be, fs_rid model, fs_index_node model_id
 	while (fs_tbchain_it_next(it, triple)) {
 	    if (triple[1] == pred) {
 		fs_rid spair[2] = { model, triple[2] };
-		if (fs_ptree_remove(sfp, triple[0], spair)) {
+		if (fs_ptree_remove(sfp, triple[0], spair, NULL)) {
 		    fs_error(LOG_ERR, "failed to remove known quad %016llx %016llx %016llx %016llx from s index", model, triple[0], triple[1], triple[2]);
 		    errors++;
 		}
 		fs_rid opair[2] = { model, triple[0] };
-		if (fs_ptree_remove(ofp, triple[2], opair)) {
+		if (fs_ptree_remove(ofp, triple[2], opair, NULL)) {
 		    fs_error(LOG_ERR, "failed to remove known quad %016llx %016llx %016llx %016llx from o index", model, triple[0], triple[1], triple[2]);
 		    errors++;
 		}
