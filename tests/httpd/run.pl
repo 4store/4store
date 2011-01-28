@@ -48,7 +48,7 @@ if ($pid = fork()) {
 		sleep(1);
 	} else {
 		close STDERR;
-		exec("../../src/http/4s-httpd", "-D", "-p", "13579", "$kb_name");
+		exec("../../src/http/4s-httpd", "-X", "-D", "-p", "13579", "$kb_name");
 		die "failed to exec HTTP sever: $!";
 	}
 	print("4s-httpd running on PID $httppid\n");

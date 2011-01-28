@@ -1,0 +1,11 @@
+#!/bin/bash
+# testing an error with cross-origin resource sharing (CORS)
+
+source sparql.sh
+
+uriescape "SELECT * WHERE { ?x ?y ?z !!error!! }";
+curl -s -D- -o/dev/null \
+    -H "Accept: text/plain" \
+    -H "Origin: http://example.org" \
+    "$EPR/sparql/?query=$escaped" \
+    | egrep -i "Access-Control-Allow-Origin"

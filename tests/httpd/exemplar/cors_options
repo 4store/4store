@@ -1,0 +1,4 @@
+Access-Control-Allow-Origin: *
+Access-Control-Allow-Methods: GET, OPTIONS
+Access-Control-Max-Age: 3628800
+Access-Control-Allow-Headers: X-Proprietary-Header, Cache-Control
