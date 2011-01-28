@@ -1190,9 +1190,9 @@ fs_binding *fs_binding_apply_filters(fs_query *q, int block, fs_binding *b, rapt
     /* TODO should prefetch lexical vals here */
     /* expressions that have been optimised out will be replaces with NULL,
      * so we have to be careful here */
-#warning --------
-#warning PREFETCH
-#warning --------
+/* --------------------------- */
+/* PREFETCH should go here XXX */
+/* --------------------------- */
     for (int row=0; row<length; row++) {
         for (int c=0; c<raptor_sequence_size(constr); c++) {
             rasqal_expression *e =

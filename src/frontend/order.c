@@ -150,7 +150,6 @@ printf("@@ ORDER (%d x %d)\n", conditions, length);
     struct order_row *orows = malloc(sizeof(struct order_row) * length);
     fs_value *ordervals = malloc(length * conditions * sizeof(fs_value));
     for (int i=0; i<length; i++) {
-	ordervals[i * conditions].in = i;
 	for (int j=0; j<conditions; j++) {
 	    ordervals[i * conditions + j] = fs_expression_eval(q, i, 0,
 				rasqal_query_get_order_condition(q->rq, j));

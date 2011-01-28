@@ -2302,4 +2302,25 @@ void fs_value_to_row(fs_query *q, fs_value v, fs_row *r)
     }
 }
 
+void fs_prefetch_column(fs_query *q, fs_binding *b, int col)
+{
+    for (int i=0; i<q->segments; i++) {
+        fs_rid_vector_clear(q->pending[i]);
+    }
+
+    /* dump L1 cache into L2 */
+    g_static_mutex_lock (&cache_mutex);
+    if (res_l1_cache) g_hash_table_foreach_steal(res_l1_cache, cache_dump, NULL);
+
+    const int length = b[col].vals->length;
+    for (int row=0; row < length; row++) {
+        fs_rid rid = b[col].vals->data[row];
+        if (FS_IS_BNODE(rid)) continue;
+        if (res_l2_cache[rid & CACHE_MASK].rid == rid) continue;
+        fs_rid_vector_append(q->pending[FS_RID_SEGMENT(rid, q->segments)], rid);
+    }
+    g_static_mutex_unlock(&cache_mutex);
+    resolve_precache_all(q->link, q->pending, q->segments);
+}
+
 /* vi:set expandtab sts=4 sw=4: */
