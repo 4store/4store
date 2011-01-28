@@ -398,6 +398,10 @@ static void interactive(fsp_link *link, raptor_uri *bu, const char *result_forma
             }
 	    fs_query *tq = fs_query_execute(qs, link, bu, query,
 		    result_flags, opt_level, soft_limit);
+            if (show_timing) {
+                double now = fs_time();
+                printf("# bind time %.3fs\n", now-then);
+            }
 	    fs_query_results_output(tq, result_format, 0, stdout);
 	    fs_query_free(tq);
 	    if (result_format && !strcmp(result_format, "sparql")) {

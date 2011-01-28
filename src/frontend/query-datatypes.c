@@ -1190,6 +1190,9 @@ fs_binding *fs_binding_apply_filters(fs_query *q, int block, fs_binding *b, rapt
     /* TODO should prefetch lexical vals here */
     /* expressions that have been optimised out will be replaces with NULL,
      * so we have to be careful here */
+/* --------------------------- */
+/* PREFETCH should go here XXX */
+/* --------------------------- */
     for (int row=0; row<length; row++) {
         for (int c=0; c<raptor_sequence_size(constr); c++) {
             rasqal_expression *e =
@@ -1221,6 +1224,22 @@ fs_binding *fs_binding_apply_filters(fs_query *q, int block, fs_binding *b, rapt
     q->bt = restore;
 
     return ret;
+}
+
+const char *fs_join_type_as_string(fs_join_type t)
+{
+    switch (t) {
+    case FS_NONE:
+        return "NONE";
+    case FS_INNER:
+        return "[X]";
+    case FS_LEFT:
+        return "=X]";
+    case FS_UNION:
+        return "UNION";
+    }
+
+    return "UNKNOWN";
 }
 
 /* vi:set expandtab sts=4 sw=4: */

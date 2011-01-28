@@ -57,6 +57,7 @@ void fs_binding_copy_row_unused(fs_binding *b1, int row, int count, fs_binding *
 void fs_binding_union(fs_query *q, fs_binding *a, fs_binding *b);
 void fs_binding_merge(fs_query *q, int block, fs_binding *from, fs_binding *to);
 fs_binding *fs_binding_join(fs_query *q, fs_binding *a, fs_binding *b, fs_join_type);
+const char *fs_join_type_as_string(fs_join_type t);
 void fs_binding_print(fs_binding *b, FILE *out);
 void fs_binding_sort(fs_binding *b);
 void fs_binding_uniq(fs_binding *b);
