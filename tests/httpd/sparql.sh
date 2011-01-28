@@ -2,11 +2,22 @@ function uriescape {
 	escaped=`echo "$1" | sed 's/ /%20/g; s/\*/\\*/g; s/{/\\\{/g; s/}/\\\}/g; s/\?/%3f/g; s/&/%38/g; s/+/%2b/g; s/"/\\"/g; s/\[/\\\[/g; s/\]/\\\]/g'`
 }
 
+function postescape {
+	escaped=`echo "$1" | sed 's/ /%20/g; s/\*/\\*/g; s/\?/%3f/g; s/&/%38/g; s/+/%2b/g;'`
+}
+
 # usage: sparql $endpoint $query
 function sparql {
 	uriescape "$2";
 	echo "Query: $2"
 	curl -s -H "Accept: text/plain" "$1/sparql/?query=$escaped"
+}
+
+# usage: update $endpoint $update
+function update {
+        postescape "$2"
+        echo "Update: $2"
+        curl -s -d "update=$escaped" "$1/update/"
 }
 
 # usage: put $endpoint $file $mime-type $model

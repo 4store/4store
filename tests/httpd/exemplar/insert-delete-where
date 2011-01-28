@@ -1,0 +1,39 @@
+Update: INSERT DATA { GRAPH <a> { <x> <y> <z> . <a> <b> <c> . } }
+
+Update: INSERT DATA { GRAPH <a> { <a> <b> <d> . } }
+
+Query: SELECT DISTINCT * WHERE { ?s ?p ?o } ORDER BY ?s ?p ?o
+?s	?p	?o
+<local:a>	<local:b>	<local:c>
+<local:a>	<local:b>	<local:d>
+<local:x>	<local:y>	<local:z>
+Update: INSERT { <x> <y> <w> } WHERE { <a> <b> <c> }
+
+Update: INSERT { <x> <y> ?o } WHERE { <a> <b> ?o }
+
+Query: SELECT DISTINCT * WHERE { GRAPH ?G { ?s ?p ?o } } ORDER BY ?s ?p ?o
+?G	?s	?p	?o
+<local:a>	<local:a>	<local:b>	<local:c>
+<local:a>	<local:a>	<local:b>	<local:d>
+<default:>	<local:x>	<local:y>	<local:c>
+<default:>	<local:x>	<local:y>	<local:d>
+<default:>	<local:x>	<local:y>	<local:w>
+<local:a>	<local:x>	<local:y>	<local:z>
+Update: DELETE DATA { <x> <y> <z> }
+
+Query: SELECT DISTINCT * WHERE { ?s ?p ?o } ORDER BY ?s ?p ?o
+?s	?p	?o
+<local:a>	<local:b>	<local:c>
+<local:a>	<local:b>	<local:d>
+<local:x>	<local:y>	<local:c>
+<local:x>	<local:y>	<local:d>
+<local:x>	<local:y>	<local:w>
+Query: SELECT DISTINCT * WHERE { GRAPH ?G { ?s ?p ?o } } ORDER BY ?s ?p ?o
+?G	?s	?p	?o
+<local:a>	<local:a>	<local:b>	<local:c>
+<local:a>	<local:a>	<local:b>	<local:d>
+<default:>	<local:x>	<local:y>	<local:c>
+<default:>	<local:x>	<local:y>	<local:d>
+<default:>	<local:x>	<local:y>	<local:w>
+Update: DELETE { ?x ?y ?z } WHERE { ?x ?y ?z }
+

@@ -1,0 +1,13 @@
+#!/bin/bash
+
+source sparql.sh
+
+update "$EPR" 'INSERT DATA { GRAPH <a> { <x> <y> <z> . <a> <b> <c> . } }'
+update "$EPR" 'DELETE DATA { GRAPH <a> { <a> <b> <d> . } }'
+sparql "$EPR" 'SELECT DISTINCT * WHERE { ?s ?p ?o } ORDER BY ?s ?p ?o'
+sparql "$EPR" 'SELECT DISTINCT * WHERE { GRAPH ?G { ?s ?p ?o } } ORDER BY ?s ?p ?o'
+update "$EPR" 'DELETE DATA { <a> <b> <c> }'
+sparql "$EPR" 'SELECT DISTINCT * WHERE { GRAPH ?G { ?s ?p ?o } } ORDER BY ?s ?p ?o'
+update "$EPR" 'DELETE DATA { <x> <y> <z> }'
+sparql "$EPR" 'SELECT DISTINCT * WHERE { ?s ?p ?o } ORDER BY ?s ?p ?o'
+sparql "$EPR" 'SELECT DISTINCT * WHERE { GRAPH ?G { ?s ?p ?o } } ORDER BY ?s ?p ?o'
