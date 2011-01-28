@@ -16,6 +16,7 @@
 
 
     Copyright 2006 Nick Lamb for Garlik.com
+    Copyright 2010 Martin Galpin (CORS support)
  */
 
 #define _GNU_SOURCE
@@ -50,6 +51,13 @@
 
 #define WATCHDOG_RATE 16000 /* bytes per second */
 
+/* is this request a valid CORS request? */
+
+#define IS_CORS(ctxt) (cors_support && \
+  (ctxt->method == FS_HTTP_HEAD || ctxt->method == FS_HTTP_OPTIONS \
+   || ctxt->method == FS_HTTP_GET) && \
+  g_hash_table_lookup(ctxt->headers, "origin"))
+
 /* file globals */
 
 static raptor_uri *bu;
@@ -62,6 +70,7 @@ static int unsafe = 0;
 static int default_graph = 0;
 static int soft_limit = 0; /* default value for soft limit */
 static int opt_level = 3;  /* default value for optimisation level */
+static int cors_support = 0; /* cross-origin resource sharing (CORS) support */
 
 static fs_query_state *query_state;
 
@@ -235,6 +244,9 @@ static void http_header(client_ctxt *ctxt, const char *code, const char *mimetyp
   if (mimetype) {
     http_send(ctxt, "Content-Type: "); http_send(ctxt, mimetype); http_send(ctxt, "\r\n");
   }
+  if(IS_CORS(ctxt)) {
+    http_send(ctxt, "Access-Control-Allow-Origin: *\r\n");
+  }
   http_send(ctxt, "X-Endpoint-Description: /description/"); http_send(ctxt, "\r\n");
   http_send(ctxt, "\r\n");
 }
@@ -244,6 +256,9 @@ static void http_code(client_ctxt *ctxt, const char *code)
   http_send(ctxt, "HTTP/1.0 "); http_send(ctxt, code); http_send(ctxt, "\r\n");
   http_send(ctxt, "Server: 4s-httpd/" GIT_REV "\r\n");
   http_send(ctxt, "Content-Type: text/plain; charset=UTF-8\r\n");
+  if(IS_CORS(ctxt)) {
+    http_send(ctxt, "Access-Control-Allow-Origin: *\r\n");
+  }
   http_send(ctxt, "\r\n");
   http_send(ctxt, code); http_send(ctxt, "\n");
   http_send(ctxt, "This is a 4store SPARQL server " GIT_REV "\n");
@@ -337,6 +352,11 @@ static void http_query_worker(gpointer data, gpointer user_data)
 
   http_send(ctxt, "HTTP/1.0 200 OK\r\n");
   http_send(ctxt, "Server: 4s-httpd/" GIT_REV "\r\n");
+
+  if(IS_CORS(ctxt)) {
+    http_send(ctxt, "Access-Control-Allow-Origin: *\r\n");
+  }
+
   const char *accept = g_hash_table_lookup(ctxt->headers, "accept");
 
   fcntl(ctxt->sock, F_SETFL, 0 /* not O_NONBLOCK */); /* blocking */
@@ -1175,10 +1195,30 @@ static void http_post_request(client_ctxt *ctxt, gchar *url, gchar *protocol)
   }
 }
 
+static void http_options_request(client_ctxt *ctxt, gchar *url, gchar *protocol)
+{
+  http_send(ctxt, "HTTP/1.1 200 OK\r\n");
+  http_send(ctxt, "Access-Control-Allow-Origin: *\r\n");
+  http_send(ctxt, "Access-Control-Allow-Methods: GET, OPTIONS\r\n");
+  http_send(ctxt, "Access-Control-Max-Age: 3628800\r\n");
+
+  const char *headers =
+    g_hash_table_lookup(ctxt->headers, "access-control-request-headers");
+
+  if(headers) {
+    /* Currently allowing any request headers */
+    http_send(ctxt, "Access-Control-Allow-Headers: ");
+    http_send(ctxt, headers); http_send(ctxt, "\r\n");
+  }
+
+  http_close(ctxt);
+}
+
 static void http_request(client_ctxt *ctxt, gchar *request)
 {
   if (!strncasecmp(request, "POST ", 5)) {
     /* POST request */
+    ctxt->method = FS_HTTP_POST;
     char *url = strdup(request + 5);
     char *space = strrchr(url, ' ');
     char *protocol = NULL;
@@ -1190,6 +1230,7 @@ static void http_request(client_ctxt *ctxt, gchar *request)
     free(url);
   } else if (!strncasecmp(request, "HEAD ", 5)) {
     /* HEAD request */
+    ctxt->method = FS_HTTP_HEAD;
     char *url = strdup(request + 5);
     char *space = strrchr(url, ' ');
     char *protocol = NULL;
@@ -1201,6 +1242,7 @@ static void http_request(client_ctxt *ctxt, gchar *request)
     free(url);
   } else if (!strncasecmp(request, "GET ", 4)) {
     /* GET request */
+    ctxt->method = FS_HTTP_GET;
     char *url = strdup(request + 4);
     char *space = strrchr(url, ' ');
     char *protocol = NULL;
@@ -1212,6 +1254,7 @@ static void http_request(client_ctxt *ctxt, gchar *request)
     free(url);
   } else if (!strncasecmp(request, "PUT ", 4)) {
     /* PUT request */
+    ctxt->method = FS_HTTP_PUT;
     char *url = strdup(request + 4);
     char *space = strrchr(url, ' ');
     char *protocol = NULL;
@@ -1223,6 +1266,7 @@ static void http_request(client_ctxt *ctxt, gchar *request)
     free(url);
   } else if (!strncasecmp(request, "DELETE ", 7)) {
     /* DELETE request */
+    ctxt->method = FS_HTTP_DELETE;
     char *url = strdup(request + 7);
     char *space = strrchr(url, ' ');
     char *protocol = NULL;
@@ -1231,6 +1275,18 @@ static void http_request(client_ctxt *ctxt, gchar *request)
       *space = '\0';
     }
     http_delete_request(ctxt, url, protocol);
+    free(url);
+  } else if(!strncasecmp(request, "OPTIONS ", 8) && cors_support) {
+    /* OPTIONS request */
+    ctxt->method = FS_HTTP_OPTIONS;
+    char *url = strdup(request + 8);
+    char *space = strrchr(url, ' ');
+    char *protocol = NULL;
+    if (space) {
+      protocol = space + 1;
+      *space = '\0';
+    }
+    http_options_request(ctxt, url, protocol);
     free(url);
   } else {
     /* 400 */
@@ -1632,7 +1688,7 @@ int main(int argc, char *argv[])
   }
 
   int o;
-  while (!help && (o = getopt(argc, argv, "DH:p:Uds:O:")) != -1) {
+  while (!help && (o = getopt(argc, argv, "DH:p:Uds:O:X")) != -1) {
     switch (o) {
       case 'D':
         daemonize = 0;
@@ -1655,6 +1711,9 @@ int main(int argc, char *argv[])
       case 'O':
 	opt_level = atoi(optarg);
 	break;
+      case 'X':
+	cors_support = 1;
+	break;
       default:
 	help = 1;
 	break;
@@ -1669,6 +1728,7 @@ int main(int argc, char *argv[])
     fprintf(stdout, "       -U   enable unsafe operations (eg. LOAD)\n");
     fprintf(stdout, "       -d   enable SPARQL default graph support\n");
     fprintf(stdout, "       -s   default soft limit (-1 to disable)\n");
+    fprintf(stdout, "       -X   enable public cross-origin resource sharing (CORS) support\n");
 
     return help_return;
   }

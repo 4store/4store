@@ -1,0 +1,11 @@
+#!/bin/bash
+# POST method for cross-origin resource sharing (CORS)
+
+source sparql.sh
+
+uriescape "SELECT * WHERE { ?x ?y ?z }";
+curl -s -D- -o/dev/null \
+      -H "Accept: text/plain" \
+      -H "Origin: http://example.org" \
+      -d "query=$escaped" "$EPR/sparql/" \
+      | egrep -i "Access-Control-Allow-Origin"

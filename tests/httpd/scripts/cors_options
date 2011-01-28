@@ -1,0 +1,9 @@
+#!/bin/bash
+# OPTIONS cross-origin resource sharing (CORS) preflight request
+
+curl -s -D- -o/dev/null -X OPTIONS \
+    -H "Origin: http://example.org" \
+    -H "Access-Control-Request-Headers: X-Proprietary-Header, Cache-Control" \
+    -H "Access-Control-Request-Method: POST" \
+    "$EPR/sparql/" \
+    | egrep -i "Access-Control-Allow-(Origin|Headers|Methods)|Access-Control-Max-Age"
