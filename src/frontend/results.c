@@ -2342,7 +2342,6 @@ int fs_sort_column(fs_query *q, fs_binding *b, int col, int **sorted)
     for (int row=0; row < length; row++) {
         fs_rid rid = b[col].vals->data[row];
         if (FS_IS_BNODE(rid)) continue;
-        if (res_l2_cache[rid & CACHE_MASK].rid == rid) continue;
         fs_rid_vector_append(rv[FS_RID_SEGMENT(rid, q->segments)], rid);
     }
     fs_resource *res[q->segments];
@@ -2430,6 +2429,7 @@ int fs_sort_column(fs_query *q, fs_binding *b, int col, int **sorted)
 
     qsort(sortable, length, sizeof(struct simple_sort), simple_sort_cmp);
 
+    g_hash_table_foreach(rl, rl_free, NULL);
     g_hash_table_destroy(rl);
 
     int *order = malloc(length * sizeof(int));

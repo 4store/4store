@@ -175,7 +175,6 @@ printf("@@ ORDER (%d x %d)\n", conditions, length);
             }
             int *ordering;
             if (!fs_sort_column(q, q->bt, col, &ordering)) {
-#warning HANDLE DESC
                 if (oe->op == RASQAL_EXPR_ORDER_COND_DESC) {
                     reverse_array(ordering, q->bt[col].vals->length);
                 }
