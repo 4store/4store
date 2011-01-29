@@ -61,12 +61,7 @@ static void error_handler(void *user_data, raptor_log_message *message)
 {
     struct update_context *ct = user_data;
 
-    char *msg;
-    if (raptor_log_level_get_label(message->code)) {
-        msg = g_strdup_printf("Parser %s: %s at line %d of operation %d", raptor_log_level_get_label(message->code), message->text, raptor_locator_line(message->locator), ct->opid);
-    } else {
-        msg = g_strdup_printf("Parse error: %s at line %d of operation %d", message->text, raptor_locator_line(message->locator), ct->opid);
-    }
+    char *msg = g_strdup_printf("%s: %s at line %d of operation %d", raptor_log_level_get_label(message->level), message->text, raptor_locator_line(message->locator), ct->opid);
     add_message(ct, msg, 1);
     fs_error(LOG_ERR, "%s", msg);
 }

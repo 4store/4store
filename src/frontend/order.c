@@ -23,8 +23,10 @@
 #include "order.h"
 #include "filter.h"
 #include "debug.h"
+#include "results.h"
 #include "query-intl.h"
 #include "../common/hash.h"
+#include "../common/error.h"
 
 struct order_row {
     int row;
@@ -136,6 +138,17 @@ static int orow_compare(const void *ain, const void *bin)
     return cmp;
 }
 
+static void reverse_array(int *a, int length)
+{
+    int tmp;
+
+    for (int i=0; i<length/2; i++) {
+        tmp = a[i];
+        a[i] = a[length-i-1];
+        a[length-i-1] = tmp;
+    }
+}
+
 void fs_query_order(fs_query *q)
 {
     int conditions;
@@ -146,6 +159,32 @@ void fs_query_order(fs_query *q)
 #ifdef DEBUG_ORDER
 printf("@@ ORDER (%d x %d)\n", conditions, length);
 #endif
+
+    /* spot the case where we have ORDER BY ?x, saves evaluating expressions */
+    if (conditions == 1) {
+        rasqal_expression *oe = rasqal_query_get_order_condition(q->rq, 0);
+        if ((oe->op == RASQAL_EXPR_ORDER_COND_ASC ||
+             oe->op == RASQAL_EXPR_ORDER_COND_DESC) &&
+            oe->arg1->op == RASQAL_EXPR_LITERAL &&
+            oe->arg1->literal->type == RASQAL_LITERAL_VARIABLE) {
+            long int col = (long int)oe->arg1->literal->value.variable->user_data;
+            if (col == 0) {
+                fs_error(LOG_CRIT, "missing column");
+
+                return;
+            }
+            int *ordering;
+            if (!fs_sort_column(q, q->bt, col, &ordering)) {
+#warning HANDLE DESC
+                if (oe->op == RASQAL_EXPR_ORDER_COND_DESC) {
+                    reverse_array(ordering, q->bt[col].vals->length);
+                }
+                q->ordering = ordering;
+
+                return;
+            }
+        }
+    }
 
     struct order_row *orows = malloc(sizeof(struct order_row) * length);
     fs_value *ordervals = malloc(length * conditions * sizeof(fs_value));

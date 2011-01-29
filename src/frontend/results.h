@@ -46,7 +46,7 @@ void fs_query_results_output(fs_query *q, const char *fmt, int flags, FILE *out)
 
 char *fs_uri_escape(const char *str);
 
-/* prefetch needed resources from a binding table */
-void fs_prefetch(fs_query *q, fs_binding *b, int column);
+/* apply ORDER BY to a single column in a binding table, results in *sorted */
+int fs_sort_column(fs_query *q, fs_binding *b, int col, int **sorted);
 
 #endif

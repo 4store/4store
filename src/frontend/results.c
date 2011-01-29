@@ -45,6 +45,10 @@
  * we can't use the pre-processor to detect this problem because it doesn't grok sizeof() */
 typedef char wrong_glib_headers[1 + GLIB_SIZEOF_VOID_P - sizeof(void *)];
 
+/* used for sorting */
+static const char *NULL_PROXY = " ";
+static const char *BNODE_PROXY = "*";
+
 static GStaticMutex cache_mutex = G_STATIC_MUTEX_INIT;
 
 static fs_resource res_l2_cache[CACHE_SIZE];
@@ -2302,25 +2306,141 @@ void fs_value_to_row(fs_query *q, fs_value v, fs_row *r)
     }
 }
 
-void fs_prefetch_column(fs_query *q, fs_binding *b, int col)
+struct simple_sort {
+    int row;
+    const char *str;
+};
+
+static int simple_sort_cmp(const void *va, const void *vb)
 {
-    for (int i=0; i<q->segments; i++) {
-        fs_rid_vector_clear(q->pending[i]);
+    const struct simple_sort *a = va, *b = vb;
+
+    return strcmp(a->str, b->str);
+}
+
+static void rl_free(gpointer key, gpointer value, gpointer user_data)
+{
+    if (value != NULL_PROXY && value != BNODE_PROXY) {
+        free(value);
+    }
+}
+
+/* sort column by ORDER BY rules, only works on NULL, bNodes, URIs, simple and
+ * xsd:strings */
+int fs_sort_column(fs_query *q, fs_binding *b, int col, int **sorted)
+{
+    *sorted = NULL;
+
+    fs_rid_vector *rv[q->segments];
+    for (int s=0; s<q->segments; s++) {
+        rv[s] = fs_rid_vector_new(0);
     }
 
-    /* dump L1 cache into L2 */
-    g_static_mutex_lock (&cache_mutex);
-    if (res_l1_cache) g_hash_table_foreach_steal(res_l1_cache, cache_dump, NULL);
-
     const int length = b[col].vals->length;
+
+    /* resolve all the resources */
     for (int row=0; row < length; row++) {
         fs_rid rid = b[col].vals->data[row];
         if (FS_IS_BNODE(rid)) continue;
         if (res_l2_cache[rid & CACHE_MASK].rid == rid) continue;
-        fs_rid_vector_append(q->pending[FS_RID_SEGMENT(rid, q->segments)], rid);
+        fs_rid_vector_append(rv[FS_RID_SEGMENT(rid, q->segments)], rid);
     }
-    g_static_mutex_unlock(&cache_mutex);
-    resolve_precache_all(q->link, q->pending, q->segments);
+    fs_resource *res[q->segments];
+    for (int s=0; s<q->segments; s++) {
+        fs_rid_vector_sort(rv[s]);
+        fs_rid_vector_uniq(rv[s], 0);
+        res[s] = malloc(rv[s]->length * sizeof(fs_resource));
+    }
+    int ret = fsp_resolve_all(q->link, rv, res);
+    if (ret) {
+        fs_error(LOG_CRIT, "resolve_all failed");
+
+        return 1;
+    }
+
+    /* store strings that will strcmp into the correct order */
+    GHashTable *rl = g_hash_table_new_full(rid_hash, rid_equal, g_free, NULL);
+    for (int s=0; s<q->segments; s++) {
+        for (int i=0; i<rv[s]->length; i++) {
+            fs_rid *rid = g_malloc(sizeof(fs_rid));
+            *rid = res[s][i].rid;
+            if (res[s][i].attr == fs_c.xsd_integer ||
+                res[s][i].attr == fs_c.xsd_float ||
+                res[s][i].attr == fs_c.xsd_double ||
+                res[s][i].attr == fs_c.xsd_decimal ||
+                res[s][i].attr == fs_c.xsd_datetime) {
+                /* unsupported type */
+                for (int s=0; s<q->segments; s++) {
+                    for (int i=0; i<rv[s]->length; i++) {
+                        free(res[s][i].lex);
+                    }
+                    free(res[s]);
+                    fs_rid_vector_free(rv[s]);
+                }
+                g_free(rid);
+                g_hash_table_foreach(rl, rl_free, NULL);
+                g_hash_table_destroy(rl);
+
+                return 1;
+            }
+            int len = strlen(res[s][i].lex);
+            char *sort = malloc(len+2);
+            memcpy(sort+1, res[s][i].lex, len);
+            sort[len+1] = '\0';
+            if (FS_IS_URI(res[s][i].rid)) {
+                sort[0] = 'U';
+            } else {
+                if (res[s][i].attr == fs_c.xsd_string) {
+                    sort[0] = 's';
+                } else {
+                    sort[0] = 'l';
+                }
+            }
+            g_hash_table_insert(rl, rid, sort);
+        }
+    }
+    for (int s=0; s<q->segments; s++) {
+        for (int i=0; i<rv[s]->length; i++) {
+            free(res[s][i].lex);
+        }
+        free(res[s]);
+        fs_rid_vector_free(rv[s]);
+    }
+
+    struct simple_sort *sortable = malloc(sizeof(struct simple_sort) * length);
+    for (int row=0; row < length; row++) {
+        sortable[row].row = row;
+        const fs_rid rid = b[col].vals->data[row];
+        if (rid == FS_RID_NULL) {
+            sortable[row].str = NULL_PROXY;
+            continue;
+        } else if (FS_IS_BNODE(rid)) {
+            sortable[row].str = BNODE_PROXY;
+            continue;
+        }
+        char *sort = g_hash_table_lookup(rl, &rid);
+        if (!sort) {
+            /* this shouldn't happen, but just incase */
+            fs_error(LOG_ERR, "cannot get sortable string for %016llx", rid);
+
+            return 1;
+        }
+        sortable[row].str = sort;
+    }
+
+    qsort(sortable, length, sizeof(struct simple_sort), simple_sort_cmp);
+
+    g_hash_table_destroy(rl);
+
+    int *order = malloc(length * sizeof(int));
+    for (int i=0; i<length; i++) {
+        order[i] = sortable[i].row;
+    }
+    *sorted = order;
+
+    free(sortable);
+
+    return 0;
 }
 
 /* vi:set expandtab sts=4 sw=4: */
