@@ -227,4 +227,19 @@ fs_rid fs_hash_literal(const char *str, fs_rid attr)
     return top;
 }
 
+guint fs_rid_hash(gconstpointer p)
+{
+    const fs_rid *r = p;
+
+    return (guint)*r;
+}
+
+gboolean fs_rid_equal(gconstpointer va, gconstpointer vb)
+{
+    const fs_rid *a = va;
+    const fs_rid *b = vb;
+
+    return *a == *b;
+}
+
 /* vi:set ts=8 sts=4 sw=4: */

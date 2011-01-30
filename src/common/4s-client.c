@@ -603,6 +603,9 @@ void fsp_close_link (fsp_link *link)
     close (link->socks1[k]);
     if (link->socks2[k] != -1) close (link->socks2[k]);
   }
+  if (link->features) {
+    free((char *)link->features);
+  }
 
   free(link);
 }

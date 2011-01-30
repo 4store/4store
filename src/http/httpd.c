@@ -447,6 +447,7 @@ static void http_import_start(client_ctxt *ctxt)
     http_send(ctxt, "Content-Type: text/plain; charset=utf-8\r\n\r\n");
     if (message) {
       http_send(ctxt, message);
+      g_free(message);
     }
     http_send(ctxt, "\n");
     http_close(ctxt);
@@ -900,6 +901,9 @@ static void http_get_request(client_ctxt *ctxt, gchar *url, gchar *protocol)
         url_decode(value);
         if (strlen(value)) { /* ignore empty string, default form value */
           ctxt->soft_limit = atoi(value);
+	  if(ctxt->soft_limit == 0) {
+  	    ctxt->soft_limit = -1;
+	  }
         }
       } else if (!strcmp(key, "output") && value) {
         url_decode(value);
@@ -1710,6 +1714,10 @@ int main(int argc, char *argv[])
 	break;
       case 's':
 	soft_limit = atoi(optarg);
+	if (soft_limit == 0) {
+	  /* -1 mens off */
+	  soft_limit = -1;
+	}
 	break;
       case 'O':
 	opt_level = atoi(optarg);

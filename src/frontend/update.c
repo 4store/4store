@@ -41,28 +41,43 @@ struct update_context {
     int opid;
 };
 
+#define QUAD_BUF_SIZE 4096
+
+struct quad_buf {
+    int length;
+    fs_rid quads[QUAD_BUF_SIZE][4];
+};
+
+static struct quad_buf *quad_buffer = NULL;
+
 int fs_load(struct update_context *uc, char *resuri, char *graphuri);
 
 int fs_clear(struct update_context *uc, char *graphuri);
+
+int fs_add(struct update_context *uc, char *from, char *to);
+
+int fs_move(struct update_context *uc, char *from, char *to);
+
+int fs_copy(struct update_context *uc, char *from, char *to);
 
 fs_rid fs_hash_rasqal_literal(struct update_context *uc, rasqal_literal *l, int row);
 void fs_resource_from_rasqal_literal(struct update_context *uctxt,
                                      rasqal_literal *l, fs_resource *res, int row);
 
-static void add_message(struct update_context *ct, char *m, int freeable)
+static void add_message(struct update_context *uc, char *m, int freeable)
 {
-    ct->messages = g_slist_append(ct->messages, m);
+    uc->messages = g_slist_append(uc->messages, m);
     if (freeable) {
-        ct->freeable = g_slist_append(ct->freeable, m);
+        uc->freeable = g_slist_prepend(uc->freeable, m);
     }
 }
 
 static void error_handler(void *user_data, raptor_log_message *message)
 {
-    struct update_context *ct = user_data;
+    struct update_context *uc = user_data;
 
-    char *msg = g_strdup_printf("%s: %s at line %d of operation %d", raptor_log_level_get_label(message->level), message->text, raptor_locator_line(message->locator), ct->opid);
-    add_message(ct, msg, 1);
+    char *msg = g_strdup_printf("%s: %s at line %d of operation %d", raptor_log_level_get_label(message->level), message->text, raptor_locator_line(message->locator), uc->opid);
+    add_message(uc, msg, 1);
     fs_error(LOG_ERR, "%s", msg);
 }
 
@@ -84,24 +99,24 @@ static int any_vars(rasqal_triple *t)
     return 0;
 }
 
-static int delete_rasqal_triple(struct update_context *ct, fs_rid_vector *vec[], rasqal_triple *triple, int row)
+static int delete_rasqal_triple(struct update_context *uc, fs_rid_vector *vec[], rasqal_triple *triple, int row)
 {
     fs_rid m, s, p, o;
 
     if (triple->origin) {
-        m = fs_hash_rasqal_literal(ct, triple->origin, row);
+        m = fs_hash_rasqal_literal(uc, triple->origin, row);
         if (m == FS_RID_NULL) return 1;
-    } else if (ct->op->graph_uri) {
-        m = fs_hash_uri((char *)raptor_uri_as_string(ct->op->graph_uri));
+    } else if (uc->op->graph_uri) {
+        m = fs_hash_uri((char *)raptor_uri_as_string(uc->op->graph_uri));
     } else {
         /* m can be wildcard in the absence of GRAPH, WITH etc. */
         m = FS_RID_NULL;
     }
-    s = fs_hash_rasqal_literal(ct, triple->subject, row);
+    s = fs_hash_rasqal_literal(uc, triple->subject, row);
     if (s == FS_RID_NULL) return 1;
-    p = fs_hash_rasqal_literal(ct, triple->predicate, row);
+    p = fs_hash_rasqal_literal(uc, triple->predicate, row);
     if (p == FS_RID_NULL) return 1;
-    o = fs_hash_rasqal_literal(ct, triple->object, row);
+    o = fs_hash_rasqal_literal(uc, triple->object, row);
     if (o == FS_RID_NULL) return 1;
 
     /* as long as s, p, and o are bound, we can add this quad */
@@ -111,7 +126,7 @@ static int delete_rasqal_triple(struct update_context *ct, fs_rid_vector *vec[],
     fs_rid_vector_append(vec[3], o);
 
     if (fs_rid_vector_length(vec[0]) > 999) {
-        fsp_delete_quads_all(ct->link, vec);
+        fsp_delete_quads_all(uc->link, vec);
         for (int s=0; s<4; s++) {
             fs_rid_vector_truncate(vec[s], 0);
         }
@@ -120,18 +135,18 @@ static int delete_rasqal_triple(struct update_context *ct, fs_rid_vector *vec[],
     return 0;
 }
 
-static int insert_rasqal_triple(struct update_context *ct, rasqal_triple *triple, int row)
+static int insert_rasqal_triple(struct update_context *uc, rasqal_triple *triple, int row)
 {
     fs_rid quad_buf[1][4];
     fs_resource res;
     if (triple->origin) {
-        fs_resource_from_rasqal_literal(ct, triple->origin, &res, row);
-        quad_buf[0][0] = fs_hash_rasqal_literal(ct, triple->origin, row);
-    } else if (ct->op->graph_uri) {
-        res.lex = (char *)raptor_uri_as_string(ct->op->graph_uri);
+        fs_resource_from_rasqal_literal(uc, triple->origin, &res, row);
+        quad_buf[0][0] = fs_hash_rasqal_literal(uc, triple->origin, row);
+    } else if (uc->op->graph_uri) {
+        res.lex = (char *)raptor_uri_as_string(uc->op->graph_uri);
         res.attr = FS_RID_NULL;
         quad_buf[0][0] =
-            fs_hash_uri((char *)raptor_uri_as_string(ct->op->graph_uri));
+            fs_hash_uri((char *)raptor_uri_as_string(uc->op->graph_uri));
     } else {
         quad_buf[0][0] = fs_c.default_graph;
         res.lex = FS_DEFAULT_GRAPH;
@@ -140,59 +155,77 @@ static int insert_rasqal_triple(struct update_context *ct, rasqal_triple *triple
     if (!FS_IS_URI(quad_buf[0][0])) {
         return 1;
     }
-    quad_buf[0][1] = fs_hash_rasqal_literal(ct, triple->subject, row);
+    quad_buf[0][1] = fs_hash_rasqal_literal(uc, triple->subject, row);
     if (FS_IS_LITERAL(quad_buf[0][1])) {
         return 1;
     }
-    quad_buf[0][2] = fs_hash_rasqal_literal(ct, triple->predicate, row);
+    quad_buf[0][2] = fs_hash_rasqal_literal(uc, triple->predicate, row);
     if (!FS_IS_URI(quad_buf[0][2])) {
         return 1;
     }
-    quad_buf[0][3] = fs_hash_rasqal_literal(ct, triple->object, row);
+    quad_buf[0][3] = fs_hash_rasqal_literal(uc, triple->object, row);
     res.rid = quad_buf[0][0];
-    if (res.lex) fsp_res_import(ct->link, FS_RID_SEGMENT(quad_buf[0][0], ct->segments), 1, &res);
+    if (res.lex) fsp_res_import(uc->link, FS_RID_SEGMENT(quad_buf[0][0], uc->segments), 1, &res);
     res.rid = quad_buf[0][1];
-    fs_resource_from_rasqal_literal(ct, triple->subject, &res, 0);
-    if (res.lex) fsp_res_import(ct->link, FS_RID_SEGMENT(quad_buf[0][1], ct->segments), 1, &res);
+    fs_resource_from_rasqal_literal(uc, triple->subject, &res, 0);
+    if (res.lex) fsp_res_import(uc->link, FS_RID_SEGMENT(quad_buf[0][1], uc->segments), 1, &res);
     res.rid = quad_buf[0][2];
-    fs_resource_from_rasqal_literal(ct, triple->predicate, &res, 0);
-    if (res.lex) fsp_res_import(ct->link, FS_RID_SEGMENT(quad_buf[0][2], ct->segments), 1, &res);
+    fs_resource_from_rasqal_literal(uc, triple->predicate, &res, 0);
+    if (res.lex) fsp_res_import(uc->link, FS_RID_SEGMENT(quad_buf[0][2], uc->segments), 1, &res);
     res.rid = quad_buf[0][3];
-    fs_resource_from_rasqal_literal(ct, triple->object, &res, 0);
-    if (res.lex) fsp_res_import(ct->link, FS_RID_SEGMENT(quad_buf[0][3], ct->segments), 1, &res);
-    fsp_quad_import(ct->link, FS_RID_SEGMENT(quad_buf[0][1], ct->segments), FS_BIND_BY_SUBJECT, 1, quad_buf);
+    fs_resource_from_rasqal_literal(uc, triple->object, &res, 0);
+    if (res.lex) fsp_res_import(uc->link, FS_RID_SEGMENT(quad_buf[0][3], uc->segments), 1, &res);
+    fsp_quad_import(uc->link, FS_RID_SEGMENT(quad_buf[0][1], uc->segments), FS_BIND_BY_SUBJECT, 1, quad_buf);
 //printf("I %016llx %016llx %016llx %016llx\n", quad_buf[0][0], quad_buf[0][1], quad_buf[0][2], quad_buf[0][3]);
 
     return 0;
 }
 
-static int update_op(struct update_context *ct)
+static char *graph_arg(raptor_uri *u)
+{
+    if (!u) {
+        return NULL;
+    }
+
+    return (char *)raptor_uri_as_string(u);
+}
+
+static int update_op(struct update_context *uc)
 {
     fs_rid_vector *vec[4];
 
-    switch (ct->op->type) {
+    switch (uc->op->type) {
     case RASQAL_UPDATE_TYPE_UNKNOWN:
-        add_message(ct, "Unknown update operation", 0);
+        add_message(uc, "Unknown update operation", 0);
         return 1;
     case RASQAL_UPDATE_TYPE_CLEAR:
-        fs_clear(ct, (char *)raptor_uri_as_string(ct->op->graph_uri));
+        fs_clear(uc, graph_arg(uc->op->graph_uri));
         return 0;
     case RASQAL_UPDATE_TYPE_CREATE:
         return 0;
     case RASQAL_UPDATE_TYPE_DROP:
-        fs_clear(ct, (char *)raptor_uri_as_string(ct->op->graph_uri));
+        fs_clear(uc, graph_arg(uc->op->graph_uri));
         return 0;
     case RASQAL_UPDATE_TYPE_LOAD:
-        fs_load(ct, (char *)raptor_uri_as_string(ct->op->document_uri),
-                    (char *)raptor_uri_as_string(ct->op->graph_uri));
+        fs_load(uc, graph_arg(uc->op->document_uri),
+                    graph_arg(uc->op->graph_uri));
         return 0;
+#if RASQAL_VERSION >= 924
+    case RASQAL_UPDATE_TYPE_ADD:
+        fs_add(uc, graph_arg(uc->op->graph_uri),
+                   graph_arg(uc->op->document_uri));
+        return 0;
+    case RASQAL_UPDATE_TYPE_MOVE:
+        fs_move(uc, graph_arg(uc->op->graph_uri),
+                    graph_arg(uc->op->document_uri));
+        return 0;
+    case RASQAL_UPDATE_TYPE_COPY:
+        fs_copy(uc, graph_arg(uc->op->graph_uri),
+                    graph_arg(uc->op->document_uri));
+        return 0;
+#endif
     case RASQAL_UPDATE_TYPE_UPDATE:
         break;
-#if RASQAL_VERSION >= 924
-    //case RASQAL_UPDATE_TYPE_ADD:
-    //case RASQAL_UPDATE_TYPE_MOVE:
-    //case RASQAL_UPDATE_TYPE_COPY:
-#endif
     }
 
     fs_hash_freshen();
@@ -201,7 +234,7 @@ static int update_op(struct update_context *ct)
     raptor_sequence *toins = NULL;
 
 #if RASQAL_VERSION >= 923
-    if (ct->op->where) {
+    if (uc->op->where) {
         todel = raptor_new_sequence(NULL, NULL);
         toins = raptor_new_sequence(NULL, NULL);
         raptor_sequence *todel_p = raptor_new_sequence(NULL, NULL);
@@ -209,22 +242,22 @@ static int update_op(struct update_context *ct)
         raptor_sequence *vars = raptor_new_sequence(NULL, NULL);
 
         fs_query *q = calloc(1, sizeof(fs_query));
-        ct->q = q;
-        q->qs = ct->qs;
-        q->rq = ct->rq;
+        uc->q = q;
+        q->qs = uc->qs;
+        q->rq = uc->rq;
         q->flags = FS_BIND_DISTINCT;
         q->opt_level = 3;
         q->soft_limit = -1;
-        q->segments = fsp_link_segments(ct->link);
-        q->link = ct->link;
+        q->segments = fsp_link_segments(uc->link);
+        q->link = uc->link;
         q->bb[0] = fs_binding_new();
         q->bt = q->bb[0];
         /* add column to denote join ordering */
         fs_binding_create(q->bb[0], "_ord", FS_RID_NULL, 0);
 
-        if (ct->op->delete_templates) {
-            for (int t=0; t<raptor_sequence_size(ct->op->delete_templates); t++) {
-                rasqal_triple *tr = raptor_sequence_get_at(ct->op->delete_templates, t);
+        if (uc->op->delete_templates) {
+            for (int t=0; t<raptor_sequence_size(uc->op->delete_templates); t++) {
+                rasqal_triple *tr = raptor_sequence_get_at(uc->op->delete_templates, t);
                 if (any_vars(tr)) {
                     fs_check_cons_slot(q, vars, tr->subject);
                     fs_check_cons_slot(q, vars, tr->predicate);
@@ -236,9 +269,9 @@ static int update_op(struct update_context *ct)
             }
         }
 
-        if (ct->op->insert_templates) {
-            for (int t=0; t<raptor_sequence_size(ct->op->insert_templates); t++) {
-                rasqal_triple *tr = raptor_sequence_get_at(ct->op->insert_templates, t);
+        if (uc->op->insert_templates) {
+            for (int t=0; t<raptor_sequence_size(uc->op->insert_templates); t++) {
+                rasqal_triple *tr = raptor_sequence_get_at(uc->op->insert_templates, t);
                 if (any_vars(tr)) {
                     fs_check_cons_slot(q, vars, tr->subject);
                     fs_check_cons_slot(q, vars, tr->predicate);
@@ -263,7 +296,7 @@ static int update_op(struct update_context *ct)
         }
 
         /* perform the WHERE match */
-        fs_query_process_pattern(q, ct->op->where, vars);
+        fs_query_process_pattern(q, uc->op->where, vars);
 
         q->length = fs_binding_length(q->bb[0]);
 
@@ -273,14 +306,14 @@ static int update_op(struct update_context *ct)
         for (int t=0; t<raptor_sequence_size(todel_p); t++) {
             rasqal_triple *triple = raptor_sequence_get_at(todel_p, t);
             for (int row=0; row < q->length; row++) {
-                delete_rasqal_triple(ct, vec, triple, row);
+                delete_rasqal_triple(uc, vec, triple, row);
             }
             if (fs_rid_vector_length(vec[0]) > 1000) {
-                fsp_delete_quads_all(ct->link, vec);
+                fsp_delete_quads_all(uc->link, vec);
             }
         }
         if (fs_rid_vector_length(vec[0]) > 0) {
-            fsp_delete_quads_all(ct->link, vec);
+            fsp_delete_quads_all(uc->link, vec);
         }
         for (int s=0; s<4; s++) {
 //fs_rid_vector_print(vec[s], 0, stdout);
@@ -291,25 +324,24 @@ static int update_op(struct update_context *ct)
         for (int t=0; t<raptor_sequence_size(toins_p); t++) {
             rasqal_triple *triple = raptor_sequence_get_at(toins_p, t);
             for (int row=0; row < q->length; row++) {
-                insert_rasqal_triple(ct, triple, row);
+                insert_rasqal_triple(uc, triple, row);
             }
         }
 
         /* must not free the rasqal_query */
         q->rq = NULL;
         fs_query_free(q);
-        ct->q = NULL;
+        uc->q = NULL;
     } else {
-        todel = ct->op->delete_templates;
-        toins = ct->op->insert_templates;
+        todel = uc->op->delete_templates;
+        toins = uc->op->insert_templates;
     }
 #else
-    if (ct->op->where) {
+    if (uc->op->where) {
         fs_error(LOG_ERR, "DELETE/INSERT WHERE requires Rasqal 0.9.23 or newer");
-        add_message(ct, "DELETE/INSERT WHERE requires Rasqal 0.9.23 or newer", 0);
+        add_message(uc, "DELETE/INSERT WHERE requires Rasqal 0.9.23 or newer", 0);
     }
 #endif
-    
 
     /* delete constant triples */
     if (todel) {
@@ -321,10 +353,10 @@ static int update_op(struct update_context *ct)
             if (any_vars(triple)) {
                 continue;
             }
-            delete_rasqal_triple(ct, vec, triple, 0);
+            delete_rasqal_triple(uc, vec, triple, 0);
         }
         if (fs_rid_vector_length(vec[0]) > 0) {
-            fsp_delete_quads_all(ct->link, vec);
+            fsp_delete_quads_all(uc->link, vec);
         }
         for (int s=0; s<4; s++) {
             fs_rid_vector_free(vec[s]);
@@ -339,7 +371,7 @@ static int update_op(struct update_context *ct)
             if (any_vars(triple)) {
                 continue;
             }
-            insert_rasqal_triple(ct, triple, 0);
+            insert_rasqal_triple(uc, triple, 0);
         }
     }
     fs_hash_freshen();
@@ -364,6 +396,9 @@ int fs_update(fs_query_state *qs, char *update, char **message, int unsafe)
     uctxt.rq = rq;
     raptor_uri *bu = raptor_new_uri(qs->raptor_world, (unsigned char *)"local:local");
     rasqal_query_prepare(rq, (unsigned char *)update, bu);
+    if (!quad_buffer) {
+        quad_buffer = calloc(uctxt.segments, sizeof(struct quad_buf));
+    }
 
     int ok = 1;
     for (int i=0; 1; i++) {
@@ -399,6 +434,8 @@ int fs_update(fs_query_state *qs, char *update, char **message, int unsafe)
     }
     g_slist_free(uctxt.freeable);
 
+    raptor_free_uri(bu);
+
     if (ok) {
         return 0;
     } else {
@@ -406,7 +443,7 @@ int fs_update(fs_query_state *qs, char *update, char **message, int unsafe)
     }
 }
 
-fs_rid fs_hash_rasqal_literal(struct update_context *ct, rasqal_literal *l, int row)
+fs_rid fs_hash_rasqal_literal(struct update_context *uc, rasqal_literal *l, int row)
 {
     if (!l) return FS_RID_NULL;
 
@@ -437,12 +474,12 @@ fs_rid fs_hash_rasqal_literal(struct update_context *ct, rasqal_literal *l, int 
         bnode.string = (unsigned char *)rasqal_literal_as_string(l);
         bnode.string_len = strlen((char *)bnode.string);
 
-        return fs_bnode_id(ct->link, bnode);
+        return fs_bnode_id(uc->link, bnode);
     }
 
     case RASQAL_LITERAL_VARIABLE:
-        if (ct->q) {
-            return fs_binding_get_val(ct->q->bb[0], l->value.variable, row, NULL);
+        if (uc->q) {
+            return fs_binding_get_val(uc->q->bb[0], l->value.variable, row, NULL);
         } else {
             fs_error(LOG_ERR, "no variables bound");
         }
@@ -531,10 +568,10 @@ int fs_load(struct update_context *uc, char *resuri, char *graphuri)
         add_message(uc, g_strdup(tmp), 1);
     } else {
         if (graphuri) {
-            add_message(uc, g_strdup_printf("Imported <%s> into <%s>\n",
+            add_message(uc, g_strdup_printf("Imported <%s> into <%s>",
                 resuri, graphuri), 1);
         } else {
-            add_message(uc, g_strdup_printf("Imported <%s>\n", resuri), 1);
+            add_message(uc, g_strdup_printf("Imported <%s>", resuri), 1);
         }
     }
     fclose(errout);
@@ -561,11 +598,332 @@ int fs_clear(struct update_context *uc, char *graphuri)
         errors++;
         add_message(uc, g_strdup_printf("Error while trying to delete %s", graphuri), 1);
     } else {
-        add_message(uc, g_strdup_printf("Deleted <%s>\n", graphuri), 1);
+        add_message(uc, g_strdup_printf("Deleted <%s>", graphuri), 1);
     }
     fs_rid_vector_free(mvec);
 
     return errors;
+}
+
+static int flush_triples(struct update_context *uc)
+{
+    for (int s=0; s<uc->segments; s++) {
+        if (quad_buffer[s].length > 0) {
+            fsp_quad_import(uc->link, s, FS_BIND_BY_SUBJECT, quad_buffer[s].length, quad_buffer[s].quads);
+            quad_buffer[s].length = 0;
+        }
+    }
+
+    return 0;
+}
+
+/* insert the triples in s, p, o into model */
+static int insert_triples(struct update_context *uc, fs_rid model, fs_rid_vector *s, fs_rid_vector *p, fs_rid_vector *o)
+{
+    for (int i=0; i<s->length; i++) {
+        int segment = FS_RID_SEGMENT(s->data[i], uc->segments);
+        int pos = quad_buffer[segment].length;
+        quad_buffer[segment].quads[pos][0] = model;
+        quad_buffer[segment].quads[pos][1] = s->data[i];
+        quad_buffer[segment].quads[pos][2] = p->data[i];
+        quad_buffer[segment].quads[pos][3] = o->data[i];
+        quad_buffer[segment].length++;
+        if (quad_buffer[segment].length == QUAD_BUF_SIZE) {
+            fsp_quad_import(uc->link, segment, FS_BIND_BY_SUBJECT, quad_buffer[segment].length, quad_buffer[segment].quads);
+            quad_buffer[segment].length = 0;
+        }
+    }
+    flush_triples(uc);
+    
+    return 0;
+}
+
+/* whem moving bnodes between graphs, this assigns them new RIDs */
+
+static void map_bnodes(struct update_context *uc, fs_rid_vector *r)
+{
+    for (int i=0; i<r->length; i++) {
+        if (FS_IS_BNODE(r->data[i]) && r->data[i] != FS_RID_NULL) {
+            char tmp[32];
+            sprintf(tmp, "f_%016llx", r->data[i]);
+            raptor_term_blank_value bnode;
+            bnode.string = (unsigned char *)tmp;
+            bnode.string_len = 0;
+
+            r->data[i] = fs_bnode_id(uc->link, bnode);
+        }
+    }
+}
+
+/* Does ADD <from> TO <to> */
+
+int fs_add(struct update_context *uc, char *from, char *to)
+{
+    fs_rid_vector *mvec = fs_rid_vector_new(0);
+    fs_rid_vector *empty = fs_rid_vector_new(0);
+
+    fs_rid fromrid, torid;
+    if (from) {
+        fromrid = fs_hash_uri(from);
+    } else {
+        from = FS_DEFAULT_GRAPH;
+        fromrid = fs_c.default_graph;
+    }
+    if (to) {
+        torid = fs_hash_uri(to);
+    } else {
+        to = FS_DEFAULT_GRAPH;
+        torid = fs_c.default_graph;
+    }
+
+    if (fromrid == torid) {
+        /*don't need to do anything */
+        add_message(uc, g_strdup_printf("Added <%s> to <%s>", from, to), 1);
+        add_message(uc, "0 triples added, 0 removed", 0);
+
+        return 0;
+    }
+
+    fs_rid_vector_append(mvec, fromrid);
+
+    int errors = 0;
+
+    /* search for all the triples in from */
+    fs_rid_vector **results;
+    fs_rid_vector *slot[4] = { mvec, empty, empty, empty };
+    fs_bind_cache_wrapper(uc->qs, NULL, 1, FS_BIND_BY_SUBJECT | FS_BIND_SUBJECT | FS_BIND_PREDICATE | FS_BIND_OBJECT,
+             slot, &results, -1, -1);
+    fs_rid_vector_free(mvec);
+    fs_rid_vector_free(empty);
+
+    if (!results || results[0]->length == 0) {
+        /* there's nothing to add */
+        for (int i=0; i<3; i++) {
+            fs_rid_vector_free(results[i]);
+        }
+        free(results);
+        add_message(uc, g_strdup_printf("Added <%s> to <%s>", from, to), 1);
+        add_message(uc, "0 triples added, 0 removed", 0);
+
+        return 0;
+    }
+
+    map_bnodes(uc, results[0]);
+    map_bnodes(uc, results[1]);
+    map_bnodes(uc, results[2]);
+
+    fs_resource tores;
+    tores.lex = to;
+    tores.attr= FS_RID_NULL;
+    tores.rid = torid;
+    fsp_res_import(uc->link, FS_RID_SEGMENT(torid, uc->segments), 1, &tores);
+    
+    insert_triples(uc, torid, results[0], results[1], results[2]);
+
+    add_message(uc, g_strdup_printf("Added <%s> to <%s>", from, to), 1);
+    add_message(uc, g_strdup_printf("%d triples added, 0 removed", results[0]->length), 1);
+
+    for (int i=0; i<3; i++) {
+        fs_rid_vector_free(results[i]);
+    }
+    free(results);
+
+    return errors;
+}
+
+/* Does MOVE <from> TO <to> */
+
+int fs_move(struct update_context *uc, char *from, char *to)
+{
+    fs_rid_vector *mvec = fs_rid_vector_new(0);
+    fs_rid_vector *empty = fs_rid_vector_new(0);
+
+    fs_rid fromrid, torid;
+    if (from) {
+        fromrid = fs_hash_uri(from);
+    } else {
+        from = FS_DEFAULT_GRAPH;
+        fromrid = fs_c.default_graph;
+    }
+    if (to) {
+        torid = fs_hash_uri(to);
+    } else {
+        to = FS_DEFAULT_GRAPH;
+        torid = fs_c.default_graph;
+    }
+
+    if (fromrid == torid) {
+        /*don't need to do anything */
+        fs_rid_vector_free(mvec);
+        fs_rid_vector_free(empty);
+        add_message(uc, g_strdup_printf("Moved <%s> to <%s>", from, to), 1);
+        add_message(uc, "0 triples added, 0 removed", 0);
+
+        return 0;
+    }
+
+    fs_rid_vector_append(mvec, fromrid);
+
+    /* search for all the triples in from */
+    fs_rid_vector **results;
+    fs_rid_vector *slot[4] = { mvec, empty, empty, empty };
+
+    /* see if there's any data in <from> */
+    fs_bind_cache_wrapper(uc->qs, NULL, 1, FS_BIND_BY_SUBJECT | FS_BIND_SUBJECT,
+             slot, &results, -1, 1);
+    if (!results || results[0]->length == 0) {
+        if (results) {
+            fs_rid_vector_free(results[0]);
+            free(results);
+        }
+        fs_rid_vector_free(mvec);
+        fs_rid_vector_free(empty);
+        add_message(uc, g_strdup_printf("<%s> is empty, not moving", from), 1);
+
+        return 1;
+    }
+
+    fs_rid_vector_free(results[0]);
+    free(results);
+
+    /* get the contents of <from> */
+    fs_bind_cache_wrapper(uc->qs, NULL, 1, FS_BIND_BY_SUBJECT | FS_BIND_SUBJECT | FS_BIND_PREDICATE | FS_BIND_OBJECT,
+             slot, &results, -1, -1);
+
+    /* delete <to> */
+    mvec->data[0] = torid;
+    if (fsp_delete_model_all(uc->link, mvec)) {
+        add_message(uc, g_strdup_printf("Error while trying to delete %s", to), 1);
+
+        return 1;
+    }
+
+    /* delete <from> */
+    mvec->data[0] = fromrid;
+    if (fsp_delete_model_all(uc->link, mvec)) {
+        add_message(uc, g_strdup_printf("Error while trying to delete %s", from), 1);
+
+        return 1;
+    }
+
+    /* insert <to> */
+    fs_resource tores;
+    tores.lex = to;
+    tores.attr= FS_RID_NULL;
+    tores.rid = torid;
+    fsp_res_import(uc->link, FS_RID_SEGMENT(torid, uc->segments), 1, &tores);
+    
+    insert_triples(uc, torid, results[0], results[1], results[2]);
+
+    fs_rid_vector_free(mvec);
+    fs_rid_vector_free(empty);
+
+    add_message(uc, g_strdup_printf("Moved <%s> to <%s>", from, to), 1);
+    add_message(uc, g_strdup_printf("%d triples added, ?? removed", results[0]->length), 1);
+
+    for (int i=0; i<3; i++) {
+        fs_rid_vector_free(results[i]);
+    }
+    free(results);
+
+    return 0;
+}
+
+/* Does COPY <from> TO <to> */
+
+int fs_copy(struct update_context *uc, char *from, char *to)
+{
+    fs_rid_vector *mvec = fs_rid_vector_new(0);
+    fs_rid_vector *empty = fs_rid_vector_new(0);
+
+    fs_rid fromrid, torid;
+    if (from) {
+        fromrid = fs_hash_uri(from);
+    } else {
+        from = FS_DEFAULT_GRAPH;
+        fromrid = fs_c.default_graph;
+    }
+    if (to) {
+        torid = fs_hash_uri(to);
+    } else {
+        to = FS_DEFAULT_GRAPH;
+        torid = fs_c.default_graph;
+    }
+
+    if (fromrid == torid) {
+        /*don't need to do anything */
+        fs_rid_vector_free(mvec);
+        fs_rid_vector_free(empty);
+        add_message(uc, g_strdup_printf("Copied <%s> to <%s>", from, to), 1);
+        add_message(uc, "0 triples added, 0 removed", 0);
+
+        return 0;
+    }
+
+    fs_rid_vector_append(mvec, fromrid);
+
+    /* search for all the triples in from */
+    fs_rid_vector **results;
+    fs_rid_vector *slot[4] = { mvec, empty, empty, empty };
+
+    /* see if there's any data in <from> */
+    fs_bind_cache_wrapper(uc->qs, NULL, 1, FS_BIND_BY_SUBJECT | FS_BIND_SUBJECT,
+             slot, &results, -1, 1);
+    if (!results || results[0]->length == 0) {
+        if (results) {
+            fs_rid_vector_free(results[0]);
+            free(results);
+        }
+        fs_rid_vector_free(mvec);
+        fs_rid_vector_free(empty);
+        add_message(uc, g_strdup_printf("<%s> is empty, not copying", from), 1);
+
+        return 1;
+    }
+
+    fs_rid_vector_free(results[0]);
+    free(results);
+
+    /* get the contents of <from> */
+    fs_bind_cache_wrapper(uc->qs, NULL, 1, FS_BIND_BY_SUBJECT | FS_BIND_SUBJECT | FS_BIND_PREDICATE | FS_BIND_OBJECT,
+             slot, &results, -1, -1);
+
+    /* map old bnodes to new ones */
+    map_bnodes(uc, results[0]);
+    map_bnodes(uc, results[1]);
+    map_bnodes(uc, results[2]);
+
+    /* delete <to> */
+    mvec->data[0] = torid;
+    if (fsp_delete_model_all(uc->link, mvec)) {
+        fs_rid_vector_free(mvec);
+        fs_rid_vector_free(empty);
+        add_message(uc, g_strdup_printf("Error while trying to delete %s", to), 1);
+
+        return 1;
+    }
+
+    fs_rid_vector_free(mvec);
+    fs_rid_vector_free(empty);
+
+    /* insert <to> */
+    fs_resource tores;
+    tores.lex = to;
+    tores.attr= FS_RID_NULL;
+    tores.rid = torid;
+    fsp_res_import(uc->link, FS_RID_SEGMENT(torid, uc->segments), 1, &tores);
+    
+    insert_triples(uc, torid, results[0], results[1], results[2]);
+
+    add_message(uc, g_strdup_printf("Copied <%s> to <%s>", from, to), 1);
+    add_message(uc, g_strdup_printf("%d triples added, ?? removed", results[0]->length), 1);
+
+    for (int i=0; i<3; i++) {
+        fs_rid_vector_free(results[i]);
+    }
+    free(results);
+
+    return 0;
 }
 
 /* vi:set expandtab sts=4 sw=4: */

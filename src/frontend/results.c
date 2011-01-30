@@ -55,25 +55,10 @@ static fs_resource res_l2_cache[CACHE_SIZE];
 
 static GHashTable *res_l1_cache = NULL;
 
-guint rid_hash(gconstpointer p)
-{
-    const fs_rid *r = p;
-
-    return (guint)*r;
-}
-
-gboolean rid_equal(gconstpointer va, gconstpointer vb)
-{
-    const fs_rid *a = va;
-    const fs_rid *b = vb;
-
-    return *a == *b;
-}
-
 /* must hold mutex to call this function */
 static void setup_l1_cache()
 {
-    res_l1_cache = g_hash_table_new_full(rid_hash, rid_equal, NULL, NULL);
+    res_l1_cache = g_hash_table_new_full(fs_rid_hash, fs_rid_equal, NULL, NULL);
 }
 
 static int resolve(fs_query *q, fs_rid rid, fs_resource *res)
@@ -2362,7 +2347,7 @@ int fs_sort_column(fs_query *q, fs_binding *b, int col, int **sorted)
     }
 
     /* store strings that will strcmp into the correct order */
-    GHashTable *rl = g_hash_table_new_full(rid_hash, rid_equal, g_free, NULL);
+    GHashTable *rl = g_hash_table_new_full(fs_rid_hash, fs_rid_equal, g_free, NULL);
     for (int s=0; s<q->segments; s++) {
         for (int i=0; i<rv[s]->length; i++) {
             fs_rid *rid = g_malloc(sizeof(fs_rid));

@@ -271,7 +271,8 @@ int fs_query_fini(fs_query_state *qs)
         qs->rasqal_world = NULL;
         if (qs->raptor_world) raptor_free_world(qs->raptor_world);
         qs->raptor_world = NULL;
-        free(qs->bind_cache);
+        fs_query_cache_flush(qs, 0);
+        if (qs->bind_cache) free(qs->bind_cache);
         qs->bind_cache = NULL;
         g_static_mutex_free(&qs->cache_mutex);
         free(qs);

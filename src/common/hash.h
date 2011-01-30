@@ -70,4 +70,8 @@ GHashTable * fs_hash_bnids(void);
 
 void umac_crypto_hash(const char *str, char *result);
 
+/* functions used by g_hash_table_* */
+guint fs_rid_hash(gconstpointer p);
+gboolean fs_rid_equal(gconstpointer va, gconstpointer vb);
+
 #endif

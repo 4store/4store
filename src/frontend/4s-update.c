@@ -48,7 +48,11 @@ int main(int argc, char *argv[])
     fs_query_state *qs = fs_query_init(link, NULL, NULL);
     char *message = NULL;
     int ret = fs_update(qs, argv[2], &message, TRUE);
-    if (message) printf("%s\n", message);
+    if (message) {
+        printf("%s\n", message);
+        g_free(message);
+    }
+    fsp_close_link(link);
     fs_query_fini(qs);
 
     return ret;
