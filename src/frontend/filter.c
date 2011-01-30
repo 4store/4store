@@ -948,6 +948,7 @@ fs_value fn_lang(fs_query *q, fs_value a)
         fsp_resolve(fs_query_link(q), FS_RID_SEGMENT(a.attr,
                     fsp_link_segments(fs_query_link(q))), r, &res);
         fs_rid_vector_free(r);
+        fs_query_add_freeable(q, res.lex);
 
         return fs_value_plain(res.lex);
     }

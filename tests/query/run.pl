@@ -15,6 +15,7 @@ $test = 1;
 my @tests = ();
 my $errs = 1;
 my $spawn = 1;
+my $valgrind = 0;
 
 $SIG{USR2} = 'IGNORE';
 
@@ -31,6 +32,9 @@ if ($ARGV[0]) {
 	} elsif ($ARGV[0] eq "--nospawn") {
 		shift;
 		$spawn = 0;
+	} elsif ($ARGV[0] eq "--valgrind") {
+		shift;
+		$valgrind = 1;
 	}
 	while ($t = shift) {
 		$t =~ s/^(.\/)?scripts\///;
@@ -114,7 +118,17 @@ if ($pid = fork()) {
 } else {
 	# child
 	if ($spawn) {
-		exec("../../src/backend/4s-backend", "-D", "$kb_name");
+		my @pre = ();
+		if ($valgrind) {
+			push(@pre, "valgrind");
+			push(@pre, " --leak-check=full");
+			if (`uname -a` =~ /Darwin/) {
+				push(@pre, "--dsymutil=yes");
+			}
+		}
+		push(@pre, "../../src/backend/4s-backend");
+print(join(" ", @pre)."\n");
+		exec(@pre, "-D", "$kb_name");
 		die "failed to exec sever: $!";
 	}
 }

@@ -188,6 +188,11 @@ static int update_op(struct update_context *ct)
         return 0;
     case RASQAL_UPDATE_TYPE_UPDATE:
         break;
+#if RASQAL_VERSION >= 924
+    //case RASQAL_UPDATE_TYPE_ADD:
+    //case RASQAL_UPDATE_TYPE_MOVE:
+    //case RASQAL_UPDATE_TYPE_COPY:
+#endif
     }
 
     fs_hash_freshen();

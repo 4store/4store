@@ -40,6 +40,8 @@
 
 static GHashTable *bnids = NULL;
 
+static umac_ctx_t umac_data = NULL;
+
 struct fs_globals fs_c;
 
 void bnhash_destroy(gpointer data)
@@ -120,6 +122,11 @@ void fs_hash_fini()
 {
     g_hash_table_destroy(bnids);
     bnids = NULL;
+
+    if (umac_data) {
+	umac_delete(umac_data);
+	umac_data = NULL;
+    }
 }
 
 fs_rid umac_wrapper(const char *str, fs_rid nonce_in)
@@ -129,7 +136,6 @@ fs_rid umac_wrapper(const char *str, fs_rid nonce_in)
     long long __attribute__((aligned(16))) data;
     long long __attribute__((aligned(16))) nonce = nonce_in;
 
-    static umac_ctx_t umac_data = NULL;
     if (!umac_data) {
 	umac_data = umac_new("\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0");
     }

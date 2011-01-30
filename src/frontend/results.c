@@ -1320,14 +1320,14 @@ static void describe_uri(fs_query *q, fs_rid rid, raptor_uri *uri)
     raptor_statement st;
     raptor_statement_init(&st, q->qs->raptor_world);
     st.graph = NULL;
-    fs_rid_vector *ms = fs_rid_vector_new(0);
+    fs_rid_vector *es = fs_rid_vector_new(0);
     fs_rid_vector *ss = fs_rid_vector_new_from_args(1, rid);
-    fs_rid_vector *ps = fs_rid_vector_new(0);
-    fs_rid_vector *os = fs_rid_vector_new(0);
     fs_rid_vector **result = NULL;
     fsp_bind_limit(q->link, FS_RID_SEGMENT(rid, q->segments),
-        FS_BIND_BY_SUBJECT | FS_BIND_PREDICATE | FS_BIND_OBJECT, ms, ss,
-        ps, os, &result, 0, q->soft_limit);
+        FS_BIND_BY_SUBJECT | FS_BIND_PREDICATE | FS_BIND_OBJECT, es, ss,
+        es, es, &result, 0, q->soft_limit);
+    fs_rid_vector_free(es);
+    fs_rid_vector_free(ss);
     raptor_term *subject;
     if (FS_IS_BNODE(rid)) {
         if (uri) {
@@ -1350,6 +1350,10 @@ static void describe_uri(fs_query *q, fs_rid rid, raptor_uri *uri)
         raptor_free_term(st.object);
     }
     raptor_free_term(subject);
+    for (int col=0; col<2; col++) {
+        fs_rid_vector_free(result[col]);
+    }
+    free(result);
 }
 
 static void handle_describe(fs_query *q, const char *type, FILE *output)

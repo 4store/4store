@@ -547,6 +547,10 @@ fs_query *fs_query_execute(fs_query_state *qs, fsp_link *link, raptor_uri *bu, c
 
     /* this is where most of the actual work happens */
     fs_query_process_pattern(q, pattern, vars);
+    if (q->describe) {
+        raptor_free_sequence(vars);
+    }
+    vars = NULL;
 
 #ifdef DEBUG_MERGE
     explain = flags & FS_QUERY_EXPLAIN;
