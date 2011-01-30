@@ -249,7 +249,7 @@ static int update_op(struct update_context *ct)
 
         for (int i=0; i < q->num_vars; i++) {
             rasqal_variable *v = raptor_sequence_get_at(vars, i);
-            fs_binding *b = fs_binding_get_var(q->bb[0], v);
+            fs_binding *b = fs_binding_get(q->bb[0], v);
             if (b) {
                 b->need_val = 1;
             } else {

@@ -524,7 +524,7 @@ fs_query *fs_query_execute(fs_query_state *qs, fsp_link *link, raptor_uri *bu, c
 	rasqal_variable *v = raptor_sequence_get_at(vars, i);
 	fs_binding_add(q->bb[0], v, FS_RID_NULL, 1);
         if (v->expression) {
-            fs_binding_set_expression(q->bb[0], (char *)v->name, v->expression);
+            fs_binding_set_expression(q->bb[0], v, v->expression);
             q->expressions++;
             /* test to see if it's implicitly aggregated */
             if (!q->aggregate && is_aggregate(q, v->expression)) {
@@ -996,7 +996,7 @@ static void assign_slot(fs_query *q, rasqal_literal *l, int block)
 	    free(tmp);
 	    l->value.variable->type = RASQAL_VARIABLE_TYPE_NORMAL;
 	}
-	fs_binding *vb = fs_binding_get_var(q->bb[0], l->value.variable);
+	fs_binding *vb = fs_binding_get(q->bb[0], l->value.variable);
 	if (!vb) {
 	    vb = fs_binding_create(q->bb[0], vname, FS_RID_NULL, 0);
 	}
@@ -1045,7 +1045,7 @@ static int is_aggregate(fs_query *q, rasqal_expression *e)
 static void check_variables(fs_query *q, rasqal_expression *e, int dont_select)
 {
     if (e->literal && e->literal->type == RASQAL_LITERAL_VARIABLE) {
-	fs_binding *b = fs_binding_get_var(q->bb[0], e->literal->value.variable);
+	fs_binding *b = fs_binding_get(q->bb[0], e->literal->value.variable);
 	if (b) {
             b->need_val = 1;
             if (!dont_select) {
@@ -1172,7 +1172,7 @@ static int filter_optimise(fs_query *q, rasqal_expression *e, int block)
     int retval = 0;
     filter_optimise_disjunct_equality(q, e, block, &var, res);
     if (res->length) {
-        fs_binding *b = fs_binding_get_var(q->bb[0], var);
+        fs_binding *b = fs_binding_get(q->bb[0], var);
         if (!b) {
             fs_error(LOG_ERR, "no binding for %s", var->name);
 
@@ -1579,7 +1579,7 @@ static int process_results(fs_query *q, int block, fs_binding *oldb,
 
 	for (int col=0; col<numbindings; col++) {
 	    if (vars[col]) {
-                fs_binding *bv = fs_binding_get_var(b, vars[col]);
+                fs_binding *bv = fs_binding_get(b, vars[col]);
                 if (!bv) {
                     fs_error(LOG_CRIT, "unmatched variable name '%s'", vars[col]->name);
                     continue;
@@ -1913,14 +1913,14 @@ int fs_bind_slot(fs_query *q, int block, fs_binding *b,
     switch (l->type) {
 	case RASQAL_LITERAL_VARIABLE:
 	    *var = l->value.variable;
-	    fs_binding *vb = fs_binding_get_var(b, l->value.variable);
+	    fs_binding *vb = fs_binding_get(b, l->value.variable);
 	    if (!vb) {
 		break;
 	    }
 
             int bound_in_this_union = 0;
             if (block != -1) {
-                fs_binding *b0 = fs_binding_get_var(q->bb[0], l->value.variable);
+                fs_binding *b0 = fs_binding_get(q->bb[0], l->value.variable);
                 (b0->bound_in_block[block])++;
                 if (q->union_group[block] > 0 &&
                     q->union_group[block] == q->union_group[vb->appears] &&

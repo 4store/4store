@@ -53,7 +53,7 @@ int fs_opt_num_vals(fs_binding *b, rasqal_literal *l)
 	case RASQAL_LITERAL_DATETIME:
 	    return 1;
 	case RASQAL_LITERAL_VARIABLE: {
-	    fs_binding *bv = fs_binding_get_var(b, l->value.variable);
+	    fs_binding *bv = fs_binding_get(b, l->value.variable);
 	    if (bv && bv->bound == 1) {
 		return bv->vals->length;
 	    }
@@ -90,7 +90,7 @@ int fs_opt_is_const(fs_binding *b, rasqal_literal *l)
 	case RASQAL_LITERAL_DATETIME:
 	    return 1;
 	case RASQAL_LITERAL_VARIABLE: {
-	    fs_binding *bv = fs_binding_get_var(b, l->value.variable);
+	    fs_binding *bv = fs_binding_get(b, l->value.variable);
 	    if (bv && bv->bound == 1) {
 		return 1;
 	    }
@@ -119,7 +119,7 @@ int fs_opt_is_bound(fs_binding *b, rasqal_literal *l)
             if (fs_binding_length(b) == 0) {
                 return 1;
             }
-	    fs_binding *bv = fs_binding_get_var(b, l->value.variable);
+	    fs_binding *bv = fs_binding_get(b, l->value.variable);
 	    if (bv && bv->bound == 1) {
 		return 1;
 	    }

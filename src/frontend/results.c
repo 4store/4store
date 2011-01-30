@@ -194,7 +194,7 @@ static fs_value literal_to_value(fs_query *q, int row, int block, rasqal_literal
 		char *name = (char *)l->value.variable->name;
                 printf("getting value of ?%s, row %d from B%d\n", name, row, block);
 #endif
-		fs_binding *b = fs_binding_get_var(q->bt, l->value.variable);
+		fs_binding *b = fs_binding_get(q->bt, l->value.variable);
                 /* TODO this code needs to be tested when the parser handles
                  * { FILTER() } correctly, but not block can be -1 if we dont
                  * care about scope */

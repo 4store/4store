@@ -81,17 +81,16 @@ void fs_binding_free(fs_binding *b)
     free(b);
 }
 
-int fs_binding_set_expression(fs_binding *b, const char *name, rasqal_expression *ex)
+int fs_binding_set_expression(fs_binding *b, rasqal_variable *var, rasqal_expression *ex)
 {
-    for (int i=0; 1; i++) {
-	if (!b[i].name) break;
-fprintf(stderr, "STRCMP at %s:%d\n", __FILE__, __LINE__);
-	if (!strcmp(b[i].name, name)) {
-            b[i].expression = ex;
+    fs_binding *vb = fs_binding_get(b, var);
+    if (vb) {
+        vb->expression = ex;
 
-            return 0;
-        }
+        return 0;
     }
+
+    fs_error(LOG_ERR, "cannot find varaible %s", var->name);
 
     return 1;
 }
@@ -101,30 +100,6 @@ int fs_binding_any_bound(fs_binding *b)
     for (int i=0; b[i].name; i++) {
 	if (b[i].bound) {
 	    return 1;
-	}
-    }
-
-    return 0;
-}
-
-int fs_binding_bound_intersects(fs_query *q, int block, fs_binding *b, rasqal_literal *l[4])
-{
-    for (int i=0; b[i].name; i++) {
-	if (b[i].bound) {
-	    for (int j=0; j<4; j++) {
-fprintf(stderr, "STRCMP at %s:%d\n", __FILE__, __LINE__);
-		if (l[j] && l[j]->type == RASQAL_LITERAL_VARIABLE &&
-		    !strcmp((char *)l[j]->value.variable->name, b[i].name)) {
-		    /* if this var is bound only in this union block, and its
-		     * not yet be used in this branch, then we dont iterate */
-		    if (q->union_group[block] > 0 &&
-			q->union_group[block] == q->union_group[b[i].appears] &&
-			b[i].bound_in_block[block] == 0) {
-			continue;
-		    }
-		    return 1;
-		}
-	    }
 	}
     }
 
@@ -186,7 +161,7 @@ fs_binding *fs_binding_add(fs_binding *b, rasqal_variable *var, fs_rid val, int 
 #ifdef DEBUG_BINDING
     if (strcmp(DEBUG_BINDING, name)) printf("@@ add("DEBUG_BINDING", %016llx, %d)\n", val, projected);
 #endif
-    fs_binding *bv = fs_binding_get_var(b, var);
+    fs_binding *bv = fs_binding_get(b, var);
     if (bv) {
         fs_rid_vector_append(bv->vals, val);
         bv->bound = 1;
@@ -224,21 +199,6 @@ fs_binding *fs_binding_add(fs_binding *b, rasqal_variable *var, fs_rid val, int 
     var->user_data = (void *)i;
 
     return b+i;
-}
-
-void fs_binding_clear_vector(fs_binding *b, const char *name)
-{
-#ifdef DEBUG_BINDING
-    if (strcmp(DEBUG_BINDING, name)) printf("@@ clear_vector("DEBUG_BINDING")\n");
-#endif
-    for (int i=0; 1; i++) {
-	if (!b[i].name) break;
-fprintf(stderr, "STRCMP at %s:%d\n", __FILE__, __LINE__);
-	if (!strcmp(b[i].name, name)) {
-	    b[i].vals->length = 0;
-	    return;
-	}
-    }
 }
 
 fs_binding *fs_binding_copy(fs_binding *b)
@@ -313,7 +273,7 @@ void fs_binding_add_vector(fs_binding *b, rasqal_variable *var, fs_rid_vector *v
 #ifdef DEBUG_BINDING
     if (!strcmp(DEBUG_BINDING, name)) printf("@@ add_vector("DEBUG_BINDING", %p)\n", vals);
 #endif
-    fs_binding *bv = fs_binding_get_var(b, var);
+    fs_binding *bv = fs_binding_get(b, var);
     if (bv) {
         fs_rid_vector_append_vector(bv->vals, vals);
         bv->bound = 1;
@@ -337,23 +297,7 @@ void fs_binding_add_vector(fs_binding *b, rasqal_variable *var, fs_rid_vector *v
     b[i].bound = 1;
 }
 
-fs_binding *fs_binding_get(fs_binding *b, const char *name)
-{
-#ifdef DEBUG_BINDING
-    if (!strcmp(DEBUG_BINDING, name)) printf("@@ get("DEBUG_BINDING")\n");
-#endif
-    for (int i=0; 1; i++) {
-	if (!b[i].name) break;
-fprintf(stderr, "@@ STRCMP %s at %s:%d\n", name, __FILE__, __LINE__);
-	if (!strcmp(b[i].name, name)) {
-	    return b+i;
-	}
-    }
-
-    return NULL;
-}
-
-fs_binding *fs_binding_get_var(fs_binding *b, rasqal_variable *var)
+fs_binding *fs_binding_get(fs_binding *b, rasqal_variable *var)
 {
 #ifdef DEBUG_BINDING
     if (!strcmp(DEBUG_BINDING, name)) printf("@@ get_var("DEBUG_BINDING")\n");
@@ -384,7 +328,7 @@ fs_rid fs_binding_get_val(fs_binding *b, rasqal_variable *var, int idx, int *bou
 #ifdef DEBUG_BINDING
     if (!strcmp(DEBUG_BINDING, name)) printf("@@ get_val("DEBUG_BINDING", %d)\n", idx);
 #endif
-    fs_binding *bv = fs_binding_get_var(b, var);
+    fs_binding *bv = fs_binding_get(b, var);
     if (!bv) {
         if (bound) *bound = 0;
 
@@ -412,7 +356,6 @@ fs_rid_vector *fs_binding_get_vals(fs_binding *b, const char *name, int *bound)
 
     for (i=0; 1; i++) {
 	if (!b[i].name) break;
-fprintf(stderr, "STRCMP at %s:%d\n", __FILE__, __LINE__);
 	if (!strcmp(b[i].name, name)) {
 	    if (bound) *bound = b[i].bound;
 	    return b[i].vals;
@@ -442,32 +385,12 @@ void fs_binding_set_used(fs_binding *b, rasqal_variable *var)
 #ifdef DEBUG_BINDING
     if (!strcmp(DEBUG_BINDING, name)) printf("@@ set_used("DEBUG_BINDING")\n");
 #endif
-    fs_binding *vb = fs_binding_get_var(b, var);
+    fs_binding *vb = fs_binding_get(b, var);
     if (vb) {
         vb->used = 1;
     } else {
         fs_error(LOG_ERR, "tried to set 'used' on unknown varaible %s", var->name);
     }
-}
-
-int fs_binding_get_projected(fs_binding *b, const char *name)
-{
-#ifdef DEBUG_BINDING
-    if (!strcmp(DEBUG_BINDING, name)) printf("@@ get_projected("DEBUG_BINDING")\n");
-#endif
-    for (int i=0; 1; i++) {
-	if (!b[i].name) break;
-fprintf(stderr, "STRCMP at %s:%d\n", __FILE__, __LINE__);
-	if (!strcmp(b[i].name, name)) {
-	    return b[i].proj;
-	}
-    }
-
-    /*
-    fs_error(LOG_ERR, "binding lookup on unknown variable '%s'", name);
-    */
-
-    return 0;
 }
 
 void fs_binding_copy_row_unused(fs_binding *from, int row, int count, fs_binding *to)
