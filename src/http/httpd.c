@@ -83,6 +83,8 @@ static void http_put_finished(client_ctxt *ctxt, const char *msg);
 
 static FILE *ql_file = NULL;
 
+static pid_t cpid = 0;
+
 volatile static unsigned int last_query_id = 0;
 
 static void query_log_open (const char *kb_name)
@@ -1433,7 +1435,8 @@ static void do_kill(int sig)
 
   signal (sig, SIG_DFL);
   fs_error(LOG_INFO, "signal %s received", strsignal(sig));
-  kill (0, sig);
+  kill (cpid, sig);
+  kill (getpid(), sig);
 }
 
 static void do_sigmisc(int sig)
@@ -1744,7 +1747,7 @@ int main(int argc, char *argv[])
     fs_error(LOG_INFO, "unsafe operations enabled");
   }
 
-  pid_t cpid, wpid;
+  pid_t wpid;
   do {
     int status;
     cpid = create_child(srv, kb_name, password);
