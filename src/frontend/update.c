@@ -447,7 +447,16 @@ fs_rid fs_hash_rasqal_literal(struct update_context *uc, rasqal_literal *l, int 
 {
     if (!l) return FS_RID_NULL;
 
-    rasqal_literal_type type = l->type;
+    if (l->type == RASQAL_LITERAL_VARIABLE) {
+        if (uc->q) {
+            return fs_binding_get_val(uc->q->bb[0], l->value.variable, row, NULL);
+        }
+        fs_error(LOG_ERR, "no variables bound");
+
+        return FS_RID_NULL;
+    }
+
+    rasqal_literal_type type = rasqal_literal_get_rdf_term_type(l);
     switch (type) {
     case RASQAL_LITERAL_UNKNOWN:
         fs_error(LOG_ERR, "unknown literal type received");
@@ -478,12 +487,6 @@ fs_rid fs_hash_rasqal_literal(struct update_context *uc, rasqal_literal *l, int 
     }
 
     case RASQAL_LITERAL_VARIABLE:
-        if (uc->q) {
-            return fs_binding_get_val(uc->q->bb[0], l->value.variable, row, NULL);
-        } else {
-            fs_error(LOG_ERR, "no variables bound");
-        }
-
     case RASQAL_LITERAL_QNAME:
     case RASQAL_LITERAL_PATTERN:
     case RASQAL_LITERAL_BOOLEAN:
