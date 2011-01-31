@@ -240,3 +240,11 @@ Query: SELECT DISTINCT * WHERE { GRAPH ?g { ?s ?p ?o } } ORDER BY ?g ?s ?p ?o
 <local:D>	<local:x>	<local:y>	"7.0e0"^^<http://www.w3.org/2001/XMLSchema#double>
 <local:D>	<local:x>	<local:y>	"8.0e0"^^<http://www.w3.org/2001/XMLSchema#double>
 <local:D>	<local:x>	<local:y>	"9.0e0"^^<http://www.w3.org/2001/XMLSchema#double>
+Update: DELETE { GRAPH <A> { ?s ?p ?o } } WHERE { GRAPH <A> { ?s ?p ?o } }
+
+Update: DELETE { GRAPH <B> { ?s ?p ?o } } WHERE { GRAPH <B> { ?s ?p ?o } }
+
+Update: DELETE { GRAPH <C> { ?s ?p ?o } } WHERE { GRAPH <C> { ?s ?p ?o } }
+
+Update: DELETE { GRAPH <D> { ?s ?p ?o } } WHERE { GRAPH <D> { ?s ?p ?o } }
+
