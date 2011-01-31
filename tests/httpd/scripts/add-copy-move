@@ -1,0 +1,17 @@
+#!/bin/bash
+
+source sparql.sh
+
+update "$EPR" 'INSERT DATA { GRAPH <A> { <x> <y> 1, 2, 3, 4.0, 5.0, 6.0, 7.0e0, 8.0e0, 9.0e0, "10", "11", "12", _:12, _:14, _:15 . <a> <b> <c> . } }'
+update "$EPR" 'INSERT DATA { GRAPH <B> { <b> <b> <c>, <d> . } }'
+update "$EPR" 'ADD <A> TO <C>'
+sparql "$EPR" 'SELECT DISTINCT * WHERE { GRAPH <A> { ?s ?p ?o } } ORDER BY ?s ?p ?o'
+sparql "$EPR" 'SELECT DISTINCT * WHERE { GRAPH <B> { ?s ?p ?o } } ORDER BY ?s ?p ?o'
+sparql "$EPR" 'SELECT DISTINCT * WHERE { GRAPH <C> { ?s ?p ?o } } ORDER BY ?s ?p ?o'
+sparql "$EPR" 'SELECT DISTINCT * WHERE { GRAPH ?g { ?s ?p ?o } } ORDER BY ?g ?s ?p ?o'
+update "$EPR" 'ADD <B> TO <C>'
+sparql "$EPR" 'SELECT DISTINCT * WHERE { GRAPH ?g { ?s ?p ?o } } ORDER BY ?g ?s ?p ?o'
+update "$EPR" 'COPY <C> TO <E>'
+sparql "$EPR" 'SELECT DISTINCT * WHERE { GRAPH ?g { ?s ?p ?o } } ORDER BY ?g ?s ?p ?o'
+update "$EPR" 'MOVE <E> TO <D>'
+sparql "$EPR" 'SELECT DISTINCT * WHERE { GRAPH ?g { ?s ?p ?o } } ORDER BY ?g ?s ?p ?o'
