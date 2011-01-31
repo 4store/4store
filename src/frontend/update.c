@@ -233,6 +233,25 @@ static int update_op(struct update_context *uc)
     raptor_sequence *todel = NULL;
     raptor_sequence *toins = NULL;
 
+    if (uc->op->delete_templates && !uc->op->where) {
+        int where;
+
+        /* check to see if it's a DELETE WHERE { } */
+        for (int t=0; t<raptor_sequence_size(uc->op->delete_templates); t++) {
+            rasqal_triple *tr = raptor_sequence_get_at(uc->op->delete_templates, t);
+            if (any_vars(tr)) {
+                where = 1;
+                break;
+            }
+        }
+        if (where) {
+            fs_error(LOG_ERR, "DELETE WHERE { x } not yet supported");
+            add_message(uc, "DELETE WHERE { x } not yet supported", 0);
+
+            return 1;
+        }
+    }
+
 #if RASQAL_VERSION >= 923
     if (uc->op->where) {
         todel = raptor_new_sequence(NULL, NULL);
