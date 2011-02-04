@@ -1217,6 +1217,9 @@ static void http_options_request(client_ctxt *ctxt, gchar *url, gchar *protocol)
     http_send(ctxt, headers); http_send(ctxt, "\r\n");
   }
 
+  http_send(ctxt, "Content-Length: 0\r\n");
+  http_send(ctxt, "\r\n");
+
   http_close(ctxt);
 }
 
