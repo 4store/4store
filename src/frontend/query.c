@@ -553,13 +553,11 @@ fs_query *fs_query_execute(fs_query_state *qs, fsp_link *link, raptor_uri *bu, c
     }
     vars = NULL;
 
-#ifdef DEBUG_MERGE
-    explain = flags & FS_QUERY_EXPLAIN;
-#endif
-
+#ifndef DEBUG_MERGE
     if (explain) {
 	return q;
     }
+#endif
 
     /* handle DISTINCT */
     if (q->flags & FS_BIND_DISTINCT) {
@@ -1786,7 +1784,11 @@ static int fs_handle_query_triple_multi(fs_query *q, int block, int count, rasqa
     fs_binding *b = q->bb[block];
     int tobind = q->flags;
 
+#ifdef DEBUG_MERGE
+    const int explain = 1;
+#else
     const int explain = tobind & FS_QUERY_EXPLAIN;
+#endif
 
     rasqal_variable *vars[4] = { NULL, NULL, NULL, NULL };
     fs_binding_clear_used_all(b);
