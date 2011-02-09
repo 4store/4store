@@ -70,7 +70,7 @@ static int unsafe = 0;
 static int default_graph = 0;
 static int soft_limit = 0; /* default value for soft limit */
 static int opt_level = 3;  /* default value for optimisation level */
-static int cors_support = 0; /* cross-origin resource sharing (CORS) support */
+static int cors_support = -1; /* cross-origin resource sharing (CORS) support */
 
 static fs_query_state *query_state;
 
@@ -86,6 +86,10 @@ static FILE *ql_file = NULL;
 static pid_t cpid = 0;
 
 volatile static unsigned int last_query_id = 0;
+
+/* set *set if the key value is set in kb_name, or default */
+static void set_boolean(GKeyFile *keyfile, const char *kb_name, const char *key, int *set);
+static void set_string(GKeyFile *keyfile, const char *kb_name, const char *key, const char **set);
 
 static void query_log_open (const char *kb_name)
 {
@@ -1688,7 +1692,7 @@ int main(int argc, char *argv[])
   char *kb_name = NULL;
 
   const char *host = NULL;
-  const char *port = "8080";
+  const char *port = NULL;
 
   int help = 0;
   int help_return = 1;
@@ -1696,6 +1700,7 @@ int main(int argc, char *argv[])
     help = 1;
     help_return = 0;
   }
+
 
   int o;
   while (!help && (o = getopt(argc, argv, "DH:p:Uds:O:X")) != -1) {
@@ -1718,7 +1723,7 @@ int main(int argc, char *argv[])
       case 's':
 	soft_limit = atoi(optarg);
 	if (soft_limit == 0) {
-	  /* -1 mens off */
+	  /* -1 means off */
 	  soft_limit = -1;
 	}
 	break;
@@ -1750,12 +1755,62 @@ int main(int argc, char *argv[])
   fsp_syslog_enable();
   kb_name = argv[optind];
 
+  /* read config file */
+
+  GKeyFile *keyfile = g_key_file_new();
+  GError *err = NULL;
+  const char *keyfile_filename = FS_CONFIG_FILE;
+  if (!g_key_file_load_from_file(keyfile, keyfile_filename, G_KEY_FILE_KEEP_COMMENTS, &err)) {
+    if (err->code != G_FILE_ERROR_NOENT &&
+        err->code != G_FILE_ERROR_EXIST &&
+        err->code != G_FILE_ERROR_ISDIR) {
+      g_error("%s(%d) reading %s", err->message, err->code, keyfile_filename);
+
+      return 1;
+    }
+    g_error_free(err);
+    err = NULL;
+  } else {
+    set_boolean(keyfile, kb_name, "unsafe", &unsafe);
+
+    set_boolean(keyfile, kb_name, "cors", &cors_support);
+
+    set_boolean(keyfile, kb_name, "default-graph", &default_graph);
+
+    set_string(keyfile, kb_name, "port", &port);
+
+    set_string(keyfile, kb_name, "listen", &host);
+
+    const char *soft_limit_str = NULL;
+    set_string(keyfile, kb_name, "soft-limit", &soft_limit_str);
+    if (soft_limit_str) {
+      soft_limit = atoi(soft_limit_str);
+      if (soft_limit == 0) {
+        soft_limit = -1;
+      }
+    }
+  }
+
+  /* handle defaults */
+
+  if (cors_support == -1) {
+    cors_support = 0;
+  }
+  if (!port) {
+    port = "8080";
+  }
   int srv = server_setup(daemonize, host, port);
   if (srv < 0) {
     return 2;
   }
   if (unsafe) {
     fs_error(LOG_INFO, "unsafe operations enabled");
+  }
+  if (cors_support) {
+    fs_error(LOG_INFO, "CORS support enabled");
+  }
+  if (default_graph) {
+    fs_error(LOG_INFO, "Default graph support enabled");
   }
 
   pid_t wpid;
@@ -1769,3 +1824,51 @@ int main(int argc, char *argv[])
 
   return 0;
 }
+
+static void set_boolean(GKeyFile *keyfile, const char *kb_name, const char *key, int *set)
+{
+  GError *err = NULL;
+  gboolean b = g_key_file_get_boolean(keyfile, kb_name, key, &err);
+  if (err) {
+    g_error_free(err);
+    err = NULL;
+    b = g_key_file_get_boolean(keyfile, "default", key, &err);
+    if (err) {
+      g_error_free(err);
+      err = NULL;
+    } else {
+      if (b) {
+        *set = 1;
+      } else {
+        *set = 0;
+      }
+    }
+  } else {
+    if (b) {
+      *set = 1;
+    } else {
+      *set = 0;
+    }
+  }
+}
+
+static void set_string(GKeyFile *keyfile, const char *kb_name, const char *key, const char **set)
+{
+  GError *err = NULL;
+  char *s = g_key_file_get_string(keyfile, kb_name, key, &err);
+  if (err) {
+    g_error_free(err);
+    err = NULL;
+    s = g_key_file_get_string(keyfile, "default", key, &err);
+    if (err) {
+      g_error_free(err);
+      err = NULL;
+    } else {
+      *set = s;
+    }
+  } else {
+    *set = s;
+  }
+}
+
+/* vi:set expandtab sts=2 sw=2: */
