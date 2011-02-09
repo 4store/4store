@@ -3,6 +3,7 @@ To make a release:
 Make sure your git tree is in sync.
 $ git tag -a 'vx.y.z' -m "Version x.y.z"
 $ git push --tags
+$ sh autogen.sh
 $ ./configure
 $ make dist
 
