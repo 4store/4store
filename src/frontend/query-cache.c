@@ -33,7 +33,7 @@
 #include "../common/params.h"
 #include "../common/error.h"
 
-#define CACHE_SIZE 128
+#define CACHE_SIZE 1024
 
 struct _fs_bind_cache {
     int filled;     /* true if cache entry is in use */
@@ -144,7 +144,16 @@ int fs_bind_cache_wrapper(fs_query_state *qs, fs_query *q, int all,
 
         exit(1);
     }
-    if (cachable) {
+
+    int small = 1;
+    for (int s=0; s<slots; s++) {
+        if (fs_rid_vector_length((*result)[s]) > 10000) {
+            small = 0;
+            break;
+        }
+    }
+
+    if (cachable && small) {
         g_static_mutex_lock(&qs->cache_mutex);
         if (qs->bind_cache[cache_hash].filled == 1) {
           for (int s=0; s<4; s++) {
