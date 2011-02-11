@@ -69,7 +69,7 @@ static int global_import_count = 0;
 static int unsafe = 0;
 static int default_graph = 0;
 static int soft_limit = 0; /* default value for soft limit */
-static int opt_level = 3;  /* default value for optimisation level */
+static int opt_level = -1;  /* default value for optimisation level */
 static int cors_support = -1; /* cross-origin resource sharing (CORS) support */
 
 static fs_query_state *query_state;
@@ -1747,6 +1747,7 @@ int main(int argc, char *argv[])
     fprintf(stdout, "       -U   enable unsafe operations (eg. LOAD)\n");
     fprintf(stdout, "       -d   enable SPARQL default graph support\n");
     fprintf(stdout, "       -s   default soft limit (-1 to disable)\n");
+    fprintf(stdout, "       -O   set query optimiser level (0-3, default is 3)\n");
     fprintf(stdout, "       -X   enable public cross-origin resource sharing (CORS) support\n");
 
     return help_return;
@@ -1781,12 +1782,22 @@ int main(int argc, char *argv[])
 
     set_string(keyfile, kb_name, "listen", &host);
 
-    const char *soft_limit_str = NULL;
-    set_string(keyfile, kb_name, "soft-limit", &soft_limit_str);
-    if (soft_limit_str) {
-      soft_limit = atoi(soft_limit_str);
-      if (soft_limit == 0) {
-        soft_limit = -1;
+    if (soft_limit == 0) {
+      const char *soft_limit_str = NULL;
+      set_string(keyfile, kb_name, "soft-limit", &soft_limit_str);
+      if (soft_limit_str) {
+        soft_limit = atoi(soft_limit_str);
+        if (soft_limit == 0) {
+          soft_limit = -1;
+        }
+      }
+    }
+
+    if (opt_level == -1) {
+      const char *opt_level_str = NULL;
+      set_string(keyfile, kb_name, "opt-level", &opt_level_str);
+      if (opt_level_str) {
+        opt_level = atoi(opt_level_str);
       }
     }
   }
@@ -1795,6 +1806,9 @@ int main(int argc, char *argv[])
 
   if (cors_support == -1) {
     cors_support = 0;
+  }
+  if (opt_level == -1) {
+    opt_level = 3;
   }
   if (!port) {
     port = "8080";
@@ -1811,6 +1825,9 @@ int main(int argc, char *argv[])
   }
   if (default_graph) {
     fs_error(LOG_INFO, "Default graph support enabled");
+  }
+  if (opt_level != 3) {
+    fs_error(LOG_INFO, "Setting query optimiser level to %d", opt_level);
   }
 
   pid_t wpid;
