@@ -847,6 +847,7 @@ int fs_query_process_pattern(fs_query *q, rasqal_graph_pattern *pattern, raptor_
                         fs_binding *old = q->bb[j];
                         q->bb[j] = fs_binding_apply_filters(q, j, q->bb[j], q->constraints[j]);
                         fs_binding_free(old);
+                        raptor_free_sequence(q->constraints[j]);
                         q->constraints[j] = NULL;
                     }
                 } else {
@@ -854,6 +855,7 @@ int fs_query_process_pattern(fs_query *q, rasqal_graph_pattern *pattern, raptor_
                         fs_binding *old = q->bb[j];
                         q->bb[j] = fs_binding_apply_filters(q, j, q->bb[j], q->constraints[j]);
                         fs_binding_free(old);
+                        raptor_free_sequence(q->constraints[j]);
                         q->constraints[j] = NULL;
                     }
                     fs_binding_union(q, q->bb[first_in_union], q->bb[j]);
@@ -925,6 +927,7 @@ int fs_query_process_pattern(fs_query *q, rasqal_graph_pattern *pattern, raptor_
                     fs_binding *old = q->bb[j];
                     q->bb[j] = fs_binding_apply_filters(q, j, q->bb[j], q->constraints[j]);
                     fs_binding_free(old);
+                    raptor_free_sequence(q->constraints[j]);
                     q->constraints[j] = NULL;
                     /* do the left join */
                     fs_binding *nb = fs_binding_join(q, q->bb[i], q->bb[j], FS_LEFT);
@@ -962,9 +965,6 @@ void fs_query_free(fs_query *q)
         if (q->blocks) {
             for (int i=0; i<FS_MAX_BLOCKS; i++) {
                 if (q->blocks[i].data) {
-                    for (int j=0; j<q->blocks[i].length; j++) {
-                        free(q->blocks[i].data[j]);
-                    }
                     free(q->blocks[i].data);
                 }
             }
@@ -1257,6 +1257,7 @@ static void graph_pattern_walk(fsp_link *link, rasqal_graph_pattern *pattern,
 	rasqal_triple *rt = rasqal_graph_pattern_get_triple(pattern, i);
 	if (!rt) break;
         rasqal_triple *t = calloc(1, sizeof(rasqal_triple));
+        fs_query_add_freeable(q, t);
         t->origin = model;
         t->subject = rt->subject;
         t->predicate = rt->predicate;

@@ -930,6 +930,7 @@ static unsigned char * handle_resolve_attr (fs_backend *be, fs_segment segment,
 /* ASCII NUL is used to terminate strings on the wire */
     if (resources[k].lex) {
       strcpy((char *) record + 20, resources[k].lex);
+      free(resources[k].lex);
     } else {
       *(record + 20) = '\0';
     }

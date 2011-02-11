@@ -1440,6 +1440,9 @@ static void handle_construct(fs_query *q, const char *type, FILE *output)
                 st.predicate = slot_fill(q, trip->predicate, row);
                 st.object = slot_fill(q, trip->object, row);
                 raptor_serializer_serialize_statement(q->ser, &st);
+                raptor_free_term(st.subject);
+                raptor_free_term(st.predicate);
+                raptor_free_term(st.object);
             }
         }
     }
@@ -1471,6 +1474,9 @@ static void handle_construct(fs_query *q, const char *type, FILE *output)
                 st.predicate = slot_fill(q, trip->predicate, row);
                 st.object = slot_fill(q, trip->object, row);
                 raptor_serializer_serialize_statement(q->ser, &st);
+                raptor_free_term(st.subject);
+                raptor_free_term(st.predicate);
+                raptor_free_term(st.object);
             }
         }
     }
