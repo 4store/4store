@@ -1749,6 +1749,8 @@ int main(int argc, char *argv[])
     fprintf(stdout, "       -s   default soft limit (-1 to disable)\n");
     fprintf(stdout, "       -O   set query optimiser level (0-3, default is 3)\n");
     fprintf(stdout, "       -X   enable public cross-origin resource sharing (CORS) support\n");
+    fprintf(stdout, "Options can also be set permenantly in /etc/4store.conf\n");
+    fprintf(stdout, "see http://4store.org/trac/wiki/SparqlServer for details\n");
 
     return help_return;
   }
