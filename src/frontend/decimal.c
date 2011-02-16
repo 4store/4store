@@ -539,8 +539,8 @@ int fs_decimal_divide(const fs_decimal *n, const fs_decimal *d, fs_decimal *q)
    
     fs_decimal last = zero_val; 
 
-    /* if it hasn't converged after 20 iterations it usually doesn't */
-    for (int i=0; i<20; i++) {
+    /* if it hasn't converged after 30 iterations it usually doesn't */
+    for (int i=0; i<30; i++) {
 #if 0
         printf("step %2d = ", i);
         fs_decimal_print(&x, stdout);
@@ -551,7 +551,7 @@ int fs_decimal_divide(const fs_decimal *n, const fs_decimal *d, fs_decimal *q)
         fs_decimal_multiply(&norm, &x, &dx);
         fs_decimal_subtract(&d2_val, &dx, &tmp);
         fs_decimal_multiply(&tmp, &x, &x);
-        //if (fs_decimal_equal(&x, &last)) break;
+        if (fs_decimal_equal(&x, &last)) break;
         last = x;
     }
     /* round up to nearest representable number */
