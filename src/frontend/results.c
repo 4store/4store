@@ -2060,8 +2060,9 @@ nextrow: ;
         if (q->limit > 0 && q->limit < RESOURCE_LOOKUP_BUFFER) {
             lookup_buffer_size = q->limit * 2;
         }
+    unsigned int pre_cache_len = 0;
 	for (int row=q->row; row < q->row + lookup_buffer_size && row < rows; row++) {
-	    for (int col=1; col < q->num_vars; col++) {
+	    for (int col=1; col <= q->num_vars; col++) {
 		fs_rid rid;
 		if (row < q->bt[col].vals->length) {
                     if (q->ordering) {
@@ -2074,11 +2075,13 @@ nextrow: ;
 		}
 		if (FS_IS_BNODE(rid)) continue;
 		if (res_l2_cache[rid & CACHE_MASK].rid == rid) continue;
+        pre_cache_len++;
 		fs_rid_vector_append(q->pending[FS_RID_SEGMENT(rid, q->segments)], rid);
 	    }
 	}
         g_static_mutex_unlock(&cache_mutex);
-        resolve_precache_all(q->link, q->pending, q->segments);
+        if (pre_cache_len)
+            resolve_precache_all(q->link, q->pending, q->segments);
 	q->lastrow = q->row + lookup_buffer_size;
     }
 
