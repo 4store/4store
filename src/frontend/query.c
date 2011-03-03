@@ -657,6 +657,10 @@ fs_query *fs_query_execute(fs_query_state *qs, fsp_link *link, raptor_uri *bu, c
 	fs_query_order(q);
     }
 
+    q->num_vars_total = 0; /* total number, not just the ones projected in SELECT */
+    for(int i=1;i<FS_BINDING_MAX_VARS && q->bt[i].name;i++)
+         q->num_vars_total ++;
+
     return q;
 }
 

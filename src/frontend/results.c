@@ -82,8 +82,11 @@ static int resolve(fs_query *q, fs_rid rid, fs_resource *res)
 
 	return 0;
     }
+
+    q->qs->cache_hits++;
     g_static_mutex_lock(&cache_mutex);
     if (res_l2_cache[rid & CACHE_MASK].rid == rid) {
+        q->qs->cache_success_l2++;
 	memcpy(res, &res_l2_cache[rid & CACHE_MASK], sizeof(fs_resource));
         g_static_mutex_unlock(&cache_mutex);
 
@@ -95,12 +98,19 @@ static int resolve(fs_query *q, fs_rid rid, fs_resource *res)
     }
     gpointer hit;
     if ((hit = g_hash_table_lookup(res_l1_cache, &rid))) {
+        q->qs->cache_success_l1++;
 	memcpy(res, hit, sizeof(fs_resource));
         g_static_mutex_unlock(&cache_mutex);
 
         return 0;
     }
     g_static_mutex_unlock(&cache_mutex);
+
+GTimer *tmr=NULL;
+    if (q->qs->verbosity) {
+        tmr = g_timer_new();
+        q->qs->cache_fail++;
+    }
 
     fs_rid_vector *r = fs_rid_vector_new(1);
     r->data[0] = rid;
@@ -118,6 +128,11 @@ printf("resolving %016llx\n", rid);
     g_hash_table_insert(res_l1_cache, trid, tres);
     g_static_mutex_unlock(&cache_mutex);
     fs_rid_vector_free(r);
+
+    if (q->qs->verbosity) {
+        q->qs->resolve_unique_elapse += g_timer_elapsed(tmr,NULL);
+        g_timer_destroy(tmr);
+    }
 
     return 0;
 }
@@ -750,6 +765,18 @@ static int resolve_precache_all(fsp_link *l, fs_rid_vector *rv[], int segments)
     }
 
     return 0;
+}
+
+static int resolve_precache_all_with_stats(fs_query *q) {
+    GTimer *tmr=NULL;
+    if (q->qs->verbosity) tmr = g_timer_new();
+    int res = resolve_precache_all(q->link, q->pending, q->segments);
+    if (q->qs->verbosity) {
+        q->qs->resolve_all_elapse += g_timer_elapsed(tmr,NULL);
+        q->qs->resolve_all_calls++;
+        g_timer_destroy(tmr);
+    }
+    return res;
 }
 
 static raptor_term *slot_fill_from_rid(fs_query *q, fs_rid rid)
@@ -2060,9 +2087,17 @@ nextrow: ;
         if (q->limit > 0 && q->limit < RESOURCE_LOOKUP_BUFFER) {
             lookup_buffer_size = q->limit * 2;
         }
-    unsigned int pre_cache_len = 0;
+
+        unsigned int pre_cache_len = 0;
+        if (q->aggregate) {
+            /* in case this is an aggregate we need to cache all of it
+            because next_row has been moved to the last solution
+            TODO: all RIDs are cached in one go */
+            lookup_buffer_size = next_row;
+        }
 	for (int row=q->row; row < q->row + lookup_buffer_size && row < rows; row++) {
-	    for (int col=1; col <= q->num_vars; col++) {
+	    for (int col=1; col <= q->num_vars_total; col++) {
+                if (!q->bt[col].need_val && !q->bt[col].expression) continue;
 		fs_rid rid;
 		if (row < q->bt[col].vals->length) {
                     if (q->ordering) {
@@ -2081,8 +2116,9 @@ nextrow: ;
 	}
         g_static_mutex_unlock(&cache_mutex);
         if (pre_cache_len)
-            resolve_precache_all(q->link, q->pending, q->segments);
-	q->lastrow = q->row + lookup_buffer_size;
+            resolve_precache_all_with_stats(q);
+        q->qs->pre_cache_total += pre_cache_len;
+        q->lastrow = q->row + lookup_buffer_size;
     }
 
     int row = q->row;

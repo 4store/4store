@@ -211,6 +211,7 @@ int main(int argc, char *argv[])
     int ret = 0;
 
     fs_query_state *qs = fs_query_init(link, NULL, NULL);
+    qs->verbosity = verbosity;
     fs_query *qr = fs_query_execute(qs, link, bu, query, flags, opt_level, soft_limit);
     if (fs_query_errors(qr)) {
         ret = 1;
@@ -258,6 +259,7 @@ static void programatic_io(fsp_link *link, raptor_uri *bu, const char *query_lan
 
     const int segments = fsp_link_segments(link);
     fs_query_state *qs = fs_query_init(link, NULL, NULL);
+    qs->verbosity = verbosity;
 
     do {
 	pos = query;
@@ -361,6 +363,7 @@ static void interactive(fsp_link *link, raptor_uri *bu, const char *result_forma
     rl_attempted_completion_function = resource_completion;
 
     fs_query_state *qs = fs_query_init(link, NULL, NULL);
+    qs->verbosity = verbosity;
 
     do {
 	/* assemble query string */

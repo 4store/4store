@@ -207,6 +207,16 @@ int fs_query_cache_flush(fs_query_state *qs, int verbosity)
             }
         }
     }
+    if (verbosity > 0) {
+        printf("# @resolver@ cache_stats hits %u l1 %u l2 %u fails %u (%.4f perc. success)\n",
+            qs->cache_hits,qs->cache_success_l1,qs->cache_success_l2,qs->cache_fail,
+            ((((double)qs->cache_success_l1)+((double)qs->cache_success_l2))/((double)qs->cache_hits))*100.0);
+        printf("# @resolver@ cache_stats items pre cached %u calls %u elapse %.3f\n",
+        qs->pre_cache_total,qs->resolve_all_calls,qs->resolve_all_elapse);
+        printf("# @resolver@ cache_stats resolve single calls %u elapse %.3f\n",
+        qs->cache_fail,qs->resolve_unique_elapse);
+    }
+
     g_static_mutex_unlock(&qs->cache_mutex);
     
     return 0;
