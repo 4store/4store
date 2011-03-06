@@ -331,7 +331,7 @@ static void http_query_worker(gpointer data, gpointer user_data)
   client_ctxt *ctxt = (client_ctxt *) data;
 
   ctxt->start_time = fs_time();
-  ctxt->qr = fs_query_execute(query_state, fsplink, bu, ctxt->query_string, ctxt->query_flags, opt_level, ctxt->soft_limit);
+  ctxt->qr = fs_query_execute(query_state, fsplink, bu, ctxt->query_string, ctxt->query_flags, opt_level, ctxt->soft_limit, 0);
   if (ctxt->qr->errors) {
     http_error(ctxt, "400 Parser error");
     GSList *w = ctxt->qr->warnings;
