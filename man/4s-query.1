@@ -13,6 +13,7 @@ kb-name
 .Op Fl r
 .Op Fl s Ar soft-limit
 .Op Fl b Ar base-URI
+.Op Fl e
 .Op Fl P 
 .Op query
 .Bl -tag -width indent
@@ -30,6 +31,8 @@ Override default soft limit on search breadth
 Enable SPARQL default graph support
 .It Fl "b, \-\-base"
 Set base URI for queries
+.It Fl "e, \-\-explain"
+Return an explanation of the query planner's descisions
 .It Fl "P"
 Enable programatic IO mode
 .El
