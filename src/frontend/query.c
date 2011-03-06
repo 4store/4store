@@ -324,7 +324,7 @@ static void tree_compact(fs_query *q)
     } while (done_something);
 }
 
-fs_query *fs_query_execute(fs_query_state *qs, fsp_link *link, raptor_uri *bu, const char *query, unsigned int flags, int opt_level, int soft_limit)
+fs_query *fs_query_execute(fs_query_state *qs, fsp_link *link, raptor_uri *bu, const char *query, unsigned int flags, int opt_level, int soft_limit, int explain)
 {
     if (!qs) {
         fs_error(LOG_CRIT, "fs_query_execute() handed NULL query state");
@@ -365,7 +365,7 @@ fs_query *fs_query_execute(fs_query_state *qs, fsp_link *link, raptor_uri *bu, c
     if (ret) {
 	return q;
     }
-    if (rasqal_query_get_explain(rq)) {
+    if (explain) {
         flags |= FS_QUERY_EXPLAIN;
     }
 
@@ -409,7 +409,6 @@ fs_query *fs_query_execute(fs_query_state *qs, fsp_link *link, raptor_uri *bu, c
         q->default_graphs->data[0] = FS_DEFAULT_GRAPH_RID;
     }
 
-    int explain = flags & FS_QUERY_EXPLAIN;
 #ifdef DEBUG_MERGE
     explain = 1;
     rasqal_query_print(rq, stdout);

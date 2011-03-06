@@ -60,7 +60,7 @@ int main(int argc, char *argv[])
 {
     char *password = fsp_argv_password(&argc, argv);
 
-    static char *optstring = "hvf:PO:Ib:rs:d";
+    static char *optstring = "hevf:PO:Ib:rs:d";
     char *format = getenv("FORMAT");
     char *kb_name = NULL, *query = NULL;
     int programatic = 0, help = 0;
@@ -70,6 +70,7 @@ int main(int argc, char *argv[])
     int insert_mode = 0;
     int restricted = 0;
     int soft_limit = 0;
+    int explain = 0;
     int default_graph = 0;
     char *base_uri = "local:";
     raptor_world *rw = NULL;
@@ -78,6 +79,7 @@ int main(int argc, char *argv[])
         { "help", 0, 0, 'h' },
         { "version", 0, 0, 'V' },
         { "verbose", 0, 0, 'v' },
+        { "explain", 0, 0, 'e' },
         { "format", 1, 0, 'f' },
         { "programatic", 0, 0, 'P' },
         { "opt-level", 1, 0, 'O' },
@@ -113,6 +115,8 @@ int main(int argc, char *argv[])
         } else if (c == 'h') {
             help = 1;
             help_return = 0;
+        } else if (c == 'e') {
+            explain = 1;
         } else if (c == 'V') {
             printf("%s, built for 4store %s\n", argv[0], GIT_REV);
             exit(0); 
@@ -212,7 +216,7 @@ int main(int argc, char *argv[])
 
     fs_query_state *qs = fs_query_init(link, NULL, NULL);
     qs->verbosity = verbosity;
-    fs_query *qr = fs_query_execute(qs, link, bu, query, flags, opt_level, soft_limit);
+    fs_query *qr = fs_query_execute(qs, link, bu, query, flags, opt_level, soft_limit, explain);
     if (fs_query_errors(qr)) {
         ret = 1;
     }
@@ -278,7 +282,7 @@ static void programatic_io(fsp_link *link, raptor_uri *bu, const char *query_lan
                 printf("Q: %s\n", query);
             }
 	    fs_query *tq = fs_query_execute(qs, link, bu, query,
-		    result_flags, opt_level, soft_limit);
+		    result_flags, opt_level, soft_limit, 0);
 	    fs_query_results_output(tq, result_format, 0, stdout);
             if (show_timing) {
                 printf("# time: %f s\n", fs_time() - fs_query_start_time(tq));
@@ -400,7 +404,7 @@ static void interactive(fsp_link *link, raptor_uri *bu, const char *result_forma
                 then = fs_time();
             }
 	    fs_query *tq = fs_query_execute(qs, link, bu, query,
-		    result_flags, opt_level, soft_limit);
+		    result_flags, opt_level, soft_limit, 0);
             if (show_timing) {
                 double now = fs_time();
                 printf("# bind time %.3fs\n", now-then);
