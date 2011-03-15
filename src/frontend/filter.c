@@ -52,7 +52,7 @@ static fs_value cast_double(fs_value a)
 
 	return a;
     }
-    if (a.lex) {
+    if (a.lex && strlen(a.lex)) {
         char *end = NULL;
         a.fp = strtod(a.lex, &end);
         if (*end == '\0') {
@@ -82,7 +82,7 @@ static fs_value cast_decimal(fs_value a)
 
 	return a;
     }
-    if (a.lex) {
+    if (a.lex && strlen(a.lex)) {
 	a.valid |= fs_valid_bit(FS_V_DE);
         if (!fs_decimal_init_from_str(&a.de, a.lex)) {
             return a;
@@ -128,7 +128,7 @@ static fs_value cast_integer(fs_value a)
 
 	return a;
     }
-    if (a.lex) {
+    if (a.lex && strlen(a.lex)) {
         char *end = NULL;
         a.in = strtoll(a.lex, &end, 10);
         if (*end == '\0') {
@@ -405,7 +405,8 @@ fs_value fn_greater_than(fs_query *q, fs_value a, fs_value b)
 
     if (a.attr == fs_c.xsd_datetime && b.attr == fs_c.xsd_datetime)
         return fn_datetime_greater_than(q, a, b);
-    if (fs_is_numeric(&a)) return fn_numeric_greater_than(q, a, b);
+    if (fs_is_numeric(&a) && fs_is_numeric(&b)) 
+        return fn_numeric_greater_than(q, a, b);
     if (a.lex && b.lex)
         return fn_numeric_equal(q, fn_compare(q, a, b), fs_value_integer(1));
 
@@ -428,7 +429,8 @@ printf("\n");
 #endif
 
     if (a.attr == fs_c.xsd_datetime && b.attr == fs_c.xsd_datetime) return fn_datetime_less_than(q, a, b);
-    if (fs_is_numeric(&a)) return fn_numeric_less_than(q, a, b);
+    if (fs_is_numeric(&a) && fs_is_numeric(&b))
+        return fn_numeric_less_than(q, a, b);
     if (a.lex && b.lex) return fn_numeric_equal(q, fn_compare(q, a, b), fs_value_integer(-1));
 
     return fs_value_error(FS_ERROR_INVALID_TYPE, NULL);
@@ -457,7 +459,7 @@ fs_value fn_greater_than_equal(fs_query *q, fs_value a, fs_value b)
     if (a.attr == fs_c.xsd_datetime && b.attr == fs_c.xsd_datetime)
         return fn_not(q, fn_datetime_less_than(q, a, b));
 
-    if (fs_is_numeric(&a))
+    if (fs_is_numeric(&a) && fs_is_numeric(&b))
         return fn_logical_or(q, fn_numeric_greater_than(q, a, b), fn_numeric_equal(q, a, b));
 
     if (FS_IS_URI_BN(a.rid) || FS_IS_URI_BN(b.rid))
@@ -1085,7 +1087,7 @@ fs_value fn_cast_intl(fs_query *q, fs_value v, fs_rid dt)
 {
     if (dt == fs_c.xsd_double || dt == fs_c.xsd_float) {
 	v = cast_double(v);
-    } else if (dt == fs_c.xsd_integer) {
+    } else if (dt == fs_c.xsd_integer || dt == fs_c.xsd_int) {
 	v = cast_integer(v);
     } else if (dt == fs_c.xsd_decimal) {
 	v = cast_decimal(v);
