@@ -237,7 +237,8 @@ fs_value fs_expression_eval(fs_query *q, int row, int block, rasqal_expression *
         fs_error(LOG_ERR, "block was less than zero, changing to 0");
         block = 0;
     }
-
+    
+    //printf("@deb e->op %d\n",e->op);
     switch (e->op) {
 	case RASQAL_EXPR_AND:
 	    return fn_logical_and(q, fs_expression_eval(q, row, block, e->arg1),
@@ -376,11 +377,13 @@ fs_value fs_expression_eval(fs_query *q, int row, int block, rasqal_expression *
         }
 
         case RASQAL_EXPR_COUNT: {
-            if (e->arg1->op == RASQAL_EXPR_VARSTAR) {
+            if (e->arg1->op == RASQAL_EXPR_VARSTAR && !q->apply_constraints) {
                 return fs_value_integer(q->group_length);
             }
             int count = 0;
             for (int r=0; r<q->group_length; r++) {
+                if (q->apply_constraints && !fs_bit_array_get(q->apply_constraints,q->group_rows[r])) continue;
+                    
                 fs_value v = fs_expression_eval(q, q->group_rows[r], block, e->arg1);
                 if (v.valid & fs_valid_bit(FS_V_TYPE_ERROR) ||
                     ((v.attr == fs_c.empty || v.attr == FS_RID_NULL) &&
@@ -589,6 +592,7 @@ fs_value fs_expression_eval(fs_query *q, int row, int block, rasqal_expression *
         case RASQAL_EXPR_SUM: {
             fs_value v = fs_value_integer(0);
             for (int r=0; r<q->group_length; r++) {
+                if (q->apply_constraints && !fs_bit_array_get(q->apply_constraints,q->group_rows[r])) continue;
                 v = fn_numeric_add(q, v, fs_expression_eval(q, q->group_rows[r], block, e->arg1));
             }
 
@@ -599,6 +603,7 @@ fs_value fs_expression_eval(fs_query *q, int row, int block, rasqal_expression *
             fs_value sum = fs_value_integer(0);
             int count = 0;
             for (int r=0; r<q->group_length; r++) {
+                if (q->apply_constraints && !fs_bit_array_get(q->apply_constraints,q->group_rows[r])) continue;
                 fs_value expr = fs_expression_eval(q, q->group_rows[r], block, e->arg1);
                 sum = fn_numeric_add(q, sum, expr);
                 if (sum.valid & fs_valid_bit(FS_V_TYPE_ERROR)) {
@@ -626,36 +631,54 @@ fs_value fs_expression_eval(fs_query *q, int row, int block, rasqal_expression *
 
         case RASQAL_EXPR_MIN: {
             fs_value m;
+            int set = 0;
+            int pre=0;
             if (q->group_length > 0) {
-                m = fs_expression_eval(q, q->group_rows[0], block, e->arg1);
-            } else {
-                m = fs_value_error(FS_ERROR_INVALID_TYPE, NULL);
-            }
-            for (int r=1; r<q->group_length; r++) {
-                fs_value expr = fs_expression_eval(q, q->group_rows[r], block, e->arg1);
-                int order = fs_order_by_cmp(m, expr);
-                if (order > 0) {
-                    m = expr;
+                for (int pre=0; !set && pre<q->group_length; pre++) {
+                    if (q->apply_constraints && !fs_bit_array_get(q->apply_constraints,q->group_rows[pre])) continue;
+                    m = fs_expression_eval(q, q->group_rows[pre], block, e->arg1);
+                    set = 1;
                 }
             }
-
+            if (!set)
+                m = fs_value_error(FS_ERROR_INVALID_TYPE, NULL);
+            else {
+                for (int r=pre; r<q->group_length; r++) {
+                    if (q->apply_constraints && !fs_bit_array_get(q->apply_constraints,q->group_rows[r])) continue;
+                    fs_value expr = fs_expression_eval(q, q->group_rows[r], block, e->arg1);
+                    int order = fs_order_by_cmp(m, expr);
+                    if (order > 0) {
+                        m = expr;
+                    }
+                }
+            }
             return m;
         }
 
         case RASQAL_EXPR_MAX: {
             fs_value m;
+            int set = 0;
+            int pre=0;
             if (q->group_length > 0) {
-                m = fs_expression_eval(q, q->group_rows[0], block, e->arg1);
-            } else {
-                m = fs_value_error(FS_ERROR_INVALID_TYPE, NULL);
-            }
-            for (int r=1; r<q->group_length; r++) {
-                fs_value expr = fs_expression_eval(q, q->group_rows[r], block, e->arg1);
-                int order = fs_order_by_cmp(m, expr);
-                if (order < 0) {
-                    m = expr;
+                for (int pre=0; !set && pre<q->group_length; pre++) {
+                    if (q->apply_constraints && !fs_bit_array_get(q->apply_constraints,q->group_rows[pre])) continue;
+                    m = fs_expression_eval(q, q->group_rows[pre], block, e->arg1);
+                    set = 1;
                 }
             }
+            if (!set)
+                m = fs_value_error(FS_ERROR_INVALID_TYPE, NULL);
+            else {
+                for (int r=pre; r<q->group_length; r++) {
+                    if (q->apply_constraints && !fs_bit_array_get(q->apply_constraints,q->group_rows[r])) continue;
+                    fs_value expr = fs_expression_eval(q, q->group_rows[r], block, e->arg1);
+                    int order = fs_order_by_cmp(m, expr);
+                    if (order < 0) {
+                        m = expr;
+                    }
+                }
+            }
+            return m;
 
             return m;
         }
@@ -714,10 +737,13 @@ fs_value fs_expression_eval(fs_query *q, int row, int block, rasqal_expression *
 	case RASQAL_EXPR_UNKNOWN:
 	    return fs_value_error(FS_ERROR_INVALID_TYPE, "bad value in expression");
 	case RASQAL_EXPR_LITERAL:
+        //printf("@deb RASQAL_EXPR_LITERAL\n");
 	    break;
     }
 
     if (e->literal) {
+        //printf("@deb RASQAL_EXPR_LITERAL @@@@@@@@@\n");
+
 	return literal_to_value(q, row, block, e->literal);
     }
 
@@ -1441,7 +1467,7 @@ static void handle_construct(fs_query *q, const char *type, FILE *output)
         raptor_serializer_start_to_file_handle(q->ser, q->base, output);
     }
 
-    while ((row = fs_query_fetch_row(q))) {
+    while (!row->stop && (row = fs_query_fetch_row(q))) {
         if (q->flags & FS_RESULT_FLAG_CONSTRUCT_AS_INSERT) {
             for (int i=0; 1; i++) {
                 rasqal_triple *trip =
@@ -1573,7 +1599,7 @@ static void output_sparql(fs_query *q, int flags, FILE *out)
             }
         } else {
             fprintf(out, "  <results>\n");
-            while ((row = fs_query_fetch_row(q))) {
+            while (!row->stop && (row = fs_query_fetch_row(q))) {
                 fprintf(out, "    <result>\n");
                 for (int c=0; c<cols; c++) {
                     int esc_len;
@@ -1691,7 +1717,7 @@ static void output_text(fs_query *q, int flags, FILE *out)
     if (q->construct) {
         handle_construct(q, "ntriples", out);
     } else {
-	while ((row = fs_query_fetch_row(q))) {
+	while (!row->stop && (row = fs_query_fetch_row(q))) {
 	    for (int c=0; c<cols; c++) {
 		int esclen = 0;
 		char *escd = NULL;
@@ -1805,7 +1831,7 @@ static void output_json(fs_query *q, int flags, FILE *out)
         fprintf(out, "  \"bindings\":[");
         fs_row *row;
         int rownum = 0;
-        while ((row = fs_query_fetch_row(q))) {
+        while (!row->stop && (row = fs_query_fetch_row(q))) {
             if (rownum++ > 0) {
                 fprintf(out, ",\n");
             } else {
@@ -1944,7 +1970,7 @@ static void output_testcase(fs_query *q, int flags, FILE *out)
         return;
     }
 
-    while ((row = fs_query_fetch_row(q))) {
+    while (!row->stop && (row = fs_query_fetch_row(q))) {
 	fprintf(out, " ;\n   rs:solution [\n");
         if (q->ordering) {
             static int index = 0;
@@ -2077,13 +2103,14 @@ nextrow: ;
     fs_rid_vector *grows = NULL;
 
     /* handle aggregates */
-    if (q->aggregate) {
+    if (q->aggregate && (q->aggregate < 2 || q->group_by)) {
         if (q->row >= q->length) {
             return NULL;
         }
         fs_rid_vector *groups = fs_binding_get_vals(q->bt, "_group", NULL);
         fs_rid_vector *ord = q->bt[0].vals;
         if (groups) {
+            q->group_by = 1;
             fs_rid group = groups->data[ord->data[q->row]];
             grows = fs_rid_vector_new(0);
             fs_rid_vector_append(grows, ord->data[q->row]);
@@ -2137,15 +2164,27 @@ nextrow: ;
         row = q->ordering[q->row];
     }
 
-    if (!apply_constraints(q, row)) {
-        q->boolean = 0;
-        /* if we dont need any bindings we may as well stop */
-        if (q->num_vars == 0) {
-            if (grows) fs_rid_vector_free(grows);
-            return NULL;
-        }
-        q->row = next_row;
-	goto nextrow;
+    int row_agg = 0;
+    if (q->row < q->length) {
+        consnext: ;
+        if (q->aggregate) row = row_agg;
+        if (!apply_constraints(q, row)) {
+            q->boolean = 0;
+            /* if we dont need any bindings we may as well stop */
+            if (q->num_vars == 0) {
+                if (grows) fs_rid_vector_free(grows);
+                return NULL;
+            }
+            q->row = next_row;
+            if (!q->aggregate)
+                goto nextrow;
+            else {
+                if(!q->apply_constraints) q->apply_constraints = fs_new_bit_array(q->group_length);
+                fs_bit_array_set(q->apply_constraints,row_agg,0);
+            }
+        } else if (q->aggregate) {
+            q->row = next_row;
+        }    
     }
 
     int repeat_row = 1;
@@ -2155,16 +2194,27 @@ nextrow: ;
                            q->bt[i+1].vals->data[row] : FS_RID_NULL;
         if (last_rid != q->resrow[i].rid) repeat_row = 0;
         if (q->bt[i+1].expression) {
-            fs_value val = fs_expression_eval(q, row, 0, q->bt[i+1].expression);
-            if (fs_is_error(val)) {
-                if (val.lex) {
-                    if (!q->warnings || !g_slist_find(q->warnings, val.lex)) {
-                        q->warnings = g_slist_prepend(q->warnings, val.lex);
+            fs_value val;
+            if (!q->aggregate || q->group_by) {
+                val = fs_expression_eval(q, row, 0, q->bt[i+1].expression);
+                if (fs_is_error(val)) {
+                    if (val.lex) {
+                        if (!q->warnings || !g_slist_find(q->warnings, val.lex)) {
+                            q->warnings = g_slist_prepend(q->warnings, val.lex);
+                        }
                     }
+                    q->row = next_row;
+                    goto nextrow;
                 }
-
-                q->row = next_row;
-                goto nextrow;
+            }
+            
+            if (!q->group_by) {
+                if (q->aggregate && (row_agg+1) < q->length) {
+                    row_agg++;
+                    goto consnext;
+                } else { 
+                    val = fs_expression_eval(q, row, 0, q->bt[i+1].expression);
+                }
             }
             fs_value_to_row(q, val, q->resrow+i);
         } else {
@@ -2197,14 +2247,20 @@ nextrow: ;
     /* if it's DISTINCT and there are FILTERS then we might have more
      * distincting to do */
     /* TODO could add REDUCED handling here too */
-    if (q->flags & FS_BIND_DISTINCT && repeat_row) {
+    if (q->flags & FS_BIND_DISTINCT && repeat_row && !q->aggregate) {
         q->row = next_row;
-	goto nextrow;
+        goto nextrow;
     }
 
     q->row = next_row;
     q->rows_output++;
     if (grows) fs_rid_vector_free(grows);
+
+    if (!q->group_by && q->aggregate) {
+        q->resrow->stop=1;
+        if (q->apply_constraints)
+            fs_bit_array_destroy(q->apply_constraints);
+    }
 
     return q->resrow;
 }
