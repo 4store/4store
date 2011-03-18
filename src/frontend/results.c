@@ -2018,6 +2018,56 @@ static gboolean cache_dump(gpointer key, gpointer value, gpointer user_data)
     return 1;
 }
 
+static void prefetch_lexical_data(fs_query *q, long int next_row,const int rows) {
+    //printf("deb running prefetch_lexical_data\n");
+    for (int i=0; i<q->segments; i++) {
+        fs_rid_vector_clear(q->pending[i]);
+    }
+
+    /* dump L1 cache into L2 */
+    g_static_mutex_lock (&cache_mutex);
+    if (res_l1_cache) g_hash_table_foreach_steal(res_l1_cache, cache_dump, NULL);
+
+    int lookup_buffer_size = RESOURCE_LOOKUP_BUFFER;
+    if (q->limit > 0 && q->limit < RESOURCE_LOOKUP_BUFFER) {
+        lookup_buffer_size = q->limit * 2;
+    }
+
+    unsigned int pre_cache_len = 0;
+    if (q->aggregate) {
+        /* in case this is an aggregate we need to cache all of it
+        because next_row has been moved to the last solution
+        TODO: all RIDs are cached in one go */
+       lookup_buffer_size = next_row;
+    }
+    for (int row=q->row; row < q->row + lookup_buffer_size && row < rows; row++) {
+        for (int col=1; col <= q->num_vars_total; col++) {
+            if (!q->bt[col].need_val && !q->bt[col].expression) continue;
+            fs_rid rid;
+            if (row < q->bt[col].vals->length) {
+                if (q->ordering) {
+                    rid = q->bt[col].vals->data[q->ordering[row]];
+                } else {
+                    rid = q->bt[col].vals->data[row];
+                }
+            } else {
+                rid = FS_RID_NULL;
+            }
+            if (FS_IS_BNODE(rid)) continue;
+            if (res_l2_cache[rid & CACHE_MASK].rid == rid) continue;
+            pre_cache_len++;
+            fs_rid_vector_append(q->pending[FS_RID_SEGMENT(rid, q->segments)], rid);
+        }
+    }
+    g_static_mutex_unlock(&cache_mutex);
+    if (pre_cache_len)
+        resolve_precache_all_with_stats(q);
+    q->qs->pre_cache_total += pre_cache_len;
+    q->lastrow = q->row + lookup_buffer_size;
+}
+
+
+
 fs_row *fs_query_fetch_row(fs_query *q)
 {
     if (!q) return NULL;
@@ -2074,51 +2124,8 @@ nextrow: ;
     }
 
     /* prefetch a load of lexical data */
-    if (q->row == q->lastrow) {
-	for (int i=0; i<q->segments; i++) {
-	    fs_rid_vector_clear(q->pending[i]);
-	}
-
-        /* dump L1 cache into L2 */
-        g_static_mutex_lock (&cache_mutex);
-        if (res_l1_cache) g_hash_table_foreach_steal(res_l1_cache, cache_dump, NULL);
-
-        int lookup_buffer_size = RESOURCE_LOOKUP_BUFFER;
-        if (q->limit > 0 && q->limit < RESOURCE_LOOKUP_BUFFER) {
-            lookup_buffer_size = q->limit * 2;
-        }
-
-    unsigned int pre_cache_len = 0;
-    if (q->aggregate) {
-        /* in case this is an aggregate we need to cache all of it
-        because next_row has been moved to the last solution
-        TODO: all RIDs are cached in one go */
-        lookup_buffer_size = next_row;
-    }
-	for (int row=q->row; row < q->row + lookup_buffer_size && row < rows; row++) {
-	    for (int col=1; col <= q->num_vars_total; col++) {
-        if (!q->bt[col].need_val && !q->bt[col].expression) continue;
-		fs_rid rid;
-		if (row < q->bt[col].vals->length) {
-                    if (q->ordering) {
-                        rid = q->bt[col].vals->data[q->ordering[row]];
-                    } else {
-                        rid = q->bt[col].vals->data[row];
-                    }
-		} else {
-		    rid = FS_RID_NULL;
-		}
-		if (FS_IS_BNODE(rid)) continue;
-		if (res_l2_cache[rid & CACHE_MASK].rid == rid) continue;
-        pre_cache_len++;
-		fs_rid_vector_append(q->pending[FS_RID_SEGMENT(rid, q->segments)], rid);
-	    }
-	}
-        g_static_mutex_unlock(&cache_mutex);
-        if (pre_cache_len)
-            resolve_precache_all_with_stats(q);
-        q->qs->pre_cache_total += pre_cache_len;
-	    q->lastrow = q->row + lookup_buffer_size;
+    if (q->row == q->lastrow && (q->aggregate < 3)) {
+        prefetch_lexical_data(q, next_row, rows);
     }
 
     int row = q->row;
