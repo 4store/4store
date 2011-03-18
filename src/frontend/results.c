@@ -238,7 +238,6 @@ fs_value fs_expression_eval(fs_query *q, int row, int block, rasqal_expression *
         block = 0;
     }
     
-    //printf("@deb e->op %d\n",e->op);
     switch (e->op) {
 	case RASQAL_EXPR_AND:
 	    return fn_logical_and(q, fs_expression_eval(q, row, block, e->arg1),
@@ -737,13 +736,10 @@ fs_value fs_expression_eval(fs_query *q, int row, int block, rasqal_expression *
 	case RASQAL_EXPR_UNKNOWN:
 	    return fs_value_error(FS_ERROR_INVALID_TYPE, "bad value in expression");
 	case RASQAL_EXPR_LITERAL:
-        //printf("@deb RASQAL_EXPR_LITERAL\n");
 	    break;
     }
 
     if (e->literal) {
-        //printf("@deb RASQAL_EXPR_LITERAL @@@@@@@@@\n");
-
 	return literal_to_value(q, row, block, e->literal);
     }
 
@@ -2045,7 +2041,12 @@ static gboolean cache_dump(gpointer key, gpointer value, gpointer user_data)
 }
 
 static void prefetch_lexical_data(fs_query *q, long int next_row,const int rows) {
-    //printf("deb running prefetch_lexical_data\n");
+
+    /* ms8: aggregates prefetch everything in one go */
+    if (q->aggregate > 2)
+        return;
+    if (q->aggregate) q->aggregate = 3; 
+
     for (int i=0; i<q->segments; i++) {
         fs_rid_vector_clear(q->pending[i]);
     }
@@ -2147,7 +2148,7 @@ nextrow: ;
     }
 
     if (!q->resrow) {
-	fs_query_fetch_header_row(q);
+        fs_query_fetch_header_row(q);
     }
 
     /* prefetch a load of lexical data */
@@ -2167,7 +2168,7 @@ nextrow: ;
     int row_agg = 0;
     if (q->row < q->length) {
         consnext: ;
-        if (q->aggregate) row = row_agg;
+        if (q->aggregate && !q->group_by) row = row_agg;
         if (!apply_constraints(q, row)) {
             q->boolean = 0;
             /* if we dont need any bindings we may as well stop */
@@ -2190,7 +2191,7 @@ nextrow: ;
     int repeat_row = 1;
     for (int i=0; i<q->num_vars; i++) {
         fs_rid last_rid = q->resrow[i].rid;
-	q->resrow[i].rid = q->bt[i+1].bound && row < q->bt[i+1].vals->length ?
+        q->resrow[i].rid = q->bt[i+1].bound && row < q->bt[i+1].vals->length ?
                            q->bt[i+1].vals->data[row] : FS_RID_NULL;
         if (last_rid != q->resrow[i].rid) repeat_row = 0;
         if (q->bt[i+1].expression) {
