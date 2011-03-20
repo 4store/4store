@@ -2111,14 +2111,30 @@ nextrow: ;
         fs_rid_vector *groups = fs_binding_get_vals(q->bt, "_group", NULL);
         fs_rid_vector *ord = q->bt[0].vals;
         if (groups) {
-            q->group_by = 1;
-            fs_rid group = groups->data[ord->data[q->row]];
-            grows = fs_rid_vector_new(0);
-            fs_rid_vector_append(grows, ord->data[q->row]);
-            while (next_row < q->length && groups->data[ord->data[next_row]] == group) {
-                fs_rid_vector_append(grows, ord->data[next_row]);
+            q->group_by = 1
+
+            next_row--;
+            fs_rid group;
+
+            int constrain_group = 0;
+            do {
+                group = groups->data[ord->data[next_row]];
+                constrain_group = apply_constraints(q,ord->data[next_row]);
+                if (constrain_group) {
+                    grows = fs_rid_vector_new(0);
+                    fs_rid_vector_append(grows, ord->data[next_row]);
+                }
                 next_row++;
-            }
+            } while (next_row < q->length && !constrain_group);
+
+            if (constrain_group) {
+                while (next_row < q->length && groups->data[ord->data[next_row]] == group) {
+                    if (apply_constraints(q,ord->data[next_row]))
+                        fs_rid_vector_append(grows, ord->data[next_row]);
+                    next_row++;
+                }
+            } else
+                return NULL;
         } else {
             long len = fs_binding_length(q->bt);
             grows = fs_rid_vector_new(len);
@@ -2166,7 +2182,7 @@ nextrow: ;
     }
 
     int row_agg = 0;
-    if (q->row < q->length) {
+    if (q->row < q->length && !q->group_by) {
         consnext: ;
         if (q->aggregate && !q->group_by) row = row_agg;
         if (!apply_constraints(q, row)) {
