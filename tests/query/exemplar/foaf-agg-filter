@@ -1,0 +1,2 @@
+?count	?sum	?avg	?min	?max
+"1"^^<http://www.w3.org/2001/XMLSchema#integer>	"1000017.23"^^<http://www.w3.org/2001/XMLSchema#decimal>	"1000017.23"^^<http://www.w3.org/2001/XMLSchema#decimal>	"1000017.23"^^<http://www.w3.org/2001/XMLSchema#decimal>	"1000017.23"^^<http://www.w3.org/2001/XMLSchema#decimal>

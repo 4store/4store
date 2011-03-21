@@ -1,0 +1,2 @@
+?count	?sum	?avg	?min	?max
+"0"^^<http://www.w3.org/2001/XMLSchema#integer>	"0"^^<http://www.w3.org/2001/XMLSchema#integer>	NULL	NULL	NULL
