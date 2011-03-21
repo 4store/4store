@@ -1463,7 +1463,7 @@ static void handle_construct(fs_query *q, const char *type, FILE *output)
         raptor_serializer_start_to_file_handle(q->ser, q->base, output);
     }
 
-    while (!row->stop && (row = fs_query_fetch_row(q))) {
+    while ((row = fs_query_fetch_row(q))) {
         if (q->flags & FS_RESULT_FLAG_CONSTRUCT_AS_INSERT) {
             for (int i=0; 1; i++) {
                 rasqal_triple *trip =
@@ -2111,7 +2111,7 @@ nextrow: ;
         fs_rid_vector *groups = fs_binding_get_vals(q->bt, "_group", NULL);
         fs_rid_vector *ord = q->bt[0].vals;
         if (groups) {
-            q->group_by = 1
+            q->group_by = 1;
 
             next_row--;
             fs_rid group;
