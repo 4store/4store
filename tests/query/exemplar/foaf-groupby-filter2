@@ -1,0 +1,10 @@
+<http://www.w3.org/2000/01/rdf-schema#seeAlso>	"5"^^<http://www.w3.org/2001/XMLSchema#integer>
+<http://www.w3.org/2002/07/owl#sameIndividualAs>	"1"^^<http://www.w3.org/2001/XMLSchema#integer>
+<http://xmlns.com/foaf/0.1/currentProject>	"1"^^<http://www.w3.org/2001/XMLSchema#integer>
+<http://xmlns.com/foaf/0.1/depiction>	"1"^^<http://www.w3.org/2001/XMLSchema#integer>
+<http://xmlns.com/foaf/0.1/homepage>	"1"^^<http://www.w3.org/2001/XMLSchema#integer>
+<http://xmlns.com/foaf/0.1/img>	"1"^^<http://www.w3.org/2001/XMLSchema#integer>
+<http://xmlns.com/foaf/0.1/interest>	"2"^^<http://www.w3.org/2001/XMLSchema#integer>
+<http://xmlns.com/foaf/0.1/knows>	"5"^^<http://www.w3.org/2001/XMLSchema#integer>
+<http://xmlns.com/foaf/0.1/workplaceHomePage>	"1"^^<http://www.w3.org/2001/XMLSchema#integer>
+?property	?count
