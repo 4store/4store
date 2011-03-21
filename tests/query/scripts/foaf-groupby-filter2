@@ -1,0 +1,10 @@
+#!
+
+# tests GROUP BY, COUNT and FILTER
+
+$TESTPATH/frontend/4s-query $1 '
+SELECT ?property, (count(?o) as ?count) WHERE {
+?s ?property ?o .
+?s a <http://xmlns.com/foaf/0.1/Person> .
+FILTER (isURI(?o) && ?property != <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> ) .
+} GROUP BY ?property' | sort
