@@ -24,6 +24,7 @@ typedef struct _fs_row {
 	const char     *lex;
 	const char     *dt;
 	const char     *lang;
+	int            stop;
 } fs_row;
 
 /* evaluate an expression that may include variables, returning the evaluated

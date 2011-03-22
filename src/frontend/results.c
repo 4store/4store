@@ -237,7 +237,7 @@ fs_value fs_expression_eval(fs_query *q, int row, int block, rasqal_expression *
         fs_error(LOG_ERR, "block was less than zero, changing to 0");
         block = 0;
     }
-
+    
     switch (e->op) {
 	case RASQAL_EXPR_AND:
 	    return fn_logical_and(q, fs_expression_eval(q, row, block, e->arg1),
@@ -376,11 +376,13 @@ fs_value fs_expression_eval(fs_query *q, int row, int block, rasqal_expression *
         }
 
         case RASQAL_EXPR_COUNT: {
-            if (e->arg1->op == RASQAL_EXPR_VARSTAR) {
+            if (e->arg1->op == RASQAL_EXPR_VARSTAR && !q->apply_constraints) {
                 return fs_value_integer(q->group_length);
             }
             int count = 0;
             for (int r=0; r<q->group_length; r++) {
+                if (q->apply_constraints && !fs_bit_array_get(q->apply_constraints,q->group_rows[r])) continue;
+                    
                 fs_value v = fs_expression_eval(q, q->group_rows[r], block, e->arg1);
                 if (v.valid & fs_valid_bit(FS_V_TYPE_ERROR) ||
                     ((v.attr == fs_c.empty || v.attr == FS_RID_NULL) &&
@@ -589,6 +591,7 @@ fs_value fs_expression_eval(fs_query *q, int row, int block, rasqal_expression *
         case RASQAL_EXPR_SUM: {
             fs_value v = fs_value_integer(0);
             for (int r=0; r<q->group_length; r++) {
+                if (q->apply_constraints && !fs_bit_array_get(q->apply_constraints,q->group_rows[r])) continue;
                 v = fn_numeric_add(q, v, fs_expression_eval(q, q->group_rows[r], block, e->arg1));
             }
 
@@ -599,6 +602,7 @@ fs_value fs_expression_eval(fs_query *q, int row, int block, rasqal_expression *
             fs_value sum = fs_value_integer(0);
             int count = 0;
             for (int r=0; r<q->group_length; r++) {
+                if (q->apply_constraints && !fs_bit_array_get(q->apply_constraints,q->group_rows[r])) continue;
                 fs_value expr = fs_expression_eval(q, q->group_rows[r], block, e->arg1);
                 sum = fn_numeric_add(q, sum, expr);
                 if (sum.valid & fs_valid_bit(FS_V_TYPE_ERROR)) {
@@ -626,36 +630,54 @@ fs_value fs_expression_eval(fs_query *q, int row, int block, rasqal_expression *
 
         case RASQAL_EXPR_MIN: {
             fs_value m;
+            int set = 0;
+            int pre=0;
             if (q->group_length > 0) {
-                m = fs_expression_eval(q, q->group_rows[0], block, e->arg1);
-            } else {
-                m = fs_value_error(FS_ERROR_INVALID_TYPE, NULL);
-            }
-            for (int r=1; r<q->group_length; r++) {
-                fs_value expr = fs_expression_eval(q, q->group_rows[r], block, e->arg1);
-                int order = fs_order_by_cmp(m, expr);
-                if (order > 0) {
-                    m = expr;
+                for (int pre=0; !set && pre<q->group_length; pre++) {
+                    if (q->apply_constraints && !fs_bit_array_get(q->apply_constraints,q->group_rows[pre])) continue;
+                    m = fs_expression_eval(q, q->group_rows[pre], block, e->arg1);
+                    set = 1;
                 }
             }
-
+            if (!set)
+                m = fs_value_error(FS_ERROR_INVALID_TYPE, NULL);
+            else {
+                for (int r=pre; r<q->group_length; r++) {
+                    if (q->apply_constraints && !fs_bit_array_get(q->apply_constraints,q->group_rows[r])) continue;
+                    fs_value expr = fs_expression_eval(q, q->group_rows[r], block, e->arg1);
+                    int order = fs_order_by_cmp(m, expr);
+                    if (order > 0) {
+                        m = expr;
+                    }
+                }
+            }
             return m;
         }
 
         case RASQAL_EXPR_MAX: {
             fs_value m;
+            int set = 0;
+            int pre=0;
             if (q->group_length > 0) {
-                m = fs_expression_eval(q, q->group_rows[0], block, e->arg1);
-            } else {
-                m = fs_value_error(FS_ERROR_INVALID_TYPE, NULL);
-            }
-            for (int r=1; r<q->group_length; r++) {
-                fs_value expr = fs_expression_eval(q, q->group_rows[r], block, e->arg1);
-                int order = fs_order_by_cmp(m, expr);
-                if (order < 0) {
-                    m = expr;
+                for (int pre=0; !set && pre<q->group_length; pre++) {
+                    if (q->apply_constraints && !fs_bit_array_get(q->apply_constraints,q->group_rows[pre])) continue;
+                    m = fs_expression_eval(q, q->group_rows[pre], block, e->arg1);
+                    set = 1;
                 }
             }
+            if (!set)
+                m = fs_value_error(FS_ERROR_INVALID_TYPE, NULL);
+            else {
+                for (int r=pre; r<q->group_length; r++) {
+                    if (q->apply_constraints && !fs_bit_array_get(q->apply_constraints,q->group_rows[r])) continue;
+                    fs_value expr = fs_expression_eval(q, q->group_rows[r], block, e->arg1);
+                    int order = fs_order_by_cmp(m, expr);
+                    if (order < 0) {
+                        m = expr;
+                    }
+                }
+            }
+            return m;
 
             return m;
         }
@@ -1573,7 +1595,7 @@ static void output_sparql(fs_query *q, int flags, FILE *out)
             }
         } else {
             fprintf(out, "  <results>\n");
-            while ((row = fs_query_fetch_row(q))) {
+            while (!row->stop && (row = fs_query_fetch_row(q))) {
                 fprintf(out, "    <result>\n");
                 for (int c=0; c<cols; c++) {
                     int esc_len;
@@ -1691,7 +1713,7 @@ static void output_text(fs_query *q, int flags, FILE *out)
     if (q->construct) {
         handle_construct(q, "ntriples", out);
     } else {
-	while ((row = fs_query_fetch_row(q))) {
+	while (!row->stop && (row = fs_query_fetch_row(q))) {
 	    for (int c=0; c<cols; c++) {
 		int esclen = 0;
 		char *escd = NULL;
@@ -1805,7 +1827,7 @@ static void output_json(fs_query *q, int flags, FILE *out)
         fprintf(out, "  \"bindings\":[");
         fs_row *row;
         int rownum = 0;
-        while ((row = fs_query_fetch_row(q))) {
+        while ((!row || !row->stop) && (row = fs_query_fetch_row(q))) {
             if (rownum++ > 0) {
                 fprintf(out, ",\n");
             } else {
@@ -1944,7 +1966,7 @@ static void output_testcase(fs_query *q, int flags, FILE *out)
         return;
     }
 
-    while ((row = fs_query_fetch_row(q))) {
+    while (!row->stop && (row = fs_query_fetch_row(q))) {
 	fprintf(out, " ;\n   rs:solution [\n");
         if (q->ordering) {
             static int index = 0;
@@ -2018,6 +2040,61 @@ static gboolean cache_dump(gpointer key, gpointer value, gpointer user_data)
     return 1;
 }
 
+static void prefetch_lexical_data(fs_query *q, long int next_row,const int rows) {
+
+    /* ms8: aggregates prefetch everything in one go */
+    if (q->aggregate > 2)
+        return;
+    if (q->aggregate) q->aggregate = 3; 
+
+    for (int i=0; i<q->segments; i++) {
+        fs_rid_vector_clear(q->pending[i]);
+    }
+
+    /* dump L1 cache into L2 */
+    g_static_mutex_lock (&cache_mutex);
+    if (res_l1_cache) g_hash_table_foreach_steal(res_l1_cache, cache_dump, NULL);
+
+    int lookup_buffer_size = RESOURCE_LOOKUP_BUFFER;
+    if (q->limit > 0 && q->limit < RESOURCE_LOOKUP_BUFFER) {
+        lookup_buffer_size = q->limit * 2;
+    }
+
+    unsigned int pre_cache_len = 0;
+    if (q->aggregate) {
+        /* in case this is an aggregate we need to cache all of it
+        because next_row has been moved to the last solution
+        TODO: all RIDs are cached in one go */
+       lookup_buffer_size = next_row;
+    }
+    for (int row=q->row; row < q->row + lookup_buffer_size && row < rows; row++) {
+        for (int col=1; col <= q->num_vars_total; col++) {
+            if (!q->bt[col].need_val && !q->bt[col].expression) continue;
+            fs_rid rid;
+            if (row < q->bt[col].vals->length) {
+                if (q->ordering) {
+                    rid = q->bt[col].vals->data[q->ordering[row]];
+                } else {
+                    rid = q->bt[col].vals->data[row];
+                }
+            } else {
+                rid = FS_RID_NULL;
+            }
+            if (FS_IS_BNODE(rid)) continue;
+            if (res_l2_cache[rid & CACHE_MASK].rid == rid) continue;
+            pre_cache_len++;
+            fs_rid_vector_append(q->pending[FS_RID_SEGMENT(rid, q->segments)], rid);
+        }
+    }
+    g_static_mutex_unlock(&cache_mutex);
+    if (pre_cache_len)
+        resolve_precache_all_with_stats(q);
+    q->qs->pre_cache_total += pre_cache_len;
+    q->lastrow = q->row + lookup_buffer_size;
+}
+
+
+
 fs_row *fs_query_fetch_row(fs_query *q)
 {
     if (!q) return NULL;
@@ -2027,20 +2104,37 @@ nextrow: ;
     fs_rid_vector *grows = NULL;
 
     /* handle aggregates */
-    if (q->aggregate) {
+    if (q->aggregate && (q->aggregate < 2 || q->group_by)) {
         if (q->row >= q->length) {
             return NULL;
         }
         fs_rid_vector *groups = fs_binding_get_vals(q->bt, "_group", NULL);
         fs_rid_vector *ord = q->bt[0].vals;
         if (groups) {
-            fs_rid group = groups->data[ord->data[q->row]];
-            grows = fs_rid_vector_new(0);
-            fs_rid_vector_append(grows, ord->data[q->row]);
-            while (next_row < q->length && groups->data[ord->data[next_row]] == group) {
-                fs_rid_vector_append(grows, ord->data[next_row]);
+            q->group_by = 1;
+
+            next_row--;
+            fs_rid group;
+
+            int constrain_group = 0;
+            do {
+                group = groups->data[ord->data[next_row]];
+                constrain_group = apply_constraints(q,ord->data[next_row]);
+                if (constrain_group) {
+                    grows = fs_rid_vector_new(0);
+                    fs_rid_vector_append(grows, ord->data[next_row]);
+                }
                 next_row++;
-            }
+            } while (next_row < q->length && !constrain_group);
+
+            if (constrain_group) {
+                while (next_row < q->length && groups->data[ord->data[next_row]] == group) {
+                    if (apply_constraints(q,ord->data[next_row]))
+                        fs_rid_vector_append(grows, ord->data[next_row]);
+                    next_row++;
+                }
+            } else
+                return NULL;
         } else {
             long len = fs_binding_length(q->bt);
             grows = fs_rid_vector_new(len);
@@ -2070,55 +2164,11 @@ nextrow: ;
     }
 
     if (!q->resrow) {
-	fs_query_fetch_header_row(q);
+        fs_query_fetch_header_row(q);
     }
 
-    /* prefetch a load of lexical data */
-    if (q->row == q->lastrow) {
-	for (int i=0; i<q->segments; i++) {
-	    fs_rid_vector_clear(q->pending[i]);
-	}
-
-        /* dump L1 cache into L2 */
-        g_static_mutex_lock (&cache_mutex);
-        if (res_l1_cache) g_hash_table_foreach_steal(res_l1_cache, cache_dump, NULL);
-
-        int lookup_buffer_size = RESOURCE_LOOKUP_BUFFER;
-        if (q->limit > 0 && q->limit < RESOURCE_LOOKUP_BUFFER) {
-            lookup_buffer_size = q->limit * 2;
-        }
-
-        unsigned int pre_cache_len = 0;
-        if (q->aggregate) {
-            /* in case this is an aggregate we need to cache all of it
-            because next_row has been moved to the last solution
-            TODO: all RIDs are cached in one go */
-            lookup_buffer_size = next_row;
-        }
-	for (int row=q->row; row < q->row + lookup_buffer_size && row < rows; row++) {
-	    for (int col=1; col <= q->num_vars_total; col++) {
-                if (!q->bt[col].need_val && !q->bt[col].expression) continue;
-		fs_rid rid;
-		if (row < q->bt[col].vals->length) {
-                    if (q->ordering) {
-                        rid = q->bt[col].vals->data[q->ordering[row]];
-                    } else {
-                        rid = q->bt[col].vals->data[row];
-                    }
-		} else {
-		    rid = FS_RID_NULL;
-		}
-		if (FS_IS_BNODE(rid)) continue;
-		if (res_l2_cache[rid & CACHE_MASK].rid == rid) continue;
-        pre_cache_len++;
-		fs_rid_vector_append(q->pending[FS_RID_SEGMENT(rid, q->segments)], rid);
-	    }
-	}
-        g_static_mutex_unlock(&cache_mutex);
-        if (pre_cache_len)
-            resolve_precache_all_with_stats(q);
-        q->qs->pre_cache_total += pre_cache_len;
-        q->lastrow = q->row + lookup_buffer_size;
+    if (q->row == q->lastrow && (q->aggregate < 3)) {
+        prefetch_lexical_data(q, next_row, rows);
     }
 
     int row = q->row;
@@ -2130,34 +2180,57 @@ nextrow: ;
         row = q->ordering[q->row];
     }
 
-    if (!apply_constraints(q, row)) {
-        q->boolean = 0;
-        /* if we dont need any bindings we may as well stop */
-        if (q->num_vars == 0) {
-            if (grows) fs_rid_vector_free(grows);
-            return NULL;
-        }
-        q->row = next_row;
-	goto nextrow;
+    int row_agg = 0;
+    if (q->row < q->length && !q->group_by) {
+        consnext: ;
+        if (q->aggregate && !q->group_by) row = row_agg;
+        if (!apply_constraints(q, row)) {
+            q->boolean = 0;
+            /* if we dont need any bindings we may as well stop */
+            if (q->num_vars == 0) {
+                if (grows) fs_rid_vector_free(grows);
+                return NULL;
+            }
+            q->row = next_row;
+            if (!q->aggregate)
+                goto nextrow;
+            else {
+                if(!q->apply_constraints) q->apply_constraints = fs_new_bit_array(q->group_length);
+                fs_bit_array_set(q->apply_constraints,row_agg,0);
+            }
+        } else if (q->aggregate) {
+            q->row = next_row;
+        }    
     }
 
     int repeat_row = 1;
     for (int i=0; i<q->num_vars; i++) {
         fs_rid last_rid = q->resrow[i].rid;
-	q->resrow[i].rid = q->bt[i+1].bound && row < q->bt[i+1].vals->length ?
+        q->resrow[i].rid = q->bt[i+1].bound && row < q->bt[i+1].vals->length ?
                            q->bt[i+1].vals->data[row] : FS_RID_NULL;
         if (last_rid != q->resrow[i].rid) repeat_row = 0;
         if (q->bt[i+1].expression) {
-            fs_value val = fs_expression_eval(q, row, 0, q->bt[i+1].expression);
-            if (fs_is_error(val)) {
-                if (val.lex) {
-                    if (!q->warnings || !g_slist_find(q->warnings, val.lex)) {
-                        q->warnings = g_slist_prepend(q->warnings, val.lex);
+            fs_value val;
+            if (!q->aggregate || q->group_by) {
+                val = fs_expression_eval(q, row, 0, q->bt[i+1].expression);
+                if (fs_is_error(val)) {
+                    if (val.lex) {
+                        if (!q->warnings || !g_slist_find(q->warnings, val.lex)) {
+                            q->warnings = g_slist_prepend(q->warnings, val.lex);
+                        }
                     }
+                    q->row = next_row;
+                    goto nextrow;
                 }
-
-                q->row = next_row;
-                goto nextrow;
+            }
+            
+            if (!q->group_by) {
+                if (q->aggregate && (row_agg+1) < q->length) {
+                    row_agg++;
+                    goto consnext;
+                } else { 
+                    val = fs_expression_eval(q, row, 0, q->bt[i+1].expression);
+                }
             }
             fs_value_to_row(q, val, q->resrow+i);
         } else {
@@ -2190,14 +2263,20 @@ nextrow: ;
     /* if it's DISTINCT and there are FILTERS then we might have more
      * distincting to do */
     /* TODO could add REDUCED handling here too */
-    if (q->flags & FS_BIND_DISTINCT && repeat_row) {
+    if (q->flags & FS_BIND_DISTINCT && repeat_row && !q->aggregate) {
         q->row = next_row;
-	goto nextrow;
+        goto nextrow;
     }
 
     q->row = next_row;
     q->rows_output++;
     if (grows) fs_rid_vector_free(grows);
+
+    if (!q->group_by && q->aggregate) {
+        q->resrow->stop=1;
+        if (q->apply_constraints)
+            fs_bit_array_destroy(q->apply_constraints);
+    }
 
     return q->resrow;
 }

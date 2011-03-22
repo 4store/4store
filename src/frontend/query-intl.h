@@ -83,6 +83,9 @@ struct _fs_query {
     int aggregate;			/* true if the query uses aggregates */
     long group_length;			/* number of rows in the current group */
     uint64_t *group_rows;		/* row numbers of the rows in the current group */
+    unsigned char *apply_constraints; /* bit array initialized to 1s, 
+                                        position x shifts to 0 if no apply cons */
+    int group_by;
 };
 
 #endif
