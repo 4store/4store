@@ -1827,7 +1827,7 @@ static void output_json(fs_query *q, int flags, FILE *out)
         fprintf(out, "  \"bindings\":[");
         fs_row *row;
         int rownum = 0;
-        while (!row->stop && (row = fs_query_fetch_row(q))) {
+        while ((!row || !row->stop) && (row = fs_query_fetch_row(q))) {
             if (rownum++ > 0) {
                 fprintf(out, ",\n");
             } else {
