@@ -114,7 +114,8 @@ AC_CONFIG_FILES([version.sh
                  src/libs/double-metaphone/Makefile
                  src/libs/stemmer/Makefile
                  src/utilities/Makefile
-                 src/common/params.h])
+                 src/common/params.h
+                 4store-0.pc])
 AC_OUTPUT
 
 raptor_version=`$PKG_CONFIG raptor2 --modversion 2>/dev/null`
