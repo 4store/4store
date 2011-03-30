@@ -9,4 +9,4 @@ AM_CFLAGS = -std=gnu99 -Wall $(PROFILE) -g -O2 -I./ -I../ -DGIT_REV=@GIT_REV@ @R
 AM_LDFLAGS = $(PROFILE) @RASQAL_LIBS@ @RAPTOR_LIBS@ @GLIB_LIBS@ @LIBXML_LIBS@ @GTHREAD_LIBS@ @MDNS_LIBS@ `pcre-config --libs`
 
 4s_httpd_SOURCES = httpd.c ../common/gnu-options.c
-4s_httpd_LDADD = ../common/lib4store.a $(FRONTEND) ../common/libsort.a ../libs/stemmer/libstemmer.a ../libs/double-metaphone/libdouble_metaphone.a
+4s_httpd_LDADD = ../common/lib4sintl.a $(FRONTEND) ../common/libsort.a ../libs/stemmer/libstemmer.a ../libs/double-metaphone/libdouble_metaphone.a

@@ -1,5 +1,6 @@
 #include "4store-config.h"
 #include "4store.h"
+#include "server.h"
 #include "params.h"
 
 #include <unistd.h>

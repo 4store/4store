@@ -8,6 +8,7 @@ AM_INIT_AUTOMAKE([1.7 std-options -Wall])
 AM_CONFIG_HEADER(4store-config.h)
 
 # Checks for programs.
+AC_PROG_LIBTOOL
 AC_PROG_AWK
 AC_PROG_CC
 AC_PROG_INSTALL
