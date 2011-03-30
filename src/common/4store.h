@@ -7,7 +7,6 @@
 #include <syslog.h>
 
 #include "datatypes.h"
-#include "../backend/backend.h"
 
 /* message types */
 /* use a #define because these are part of the on-the-wire protocol

@@ -24,6 +24,7 @@
 #include <glib.h>
 
 #include "../common/4store.h"
+#include "../common/server.h"
 #include "../common/error.h"
 #include "../common/hash.h"
 
