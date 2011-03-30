@@ -7,5 +7,4 @@ Name: 4store RDF Storage Library
 Description: RDF Storage Library
 Version: @VERSION@
 Libs: -L${libdir} -l4store
-Libs.private: @MDNS_LIBS@
 Cflags: -I${includedir}
