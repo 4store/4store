@@ -18,5 +18,5 @@ lib4sintl_a_SOURCES = 4s-common.c 4s-client.c 4s-server.c 4s-mdns.c datatypes.c 
 libsort_a_SOURCES = msort.c qsort.c
 
 lib_LTLIBRARIES = lib4store.la 
-lib4store_la_SOURCES = 4s-common.c 4s-client.c 4s-server.c 4s-mdns.c datatypes.c error.c umac.c rijndael-alg-fst.c md5.c hash.c
+lib4store_la_SOURCES = 4s-common.c 4s-client.c 4s-mdns.c datatypes.c error.c umac.c rijndael-alg-fst.c md5.c hash.c
 lib4store_la_CFLAGS = $(AM_CFLAGS)
