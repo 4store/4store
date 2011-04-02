@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 kb="query_test_$USER"
 ../../src/utilities/4s-backend-setup --node 0 --cluster 1 --segments 8 $kb
