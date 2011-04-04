@@ -589,7 +589,7 @@ fs_query *fs_query_execute(fs_query_state *qs, fsp_link *link, raptor_uri *bu, c
         }
     }
 #if DEBUG_MERGE > 1
-    printf("After DISINTCT\n");
+    printf("After DISTINCT\n");
     fs_binding_print(q->bb[0], stdout);
 #endif
 
