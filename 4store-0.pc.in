@@ -1,0 +1,10 @@
+prefix=@prefix@
+exec_prefix=@exec_prefix@
+libdir=@libdir@
+includedir=@includedir@/@PACKAGE@
+
+Name: 4store RDF Storage Library
+Description: RDF Storage Library
+Version: @VERSION@
+Libs: -L${libdir} -l4store
+Cflags: -I${includedir}

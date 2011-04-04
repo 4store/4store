@@ -1,4 +1,5 @@
 *.o
+*.lo
 *.a
 *.dSYM
 *.cache
@@ -22,3 +23,10 @@ depcomp
 install-sh
 config.status
 version.sh
+src/common/.libs
+src/common/lib4store.la
+compile
+config.guess
+config.sub
+libtool
+4store-0.pc

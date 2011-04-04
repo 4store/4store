@@ -18,12 +18,13 @@
  *  Copyright (C) 2007 Steve Harris for Garlik
  */
 
+#include <4store-config.h>
 #include <sys/param.h>
 #include <sys/mount.h>
 #include <string.h>
 #include <errno.h>
 #include <glib.h>
-#ifndef __APPLE__
+#ifdef HAVE_SYS_VFS_H
 #include <sys/vfs.h>
 #endif
 
