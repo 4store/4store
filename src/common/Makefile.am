@@ -2,7 +2,7 @@ noinst_LIBRARIES = lib4sintl.a libsort.a
 
 noinst_PROGRAMS = hashtest
 
-nodist_pkginclude_HEADERS = 4store.h
+nodist_pkginclude_HEADERS = 4store.h datatypes.h
 #nodist_pkginclude_HEADERS = 4s-internals.h 4store.h datatypes.h error.h hash.h md5.h params.h rdf-constants.h rijndael-alg-fst.h sort.h timing.h umac.h gnu-options.h
 
 noinst_HEADERS = 4s-internals.h 4store.h datatypes.h error.h hash.h md5.h params.h rdf-constants.h rijndael-alg-fst.h sort.h timing.h umac.h gnu-options.h 
