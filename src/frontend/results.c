@@ -908,6 +908,11 @@ static raptor_term *slot_fill(fs_query *q, rasqal_literal *l, fs_row *row)
 	    }
 	}
         if (FS_IS_BNODE(b->rid)) {
+            if(strcmp(b->lex, "NULL") == 0) {
+                /* b->lex is the string "NULL", so return as is */
+                return raptor_new_term_from_blank(q->qs->raptor_world, (unsigned char *)b->lex);
+            }
+
             return raptor_new_term_from_blank(q->qs->raptor_world, (unsigned char *)b->lex+2);
         } else if (FS_IS_URI(b->rid)) {
             return raptor_new_term_from_uri_string(q->qs->raptor_world, (unsigned char *)b->lex);
@@ -1488,6 +1493,15 @@ static void handle_construct(fs_query *q, const char *type, FILE *output)
                 st.subject = slot_fill(q, trip->subject, row);
                 st.predicate = slot_fill(q, trip->predicate, row);
                 st.object = slot_fill(q, trip->object, row);
+
+                if (st.object->type == RAPTOR_TERM_TYPE_BLANK && strcmp((char *)st.object->value.blank.string, "NULL") == 0) {
+                    /* bnodes with an id of "NULL" should not be rendered */
+                    raptor_free_term(st.subject);
+                    raptor_free_term(st.predicate);
+                    raptor_free_term(st.object);
+                    continue;
+                }
+
                 raptor_serializer_serialize_statement(q->ser, &st);
                 raptor_free_term(st.subject);
                 raptor_free_term(st.predicate);
@@ -1595,7 +1609,7 @@ static void output_sparql(fs_query *q, int flags, FILE *out)
             }
         } else {
             fprintf(out, "  <results>\n");
-            while (!row->stop && (row = fs_query_fetch_row(q))) {
+            while ((!row || !row->stop) && (row = fs_query_fetch_row(q))) {
                 fprintf(out, "    <result>\n");
                 for (int c=0; c<cols; c++) {
                     int esc_len;
@@ -1713,7 +1727,7 @@ static void output_text(fs_query *q, int flags, FILE *out)
     if (q->construct) {
         handle_construct(q, "ntriples", out);
     } else {
-	while (!row->stop && (row = fs_query_fetch_row(q))) {
+	while ((!row || !row->stop) && (row = fs_query_fetch_row(q))) {
 	    for (int c=0; c<cols; c++) {
 		int esclen = 0;
 		char *escd = NULL;
@@ -1966,7 +1980,7 @@ static void output_testcase(fs_query *q, int flags, FILE *out)
         return;
     }
 
-    while (!row->stop && (row = fs_query_fetch_row(q))) {
+    while ((!row || !row->stop) && (row = fs_query_fetch_row(q))) {
 	fprintf(out, " ;\n   rs:solution [\n");
         if (q->ordering) {
             static int index = 0;
