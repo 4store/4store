@@ -21,9 +21,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "../common/4store.h"
+#include "4store.h"
 #include "../common/server.h"
-#include "../common/hash.h"
 #include "../common/error.h"
 
 int main(int argc, char *argv[])

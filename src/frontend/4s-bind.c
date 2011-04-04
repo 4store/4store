@@ -28,9 +28,8 @@
 #include <string.h>
 #include <errno.h>
 
-#include "../common/4store.h"
+#include "4store.h"
 #include "../common/server.h"
-#include "../common/hash.h"
 #include "../common/error.h"
 
 static int  segments;

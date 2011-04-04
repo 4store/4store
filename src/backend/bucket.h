@@ -1,7 +1,7 @@
 #ifndef BUCKET_H
 #define BUCKET_H
 
-#include "../common/datatypes.h"
+#include "4store/datatypes.h"
 
 /* 1k buckets 
 #define FS_BUCKET_PADDING 1016

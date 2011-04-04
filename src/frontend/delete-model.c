@@ -25,10 +25,8 @@
 #include <rasqal.h>
 
 #include "query-datatypes.h"
-#include "../common/4store.h"
-#include "../common/datatypes.h"
+#include "4store.h"
 #include "../common/params.h"
-#include "../common/hash.h"
 #include "../common/error.h"
 #include "../common/gnu-options.h"
 

@@ -23,8 +23,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-#include "../common/4store.h"
-#include "../common/hash.h"
+#include "4store.h"
 #include "rhash.h"
 
 int main(int argc, char *argv[])

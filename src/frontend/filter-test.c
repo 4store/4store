@@ -19,7 +19,7 @@
  */
 
 #include "filter.h"
-#include "../common/hash.h"
+#include "4store/hash.h"
 #include "../common/rdf-constants.h"
 
 int main()

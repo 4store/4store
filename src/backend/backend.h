@@ -1,8 +1,8 @@
 #ifndef BACKEND_H
 #define BACKEND_H
 
+#include "4store/datatypes.h"
 #include "../common/params.h"
-#include "../common/datatypes.h"
 #include "../frontend/decimal.h"
 
 #define FS_BACKEND_QUIET   1

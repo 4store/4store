@@ -22,7 +22,7 @@
 
 #include "query-datatypes.h"
 #include "decimal.h"
-#include "../common/datatypes.h"
+#include "4store/datatypes.h"
 
 typedef enum {
     FS_ERROR_INVALID_TYPE = 99

@@ -6,8 +6,8 @@
 
 #include <syslog.h>
 
-#include "datatypes.h"
-#include "hash.h"
+#include "4store/datatypes.h"
+#include "4store/hash.h"
 
 /* message types */
 /* use a #define because these are part of the on-the-wire protocol

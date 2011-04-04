@@ -28,8 +28,7 @@
 #include "query-cache.h"
 #include "query-intl.h"
 #include "query-datatypes.h"
-#include "../common/4store.h"
-#include "../common/datatypes.h"
+#include "4store.h"
 #include "../common/params.h"
 #include "../common/error.h"
 

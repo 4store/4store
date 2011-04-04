@@ -20,10 +20,10 @@
 
 #include "4s-internals.h"
 
-#include "datatypes.h"
+#include "4store/datatypes.h"
+#include "4store/hash.h"
 #include "params.h"
 #include "error.h"
-#include "hash.h"
 #include "md5.h"
 
 #include <stdlib.h>
