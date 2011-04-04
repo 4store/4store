@@ -7,6 +7,7 @@
 #include <syslog.h>
 
 #include "datatypes.h"
+#include "hash.h"
 
 /* message types */
 /* use a #define because these are part of the on-the-wire protocol
@@ -216,13 +217,6 @@ const char *fsp_kb_name(fsp_link *link);
 int fsp_hit_limits(fsp_link *link);
 void fsp_hit_limits_reset(fsp_link *link);
 void fsp_hit_limits_add(fsp_link *link, int delta);
-
-typedef enum {
-  FS_HASH_UNKNOWN,
-  FS_HASH_MD5,
-  FS_HASH_UMAC,
-  FS_HASH_CRC64
-} fsp_hash_enum;
 
 fsp_hash_enum fsp_hash_type(fsp_link *link);
 

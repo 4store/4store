@@ -22,6 +22,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <libxml/xmlwriter.h>
+#include <glib.h>
 
 #include "../common/4store.h"
 #include "../common/server.h"

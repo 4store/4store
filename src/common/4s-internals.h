@@ -66,3 +66,9 @@ void fsp_mdns_setup_backend (uint16_t port, const char *kb_name, int segments);
 int fsp_mdns_retry_frontend (fsp_link *link, int msecs);
 void fsp_mdns_cleanup_frontend (fsp_link *link);
 void fsp_mdns_setup_frontend (fsp_link *link);
+
+GHashTable * fs_hash_bnids(void);
+
+/* functions used by g_hash_table_* */
+guint fs_rid_hash(gconstpointer p);
+gboolean fs_rid_equal(gconstpointer va, gconstpointer vb);
