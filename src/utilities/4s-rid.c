@@ -43,15 +43,7 @@ int main(int argc, char *argv[])
   char lex[128], lang[128], type[128], uri[128];
   fs_rid rid;
 
-#ifdef FS_MD5
-  fs_hash_init(FS_HASH_MD5);
-#endif
-#ifdef FS_CRC64
-  fs_hash_init(FS_HASH_CRC64);
-#endif
-#ifdef FS_UMAC
   fs_hash_init(FS_HASH_UMAC);
-#endif
 
   if (sscanf(string, "\"%127[^\"]\"@%127s", lex, lang) == 2) {
     rid = fs_hash_literal(lex,fs_hash_literal(lang, 0));
