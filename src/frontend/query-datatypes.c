@@ -496,27 +496,38 @@ static int binding_row_compare(fs_query *q, fs_binding *b1, fs_binding *b2, int 
     }
 
     for (int i=1; b1[i].name; i++) {
-	if (!b1[i].sort) continue;
+        if (!b1[i].sort) continue;
 
         const fs_rid b1v = table_value(b1, i, p1);
         const fs_rid b2v = table_value(b2, i, p2);
 
-        if (b1v == FS_RID_NULL || b2v == FS_RID_NULL) {
-            continue;
+        if (b1v == FS_RID_NULL) {
+            if (b2v == FS_RID_NULL) {
+                /* both bindings are null, assume equality */
+                continue;
+            }
+
+            /* b1v is null, b2v is not, assume null < b2v  */
+            return -2;
         }
 
-	if (b1v > b2v) {
+        if (b2v == FS_RID_NULL) {
+            /* b2v is null, b1v is not, assume b1v > null */
+            return 2;
+        }
+
+        if (b1v > b2v) {
 #ifdef DEBUG_COMPARE
             printf("CMP %llx > %llx\n", b1v, b2v);
 #endif
-	    return 1;
-	}
-	if (b1v < b2v) {
+            return 1;
+        }
+        if (b1v < b2v) {
 #ifdef DEBUG_COMPARE
             printf("CMP %llx < %llx\n", b1v, b2v);
 #endif
-	    return -1;
-	}
+            return -1;
+        }
     }
 
     return 0;
@@ -1025,8 +1036,9 @@ printf(" %s=null", c[col].name);
                 }
             }
             apos++;
-        } else if (cmp == 0) {
-	    /* both rows match, find out what combinations bind and produce them */
+        } else if (cmp == 0 || cmp == -2 || cmp == 2) {
+        /* Both rows are equal (cmp == 0), or one row is null (cmp == -2, 2) */
+	    /* Both rows match, find out what combinations bind and produce them */
 #if DEBUG_MERGE > 1
 printf("[I] Ar=%d, Br=%d", apos, bpos);
 #endif
