@@ -3,7 +3,7 @@
 
 #include <rasqal.h>
 
-#include "4store/datatypes.h"
+#include "../common/4s-datatypes.h"
 #include "../common/params.h"
 
 #define FS_BINDING_MAX_VARS 128

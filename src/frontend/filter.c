@@ -25,7 +25,7 @@
 #include "filter-datatypes.h"
 #include "filter.h"
 #include "query.h"
-#include "4store/hash.h"
+#include "../common/4s-hash.h"
 #include "../common/error.h"
 #include "../common/rdf-constants.h"
 

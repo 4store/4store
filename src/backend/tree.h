@@ -5,7 +5,7 @@
 
 #include "backend.h"
 #include "chain.h"
-#include "4store/datatypes.h"
+#include "../common/4s-datatypes.h"
 
 #define FS_INDEX_IGNORED_BITS 5
 #define FS_INDEX_ROOT_BITS 12

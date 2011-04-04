@@ -3,7 +3,7 @@
 
 #include "query-datatypes.h"
 #include "filter-datatypes.h"
-#include "4store/datatypes.h"
+#include "../common/4s-datatypes.h"
 
 #define FS_RESULT_FLAG_HEADERS             16
 

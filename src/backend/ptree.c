@@ -30,10 +30,10 @@
 #include "backend.h"
 #include "ptree.h"
 #include "chain.h"
-#include "4store/datatypes.h"
-#include "4store/hash.h"
+#include "../common/4s-datatypes.h"
+#include "../common/4s-hash.h"
 #include "../common/params.h"
-#include "../common//error.h"
+#include "../common/error.h"
 
 #define FS_PTREE_ID 0x4a585031
 #define FS_PTREE_REVISION 0

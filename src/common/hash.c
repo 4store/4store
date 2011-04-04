@@ -33,8 +33,8 @@
 #include "params.h"
 #include "umac.h"
 
-#include "4store/datatypes.h"
-#include "4store/hash.h"
+#include "4s-datatypes.h"
+#include "4s-hash.h"
 #include "error.h"
 #include "rdf-constants.h"
 

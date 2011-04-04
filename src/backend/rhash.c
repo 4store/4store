@@ -33,7 +33,7 @@
 #include "rhash.h"
 #include "list.h"
 #include "prefix-trie.h"
-#include "4store/hash.h"
+#include "../common/4s-hash.h"
 #include "../common/params.h"
 #include "../common/error.h"
 
