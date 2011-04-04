@@ -856,9 +856,9 @@ if (fp < DEBUG_CUTOFF) {
 	    }
 	    tpos = tp;
 	    fpos = fp;
-	} else if (cmp == -1) {
+	} else if (cmp <= -1) {
 	    fpos++;
-	} else if (cmp == 1) {
+	} else if (cmp >= 1) {
 	    tpos++;
 	} else {
 	    fs_error(LOG_CRIT, "unknown compare state %d in binding", cmp);
