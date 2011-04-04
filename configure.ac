@@ -8,7 +8,13 @@ AM_INIT_AUTOMAKE([1.7 std-options -Wall])
 AM_CONFIG_HEADER(4store-config.h)
 
 # Checks for programs.
+AC_PROG_GREP
 AC_PROG_LIBTOOL
+AC_CACHE_CHECK([that libtool is version 2.4], [ac_cv_LIBTOOL24_found],
+	[AC_PATH_PROGS_FEATURE_CHECK([LIBTOOL24], [libtool],
+		[[$ac_path_LIBTOOL24 --version | $ac_path_GREP -q 2.4 && \
+		  ac_cv_path_LIBTOOL24=$ac_path_LIBTOOL24 ac_cv_LIBTOOL24_found=yes]],
+		[AC_MSG_ERROR([libtool has the wrong version - you need version 2.4 to build])])])
 AC_PROG_AWK
 AC_PROG_CC
 AC_PROG_INSTALL
