@@ -1,4 +1,4 @@
-AM_CFLAGS = -Wall -g -std=gnu99 -I.. -I../common -DGIT_REV=@GIT_REV@ @GLIB_CFLAGS@
+AM_CFLAGS = -Wall -g -std=gnu99 -I.. -DGIT_REV=@GIT_REV@ @GLIB_CFLAGS@
 AM_LDFLAGS = -lz @GLIB_LIBS@ @RAPTOR_LIBS@
 
 bin_PROGRAMS = 4s-backend-setup 4s-backend-destroy 4s-backend-info 4s-backend-copy 4s-backend-passwd

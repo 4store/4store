@@ -18,7 +18,7 @@
  *  Copyright 2006 Nick Lamb for Garlik.com
  */
 
-#include "4store.h"
+#include "../common/4store.h"
 #include "../common/server.h"
 #include "../common/error.h"
 #include "../common/params.h"

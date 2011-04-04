@@ -24,7 +24,7 @@
 #include <libxml/xmlwriter.h>
 #include <glib.h>
 
-#include "4store.h"
+#include "../common/4store.h"
 #include "../common/server.h"
 #include "../common/error.h"
 
