@@ -25,8 +25,8 @@
 #include "filter-datatypes.h"
 #include "filter.h"
 #include "query.h"
+#include "../common/4s-hash.h"
 #include "../common/error.h"
-#include "../common/hash.h"
 #include "../common/rdf-constants.h"
 
 typedef struct _fs_date_fields {

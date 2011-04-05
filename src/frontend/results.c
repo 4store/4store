@@ -30,9 +30,10 @@
 #include "query-intl.h"
 #include "filter.h"
 #include "debug.h"
-#include "../common/hash.h"
+#include "../common/4s-hash.h"
 #include "../common/error.h"
 #include "../common/rdf-constants.h"
+#include "../common/4s-internals.h"
 
 #define CACHE_SIZE 65536
 #define CACHE_MASK (CACHE_SIZE-1)

@@ -1,11 +1,9 @@
 #ifndef HASH_H
 #define HASH_H
 
-#include <glib.h>
 #include <stdint.h>
 
-#include "../common/datatypes.h"
-#include "../common/4store.h"
+#include "4s-datatypes.h"
 
 #define FS_IS_BNODE(x)   (((x) & 0xC000000000000000LL) == 0x8000000000000000LL)
 #define FS_IS_URI(x)     (((x) & 0xC000000000000000LL) == 0xC000000000000000LL)
@@ -66,12 +64,6 @@ fs_rid fs_hash_uri(const char *str);
 fs_rid fs_hash_uri_ignore_bnode(const char *str);
 fs_rid fs_hash_literal(const char *str, fs_rid attr);
 
-GHashTable * fs_hash_bnids(void);
-
 void umac_crypto_hash(const char *str, char *result);
-
-/* functions used by g_hash_table_* */
-guint fs_rid_hash(gconstpointer p);
-gboolean fs_rid_equal(gconstpointer va, gconstpointer vb);
 
 #endif

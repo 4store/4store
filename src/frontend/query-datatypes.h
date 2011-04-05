@@ -3,8 +3,8 @@
 
 #include <rasqal.h>
 
+#include "../common/4s-datatypes.h"
 #include "../common/params.h"
-#include "../common/datatypes.h"
 
 #define FS_BINDING_MAX_VARS 128
 

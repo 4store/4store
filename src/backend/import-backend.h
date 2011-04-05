@@ -1,7 +1,7 @@
 #ifndef IMPORT_BACKEND_H
 #define IMPORT_BACKEND_H
 
-#include "../common/datatypes.h"
+#include "../common/4s-datatypes.h"
 
 int fs_res_import(fs_backend *be, int seg, long count, fs_resource buffer[]);
 

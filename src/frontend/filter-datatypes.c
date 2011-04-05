@@ -28,7 +28,7 @@
 #include "filter.h"
 #include "filter-datatypes.h"
 #include "query-data.h"
-#include "../common/hash.h"
+#include "../common/4s-hash.h"
 #include "../common/error.h"
 
 fs_value fs_value_blank()

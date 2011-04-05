@@ -9,6 +9,8 @@
 #include "tbchain.h"
 #include "metadata.h"
 
+#include <glib.h>
+
 struct ptree_ref {
     fs_rid pred;
     fs_ptree *ptree_s;

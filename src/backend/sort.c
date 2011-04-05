@@ -19,7 +19,7 @@
  */
 
 #include "sort.h"
-#include "../common/datatypes.h"
+#include "../common/4s-datatypes.h"
 
 int quad_sort_by_subject(const void *va, const void *vb)
 {
