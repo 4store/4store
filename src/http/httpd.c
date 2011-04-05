@@ -34,6 +34,7 @@
 #include <glib.h>
 #include <sys/types.h>
 #include <sys/wait.h>
+#include <time.h>
 
 #include <rasqal.h>
 
@@ -121,7 +122,12 @@ static void query_log_reopen ()
 static void query_log (client_ctxt *ctxt, const char *query)
 {
   if (ql_file) {
-    fprintf(ql_file, "##### Q%u\n%s\n", ctxt->query_id, query);
+    time_t now = time(NULL);
+    struct tm *ts = localtime(&now);
+    char time_str[20];
+    strftime(time_str, sizeof(time_str), "%Y-%m-%d %H:%M:%S", ts);
+
+    fprintf(ql_file, "##### %s Q%u\n%s\n", time_str, ctxt->query_id, query);
     fflush(ql_file);
   }
 }
