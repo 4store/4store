@@ -1,0 +1,3 @@
+#!
+
+echo 'SELECT DISTINCT * WHERE { { ?s <http://www.census.gov/tiger/2002/vocab#lat> ?lat } UNION { ?s <http://www.census.gov/tiger/2002/vocab#long> ?b } }' | $TESTPATH/frontend/4s-query $1 -f sparql -s 3 -P

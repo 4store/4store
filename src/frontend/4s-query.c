@@ -37,9 +37,7 @@
 #include "results.h"
 #include "query-datatypes.h"
 #include "../common/4store.h"
-#include "../common/datatypes.h"
 #include "../common/params.h"
-#include "../common/hash.h"
 #include "../common/error.h"
 
 static void interactive(fsp_link *link, raptor_uri *bu, const char *result_format, int verbosity, int opt_levelo, int result_flags, int soft_limit, raptor_world *rw);

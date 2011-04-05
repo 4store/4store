@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="utf-8"?>
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xml:base="local:">
+  <rdf:Description rdf:about="jo">
+    <ns0:y xmlns:ns0="local:">Jo Walsh</ns0:y>
+  </rdf:Description>
+  <rdf:Description rdf:about="jo">
+    <ns0:y xmlns:ns0="local:">zool</ns0:y>
+  </rdf:Description>
+  <rdf:Description rdf:about="akt">
+    <ns0:y xmlns:ns0="local:">Advanced Knowledge Technologies</ns0:y>
+  </rdf:Description>
+  <rdf:Description rdf:about="libby">
+    <ns0:y xmlns:ns0="local:">Libby Miller</ns0:y>
+  </rdf:Description>
+  <rdf:Description rdf:about="libby">
+    <ns0:y xmlns:ns0="local:">libby</ns0:y>
+  </rdf:Description>
+  <rdf:Description rdf:about="dajobe">
+    <ns0:y xmlns:ns0="local:">Dave Beckett</ns0:y>
+  </rdf:Description>
+  <rdf:Description rdf:about="dajobe">
+    <ns0:y xmlns:ns0="local:">dajobe</ns0:y>
+  </rdf:Description>
+  <rdf:Description rdf:about="nick">
+    <ns0:y xmlns:ns0="local:">Nick Gibbins</ns0:y>
+  </rdf:Description>
+  <rdf:Description rdf:about="nick">
+    <ns0:y xmlns:ns0="local:">nmg</ns0:y>
+  </rdf:Description>
+  <rdf:Description rdf:about="mailto:steve@example.net">
+    <ns0:y xmlns:ns0="local:">Steve Harris</ns0:y>
+  </rdf:Description>
+  <rdf:Description rdf:about="mailto:steve@example.net">
+    <ns0:y xmlns:ns0="local:">swh</ns0:y>
+  </rdf:Description>
+  <rdf:Description rdf:about="stripes">
+    <ns0:y xmlns:ns0="local:">Mark Thompson</ns0:y>
+  </rdf:Description>
+  <rdf:Description rdf:about="stripes">
+    <ns0:y xmlns:ns0="local:">Stripes</ns0:y>
+  </rdf:Description>
+</rdf:RDF>
+<!-- EOR -->
+<?xml version="1.0" encoding="utf-8"?>
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xml:base="local:">
+  <rdf:Description rdf:about="jo">
+    <ns0:y xmlns:ns0="local:">Jo Walsh</ns0:y>
+  </rdf:Description>
+  <rdf:Description rdf:about="jo">
+    <ns0:y xmlns:ns0="local:">zool</ns0:y>
+  </rdf:Description>
+  <rdf:Description rdf:about="akt">
+    <ns0:y xmlns:ns0="local:">Advanced Knowledge Technologies</ns0:y>
+  </rdf:Description>
+  <rdf:Description rdf:about="libby">
+    <ns0:y xmlns:ns0="local:">Libby Miller</ns0:y>
+  </rdf:Description>
+  <rdf:Description rdf:about="libby">
+    <ns0:y xmlns:ns0="local:">libby</ns0:y>
+  </rdf:Description>
+  <rdf:Description rdf:about="dajobe">
+    <ns0:y xmlns:ns0="local:">Dave Beckett</ns0:y>
+  </rdf:Description>
+  <rdf:Description rdf:about="dajobe">
+    <ns0:y xmlns:ns0="local:">dajobe</ns0:y>
+  </rdf:Description>
+  <rdf:Description rdf:about="nick">
+    <ns0:y xmlns:ns0="local:">Nick Gibbins</ns0:y>
+  </rdf:Description>
+  <rdf:Description rdf:about="nick">
+    <ns0:y xmlns:ns0="local:">nmg</ns0:y>
+  </rdf:Description>
+  <rdf:Description rdf:about="mailto:steve@example.net">
+    <ns0:y xmlns:ns0="local:">Steve Harris</ns0:y>
+  </rdf:Description>
+  <rdf:Description rdf:about="mailto:steve@example.net">
+    <ns0:y xmlns:ns0="local:">swh</ns0:y>
+  </rdf:Description>
+  <rdf:Description rdf:about="mailto:steve@example.net">
+    <ns0:z xmlns:ns0="local:">Harris</ns0:z>
+  </rdf:Description>
+  <rdf:Description rdf:about="stripes">
+    <ns0:y xmlns:ns0="local:">Mark Thompson</ns0:y>
+  </rdf:Description>
+  <rdf:Description rdf:about="stripes">
+    <ns0:y xmlns:ns0="local:">Stripes</ns0:y>
+  </rdf:Description>
+</rdf:RDF>
+<!-- EOR -->

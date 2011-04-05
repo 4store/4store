@@ -126,6 +126,13 @@ typedef struct _fs_quad_freq {
     long long freq;	/* approximate quantity of entries */
 } fs_quad_freq;
 
+typedef enum {
+  FS_HASH_UNKNOWN,
+  FS_HASH_MD5,
+  FS_HASH_UMAC,
+  FS_HASH_CRC64
+} fsp_hash_enum;
+
 #ifdef DEBUG_RV_ALLOC
 #define fs_rid_vector_new(len) fs_rid_vector_new_logged(len, __FILE__, __LINE__)
 fs_rid_vector *fs_rid_vector_new_logged(int length, char *file, int line);

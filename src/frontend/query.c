@@ -37,10 +37,7 @@
 #include "group.h"
 #include "import.h"
 #include "debug.h"
-#include "../common/4store.h"
-#include "../common/datatypes.h"
 #include "../common/params.h"
-#include "../common/hash.h"
 #include "../common/error.h"
 #include "../common/rdf-constants.h"
 
@@ -589,7 +586,7 @@ fs_query *fs_query_execute(fs_query_state *qs, fsp_link *link, raptor_uri *bu, c
         }
     }
 #if DEBUG_MERGE > 1
-    printf("After DISINTCT\n");
+    printf("After DISTINCT\n");
     fs_binding_print(q->bb[0], stdout);
 #endif
 

@@ -30,8 +30,8 @@
 #include "query-datatypes.h"
 #include "query-intl.h"
 #include "debug.h"
+#include "../common/4s-hash.h"
 #include "../common/error.h"
-#include "../common/hash.h"
 #include "../common/rdf-constants.h"
 
 /* returns the number of values for the expression, or INT_MAX if its unbound */

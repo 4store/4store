@@ -32,11 +32,8 @@
 #include <errno.h>
 
 #include "import.h"
-#include "../common/datatypes.h"
 #include "../common/error.h"
-#include "../common/hash.h"
 #include "../common/params.h"
-
 #include "../common/4store.h"
 
 static fsp_link *fsplink; /* link to remote server(s) */

@@ -1,0 +1,204 @@
+<?xml version="1.0"?>
+<sparql xmlns="http://www.w3.org/2005/sparql-results#">
+  <head>
+    <variable name="s"/>
+    <variable name="lat"/>
+    <variable name="b"/>
+  </head>
+  <results>
+    <result>
+      <binding name="s"><bnode>b1eff000000000078</bnode></binding>
+      <binding name="lat"><literal>37.681431</literal></binding>
+    </result>
+    <result>
+      <binding name="s"><bnode>b1eff000000000078</bnode></binding>
+      <binding name="b"><literal>-122.102874</literal></binding>
+    </result>
+    <result>
+      <binding name="s"><bnode>b1eff000000000079</bnode></binding>
+      <binding name="lat"><literal>37.680695</literal></binding>
+    </result>
+    <result>
+      <binding name="s"><bnode>b1eff000000000079</bnode></binding>
+      <binding name="b"><literal>-122.102602</literal></binding>
+    </result>
+    <result>
+      <binding name="s"><bnode>b1eff00000000007b</bnode></binding>
+      <binding name="lat"><literal>37.681774</literal></binding>
+    </result>
+    <result>
+      <binding name="s"><bnode>b1eff00000000007b</bnode></binding>
+      <binding name="b"><literal>-122.10303</literal></binding>
+    </result>
+    <result>
+      <binding name="s"><bnode>b1eff0000000000f8</bnode></binding>
+      <binding name="lat"><literal>37.68763</literal></binding>
+    </result>
+    <result>
+      <binding name="s"><bnode>b1eff0000000000f8</bnode></binding>
+      <binding name="b"><literal>-122.103474</literal></binding>
+    </result>
+    <result>
+      <binding name="s"><bnode>b1eff0000000000f9</bnode></binding>
+      <binding name="lat"><literal>37.689368</literal></binding>
+    </result>
+    <result>
+      <binding name="s"><bnode>b1eff0000000000f9</bnode></binding>
+      <binding name="b"><literal>-122.104247</literal></binding>
+    </result>
+    <result>
+      <binding name="s"><bnode>b1eff0000000000fa</bnode></binding>
+      <binding name="lat"><literal>37.68913</literal></binding>
+    </result>
+    <result>
+      <binding name="s"><bnode>b1eff0000000000fa</bnode></binding>
+      <binding name="b"><literal>-122.105674</literal></binding>
+    </result>
+    <result>
+      <binding name="s"><bnode>b1eff010000000079</bnode></binding>
+      <binding name="lat"><literal>37.524805</literal></binding>
+    </result>
+    <result>
+      <binding name="s"><bnode>b1eff010000000079</bnode></binding>
+      <binding name="b"><literal>-121.970735</literal></binding>
+    </result>
+    <result>
+      <binding name="s"><bnode>b1eff01000000007a</bnode></binding>
+      <binding name="lat"><literal>37.524337</literal></binding>
+    </result>
+    <result>
+      <binding name="s"><bnode>b1eff01000000007a</bnode></binding>
+      <binding name="b"><literal>-121.970771</literal></binding>
+    </result>
+    <result>
+      <binding name="s"><bnode>b1eff01000000007b</bnode></binding>
+      <binding name="lat"><literal>37.519537</literal></binding>
+    </result>
+    <result>
+      <binding name="s"><bnode>b1eff01000000007b</bnode></binding>
+      <binding name="b"><literal>-121.973071</literal></binding>
+    </result>
+    <result>
+      <binding name="s"><bnode>b1eff0100000000f8</bnode></binding>
+      <binding name="lat"><literal>37.675861</literal></binding>
+    </result>
+    <result>
+      <binding name="s"><bnode>b1eff0100000000f8</bnode></binding>
+      <binding name="b"><literal>-121.910974</literal></binding>
+    </result>
+    <result>
+      <binding name="s"><bnode>b1eff0100000000fa</bnode></binding>
+      <binding name="lat"><literal>37.775728</literal></binding>
+    </result>
+    <result>
+      <binding name="s"><bnode>b1eff0100000000fa</bnode></binding>
+      <binding name="b"><literal>-122.239979</literal></binding>
+    </result>
+    <result>
+      <binding name="s"><bnode>b1eff0100000000fb</bnode></binding>
+      <binding name="lat"><literal>37.775746</literal></binding>
+    </result>
+    <result>
+      <binding name="s"><bnode>b1eff0100000000fb</bnode></binding>
+      <binding name="b"><literal>-122.239489</literal></binding>
+    </result>
+    <result>
+      <binding name="s"><bnode>b1ffe01000000007d</bnode></binding>
+      <binding name="lat"><literal>37.537237</literal></binding>
+    </result>
+    <result>
+      <binding name="s"><bnode>b1ffe01000000007d</bnode></binding>
+      <binding name="b"><literal>-121.985242</literal></binding>
+    </result>
+    <result>
+      <binding name="s"><bnode>b1fff00000000007c</bnode></binding>
+      <binding name="lat"><literal>37.681431</literal></binding>
+    </result>
+    <result>
+      <binding name="s"><bnode>b1fff00000000007c</bnode></binding>
+      <binding name="b"><literal>-122.102874</literal></binding>
+    </result>
+    <result>
+      <binding name="s"><bnode>b1fff00000000007e</bnode></binding>
+      <binding name="lat"><literal>37.682429</literal></binding>
+    </result>
+    <result>
+      <binding name="s"><bnode>b1fff00000000007e</bnode></binding>
+      <binding name="b"><literal>-122.100923</literal></binding>
+    </result>
+    <result>
+      <binding name="s"><bnode>b1fff00000000007f</bnode></binding>
+      <binding name="lat"><literal>37.681774</literal></binding>
+    </result>
+    <result>
+      <binding name="s"><bnode>b1fff00000000007f</bnode></binding>
+      <binding name="b"><literal>-122.10303</literal></binding>
+    </result>
+    <result>
+      <binding name="s"><bnode>b1fff0000000000fd</bnode></binding>
+      <binding name="lat"><literal>37.690203</literal></binding>
+    </result>
+    <result>
+      <binding name="s"><bnode>b1fff0000000000fd</bnode></binding>
+      <binding name="b"><literal>-122.100545</literal></binding>
+    </result>
+    <result>
+      <binding name="s"><bnode>b1fff0000000000fe</bnode></binding>
+      <binding name="lat"><literal>37.689829</literal></binding>
+    </result>
+    <result>
+      <binding name="s"><bnode>b1fff0000000000fe</bnode></binding>
+      <binding name="b"><literal>-122.101923</literal></binding>
+    </result>
+    <result>
+      <binding name="s"><bnode>b1fff01000000007c</bnode></binding>
+      <binding name="lat"><literal>37.521137</literal></binding>
+    </result>
+    <result>
+      <binding name="s"><bnode>b1fff01000000007c</bnode></binding>
+      <binding name="b"><literal>-121.973771</literal></binding>
+    </result>
+    <result>
+      <binding name="s"><bnode>b1fff01000000007e</bnode></binding>
+      <binding name="lat"><literal>37.519137</literal></binding>
+    </result>
+    <result>
+      <binding name="s"><bnode>b1fff01000000007e</bnode></binding>
+      <binding name="b"><literal>-121.973971</literal></binding>
+    </result>
+    <result>
+      <binding name="s"><bnode>b1fff01000000007f</bnode></binding>
+      <binding name="lat"><literal>37.520637</literal></binding>
+    </result>
+    <result>
+      <binding name="s"><bnode>b1fff01000000007f</bnode></binding>
+      <binding name="b"><literal>-121.974271</literal></binding>
+    </result>
+    <result>
+      <binding name="s"><bnode>b1fff0100000000fc</bnode></binding>
+      <binding name="lat"><literal>37.68283</literal></binding>
+    </result>
+    <result>
+      <binding name="s"><bnode>b1fff0100000000fc</bnode></binding>
+      <binding name="b"><literal>-121.921769</literal></binding>
+    </result>
+    <result>
+      <binding name="s"><bnode>b1fff0100000000fd</bnode></binding>
+      <binding name="lat"><literal>37.68253</literal></binding>
+    </result>
+    <result>
+      <binding name="s"><bnode>b1fff0100000000fd</bnode></binding>
+      <binding name="b"><literal>-121.922869</literal></binding>
+    </result>
+    <result>
+      <binding name="s"><bnode>b1fff0100000000ff</bnode></binding>
+      <binding name="lat"><literal>37.775746</literal></binding>
+    </result>
+    <result>
+      <binding name="s"><bnode>b1fff0100000000ff</bnode></binding>
+      <binding name="b"><literal>-122.239489</literal></binding>
+    </result>
+  </results>
+<!-- warning: hit complexity limit 16 times, increasing soft limit may give more results -->
+</sparql>
+<!-- EOR -->

@@ -25,7 +25,7 @@
 #include "debug.h"
 #include "results.h"
 #include "query-intl.h"
-#include "../common/hash.h"
+#include "../common/4s-hash.h"
 #include "../common/error.h"
 
 struct order_row {
