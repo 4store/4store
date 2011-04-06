@@ -2,7 +2,7 @@
 
 source sparql.sh
 
-put "$EPR" ../../data/nasty.ttl 'test/turtle' 'http://example.com/nasty.ttl'
+put "$EPR" ../../data/nasty.ttl 'text/turtle' 'http://example.com/nasty.ttl'
 sparql "$EPR" 'SELECT ?d WHERE { <test:data> <test:bcdate> ?d . FILTER(YEAR(?d) = 1969) } ORDER BY ?d'
 sparql "$EPR" 'SELECT ?d WHERE { <test:data> <test:bcdate> ?d . FILTER(MONTH(?d) = 5.0) } ORDER BY ?d'
 sparql "$EPR" 'SELECT (DAY(?d) AS ?dd) WHERE { <test:data> <test:bcdate> ?d } ORDER BY ?d'
