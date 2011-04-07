@@ -164,7 +164,13 @@ update_prog_version() {
   cd "$dir"
   PATH=".:$PATH"
 
-  names=`ls $prog* 2>/dev/null`
+  nameglob="$prog*"
+  if [ -x /usr/bin/uname ]; then
+    if [ `/usr/bin/uname` = 'Darwin' -a $prog = 'libtoolize' ] ; then
+      nameglob="g$nameglob"
+    fi
+  fi
+  names=`ls $nameglob 2>/dev/null`
   if [ "X$names" != "X" ]; then
     for name in $names; do
       vers=`perl $autogen_get_version $dir/$name $prog`
