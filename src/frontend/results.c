@@ -1822,7 +1822,8 @@ static void output_json(fs_query *q, int flags, FILE *out)
 
     const int cols = fs_query_get_columns(q);
 
-    fs_row *header = fs_query_fetch_header_row(q);
+    fs_row *row, *header;
+    row = header = fs_query_fetch_header_row(q);
     fprintf(out, "{\"head\":{\"vars\":[");
     for (int i=0; i<cols; i++) {
         if (i) fputs(",", out);
@@ -1840,7 +1841,6 @@ static void output_json(fs_query *q, int flags, FILE *out)
     } else {
         fprintf(out, " \"results\": {\n");
         fprintf(out, "  \"bindings\":[");
-        fs_row *row;
         int rownum = 0;
         while ((!row || !row->stop) && (row = fs_query_fetch_row(q))) {
             if (rownum++ > 0) {
