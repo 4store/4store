@@ -1,7 +1,7 @@
 #ifndef QUERY_H
 #define QUERY_H
 
-#include <raptor2/raptor.h>
+#include <raptor.h>
 #include <rasqal.h>
 
 #include "query-datatypes.h"
