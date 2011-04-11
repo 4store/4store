@@ -123,9 +123,9 @@ static void query_log (client_ctxt *ctxt, const char *query)
 {
   if (ql_file) {
     time_t now = time(NULL);
-    struct tm *ts = localtime(&now);
-    char time_str[20];
-    strftime(time_str, sizeof(time_str), "%Y-%m-%d %H:%M:%S", ts);
+    struct tm *ts = gmtime(&now);
+    char time_str[21];
+    strftime(time_str, sizeof(time_str), "%Y-%m-%dT%H:%M:%SZ", ts);
 
     fprintf(ql_file, "##### %s Q%u\n%s\n", time_str, ctxt->query_id, query);
     fflush(ql_file);
