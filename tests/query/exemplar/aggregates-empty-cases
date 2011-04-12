@@ -1,0 +1,8 @@
+?count	?sum	?avg
+"0"^^<http://www.w3.org/2001/XMLSchema#integer>	"0"^^<http://www.w3.org/2001/XMLSchema#integer>	NULL
+#EOR
+?count
+"0"^^<http://www.w3.org/2001/XMLSchema#integer>
+#EOR
+?c	?count	?sum	?avg
+#EOR
