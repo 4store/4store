@@ -1896,11 +1896,7 @@ static void output_json(fs_query *q, int flags, FILE *out)
     if (q->warnings) {
         fprintf(out, ",\n \"warnings\": [");
         GSList *it;
-        int count = 0;
         for (it = q->warnings; it; it = it->next) {
-            if (count++) {
-                printf(", ");
-            }
             char *text = it->data;
             char *escd = NULL;
             int esclen = 0;
