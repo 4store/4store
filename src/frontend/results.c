@@ -1909,6 +1909,9 @@ static void output_json(fs_query *q, int flags, FILE *out)
                 text = escd;
             }
             fprintf(out, "\"%s\"", text);
+            if (it->next)
+                fprintf(out, ",\n");
+
             if (escd) free(escd);
         }
         g_slist_free(q->warnings);
