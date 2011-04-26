@@ -1,0 +1,13 @@
+#!
+
+# tests OPTIONALs with no left-hand-side
+
+$TESTPATH/frontend/4s-query $1 '
+SELECT * WHERE {
+  ?v1 <http://xmlns.com/foaf/0.1/givenname> ?v2 .
+  {
+    OPTIONAL { ?vopt <http://xmlns.com/foaf/0.1/family_name> "Harris" . }
+    FILTER( ?v1 = ?vopt )
+  }
+}'
+echo "Returned $?"

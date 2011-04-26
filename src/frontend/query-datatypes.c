@@ -203,8 +203,6 @@ fs_binding *fs_binding_add(fs_binding *b, rasqal_variable *var, fs_rid val, int 
 fs_binding *fs_binding_copy(fs_binding *b)
 {
     if (!b) {
-        fs_error(LOG_CRIT, "tried to copy NULL binding table");
-
         return NULL;
     }
 #ifdef DEBUG_BINDING
@@ -917,6 +915,13 @@ if (fp < DEBUG_CUTOFF) {
 
 fs_binding *fs_binding_join(fs_query *q, fs_binding *a, fs_binding *b, fs_join_type join)
 {
+    if (a == NULL) {
+        return fs_binding_copy(b);
+    }
+    if (b == NULL) {
+        return fs_binding_copy(a);
+    }
+
     fs_binding *c = fs_binding_copy(a);
     int inter = 0;      /* do the tables intersect */
 
