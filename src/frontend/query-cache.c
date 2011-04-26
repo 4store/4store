@@ -152,7 +152,7 @@ int fs_bind_cache_wrapper(fs_query_state *qs, fs_query *q, int all,
         }
     }
 
-    if (cachable && small) {
+    if (cachable && small && slots > 0) {
         g_static_mutex_lock(&qs->cache_mutex);
         if (qs->bind_cache[cache_hash].filled == 1) {
           for (int s=0; s<4; s++) {

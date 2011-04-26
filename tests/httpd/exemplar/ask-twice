@@ -1,0 +1,6 @@
+201 imported successfully
+This is a 4store SPARQL server [VERSION]
+Query: ASK { <http://example.org/> <http://example.org/> "42" . }
+false
+Query: ASK { <http://example.org/> <http://example.org/> "42" . }
+false
