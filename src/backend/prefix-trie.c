@@ -165,6 +165,8 @@ int fs_prefix_trie_get_code(fs_prefix_trie *t, const char *str, int *prefix_len)
         }
         if (edge == -1) {
             fs_error(LOG_ERR, "should never get here");
+
+            return 0;
         }
         if (t->nodes[n].code) {
             deepest_code = t->nodes[n].code;
