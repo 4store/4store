@@ -4,7 +4,7 @@ noinst_PROGRAMS = hashtest
 
 nodist_pkginclude_HEADERS = 4store.h 4s-datatypes.h 4s-hash.h
 
-noinst_HEADERS = 4s-internals.h 4store.h error.h md5.h params.h rdf-constants.h rijndael-alg-fst.h sort.h timing.h umac.h gnu-options.h 
+noinst_HEADERS = 4s-internals.h 4store.h 4s-datatypes.h 4s-hash.h server.h error.h md5.h params.h rdf-constants.h rijndael-alg-fst.h sort.h timing.h umac.h gnu-options.h 
 
 AM_CFLAGS = -std=gnu99 -fno-strict-aliasing -Wall -g -O2 -I.. -DGIT_REV=@GIT_REV@ @GLIB_CFLAGS@ @MDNS_CFLAGS@
 AM_LDFLAGS = @MDNS_LIBS@
