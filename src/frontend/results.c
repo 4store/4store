@@ -1495,8 +1495,21 @@ static void handle_construct(fs_query *q, const char *type, FILE *output)
                 st.predicate = slot_fill(q, trip->predicate, row);
                 st.object = slot_fill(q, trip->object, row);
 
+                int skip = 0;
+
                 if (st.object->type == RAPTOR_TERM_TYPE_BLANK && strcmp((char *)st.object->value.blank.string, "NULL") == 0) {
                     /* bnodes with an id of "NULL" should not be rendered */
+                    skip = 1;
+                } else if (st.subject->type != RAPTOR_TERM_TYPE_URI &&
+                           st.subject->type != RAPTOR_TERM_TYPE_BLANK) {
+                    /* subjects muse be URIs or bNodes */
+                    skip = 1;
+                } else if (st.predicate->type != RAPTOR_TERM_TYPE_URI) {
+                    /* predicates must be URIs */
+                    skip = 1;
+                }
+
+                if (skip) {
                     raptor_free_term(st.subject);
                     raptor_free_term(st.predicate);
                     raptor_free_term(st.object);
