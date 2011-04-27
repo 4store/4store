@@ -3,6 +3,8 @@ SUBDIRS = src man tests
 pkgconfigdir = $(libdir)/pkgconfig
 pkgconfig_DATA = 4store-0.pc
 
+check: test
+
 test:
 	(cd tests && $(MAKE) -w $@)
 
