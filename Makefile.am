@@ -3,7 +3,7 @@ SUBDIRS = src man tests
 pkgconfigdir = $(libdir)/pkgconfig
 pkgconfig_DATA = 4store-0.pc
 
-test:
+test: all
 	(cd tests && $(MAKE) -w $@)
 
 macapp: all
