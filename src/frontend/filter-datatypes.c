@@ -43,11 +43,11 @@ fs_value fs_value_blank()
 fs_value fs_value_rid(fs_rid r)
 {
     fs_value v = fs_value_blank();
-    v.rid = r;
     if (r == FS_RID_GONE) {
         fs_error(LOG_ERR, "found RID_GONE value, optimiser elimination bug");
         r = FS_RID_NULL;
     }
+    v.rid = r;
     v.valid = fs_valid_bit(FS_V_RID);
 
     return v;

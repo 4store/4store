@@ -298,7 +298,6 @@ static void tree_compact(fs_query *q)
 #ifdef DEBUG_MERGE
                 printf("Merge B%d to B%d\n", block, parent);
 #endif
-                done_something = 1;
                 fs_p_vector_append_vector(q->blocks+parent, q->blocks+block);
                 if (q->constraints[parent] == NULL) {
                     q->constraints[parent] = q->constraints[block];

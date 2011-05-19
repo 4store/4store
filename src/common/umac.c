@@ -333,10 +333,10 @@ static void pdf_gen_xor(pdf_ctx *pc, UINT8 nonce[8], UINT8 buf[8])
 #define LOW_BIT_MASK 0
 #endif
 
-    UINT8 tmp_nonce_lo[4];
+    UINT8 tmp_nonce_lo[4] = {0, 0, 0, 0};
     int index = nonce[7] & LOW_BIT_MASK;
     *(UINT32 *)tmp_nonce_lo = ((UINT32 *)nonce)[1];
-    tmp_nonce_lo[3] &= ~LOW_BIT_MASK; /* zero last bit */
+    tmp_nonce_lo[3] = ~LOW_BIT_MASK; /* zero last bit */
 
     if ( (((UINT32 *)tmp_nonce_lo)[0] != ((UINT32 *)pc->nonce)[1]) ||
          (((UINT32 *)nonce)[0] != ((UINT32 *)pc->nonce)[0]) )

@@ -64,8 +64,8 @@ static void setup_l1_cache()
 
 static int resolve(fs_query *q, fs_rid rid, fs_resource *res)
 {
-    res->rid = FS_RID_NULL;
-    res->attr = FS_RID_NULL;
+    res->rid = FS_RID_GONE;
+    res->attr = FS_RID_GONE;
     res->lex = NULL;
 
     if (rid == FS_RID_NULL) {
@@ -908,6 +908,12 @@ static raptor_term *slot_fill(fs_query *q, rasqal_literal *l, fs_row *row)
                 break;
 	    }
 	}
+        if (!b) {
+            fs_error(LOG_CRIT, "caanot find column in binding table");
+
+            return raptor_new_term_from_blank(q->qs->raptor_world, (unsigned char *)"");
+        }
+
         if (FS_IS_BNODE(b->rid)) {
             if(strcmp(b->lex, "NULL") == 0) {
                 /* b->lex is the string "NULL", so return as is */
@@ -2490,6 +2496,9 @@ int fs_sort_column(fs_query *q, fs_binding *b, int col, int **sorted)
     }
 
     const int length = b[col].vals->length;
+    if (length == 0) {
+        return 0;
+    }
 
     /* resolve all the resources */
     for (int row=0; row < length; row++) {

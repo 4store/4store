@@ -719,10 +719,12 @@ int fs_add(struct update_context *uc, char *from, char *to)
 
     if (!results || results[0]->length == 0) {
         /* there's nothing to add */
-        for (int i=0; i<3; i++) {
-            fs_rid_vector_free(results[i]);
+        if (results) {
+            for (int i=0; i<3; i++) {
+                fs_rid_vector_free(results[i]);
+            }
+            free(results);
         }
-        free(results);
         add_message(uc, g_strdup_printf("Added <%s> to <%s>", from, to), 1);
         add_message(uc, "0 triples added, 0 removed", 0);
 

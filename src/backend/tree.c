@@ -150,7 +150,7 @@ fs_tree *fs_tree_open(fs_backend *be, const char *name, int flags)
 
 static int map_tree(fs_tree *t, size_t length, size_t size)
 {
-    TIME(NULL);
+    //TIME(NULL);
     t->len = (size+1) * sizeof(fs_tree_index);
     lseek(t->fd, t->len, SEEK_SET);
     int ret = write(t->fd, "", 1);
@@ -170,7 +170,7 @@ static int map_tree(fs_tree *t, size_t length, size_t size)
     t->header->size = size;
     t->header->length = length;
     t->data = (fs_tree_index *)(((char *)t->ptr) + sizeof(struct tree_header));
-    TIME("tree map");
+    //TIME("tree map");
 
     return 0;
 }
@@ -283,7 +283,7 @@ int fs_tree_close(fs_tree *t)
 
 fs_tree_index *fs_tree_get_node(fs_tree *t, fs_index_node n)
 {
-    TIME(NULL);
+    //TIME(NULL);
     if (!fs_is_tree_ref(n)) {
         fs_error(LOG_ERR, "fs_tree_get_node() passed non-tree reference %08x", n);
 
@@ -301,7 +301,7 @@ fs_tree_index *fs_tree_get_node(fs_tree *t, fs_index_node n)
 
         return NULL;
     }
-    TIME("tree get node");
+    //TIME("tree get node");
 
     return &(t->data[n]);
 }
@@ -345,7 +345,7 @@ fs_index_node fs_tree_add_quad(fs_tree *t, fs_rid a, fs_rid b, fs_rid quad[4])
 
     int level = 0;
     int branch;
-    TIME(NULL);
+    //TIME(NULL);
     do {
         tnnode = node;
         tn = fs_tree_get_node(t, node);
@@ -357,7 +357,7 @@ fs_index_node fs_tree_add_quad(fs_tree *t, fs_rid a, fs_rid b, fs_rid quad[4])
         branch = fs_tree_branch_from_hash(a, b, level++);
         node = tn->branch[branch];
     } while (fs_is_tree_ref(node));
-    TIME("walk tree");
+    //TIME("walk tree");
 
     if (level < 2) {
         node = fs_tree_new_index_node(t);
@@ -371,7 +371,7 @@ fs_index_node fs_tree_add_quad(fs_tree *t, fs_rid a, fs_rid b, fs_rid quad[4])
         }
         tn->branch[branch] = node;
         tn = fs_tree_get_node(t, node);
-        TIME("expand tree");
+        //TIME("expand tree");
         if (!tn) {
             fs_error(LOG_CRIT, "fetch of node %08x failed", node);
 
@@ -381,14 +381,14 @@ fs_index_node fs_tree_add_quad(fs_tree *t, fs_rid a, fs_rid b, fs_rid quad[4])
 //printf("got branch %d\n", branch);
         node = fs_chain_new_bucket(t->bc);
         tn->branch[branch] = node;
-        TIME("expand chain for tree");
+        //TIME("expand chain for tree");
     }
 
     /* theres no chain ref at the leaf of the tree */
     if (tn->branch[branch] == 0) {
         node = fs_chain_new_bucket(t->bc);
         tn->branch[branch] = node;
-        TIME("expand chain");
+        //TIME("expand chain");
     }
 
     fs_index_node tnode;
@@ -398,14 +398,13 @@ fs_index_node fs_tree_add_quad(fs_tree *t, fs_rid a, fs_rid b, fs_rid quad[4])
         return 0;
     }
     tn->branch[branch] = tnode;
-    TIME("add quad");
+    //TIME("add quad");
 
     return tnode;
 }
 
 fs_index_node fs_tree_add_i32(fs_tree *t, fs_rid a, fs_rid b, int32_t data)
 {
-    fs_index_node node = fs_tree_root_from_hash(a);
     fs_tree_index *tn;
     fs_index_node tnnode;
 
@@ -427,9 +426,9 @@ fs_index_node fs_tree_add_i32(fs_tree *t, fs_rid a, fs_rid b, int32_t data)
 
     /* theres no chain ref at the leaf of the tree */
     if (tn->branch[branch] == 0) {
-        node = fs_chain_new_bucket(t->bc);
+        fs_index_node node = fs_chain_new_bucket(t->bc);
         tn->branch[branch] = node;
-        TIME("expand chain");
+        //TIME("expand chain");
     }
 
     fs_index_node tnode;
@@ -441,7 +440,7 @@ fs_index_node fs_tree_add_i32(fs_tree *t, fs_rid a, fs_rid b, int32_t data)
     }
     tn->branch[branch] = tnode;
 
-    TIME("add i32");
+    //TIME("add i32");
     if (chainlength) {
         if (chainlength > 10000) {
             return FS_TREE_LONG_INDEX;
@@ -453,33 +452,33 @@ fs_index_node fs_tree_add_i32(fs_tree *t, fs_rid a, fs_rid b, int32_t data)
 
 int fs_tree_sync(fs_tree *t)
 {
-    TIME(NULL);
+    //TIME(NULL);
     fs_chain_sync(t->bc);
     if (msync(t->ptr, t->len, MS_SYNC) == -1) {
         fs_error(LOG_CRIT, "failed to msync tree: %s", strerror(errno));
 
         return 1;
     }
-    TIME("tree sync");
+    //TIME("tree sync");
 
     return 0;
 }
 
 fs_index_node fs_tree_new_index_node(fs_tree *t)
 {
-    TIME(NULL);
+    //TIME(NULL);
     while (t->header->length >= t->header->size) {
         int length = t->header->length;
         int size = t->header->size;
         unmap_tree(t);
         map_tree(t, length, size + FS_INDEX_ROOTS);
-        TIME("grow tree");
+        //TIME("grow tree");
     }
 
     memset(&t->data[t->header->length], 0, sizeof(fs_tree_index));
     fs_index_node ret = FS_TREE_NODE(t->header->length);
     (t->header->length)++;
-    TIME("new tree node");
+    //TIME("new tree node");
 
     return ret;
 }

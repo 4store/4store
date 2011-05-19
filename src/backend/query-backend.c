@@ -170,7 +170,9 @@ fs_rid_vector **fs_bind(fs_backend *be, fs_segment segment, unsigned int tobind,
     double then = fs_time();
 
     limit = (limit == -1) ? INT_MAX : limit;
-    offset = (offset == -1) ? 0 : offset;
+    if (offset != -1 && offset != 0) {
+	fs_error(LOG_ERR, "fs_bind called with non-zero offset");
+    }
 
     int cols = 0;
     for (int i=0; i<4; i++) {
@@ -670,55 +672,10 @@ fs_rid_vector **fs_bind_first(fs_backend *be, fs_segment segment,
 			      fs_rid_vector *pv, fs_rid_vector *ov,
                               int count)
 {
-    if (!(tobind & (FS_BIND_BY_SUBJECT | FS_BIND_BY_OBJECT))) {
-	fs_error(LOG_ERR, "tried to bind without s/o spec");
-
-	return NULL;
-    } else if ((tobind & (FS_BIND_BY_SUBJECT | FS_BIND_BY_OBJECT)) ==
-	       (FS_BIND_BY_SUBJECT | FS_BIND_BY_OBJECT)) {
-	fs_error(LOG_ERR, "tried to bind with s+o spec set");
-
-	return NULL;
-    }
-    double then = fs_time();
-
-    int cols = 0;
-    for (int i=0; i<4; i++) {
-	if (tobind & slot_bits[i]) {
-	    cols++;
-	}
-    }
-
-    /* streaming binds aren't implemented in this branch yet */
+    /* streaming binds aren't implemented in this branch */
     fs_error(LOG_ERR, "not implemented");
+
     return NULL;
-
-    fs_rid_vector **ret;
-    if (cols == 0) {
-	ret = calloc(1, sizeof(fs_rid_vector *));
-    } else {
-	ret = calloc(cols, sizeof(fs_rid_vector *));
-    }
-    for (int i=0; i<cols; i++) {
-	ret[i] = fs_rid_vector_new(0);
-    }
-
-    if (be->stream) {
-	fs_error(LOG_ERR, "bind_first(%d) while already streaming", segment);
-	return NULL;
-    }
-
-    /* TODO bind streaming quad pattern */
-
-    be->out_time[segment].bind_count++;
-    be->out_time[segment].bind += fs_time() - then;
-
-    if (cols == 0) {
-	free(ret);
-	return NULL;
-    }
-
-    return ret;
 }
 
 fs_rid_vector **fs_bind_next(fs_backend *be, fs_segment segment,

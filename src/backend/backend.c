@@ -489,11 +489,19 @@ fs_ptree *fs_backend_get_ptree(fs_backend *be, fs_rid pred, int object)
 
 int fs_backend_open_ptree(fs_backend *be, fs_rid pred)
 {
+    if (be == NULL) {
+	fs_error(LOG_CRIT, "fs_backend_open_ptree() passed NULL be");
+
+	return 0;
+    }
+
     if (be->ptree_length == be->ptree_size) {
 	be->ptree_size *= 2;
 	be->ptrees_priv = realloc(be->ptrees_priv, be->ptree_size * sizeof(struct ptree_ref));
 	if (!be->ptrees_priv) {
 	    fs_error(LOG_CRIT, "realloc failed");
+
+	    return 0;
 	}
     }
 

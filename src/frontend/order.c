@@ -160,6 +160,11 @@ void fs_query_order(fs_query *q)
 printf("@@ ORDER (%d x %d)\n", conditions, length);
 #endif
 
+    /* trap trivial cases */
+    if (conditions == 0 || length == 0) {
+        return;
+    }
+
     /* spot the case where we have ORDER BY ?x, saves evaluating expressions */
     if (conditions == 1) {
         rasqal_expression *oe = rasqal_query_get_order_condition(q->rq, 0);

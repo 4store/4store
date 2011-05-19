@@ -373,37 +373,53 @@ static int calc_freq(fs_query *q, int block, GHashTable *freq, rasqal_literal *p
 int fs_bind_freq(fs_query_state *qs, fs_query *q, int block, rasqal_triple *t)
 {
     int ret = 100;
+#if DEBUG_OPTIMISER
     char dir = 'X';
+#endif
 
     if (!fs_opt_is_const(q->bb[block], t->subject) && !fs_opt_is_const(q->bb[block], t->predicate) &&
         !fs_opt_is_const(q->bb[block], t->object) && !fs_opt_is_const(q->bb[block], t->origin)) {
+#if DEBUG_OPTIMISER
         dir = '?';
+#endif
         ret = INT_MAX;
     } else if (!fs_opt_is_const(q->bb[block], t->subject) &&
                !fs_opt_is_const(q->bb[block], t->object)) {
+#if DEBUG_OPTIMISER
         dir = '?';
+#endif
         ret = INT_MAX - 100;
     } else if (qs->freq_s && fs_opt_num_vals(q->bb[block], t->subject) == 1 &&
                fs_opt_num_vals(q->bb[block], t->predicate) == 1) {
+#if DEBUG_OPTIMISER
         dir = 's';
+#endif
         ret = calc_freq(q, block, qs->freq_s, t->subject, t->predicate);
     } else if (qs->freq_o && fs_opt_num_vals(q->bb[block], t->object) == 1 &&
                fs_opt_num_vals(q->bb[block], t->predicate) == 1) {
+#if DEBUG_OPTIMISER
         dir = 'o';
+#endif
         ret = calc_freq(q, block, qs->freq_o, t->object, t->predicate) +
                 q->segments * 50;
     } else if (qs->freq_s && fs_opt_num_vals(q->bb[block], t->subject) == 1) {
+#if DEBUG_OPTIMISER
         dir = 's';
+#endif
         ret = calc_freq(q, block, qs->freq_s, t->subject, NULL);
     } else if (qs->freq_o && fs_opt_num_vals(q->bb[block], t->object) == 1) {
+#if DEBUG_OPTIMISER
         dir = 'o';
+#endif
         ret = calc_freq(q, block, qs->freq_s, t->object, NULL) +
                 q->segments * 50;
     /* cluases for if we have no freq data */
     } else if (fs_opt_num_vals(q->bb[block], t->subject) < 1000000 &&
                fs_opt_num_vals(q->bb[block], t->predicate) < 100 &&
                fs_opt_num_vals(q->bb[block], t->object) == INT_MAX) {
+#if DEBUG_OPTIMISER
         dir = 's';
+#endif
         ret = fs_opt_num_vals(q->bb[block], t->subject) * fs_opt_num_vals(q->bb[block], t->predicate);
         if (!fs_opt_is_bound(q->bb[block], t->subject) &&
             !fs_opt_is_bound(q->bb[block], t->predicate) &&
@@ -413,7 +429,9 @@ int fs_bind_freq(fs_query_state *qs, fs_query *q, int block, rasqal_triple *t)
     } else if (fs_opt_num_vals(q->bb[block], t->object) < 1000000 &&
                fs_opt_num_vals(q->bb[block], t->predicate) < 100 &&
                fs_opt_num_vals(q->bb[block], t->subject) == INT_MAX) {
+#if DEBUG_OPTIMISER
         dir = 'o';
+#endif
         ret = fs_opt_num_vals(q->bb[block], t->predicate) * fs_opt_num_vals(q->bb[block], t->object);
         if (!fs_opt_is_bound(q->bb[block], t->subject) &&
             !fs_opt_is_bound(q->bb[block], t->predicate) &&

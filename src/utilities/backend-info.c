@@ -47,8 +47,6 @@ int main(int argc, char *argv[])
     }
 
     int segments[FS_MAX_SEGMENTS];
-    int num_segments;
-    num_segments = fs_segments(be, segments);
     char *tmp = g_strdup_printf("du -hs "FS_KB_DIR" | sed 's/.\\/var.*/ disk usage/; s/^/  /'", kbname);
     system(tmp);
     g_free(tmp);

@@ -178,6 +178,7 @@ int main(int argc, char *argv[])
     const int segments = fsp_link_segments(link);
 
     fs_query_timing timing[segments];
+    memset(timing, 0, sizeof(fs_query_timing) * segments);
     if (show_timing) {
 	for (int seg = 0; seg < segments; seg++) {
 	    fsp_get_query_times(link, seg, timing+seg);
