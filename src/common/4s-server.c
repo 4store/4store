@@ -356,7 +356,6 @@ void fsp_serve (const char *kb_name, fsp_backend *backend, int daemon, float dis
 {
   struct addrinfo hints, *info;
   uint16_t port = FS_DEFAULT_PORT;
-  fs_backend *original = NULL;
   char cport[6];
   int on = 1, off = 0, srv, err;
   
@@ -369,10 +368,14 @@ void fsp_serve (const char *kb_name, fsp_backend *backend, int daemon, float dis
   global_kb_name = (char *)kb_name;
   global_disk_limit = disk_limit;
 
-  if (backend->open) {
-    original = backend->open(kb_name, FS_BACKEND_NO_OPEN);
-    if (!original) return;
+  if (!backend->open) {
+    /* no open function defined, we will eventually fail anyway, so give up early */
+    return;
   }
+
+  fs_backend *original = NULL;
+  original = backend->open(kb_name, FS_BACKEND_NO_OPEN);
+  if (!original) return;
 
   do {
     sprintf(cport, "%u", port);
