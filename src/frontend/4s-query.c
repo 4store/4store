@@ -150,6 +150,7 @@ int main(int argc, char *argv[])
       fprintf(stdout, " -s, --soft-limit  Override default soft limit on search breadth\n");
       fprintf(stdout, " -d, --default-graph  Enable SPARQL default graph support\n");
       fprintf(stdout, " -b, --base      Set base URI for query\n");
+      fprintf(stdout, " -e, --explain   Show explain results for execution plan\n");
 
       exit(help_return);
     }
