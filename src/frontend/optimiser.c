@@ -95,7 +95,6 @@ int fs_opt_is_const(fs_binding *b, rasqal_literal *l)
 		return 1;
 	    }
 	    return 0;
-
 	}
 
 	/* we shouldn't find any of these... */
@@ -104,6 +103,20 @@ int fs_opt_is_const(fs_binding *b, rasqal_literal *l)
 	case RASQAL_LITERAL_PATTERN:
 	case RASQAL_LITERAL_QNAME:
 	    return 0;
+    }
+
+    return 0;
+}
+
+/* detects the dreaded the:type predicate */
+int fs_opt_literal_is_rdf_type(rasqal_literal *l)
+{
+    if (!l) return 0;
+
+    if (l->type == RASQAL_LITERAL_URI) {
+        if (!strcmp((char *)raptor_uri_as_string(l->value.uri), RDF_TYPE)) {
+            return 1;
+        }
     }
 
     return 0;
@@ -208,6 +221,9 @@ int fs_optimise_triple_pattern(fs_query_state *qs, fs_query *q, int block, rasqa
      *   all variable
      */
 
+#if 0
+    /* this code complicates things greatly, so I've removed it for now - swh
+       should maybe be reexamined if/when we get histograms back */
     for (int i=start; i<length; i++) {
 	if (!pbuf[i]) {
 	    continue;
@@ -217,6 +233,7 @@ int fs_optimise_triple_pattern(fs_query_state *qs, fs_query *q, int block, rasqa
 	    pbuf[i] = NULL;
 	}
     }
+#endif
     for (int i=start; i<length; i++) {
 	if (!pbuf[i]) {
 	    continue;
@@ -226,6 +243,18 @@ int fs_optimise_triple_pattern(fs_query_state *qs, fs_query *q, int block, rasqa
 	    pbuf[i] = NULL;
 	}
     }
+    /* triples like ?s :p :o, where :p != rdf:type */
+    for (int i=0; i<length; i++) {
+	if (!pbuf[i]) {
+	    continue;
+	}
+
+	if (fs_opt_is_bound(q->bb[block], pbuf[i]->subject) && fs_opt_is_const(q->bb[block], pbuf[i]->predicate) && fs_opt_is_const(q->bb[block], pbuf[i]->object) && !fs_opt_literal_is_rdf_type(pbuf[i]->predicate)) {
+	    patt[append_pos++] = pbuf[i];
+	    pbuf[i] = NULL;
+	}
+    }
+    /* triples like ?s rdf:type :o */
     for (int i=0; i<length; i++) {
 	if (!pbuf[i]) {
 	    continue;
@@ -355,10 +384,15 @@ static int calc_freq(fs_query *q, int block, GHashTable *freq, rasqal_literal *p
 
     if (ret == 0) {
         if (sec) {
-            /* arbitrary choice - if primary and secondary keys are known, but
-             * theres not enough data to register in the frequency data then we
-             * guess there will be 1 answer */
-            ret = 1;
+            if (fs_opt_literal_is_rdf_type(pri)) {
+                /* if the primary key is rdf:type, there's likely to be lots */
+                ret = 100;
+            } else {
+                /* arbitrary choice - if primary and secondary keys are known,
+                 * but theres not enough data to register in the frequency data
+                 * then we guess there will be 1 answer */
+                ret = 1;
+            }
         } else {
             /* arbitrary choice - if only the primary key is known, but
              * theres not enough data to register in the frequency data then we
