@@ -17,7 +17,7 @@
 #error "no hash function is defined"
 #endif
 
-#define FS_BACKEND_VER GIT_REV FS_HASH
+#define FS_BACKEND_VER GIT_REV
 #define FS_FRONTEND_VER GIT_REV
 
 #define FS_MAX_SEGMENTS 256
