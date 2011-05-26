@@ -834,38 +834,16 @@ int fs_query_process_pattern(fs_query *q, rasqal_graph_pattern *pattern, raptor_
 #endif
     }
 
-    /* perform all the UNIONs */
-    int first_in_union;
-    for (int i=q->unions; i>0; i--) {
-        first_in_union = 0;
-        for (int j=1; j<=q->block; j++) {
+    /* pick a primary block to hold the result of each UNION operation */
+    /* N.B. union_group 0 indicates no union */
+    int pri_for_union[q->unions+1];
+    pri_for_union[0] = 0;
+    for (int i = 1; i <= q->unions; i++) {
+        pri_for_union[i] = 0;
+        for (int j = q->block; j > 0; j--) {
             if (q->union_group[j] == i) {
-                if (first_in_union == 0) {
-                    first_in_union = j;
-                    if (q->constraints[j]) {
-                        fs_binding *old = q->bb[j];
-                        q->bb[j] = fs_binding_apply_filters(q, j, q->bb[j], q->constraints[j]);
-                        fs_binding_free(old);
-                        raptor_free_sequence(q->constraints[j]);
-                        q->constraints[j] = NULL;
-                    }
-                } else {
-                    if (q->constraints[j]) {
-                        fs_binding *old = q->bb[j];
-                        q->bb[j] = fs_binding_apply_filters(q, j, q->bb[j], q->constraints[j]);
-                        fs_binding_free(old);
-                        raptor_free_sequence(q->constraints[j]);
-                        q->constraints[j] = NULL;
-                    }
-                    fs_binding_union(q, q->bb[first_in_union], q->bb[j]);
-                    fs_binding_free(q->bb[j]);
-                    q->bb[j] = NULL;
-#ifdef DEBUG_MERGE
-                    printf("B%d = B%d UNION B%d\n", first_in_union, first_in_union, j);
-                    fs_binding_print(q->bb[first_in_union], stdout);
-                    printf("\n");
-#endif
-                }
+                pri_for_union[i] = j;
+                break;
             }
         }
     }
@@ -873,6 +851,9 @@ int fs_query_process_pattern(fs_query *q, rasqal_graph_pattern *pattern, raptor_
     /* run through the blocks in the correct order to do the joins */
     for (int i=q->block; i>=0; i--) {
         int start = i > 1 ? i : 1;
+        /* N.B. this loop has to increment to ensure we bind OPTIONALs in the
+         * correct relative order, otherwise OPTIONAL blocks which share variables
+         * give the wrong result */
         for (int j=start; j<=q->block; j++) {
             if (!q->bb[j]) {
 #ifdef DEBUG_MERGE
@@ -899,21 +880,45 @@ int fs_query_process_pattern(fs_query *q, rasqal_graph_pattern *pattern, raptor_
                         q->bb[j] = NULL;
                     }
                 } else if (q->join_type[j] == FS_UNION) {
-                    /* It's a UNION, inner join */
 #ifdef DEBUG_MERGE
-                    printf("block join B%d [X] B%d\n", i, j);
+                    printf("block B%d is in UNION group %d\n", j, q->union_group[j]);
 #endif
-                    if (q->bb[i]) {
-                        fs_binding *nb = fs_binding_join(q, q->bb[i], q->bb[j], FS_INNER);
-                        fs_binding_free(q->bb[i]);
-                        q->bb[i] = nb;
-                        if (i == 0) q->bt = q->bb[i];
+                    /* It's a UNION */
+                    /* apply constriants now, it's too trick to delay execution */
+                    if (q->constraints[j]) {
+                        fs_binding *old = q->bb[j];
+                        q->bb[j] = fs_binding_apply_filters(q, j, q->bb[j], q->constraints[j]);
+                        fs_binding_free(old);
+                        raptor_free_sequence(q->constraints[j]);
+                        q->constraints[j] = NULL;
+                    }
+                    int un = q->union_group[j];
+                    /* if this is the primary block for this union group */
+                    if (pri_for_union[un] == j) {
+#ifdef DEBUG_MERGE
+                        printf("block join B%d [X] B%d\n", i, j);
+#endif
+                        if (q->bb[i]) {
+                            fs_binding *nb = fs_binding_join(q, q->bb[i], q->bb[j], FS_INNER);
+                            fs_binding_free(q->bb[i]);
+                            q->bb[i] = nb;
+                            if (i == 0) q->bt = q->bb[i];
+                            fs_binding_free(q->bb[j]);
+                            q->bb[j] = NULL;
+                        } else {
+                            /* Bi is empty, just replace it */
+                            q->bb[i] = q->bb[j];
+                            q->bb[j] = NULL;
+                        }
+                    } else {
+                        fs_binding_union(q, q->bb[pri_for_union[un]], q->bb[j]);
                         fs_binding_free(q->bb[j]);
                         q->bb[j] = NULL;
-                    } else {
-                        /* Bi is empty, just replace it */
-                        q->bb[i] = q->bb[j];
-                        q->bb[j] = NULL;
+#ifdef DEBUG_MERGE
+                        printf("B%d = B%d UNION B%d\n", pri_for_union[un], pri_for_union[un], j);
+                        fs_binding_print(q->bb[pri_for_union[un]], stdout);
+                        printf("\n");
+#endif
                     }
                 } else if (q->join_type[j] == FS_LEFT) {
                     /* It's an OPTIONAL, left join */
