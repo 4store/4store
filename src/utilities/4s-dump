@@ -12,10 +12,10 @@ $all = 0;
 @graphs = ();
 $help = 0;
 
-if ($ARGV[0] eq '--version') {
+if ($ARGV[0] && $ARGV[0] eq '--version') {
 	print("unknown\n");
 	exit(0);
-} elsif ($ARGV[0] eq '--help') {
+} elsif ($ARGV[0] && $ARGV[0] eq '--help') {
 	print "Usage: $0 <endpoint> [-a,--all-graphs] [-f uri-file] [--overwrite] [-o output-dir]\nExample: $0 http://localhost:8080/sparql/ -a\n";
 	exit(0);
 }
