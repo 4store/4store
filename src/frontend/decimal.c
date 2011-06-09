@@ -136,16 +136,16 @@ int fs_decimal_init_from_str(fs_decimal *d, const char *str)
     fs_decimal_init(d);
 
     int decpos = -1;
-    int negative = 0;
+    int has_sign = 0;
     int len = strlen(str);
 
     for (int cpos = 0; str[cpos]; cpos++) {
         if (str[cpos] < '0' || str[cpos] > '9') {
             if (str[cpos] == '-' && cpos == 0) {
-                negative = 1;
+                has_sign = 1;
                 d->flags = FS_D_NEGATIVE;
             } else if (str[cpos] == '+' && cpos == 0) {
-                /* do nothing, +ve is default */
+                has_sign = 1;
             } else if (str[cpos] == '.') {
                 if (decpos == -1) {
                     decpos = cpos;
@@ -162,7 +162,7 @@ int fs_decimal_init_from_str(fs_decimal *d, const char *str)
         }
     }
     if (decpos == -1) decpos = len;
-    int offset = negative ? 1 : 0;
+    int offset = has_sign ? 1 : 0;
 
     for (int cpos = offset; cpos < decpos; cpos++) {
         int dpos = FS_D_OVER_DIGITS + FS_D_INT_DIGITS - decpos + cpos;
