@@ -1,0 +1,24 @@
+201 imported successfully
+This is a 4store SPARQL server [VERSION]
+Query: SELECT ?s (ABS(?d) AS ?abs_d) WHERE { ?s <test:num> ?d . } ORDER BY ?s
+?s	?abs_d
+<http://example.com/a>	"0"^^<http://www.w3.org/2001/XMLSchema#integer>
+<http://example.com/b>	"0"^^<http://www.w3.org/2001/XMLSchema#integer>
+<http://example.com/c>	"0"^^<http://www.w3.org/2001/XMLSchema#integer>
+<http://example.com/d>	"1234"^^<http://www.w3.org/2001/XMLSchema#integer>
+<http://example.com/e>	"1234"^^<http://www.w3.org/2001/XMLSchema#integer>
+<http://example.com/f>	"1234"^^<http://www.w3.org/2001/XMLSchema#integer>
+<http://example.com/g>	"1234567890123456789"^^<http://www.w3.org/2001/XMLSchema#integer>
+<http://example.com/h>	"1234567890123456789"^^<http://www.w3.org/2001/XMLSchema#integer>
+<http://example.com/i>	"1234567890123456789"^^<http://www.w3.org/2001/XMLSchema#integer>
+<http://example.com/j>	"1234567890.232393"^^<http://www.w3.org/2001/XMLSchema#decimal>
+<http://example.com/k>	"1234567890.232393"^^<http://www.w3.org/2001/XMLSchema#decimal>
+<http://example.com/l>	"1234567890.232393"^^<http://www.w3.org/2001/XMLSchema#decimal>
+<http://example.com/m>	"inf"^^<http://www.w3.org/2001/XMLSchema#float>
+<http://example.com/n>	"inf"^^<http://www.w3.org/2001/XMLSchema#float>
+<http://example.com/o>	"inf"^^<http://www.w3.org/2001/XMLSchema#float>
+<http://example.com/p>	"1.23457e+19"^^<http://www.w3.org/2001/XMLSchema#float>
+<http://example.com/q>	"1.23457e+19"^^<http://www.w3.org/2001/XMLSchema#float>
+<http://example.com/r>	"1.23457e+19"^^<http://www.w3.org/2001/XMLSchema#float>
+200 deleted successfully
+This is a 4store SPARQL server [VERSION]

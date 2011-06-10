@@ -248,7 +248,7 @@ fs_value fn_plus(fs_query *q, fs_value a)
 fs_value_print(a);
 #endif
     if (fs_is_numeric(&a)) {
-	return a;
+        return a;
     }
 
     return fs_value_error(FS_ERROR_INVALID_TYPE, "bad arguments to fn:plus");
@@ -257,20 +257,50 @@ fs_value_print(a);
 fs_value fn_minus(fs_query *q, fs_value a)
 {
     if (fs_is_numeric(&a)) {
-	if (a.attr == fs_c.xsd_double || a.attr == fs_c.xsd_float) {
-	    a.fp = -a.fp;
-	} else if (a.attr == fs_c.xsd_decimal) {
+        if (a.attr == fs_c.xsd_double || a.attr == fs_c.xsd_float) {
+            a.fp = -a.fp;
+        } else if (a.attr == fs_c.xsd_decimal) {
             fs_decimal_negate(&a.de, &a.de);
-	} else if (a.attr == fs_c.xsd_integer) {
-	    a.in = -a.in;
-	} else {
-	    return fs_value_error(FS_ERROR_INVALID_TYPE, "bad arguments to fn:minus");
-	}
+        } else if (a.attr == fs_c.xsd_integer) {
+            a.in = -a.in;
+        } else {
+            return fs_value_error(FS_ERROR_INVALID_TYPE, "bad arguments to fn:minus");
+	    }
 
-	return a;
+        if (a.lex != NULL) {
+            a.lex = NULL;
+        }
+        return a;
     }
 
     return fs_value_error(FS_ERROR_INVALID_TYPE, "non-numeric arguments to fn:minus");
+}
+
+fs_value fn_numeric_abs(fs_query *q, fs_value a)
+{
+    if (!fs_is_numeric(&a)) {
+        return fs_value_error(FS_ERROR_INVALID_TYPE, "non-numeric arguments to fn:abs");
+    }
+
+    if (a.attr == fs_c.xsd_double || a.attr == fs_c.xsd_float) {
+        a.fp = fabs(a.fp);
+    } else if (a.attr == fs_c.xsd_decimal) {
+        if (fs_decimal_less_than(&a.de, fs_decimal_zero)) {
+            fs_decimal_negate(&a.de, &a.de);
+        }
+    } else if (a.attr == fs_c.xsd_integer) {
+        if (a.in < 0) {
+            a.in = -a.in;
+        }
+    } else {
+        return fs_value_error(FS_ERROR_INVALID_TYPE, "bad arguments to fn:abs");
+    }
+
+    if (a.lex != NULL) {
+        a.lex = NULL;
+    }
+
+    return a;
 }
 
 fs_value fn_numeric_add(fs_query *q, fs_value a, fs_value b)
