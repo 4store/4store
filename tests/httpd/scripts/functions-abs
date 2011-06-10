@@ -1,0 +1,9 @@
+#!/bin/bash
+
+source sparql.sh
+
+put "$EPR" ../../data/numbers.ttl 'text/turtle' 'http://example.com/numbers.ttl'
+
+sparql "$EPR" 'SELECT ?s (ABS(?d) AS ?abs_d) WHERE { ?s <test:num> ?d . } ORDER BY ?s'
+
+delete "$EPR" 'http://example.com/numbers.ttl'

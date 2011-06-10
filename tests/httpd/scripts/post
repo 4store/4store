@@ -6,6 +6,8 @@ post "$EPR" '<test:a> <test:b> <test:c> .' 'text/turtle' 'http://example.org/tes
 sparql "$EPR" 'SELECT * WHERE { ?x ?y ?z } ORDER BY ?x ?y ?z'
 post "$EPR" '<test:d> <test:e> <test:f> . <test:d> <test:g> "text\nwith\tspaces" .' 'text/turtle' 'http://example.org/test1'
 sparql "$EPR" 'SELECT * WHERE { ?x ?y ?z } ORDER BY ?x ?y ?z'
-put "$EPR" /dev/null 'text/turtle' 'http://example.org/test1'
+TEMPFILE=`mktemp`
+put "$EPR" "$TEMPFILE" 'text/turtle' 'http://example.org/test1'
+rm $TEMPFILE
 sparql "$EPR" 'SELECT * WHERE { ?x ?y ?z } ORDER BY ?x ?y ?z'
 delete "$EPR" 'http://example.org/test1'
