@@ -239,6 +239,10 @@ fs_query_state *fs_query_init(fsp_link *link, rasqal_world *rasworld, raptor_wor
     if (!qs->rasqal_world) {
         fs_error(LOG_ERR, "failed to allocate rasqal world");
     }
+#if RASQAL_VERSION >= 926
+    /* Lower warning level to get only more serious warnings */
+    rasqal_world_set_warning_level(qs->rasqal_world, 25);
+#endif
     if (rasqal_world_open(qs->rasqal_world)) {
         fs_error(LOG_ERR, "failed to intialise rasqal world");
 	fs_query_fini(qs);
