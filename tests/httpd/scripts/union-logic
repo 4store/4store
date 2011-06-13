@@ -1,0 +1,7 @@
+#!/bin/bash
+
+source sparql.sh
+
+put "$EPR" ../../data/swh.xrdf 'application/rdf+xml' 'http://example.com/swh.xrdf'
+sparql "$EPR" 'PREFIX foaf: <http://xmlns.com/foaf/0.1/> SELECT ?int ?dec ?person ?name WHERE { { <mailto:steve@example.net> foaf:interest ?int } UNION { <mailto:steve@example.net> foaf:someDecimal ?dec } UNION { <mailto:steve@example.net> foaf:knows ?person OPTIONAL { ?person foaf:name ?name } } }'
+delete "$EPR" 'http://example.com/swh.xrdf'
