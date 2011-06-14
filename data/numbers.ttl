@@ -23,3 +23,28 @@
 <p> <test:num> "12345678901234567890.23239300"^^xsd:float .
 <q> <test:num> "-12345678901234567890.23239300"^^xsd:float .
 <r> <test:num> "+12345678901234567890.23239300"^^xsd:float .
+
+<s> <test:num> "2.4999"^^xsd:decimal .
+<t> <test:num> "2.5"^^xsd:decimal .
+<u> <test:num> "-2.5"^^xsd:decimal .
+<v> <test:num> "-2.500001"^^xsd:decimal .
+<w> <test:num> "2.500001"^^xsd:decimal .
+<x> <test:num> "-2.499999"^^xsd:decimal .
+
+<y> <test:num> "0000.0004999000"^^xsd:decimal .
+<z> <test:num> "2.000050000"^^xsd:decimal .
+<za> <test:num> "-2.00050000"^^xsd:decimal .
+
+<zb> <test:num> "2.4999"^^xsd:float .
+<zc> <test:num> "2.5"^^xsd:float .
+<zd> <test:num> "-2.5"^^xsd:float .
+<ze> <test:num> "-2.500001"^^xsd:float .
+<zf> <test:num> "2.500001"^^xsd:float .
+<zg> <test:num> "-2.499999"^^xsd:float .
+
+<zh> <test:num> "2.4999"^^xsd:double .
+<zi> <test:num> "2.5"^^xsd:double .
+<zj> <test:num> "-2.5"^^xsd:double .
+<zk> <test:num> "-2.500001"^^xsd:double .
+<zl> <test:num> "2.500001"^^xsd:double .
+<zm> <test:num> "-2.499999"^^xsd:double .

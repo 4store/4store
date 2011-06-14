@@ -22,8 +22,13 @@ fs_value fn_greater_than(fs_query *q, fs_value a, fs_value b);
 fs_value fn_less_than_equal(fs_query *q, fs_value a, fs_value b);
 fs_value fn_greater_than_equal(fs_query *q, fs_value a, fs_value b);
 
-/* binary maths operators */
+/* unary maths operators */
 fs_value fn_numeric_abs(fs_query *q, fs_value a);
+fs_value fn_numeric_round(fs_query *q, fs_value a);
+fs_value fn_numeric_ceil(fs_query *q, fs_value a);
+fs_value fn_numeric_floor(fs_query *q, fs_value a);
+
+/* binary maths operators */
 fs_value fn_numeric_add(fs_query *q, fs_value a, fs_value b);
 fs_value fn_numeric_subtract(fs_query *q, fs_value a, fs_value b);
 fs_value fn_numeric_multiply(fs_query *q, fs_value a, fs_value b);
