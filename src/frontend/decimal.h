@@ -45,6 +45,10 @@ int fs_decimal_to_double(const fs_decimal *d, double *fp);
 /* convert decimal value into nearest int represenation, non 0 on failure */
 int fs_decimal_to_int64(const fs_decimal *d, int64_t *in);
 
+/* copy one decimal to another */
+void fs_decimal_copy(const fs_decimal *from, fs_decimal *to);
+
+
 /* comparison functions */
 
 /* return true if the two decimals compare equal */

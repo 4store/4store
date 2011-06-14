@@ -243,6 +243,12 @@ fs_value fs_expression_eval(fs_query *q, int row, int block, rasqal_expression *
 #if RASQAL_VERSION >= 925
     case RASQAL_EXPR_ABS:
         return fn_numeric_abs(q, fs_expression_eval(q, row, block, e->arg1));
+    case RASQAL_EXPR_ROUND:
+        return fn_numeric_round(q, fs_expression_eval(q, row, block, e->arg1));
+    case RASQAL_EXPR_CEIL:
+        return fn_numeric_ceil(q, fs_expression_eval(q, row, block, e->arg1));
+    case RASQAL_EXPR_FLOOR:
+        return fn_numeric_floor(q, fs_expression_eval(q, row, block, e->arg1));
 #endif
 	case RASQAL_EXPR_AND:
 	    return fn_logical_and(q, fs_expression_eval(q, row, block, e->arg1),

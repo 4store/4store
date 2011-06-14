@@ -279,7 +279,7 @@ fs_value fn_minus(fs_query *q, fs_value a)
 fs_value fn_numeric_abs(fs_query *q, fs_value a)
 {
     if (!fs_is_numeric(&a)) {
-        return fs_value_error(FS_ERROR_INVALID_TYPE, "non-numeric arguments to fn:abs");
+        return fs_value_error(FS_ERROR_INVALID_TYPE, "non-numeric argument to fn:abs");
     }
 
     if (a.attr == fs_c.xsd_double || a.attr == fs_c.xsd_float) {
@@ -294,6 +294,180 @@ fs_value fn_numeric_abs(fs_query *q, fs_value a)
         }
     } else {
         return fs_value_error(FS_ERROR_INVALID_TYPE, "bad arguments to fn:abs");
+    }
+
+    if (a.lex != NULL) {
+        a.lex = NULL;
+    }
+
+    return a;
+}
+
+fs_value fn_numeric_floor(fs_query *q, fs_value a)
+{
+    if (!fs_is_numeric(&a)) {
+        return fs_value_error(FS_ERROR_INVALID_TYPE, "non-numeric argument to fn:floor");
+    }
+
+    if (a.attr == fs_c.xsd_integer) {
+        /* do nothing for integers */
+        return a;
+    }
+
+    if (a.attr == fs_c.xsd_double || a.attr == fs_c.xsd_float) {
+        a.fp = floor(a.fp);
+    } else if (a.attr == fs_c.xsd_decimal) {
+        fs_decimal r;
+
+        if (fs_decimal_less_than(&a.de, fs_decimal_zero)) {
+            fs_decimal one;
+            fs_decimal_init_from_double(&one, (double)1.0);
+            fs_decimal_subtract(&a.de, &one, &r);
+        }
+        else {
+            fs_decimal_copy(&a.de, &r);
+        }
+
+        for (int i=FS_D_OVER_DIGITS+FS_D_INT_DIGITS; i < FS_D_DIGITS; i++) {
+            r.digit[i] = 0;
+        }
+
+        fs_decimal_copy(&r, &a.de);
+    } else {
+        return fs_value_error(FS_ERROR_INVALID_TYPE, "bad arguments to fn:floor");
+    }
+
+    if (a.lex != NULL) {
+        a.lex = NULL;
+    }
+
+    return a;
+}
+
+fs_value fn_numeric_ceil(fs_query *q, fs_value a)
+{
+    if (!fs_is_numeric(&a)) {
+        return fs_value_error(FS_ERROR_INVALID_TYPE, "non-numeric argument to fn:ceil");
+    }
+
+    if (a.attr == fs_c.xsd_integer) {
+        /* do nothing for integers */
+        return a;
+    }
+
+    if (a.attr == fs_c.xsd_double || a.attr == fs_c.xsd_float) {
+        a.fp = ceil(a.fp);
+    } else if (a.attr == fs_c.xsd_decimal) {
+        fs_decimal r;
+
+        if (fs_decimal_greater_than(&a.de, fs_decimal_zero)) {
+            fs_decimal one;
+            fs_decimal_init_from_double(&one, (double)1.0);
+            fs_decimal_add(&a.de, &one, &r);
+        }
+        else {
+            fs_decimal_copy(&a.de, &r);
+        }
+
+        for (int i=FS_D_OVER_DIGITS+FS_D_INT_DIGITS; i < FS_D_DIGITS; i++) {
+            r.digit[i] = 0;
+        }
+
+        fs_decimal_copy(&r, &a.de);
+    } else {
+        return fs_value_error(FS_ERROR_INVALID_TYPE, "bad arguments to fn:ceil");
+    }
+
+    if (a.lex != NULL) {
+        a.lex = NULL;
+    }
+
+    return a;
+}
+
+fs_value fn_numeric_round(fs_query *q, fs_value a)
+{
+    if (!fs_is_numeric(&a)) {
+        return fs_value_error(FS_ERROR_INVALID_TYPE, "non-numeric argument to fn:round");
+    }
+
+    if (a.attr == fs_c.xsd_integer) {
+        /* do nothing for integers */
+        return a;
+    }
+
+    if (a.attr == fs_c.xsd_double || a.attr == fs_c.xsd_float) {
+        if (a.fp > 0.0) {
+            /* rounding +ve numbers same as c round */
+            a.fp = round(a.fp);
+        }
+        else if (a.fp < 0.0) {
+            /* -2.5 should round to -2.0 */
+            double i;
+            double f = modf(a.fp, &i);
+            a.fp -= f;
+            if (f < -0.5) {
+                a.fp -= 1.0;
+            }
+        }
+    } else if (a.attr == fs_c.xsd_decimal) {
+        /* 0 = round to num,        e.g. 2.x -> 2.0, -2.x -> -2.0
+           1 = round away from num, e.g. 2.x -> 3.0, -2.x -> -3.0 */
+        int round_dir = -1; 
+        int positive = fs_decimal_greater_than_equal(&a.de, fs_decimal_zero);
+
+        int start_pos = FS_D_OVER_DIGITS+FS_D_INT_DIGITS;
+        if ((&a.de)->digit[start_pos] > 5) {
+            round_dir = 1;
+        } else if ((&a.de)->digit[start_pos] < 5) {
+            round_dir = 0;
+        } else {
+            /* first digit should be a 5 */
+            for (int i=start_pos+1; i < FS_D_DIGITS; i++) {
+                if ((&a.de)->digit[i] > 0) {
+                    /* abs(fractional part) is > 0.5 */
+                    round_dir = 1;
+                    break;
+                }
+            }
+
+            if (round_dir == -1) {
+                /* abs(fractional part) == 0.5, round depending on sign */
+                if (positive) {
+                    round_dir = 1;
+                }
+                else {
+                    round_dir = 0;
+                }
+            }
+        }
+
+        fs_decimal one;
+        fs_decimal_init_from_double(&one, (double)1.0);
+        fs_decimal r;
+
+        if (round_dir == 1) {
+            /* Round integral part of number away from zero */
+            if (positive) {
+                fs_decimal_add(&a.de, &one, &r);
+            }
+            else {
+                fs_decimal_subtract(&a.de, &one, &r);
+            }
+        }
+        else {
+            /* Keep integral part of number unchanged */
+            fs_decimal_copy(&a.de, &r);
+        }
+
+        /* Zero all fractional digits of number */
+        for (int i=start_pos; i < FS_D_DIGITS; i++) {
+            r.digit[i] = 0;
+        }
+
+        fs_decimal_copy(&r, &a.de);
+    } else {
+        return fs_value_error(FS_ERROR_INVALID_TYPE, "bad arguments to fn:round");
     }
 
     if (a.lex != NULL) {

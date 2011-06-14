@@ -4,6 +4,6 @@ source sparql.sh
 
 put "$EPR" ../../data/numbers.ttl 'text/turtle' 'http://example.com/numbers.ttl'
 
-sparql "$EPR" 'SELECT ?s ?d (ABS(?d) AS ?abs_d) WHERE { ?s <test:num> ?d . } ORDER BY ?s'
+sparql "$EPR" 'SELECT ?s ?d (CEIL(?d) AS ?abs_d) WHERE { ?s <test:num> ?d . } ORDER BY ?s'
 
 delete "$EPR" 'http://example.com/numbers.ttl'
