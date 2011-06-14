@@ -1765,7 +1765,7 @@ static void output_text(fs_query *q, int flags, FILE *out)
 		if (c) fputc('\t', out);
 		switch (row[c].type) {
 		    case FS_TYPE_NONE:
-			fprintf(out, "NULL");
+			//fprintf(out, "NULL");
 			break;
 		    case FS_TYPE_URI:
                         if (uri_needs_escape(row[c].lex, &esclen)) {
