@@ -11,18 +11,18 @@ Query: SELECT DISTINCT * WHERE { GRAPH <A> { ?s ?p ?o } } ORDER BY ?s ?p ?o
 <local:x>	<local:y>	_:b1
 <local:x>	<local:y>	_:b2
 <local:x>	<local:y>	_:b3
-<local:x>	<local:y>	"1"^^<http://www.w3.org/2001/XMLSchema#integer>
+<local:x>	<local:y>	1
 <local:x>	<local:y>	"10"
 <local:x>	<local:y>	"11"
 <local:x>	<local:y>	"12"
-<local:x>	<local:y>	"2"^^<http://www.w3.org/2001/XMLSchema#integer>
-<local:x>	<local:y>	"3"^^<http://www.w3.org/2001/XMLSchema#integer>
-<local:x>	<local:y>	"4.0"^^<http://www.w3.org/2001/XMLSchema#decimal>
-<local:x>	<local:y>	"5.0"^^<http://www.w3.org/2001/XMLSchema#decimal>
-<local:x>	<local:y>	"6.0"^^<http://www.w3.org/2001/XMLSchema#decimal>
-<local:x>	<local:y>	"7.0e0"^^<http://www.w3.org/2001/XMLSchema#double>
-<local:x>	<local:y>	"8.0e0"^^<http://www.w3.org/2001/XMLSchema#double>
-<local:x>	<local:y>	"9.0e0"^^<http://www.w3.org/2001/XMLSchema#double>
+<local:x>	<local:y>	2
+<local:x>	<local:y>	3
+<local:x>	<local:y>	4.0
+<local:x>	<local:y>	5.0
+<local:x>	<local:y>	6.0
+<local:x>	<local:y>	7.0e0
+<local:x>	<local:y>	8.0e0
+<local:x>	<local:y>	9.0e0
 Query: SELECT DISTINCT * WHERE { GRAPH <B> { ?s ?p ?o } } ORDER BY ?s ?p ?o
 ?s	?p	?o
 <local:b>	<local:b>	<local:c>
@@ -33,54 +33,54 @@ Query: SELECT DISTINCT * WHERE { GRAPH <C> { ?s ?p ?o } } ORDER BY ?s ?p ?o
 <local:x>	<local:y>	_:b100000000000004
 <local:x>	<local:y>	_:b100000000000005
 <local:x>	<local:y>	_:b100000000000006
-<local:x>	<local:y>	"1"^^<http://www.w3.org/2001/XMLSchema#integer>
+<local:x>	<local:y>	1
 <local:x>	<local:y>	"10"
 <local:x>	<local:y>	"11"
 <local:x>	<local:y>	"12"
-<local:x>	<local:y>	"2"^^<http://www.w3.org/2001/XMLSchema#integer>
-<local:x>	<local:y>	"3"^^<http://www.w3.org/2001/XMLSchema#integer>
-<local:x>	<local:y>	"4.0"^^<http://www.w3.org/2001/XMLSchema#decimal>
-<local:x>	<local:y>	"5.0"^^<http://www.w3.org/2001/XMLSchema#decimal>
-<local:x>	<local:y>	"6.0"^^<http://www.w3.org/2001/XMLSchema#decimal>
-<local:x>	<local:y>	"7.0e0"^^<http://www.w3.org/2001/XMLSchema#double>
-<local:x>	<local:y>	"8.0e0"^^<http://www.w3.org/2001/XMLSchema#double>
-<local:x>	<local:y>	"9.0e0"^^<http://www.w3.org/2001/XMLSchema#double>
+<local:x>	<local:y>	2
+<local:x>	<local:y>	3
+<local:x>	<local:y>	4.0
+<local:x>	<local:y>	5.0
+<local:x>	<local:y>	6.0
+<local:x>	<local:y>	7.0e0
+<local:x>	<local:y>	8.0e0
+<local:x>	<local:y>	9.0e0
 Query: SELECT DISTINCT * WHERE { GRAPH ?g { ?s ?p ?o } } ORDER BY ?g ?s ?p ?o
 ?g	?s	?p	?o
 <local:A>	<local:a>	<local:b>	<local:c>
 <local:A>	<local:x>	<local:y>	_:b1
 <local:A>	<local:x>	<local:y>	_:b2
 <local:A>	<local:x>	<local:y>	_:b3
-<local:A>	<local:x>	<local:y>	"1"^^<http://www.w3.org/2001/XMLSchema#integer>
+<local:A>	<local:x>	<local:y>	1
 <local:A>	<local:x>	<local:y>	"10"
 <local:A>	<local:x>	<local:y>	"11"
 <local:A>	<local:x>	<local:y>	"12"
-<local:A>	<local:x>	<local:y>	"2"^^<http://www.w3.org/2001/XMLSchema#integer>
-<local:A>	<local:x>	<local:y>	"3"^^<http://www.w3.org/2001/XMLSchema#integer>
-<local:A>	<local:x>	<local:y>	"4.0"^^<http://www.w3.org/2001/XMLSchema#decimal>
-<local:A>	<local:x>	<local:y>	"5.0"^^<http://www.w3.org/2001/XMLSchema#decimal>
-<local:A>	<local:x>	<local:y>	"6.0"^^<http://www.w3.org/2001/XMLSchema#decimal>
-<local:A>	<local:x>	<local:y>	"7.0e0"^^<http://www.w3.org/2001/XMLSchema#double>
-<local:A>	<local:x>	<local:y>	"8.0e0"^^<http://www.w3.org/2001/XMLSchema#double>
-<local:A>	<local:x>	<local:y>	"9.0e0"^^<http://www.w3.org/2001/XMLSchema#double>
+<local:A>	<local:x>	<local:y>	2
+<local:A>	<local:x>	<local:y>	3
+<local:A>	<local:x>	<local:y>	4.0
+<local:A>	<local:x>	<local:y>	5.0
+<local:A>	<local:x>	<local:y>	6.0
+<local:A>	<local:x>	<local:y>	7.0e0
+<local:A>	<local:x>	<local:y>	8.0e0
+<local:A>	<local:x>	<local:y>	9.0e0
 <local:B>	<local:b>	<local:b>	<local:c>
 <local:B>	<local:b>	<local:b>	<local:d>
 <local:C>	<local:a>	<local:b>	<local:c>
 <local:C>	<local:x>	<local:y>	_:b100000000000004
 <local:C>	<local:x>	<local:y>	_:b100000000000005
 <local:C>	<local:x>	<local:y>	_:b100000000000006
-<local:C>	<local:x>	<local:y>	"1"^^<http://www.w3.org/2001/XMLSchema#integer>
+<local:C>	<local:x>	<local:y>	1
 <local:C>	<local:x>	<local:y>	"10"
 <local:C>	<local:x>	<local:y>	"11"
 <local:C>	<local:x>	<local:y>	"12"
-<local:C>	<local:x>	<local:y>	"2"^^<http://www.w3.org/2001/XMLSchema#integer>
-<local:C>	<local:x>	<local:y>	"3"^^<http://www.w3.org/2001/XMLSchema#integer>
-<local:C>	<local:x>	<local:y>	"4.0"^^<http://www.w3.org/2001/XMLSchema#decimal>
-<local:C>	<local:x>	<local:y>	"5.0"^^<http://www.w3.org/2001/XMLSchema#decimal>
-<local:C>	<local:x>	<local:y>	"6.0"^^<http://www.w3.org/2001/XMLSchema#decimal>
-<local:C>	<local:x>	<local:y>	"7.0e0"^^<http://www.w3.org/2001/XMLSchema#double>
-<local:C>	<local:x>	<local:y>	"8.0e0"^^<http://www.w3.org/2001/XMLSchema#double>
-<local:C>	<local:x>	<local:y>	"9.0e0"^^<http://www.w3.org/2001/XMLSchema#double>
+<local:C>	<local:x>	<local:y>	2
+<local:C>	<local:x>	<local:y>	3
+<local:C>	<local:x>	<local:y>	4.0
+<local:C>	<local:x>	<local:y>	5.0
+<local:C>	<local:x>	<local:y>	6.0
+<local:C>	<local:x>	<local:y>	7.0e0
+<local:C>	<local:x>	<local:y>	8.0e0
+<local:C>	<local:x>	<local:y>	9.0e0
 Update: ADD <B> TO <C>
 Added <local:B> to <local:C>
 2 triples added, 0 removed
@@ -90,18 +90,18 @@ Query: SELECT DISTINCT * WHERE { GRAPH ?g { ?s ?p ?o } } ORDER BY ?g ?s ?p ?o
 <local:A>	<local:x>	<local:y>	_:b1
 <local:A>	<local:x>	<local:y>	_:b2
 <local:A>	<local:x>	<local:y>	_:b3
-<local:A>	<local:x>	<local:y>	"1"^^<http://www.w3.org/2001/XMLSchema#integer>
+<local:A>	<local:x>	<local:y>	1
 <local:A>	<local:x>	<local:y>	"10"
 <local:A>	<local:x>	<local:y>	"11"
 <local:A>	<local:x>	<local:y>	"12"
-<local:A>	<local:x>	<local:y>	"2"^^<http://www.w3.org/2001/XMLSchema#integer>
-<local:A>	<local:x>	<local:y>	"3"^^<http://www.w3.org/2001/XMLSchema#integer>
-<local:A>	<local:x>	<local:y>	"4.0"^^<http://www.w3.org/2001/XMLSchema#decimal>
-<local:A>	<local:x>	<local:y>	"5.0"^^<http://www.w3.org/2001/XMLSchema#decimal>
-<local:A>	<local:x>	<local:y>	"6.0"^^<http://www.w3.org/2001/XMLSchema#decimal>
-<local:A>	<local:x>	<local:y>	"7.0e0"^^<http://www.w3.org/2001/XMLSchema#double>
-<local:A>	<local:x>	<local:y>	"8.0e0"^^<http://www.w3.org/2001/XMLSchema#double>
-<local:A>	<local:x>	<local:y>	"9.0e0"^^<http://www.w3.org/2001/XMLSchema#double>
+<local:A>	<local:x>	<local:y>	2
+<local:A>	<local:x>	<local:y>	3
+<local:A>	<local:x>	<local:y>	4.0
+<local:A>	<local:x>	<local:y>	5.0
+<local:A>	<local:x>	<local:y>	6.0
+<local:A>	<local:x>	<local:y>	7.0e0
+<local:A>	<local:x>	<local:y>	8.0e0
+<local:A>	<local:x>	<local:y>	9.0e0
 <local:B>	<local:b>	<local:b>	<local:c>
 <local:B>	<local:b>	<local:b>	<local:d>
 <local:C>	<local:a>	<local:b>	<local:c>
@@ -110,18 +110,18 @@ Query: SELECT DISTINCT * WHERE { GRAPH ?g { ?s ?p ?o } } ORDER BY ?g ?s ?p ?o
 <local:C>	<local:x>	<local:y>	_:b100000000000004
 <local:C>	<local:x>	<local:y>	_:b100000000000005
 <local:C>	<local:x>	<local:y>	_:b100000000000006
-<local:C>	<local:x>	<local:y>	"1"^^<http://www.w3.org/2001/XMLSchema#integer>
+<local:C>	<local:x>	<local:y>	1
 <local:C>	<local:x>	<local:y>	"10"
 <local:C>	<local:x>	<local:y>	"11"
 <local:C>	<local:x>	<local:y>	"12"
-<local:C>	<local:x>	<local:y>	"2"^^<http://www.w3.org/2001/XMLSchema#integer>
-<local:C>	<local:x>	<local:y>	"3"^^<http://www.w3.org/2001/XMLSchema#integer>
-<local:C>	<local:x>	<local:y>	"4.0"^^<http://www.w3.org/2001/XMLSchema#decimal>
-<local:C>	<local:x>	<local:y>	"5.0"^^<http://www.w3.org/2001/XMLSchema#decimal>
-<local:C>	<local:x>	<local:y>	"6.0"^^<http://www.w3.org/2001/XMLSchema#decimal>
-<local:C>	<local:x>	<local:y>	"7.0e0"^^<http://www.w3.org/2001/XMLSchema#double>
-<local:C>	<local:x>	<local:y>	"8.0e0"^^<http://www.w3.org/2001/XMLSchema#double>
-<local:C>	<local:x>	<local:y>	"9.0e0"^^<http://www.w3.org/2001/XMLSchema#double>
+<local:C>	<local:x>	<local:y>	2
+<local:C>	<local:x>	<local:y>	3
+<local:C>	<local:x>	<local:y>	4.0
+<local:C>	<local:x>	<local:y>	5.0
+<local:C>	<local:x>	<local:y>	6.0
+<local:C>	<local:x>	<local:y>	7.0e0
+<local:C>	<local:x>	<local:y>	8.0e0
+<local:C>	<local:x>	<local:y>	9.0e0
 Update: COPY <C> TO <E>
 Copied <local:C> to <local:E>
 18 triples added, ?? removed
@@ -131,18 +131,18 @@ Query: SELECT DISTINCT * WHERE { GRAPH ?g { ?s ?p ?o } } ORDER BY ?g ?s ?p ?o
 <local:A>	<local:x>	<local:y>	_:b1
 <local:A>	<local:x>	<local:y>	_:b2
 <local:A>	<local:x>	<local:y>	_:b3
-<local:A>	<local:x>	<local:y>	"1"^^<http://www.w3.org/2001/XMLSchema#integer>
+<local:A>	<local:x>	<local:y>	1
 <local:A>	<local:x>	<local:y>	"10"
 <local:A>	<local:x>	<local:y>	"11"
 <local:A>	<local:x>	<local:y>	"12"
-<local:A>	<local:x>	<local:y>	"2"^^<http://www.w3.org/2001/XMLSchema#integer>
-<local:A>	<local:x>	<local:y>	"3"^^<http://www.w3.org/2001/XMLSchema#integer>
-<local:A>	<local:x>	<local:y>	"4.0"^^<http://www.w3.org/2001/XMLSchema#decimal>
-<local:A>	<local:x>	<local:y>	"5.0"^^<http://www.w3.org/2001/XMLSchema#decimal>
-<local:A>	<local:x>	<local:y>	"6.0"^^<http://www.w3.org/2001/XMLSchema#decimal>
-<local:A>	<local:x>	<local:y>	"7.0e0"^^<http://www.w3.org/2001/XMLSchema#double>
-<local:A>	<local:x>	<local:y>	"8.0e0"^^<http://www.w3.org/2001/XMLSchema#double>
-<local:A>	<local:x>	<local:y>	"9.0e0"^^<http://www.w3.org/2001/XMLSchema#double>
+<local:A>	<local:x>	<local:y>	2
+<local:A>	<local:x>	<local:y>	3
+<local:A>	<local:x>	<local:y>	4.0
+<local:A>	<local:x>	<local:y>	5.0
+<local:A>	<local:x>	<local:y>	6.0
+<local:A>	<local:x>	<local:y>	7.0e0
+<local:A>	<local:x>	<local:y>	8.0e0
+<local:A>	<local:x>	<local:y>	9.0e0
 <local:B>	<local:b>	<local:b>	<local:c>
 <local:B>	<local:b>	<local:b>	<local:d>
 <local:C>	<local:a>	<local:b>	<local:c>
@@ -151,36 +151,36 @@ Query: SELECT DISTINCT * WHERE { GRAPH ?g { ?s ?p ?o } } ORDER BY ?g ?s ?p ?o
 <local:C>	<local:x>	<local:y>	_:b100000000000004
 <local:C>	<local:x>	<local:y>	_:b100000000000005
 <local:C>	<local:x>	<local:y>	_:b100000000000006
-<local:C>	<local:x>	<local:y>	"1"^^<http://www.w3.org/2001/XMLSchema#integer>
+<local:C>	<local:x>	<local:y>	1
 <local:C>	<local:x>	<local:y>	"10"
 <local:C>	<local:x>	<local:y>	"11"
 <local:C>	<local:x>	<local:y>	"12"
-<local:C>	<local:x>	<local:y>	"2"^^<http://www.w3.org/2001/XMLSchema#integer>
-<local:C>	<local:x>	<local:y>	"3"^^<http://www.w3.org/2001/XMLSchema#integer>
-<local:C>	<local:x>	<local:y>	"4.0"^^<http://www.w3.org/2001/XMLSchema#decimal>
-<local:C>	<local:x>	<local:y>	"5.0"^^<http://www.w3.org/2001/XMLSchema#decimal>
-<local:C>	<local:x>	<local:y>	"6.0"^^<http://www.w3.org/2001/XMLSchema#decimal>
-<local:C>	<local:x>	<local:y>	"7.0e0"^^<http://www.w3.org/2001/XMLSchema#double>
-<local:C>	<local:x>	<local:y>	"8.0e0"^^<http://www.w3.org/2001/XMLSchema#double>
-<local:C>	<local:x>	<local:y>	"9.0e0"^^<http://www.w3.org/2001/XMLSchema#double>
+<local:C>	<local:x>	<local:y>	2
+<local:C>	<local:x>	<local:y>	3
+<local:C>	<local:x>	<local:y>	4.0
+<local:C>	<local:x>	<local:y>	5.0
+<local:C>	<local:x>	<local:y>	6.0
+<local:C>	<local:x>	<local:y>	7.0e0
+<local:C>	<local:x>	<local:y>	8.0e0
+<local:C>	<local:x>	<local:y>	9.0e0
 <local:E>	<local:a>	<local:b>	<local:c>
 <local:E>	<local:b>	<local:b>	<local:c>
 <local:E>	<local:b>	<local:b>	<local:d>
 <local:E>	<local:x>	<local:y>	_:b100000000000007
 <local:E>	<local:x>	<local:y>	_:b200000000000008
 <local:E>	<local:x>	<local:y>	_:b200000000000009
-<local:E>	<local:x>	<local:y>	"1"^^<http://www.w3.org/2001/XMLSchema#integer>
+<local:E>	<local:x>	<local:y>	1
 <local:E>	<local:x>	<local:y>	"10"
 <local:E>	<local:x>	<local:y>	"11"
 <local:E>	<local:x>	<local:y>	"12"
-<local:E>	<local:x>	<local:y>	"2"^^<http://www.w3.org/2001/XMLSchema#integer>
-<local:E>	<local:x>	<local:y>	"3"^^<http://www.w3.org/2001/XMLSchema#integer>
-<local:E>	<local:x>	<local:y>	"4.0"^^<http://www.w3.org/2001/XMLSchema#decimal>
-<local:E>	<local:x>	<local:y>	"5.0"^^<http://www.w3.org/2001/XMLSchema#decimal>
-<local:E>	<local:x>	<local:y>	"6.0"^^<http://www.w3.org/2001/XMLSchema#decimal>
-<local:E>	<local:x>	<local:y>	"7.0e0"^^<http://www.w3.org/2001/XMLSchema#double>
-<local:E>	<local:x>	<local:y>	"8.0e0"^^<http://www.w3.org/2001/XMLSchema#double>
-<local:E>	<local:x>	<local:y>	"9.0e0"^^<http://www.w3.org/2001/XMLSchema#double>
+<local:E>	<local:x>	<local:y>	2
+<local:E>	<local:x>	<local:y>	3
+<local:E>	<local:x>	<local:y>	4.0
+<local:E>	<local:x>	<local:y>	5.0
+<local:E>	<local:x>	<local:y>	6.0
+<local:E>	<local:x>	<local:y>	7.0e0
+<local:E>	<local:x>	<local:y>	8.0e0
+<local:E>	<local:x>	<local:y>	9.0e0
 Update: MOVE <E> TO <D>
 Moved <local:E> to <local:D>
 18 triples added, ?? removed
@@ -190,18 +190,18 @@ Query: SELECT DISTINCT * WHERE { GRAPH ?g { ?s ?p ?o } } ORDER BY ?g ?s ?p ?o
 <local:A>	<local:x>	<local:y>	_:b1
 <local:A>	<local:x>	<local:y>	_:b2
 <local:A>	<local:x>	<local:y>	_:b3
-<local:A>	<local:x>	<local:y>	"1"^^<http://www.w3.org/2001/XMLSchema#integer>
+<local:A>	<local:x>	<local:y>	1
 <local:A>	<local:x>	<local:y>	"10"
 <local:A>	<local:x>	<local:y>	"11"
 <local:A>	<local:x>	<local:y>	"12"
-<local:A>	<local:x>	<local:y>	"2"^^<http://www.w3.org/2001/XMLSchema#integer>
-<local:A>	<local:x>	<local:y>	"3"^^<http://www.w3.org/2001/XMLSchema#integer>
-<local:A>	<local:x>	<local:y>	"4.0"^^<http://www.w3.org/2001/XMLSchema#decimal>
-<local:A>	<local:x>	<local:y>	"5.0"^^<http://www.w3.org/2001/XMLSchema#decimal>
-<local:A>	<local:x>	<local:y>	"6.0"^^<http://www.w3.org/2001/XMLSchema#decimal>
-<local:A>	<local:x>	<local:y>	"7.0e0"^^<http://www.w3.org/2001/XMLSchema#double>
-<local:A>	<local:x>	<local:y>	"8.0e0"^^<http://www.w3.org/2001/XMLSchema#double>
-<local:A>	<local:x>	<local:y>	"9.0e0"^^<http://www.w3.org/2001/XMLSchema#double>
+<local:A>	<local:x>	<local:y>	2
+<local:A>	<local:x>	<local:y>	3
+<local:A>	<local:x>	<local:y>	4.0
+<local:A>	<local:x>	<local:y>	5.0
+<local:A>	<local:x>	<local:y>	6.0
+<local:A>	<local:x>	<local:y>	7.0e0
+<local:A>	<local:x>	<local:y>	8.0e0
+<local:A>	<local:x>	<local:y>	9.0e0
 <local:B>	<local:b>	<local:b>	<local:c>
 <local:B>	<local:b>	<local:b>	<local:d>
 <local:C>	<local:a>	<local:b>	<local:c>
@@ -210,36 +210,36 @@ Query: SELECT DISTINCT * WHERE { GRAPH ?g { ?s ?p ?o } } ORDER BY ?g ?s ?p ?o
 <local:C>	<local:x>	<local:y>	_:b100000000000004
 <local:C>	<local:x>	<local:y>	_:b100000000000005
 <local:C>	<local:x>	<local:y>	_:b100000000000006
-<local:C>	<local:x>	<local:y>	"1"^^<http://www.w3.org/2001/XMLSchema#integer>
+<local:C>	<local:x>	<local:y>	1
 <local:C>	<local:x>	<local:y>	"10"
 <local:C>	<local:x>	<local:y>	"11"
 <local:C>	<local:x>	<local:y>	"12"
-<local:C>	<local:x>	<local:y>	"2"^^<http://www.w3.org/2001/XMLSchema#integer>
-<local:C>	<local:x>	<local:y>	"3"^^<http://www.w3.org/2001/XMLSchema#integer>
-<local:C>	<local:x>	<local:y>	"4.0"^^<http://www.w3.org/2001/XMLSchema#decimal>
-<local:C>	<local:x>	<local:y>	"5.0"^^<http://www.w3.org/2001/XMLSchema#decimal>
-<local:C>	<local:x>	<local:y>	"6.0"^^<http://www.w3.org/2001/XMLSchema#decimal>
-<local:C>	<local:x>	<local:y>	"7.0e0"^^<http://www.w3.org/2001/XMLSchema#double>
-<local:C>	<local:x>	<local:y>	"8.0e0"^^<http://www.w3.org/2001/XMLSchema#double>
-<local:C>	<local:x>	<local:y>	"9.0e0"^^<http://www.w3.org/2001/XMLSchema#double>
+<local:C>	<local:x>	<local:y>	2
+<local:C>	<local:x>	<local:y>	3
+<local:C>	<local:x>	<local:y>	4.0
+<local:C>	<local:x>	<local:y>	5.0
+<local:C>	<local:x>	<local:y>	6.0
+<local:C>	<local:x>	<local:y>	7.0e0
+<local:C>	<local:x>	<local:y>	8.0e0
+<local:C>	<local:x>	<local:y>	9.0e0
 <local:D>	<local:a>	<local:b>	<local:c>
 <local:D>	<local:b>	<local:b>	<local:c>
 <local:D>	<local:b>	<local:b>	<local:d>
 <local:D>	<local:x>	<local:y>	_:b100000000000007
 <local:D>	<local:x>	<local:y>	_:b200000000000008
 <local:D>	<local:x>	<local:y>	_:b200000000000009
-<local:D>	<local:x>	<local:y>	"1"^^<http://www.w3.org/2001/XMLSchema#integer>
+<local:D>	<local:x>	<local:y>	1
 <local:D>	<local:x>	<local:y>	"10"
 <local:D>	<local:x>	<local:y>	"11"
 <local:D>	<local:x>	<local:y>	"12"
-<local:D>	<local:x>	<local:y>	"2"^^<http://www.w3.org/2001/XMLSchema#integer>
-<local:D>	<local:x>	<local:y>	"3"^^<http://www.w3.org/2001/XMLSchema#integer>
-<local:D>	<local:x>	<local:y>	"4.0"^^<http://www.w3.org/2001/XMLSchema#decimal>
-<local:D>	<local:x>	<local:y>	"5.0"^^<http://www.w3.org/2001/XMLSchema#decimal>
-<local:D>	<local:x>	<local:y>	"6.0"^^<http://www.w3.org/2001/XMLSchema#decimal>
-<local:D>	<local:x>	<local:y>	"7.0e0"^^<http://www.w3.org/2001/XMLSchema#double>
-<local:D>	<local:x>	<local:y>	"8.0e0"^^<http://www.w3.org/2001/XMLSchema#double>
-<local:D>	<local:x>	<local:y>	"9.0e0"^^<http://www.w3.org/2001/XMLSchema#double>
+<local:D>	<local:x>	<local:y>	2
+<local:D>	<local:x>	<local:y>	3
+<local:D>	<local:x>	<local:y>	4.0
+<local:D>	<local:x>	<local:y>	5.0
+<local:D>	<local:x>	<local:y>	6.0
+<local:D>	<local:x>	<local:y>	7.0e0
+<local:D>	<local:x>	<local:y>	8.0e0
+<local:D>	<local:x>	<local:y>	9.0e0
 Update: DELETE { GRAPH <A> { ?s ?p ?o } } WHERE { GRAPH <A> { ?s ?p ?o } }
 
 Update: DELETE { GRAPH <B> { ?s ?p ?o } } WHERE { GRAPH <B> { ?s ?p ?o } }

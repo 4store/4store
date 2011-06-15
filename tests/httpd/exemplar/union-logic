@@ -2,14 +2,14 @@
 This is a 4store SPARQL server [VERSION]
 Query: PREFIX foaf: <http://xmlns.com/foaf/0.1/> SELECT ?int ?dec ?person ?name WHERE { { <mailto:steve@example.net> foaf:interest ?int } UNION { <mailto:steve@example.net> foaf:someDecimal ?dec } UNION { <mailto:steve@example.net> foaf:knows ?person OPTIONAL { ?person foaf:name ?name } } }
 ?int	?dec	?person	?name
-NULL	NULL	<local:jo>	"Jo Walsh"
-NULL	NULL	<local:libby>	"Libby Miller"
-NULL	NULL	<local:dajobe>	"Dave Beckett"
-NULL	NULL	<local:nick>	"Nick Gibbins"
-NULL	NULL	<local:stripes>	"Mark Thompson"
-<http://www.w3.org/2000/01/sw/>	NULL	NULL	NULL
-<http://www.w3.org/RDF/>	NULL	NULL	NULL
-NULL	"1.12345678"	NULL	NULL
-NULL	"1000017.23"	NULL	NULL
+		<local:jo>	"Jo Walsh"
+		<local:libby>	"Libby Miller"
+		<local:dajobe>	"Dave Beckett"
+		<local:nick>	"Nick Gibbins"
+		<local:stripes>	"Mark Thompson"
+<http://www.w3.org/2000/01/sw/>			
+<http://www.w3.org/RDF/>			
+	"1.12345678"		
+	"1000017.23"		
 200 deleted successfully
 This is a 4store SPARQL server [VERSION]

@@ -10,9 +10,9 @@ Query: SELECT ?d WHERE { <test:data> <test:bcdate> ?d . FILTER(MONTH(?d) = 5.0) 
 "1969-05-23T23:05:00Z"^^<http://www.w3.org/2001/XMLSchema#dateTime>
 Query: SELECT (DAY(?d) AS ?dd) WHERE { <test:data> <test:bcdate> ?d } ORDER BY ?d
 ?dd
-"17"^^<http://www.w3.org/2001/XMLSchema#integer>
-"23"^^<http://www.w3.org/2001/XMLSchema#integer>
-"23"^^<http://www.w3.org/2001/XMLSchema#integer>
+17
+23
+23
 Query: SELECT (SUBSTR(?s, 1, 3) AS ?ss) WHERE { <test:data> <test:bcd> ?s. FILTER(?s = "012345678901234567890123456789012") }
 ?ss
 "012"
