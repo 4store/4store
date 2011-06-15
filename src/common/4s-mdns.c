@@ -401,8 +401,14 @@ static void browse_reply
      const char *regtype, const char *domain, void *context)
 {
     fsp_link *link = context;
+    char ifname[IFNAMSIZ+1];
 
-//printf("@@ found service_name=%s, if=%d, err=%d\n", service_name, interfaceIndex, errorCode);
+    if (!if_indextoname(interfaceIndex, ifname)) {
+        /* interface name lookup failed, we don't want this one */
+
+        return;
+    }
+//printf("@@ found service_name=%s, if=%s(%d), err=%d, regtype=%s, domain=%s\n", service_name, ifname, interfaceIndex, errorCode, regtype, domain);
     DNSServiceRef ref;
     if (DNSServiceResolve(&ref, 0, interfaceIndex, service_name, regtype,
             domain, resolve_reply, context) != kDNSServiceErr_NoError) {
@@ -453,17 +459,23 @@ void fsp_mdns_setup_frontend(fsp_link *link)
     FD_ZERO(&browse_fds);
     FD_SET(bfd, &browse_fds);
     struct timeval timeout = { .tv_sec = 2, .tv_usec = 0 };
+//printf("@@ select\n");
     int sel = select(bfd+1, &browse_fds, NULL, NULL, &timeout);
+//printf("@@ done select\n");
     if (sel == 1) {
+//printf("@@ got response\n");
       if (DNSServiceProcessResult(ref) != kDNSServiceErr_NoError) {
         fs_error(LOG_ERR, "failed to process result for "SERVICE_TYPE": %s",
              strerror(errno));
         return;
       }
+//printf("@@ handled response\n");
     } else if (sel == -1) {
-      fs_error(LOG_ERR, "select faild: %s", strerror(errno));
+      fs_error(LOG_ERR, "select failed: %s", strerror(errno));
     } else if (sel == 0) {
       fs_error(LOG_INFO, "timed out waiting for mDNS response");
+    } else {
+      fs_error(LOG_ERR, "mDNS fallthrough case, sel = %d", sel);
     }
   } while (link->segments == 0 || found < link->segments);
   DNSServiceRefDeallocate(ref);
