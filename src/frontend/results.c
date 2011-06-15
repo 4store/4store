@@ -249,6 +249,8 @@ fs_value fs_expression_eval(fs_query *q, int row, int block, rasqal_expression *
         return fn_numeric_ceil(q, fs_expression_eval(q, row, block, e->arg1));
     case RASQAL_EXPR_FLOOR:
         return fn_numeric_floor(q, fs_expression_eval(q, row, block, e->arg1));
+    case RASQAL_EXPR_RAND:
+        return fn_rand(q);
 #endif
 	case RASQAL_EXPR_AND:
 	    return fn_logical_and(q, fs_expression_eval(q, row, block, e->arg1),

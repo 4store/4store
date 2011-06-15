@@ -1,1 +1,1 @@
-SUBDIRS = stemmer double-metaphone
+SUBDIRS = stemmer double-metaphone mt19937-64
