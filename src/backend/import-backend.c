@@ -422,7 +422,7 @@ int fs_delete_quads(fs_backend *be, fs_rid_vector *quads[4])
     }
     fs_rid_set_free(preds);
     fs_rid model;
-    fs_rid_set_rewind(preds);
+    fs_rid_set_rewind(models);
     while ((model = fs_rid_set_next(models)) != FS_RID_NULL) {
         fs_index_node val = 0;
         fs_mhash_get(be->models, model, &val);
@@ -430,6 +430,7 @@ int fs_delete_quads(fs_backend *be, fs_rid_vector *quads[4])
 	    fs_tbchain_set_bit(be->model_list, val, FS_TBCHAIN_SUPERSET);
 	}
     }
+    fs_rid_set_free(models);
 
     return errors;
 }
