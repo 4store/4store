@@ -393,6 +393,8 @@ static void http_query_worker(gpointer data, gpointer user_data)
       type = "json";
     } else if (accept && strstr(accept, "text/tab-separated-values")) {
       type = "text";
+    } else if (accept && strstr(accept, "text/csv")) {
+      type = "csv";
     } else if (accept && strstr(accept, "text/plain")) {
       type = "text";
       fprintf(fp, "Content-Type: text/plain; charset=utf-8\r\n\r\n");

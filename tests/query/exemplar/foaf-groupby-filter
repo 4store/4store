@@ -1,2 +1,2 @@
-<mailto:steve@example.net>	"1"^^<http://www.w3.org/2001/XMLSchema#integer>
+<mailto:steve@example.net>	1
 ?x	?count

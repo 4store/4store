@@ -1100,6 +1100,60 @@ static int apply_constraints(fs_query *q, int row)
     return 1;
 }
 
+static int csv_needs_escape(const char *str, int *escaped_length)
+{
+    int esc_len = 0;
+    int escape = 0;
+
+    if (!str) return 0;
+
+    for (const char *c = str; *c; c++) {
+        switch (*c) {
+        case '"':
+            esc_len += 2;
+            escape = 1;
+            break;
+        case ',':
+        case '\r':
+        case '\n':
+            esc_len += 1;
+            escape = 1;
+            break;
+        default:
+            esc_len += 1;
+        }
+    }
+    if (escape) {
+        esc_len += 2;
+    }
+    *escaped_length = esc_len;
+
+    return escape;
+}
+
+static char *csv_escape(const char *str, int length)
+{
+    char *to = malloc(length+1);
+    char *outp = to;
+
+    *outp++ = '"';
+    for (const char *inp = str; *inp; inp++) {
+        switch (*inp) {
+        case '"':
+            *outp++ = '"';
+            *outp++ = '"';
+            break;
+        default:
+            *outp++ = *inp;
+            break;
+        }
+    }
+    *outp++ = '"';
+    *outp = '\0';
+
+    return to;
+}
+
 static int uri_needs_escape(const char *str, int *escaped_length)
 {
     int esc_len = 0;
@@ -1783,7 +1837,23 @@ static void output_text(fs_query *q, int flags, FILE *out)
                         if (row[c].lang) {
 			    fprintf(out, "\"%s\"@%s", lex, row[c].lang);
                         } else if (row[c].dt) {
-			    fprintf(out, "\"%s\"^^<%s>", lex, row[c].dt);
+                            if (!strcmp(row[c].dt, XSD_INTEGER)) {
+                                fprintf(out, "%s", lex);
+                            } else if (!strcmp(row[c].dt, XSD_DECIMAL)) {
+                                if (strchr(lex, '.')) {
+                                    fprintf(out, "%s", lex);
+                                } else {
+                                    fprintf(out, "%s.0", lex);
+                                }
+                            } else if (!strcmp(row[c].dt, XSD_DOUBLE)) {
+                                if (strchr(lex, 'e')) {
+                                    fprintf(out, "%s", lex);
+                                } else {
+                                    fprintf(out, "%se0", lex);
+                                }
+                            } else {
+                                fprintf(out, "\"%s\"^^<%s>", lex, row[c].dt);
+                            }
                         } else {
 			    fprintf(out, "\"%s\"", lex);
                         }
@@ -1802,6 +1872,111 @@ static void output_text(fs_query *q, int flags, FILE *out)
         for (it = q->warnings; it; it = it->next) {
             if (it->data) {
                 fprintf(out, "# %s\n", (char *)it->data);
+            } else {
+                fs_error(LOG_ERR, "found NULL warning");
+            }
+        }
+        g_slist_free(q->warnings);
+        q->warnings = NULL;
+    }
+}
+
+static void output_csv(fs_query *q, int flags, FILE *out)
+{
+    if (!q) return;
+
+    if (flags & FS_RESULT_FLAG_HEADERS) {
+	if (q->construct) {
+	    fprintf(out, "Content-Type: text/rdf+n3; charset=utf-8\r\n\r\n");
+	} else {
+	    fprintf(out, "Content-Type: text/csv; charset=utf-8; header=present\r\n\r\n");
+	}
+    }
+
+    if (q->ask) {
+        while (q->boolean && fs_query_fetch_row(q));
+        if (q->boolean) {
+            fprintf(out, "ask\r\ntrue\r\n");
+        } else {
+            fprintf(out, "ask\r\nfalse\r\n");
+        }
+
+        return;
+    }
+
+    if (q->describe) {
+        handle_describe(q, "turtle", out);
+
+        return;
+    }
+
+    fs_row *row=NULL;
+
+    int cols = fs_query_get_columns(q);
+    if (!q->construct) {
+	row = fs_query_fetch_header_row(q);
+	for (int i=0; i<cols; i++) {
+	    if (i) fputc(',', out);
+	    fprintf(out, "%s", row[i].name);
+	}
+	fprintf(out, "\r\n");
+    }
+
+    if (q->warnings) {
+        GSList *it;
+        for (it = q->warnings; it; it = it->next) {
+            if (it->data) {
+                fprintf(out, "# %s\r\n", (char *)it->data);
+            } else {
+                fs_error(LOG_ERR, "found NULL warning");
+            }
+        }
+        g_slist_free(q->warnings);
+        q->warnings = NULL;
+    }
+
+    if (q->construct) {
+        handle_construct(q, "ntriples", out);
+    } else {
+	while ((!row || !row->stop) && (row = fs_query_fetch_row(q))) {
+	    for (int c=0; c<cols; c++) {
+		int esclen = 0;
+		char *escd = NULL;
+		const char *lex = row[c].lex;
+		if (c) fputc(',', out);
+		switch (row[c].type) {
+		    case FS_TYPE_NONE:
+			//fprintf(out, "NULL");
+			break;
+		    case FS_TYPE_URI:
+                        if (csv_needs_escape(row[c].lex, &esclen)) {
+                            escd = uri_escape(row[c].lex, esclen);
+                            lex = escd;
+                        }
+			fprintf(out, "%s", lex);
+                        if (escd) free(escd);
+			break;
+		    case FS_TYPE_LITERAL:
+                        if (csv_needs_escape(row[c].lex, &esclen)) {
+                            escd = csv_escape(row[c].lex, esclen);
+                            lex = escd;
+                        }
+                        fprintf(out, "%s", lex);
+                        if (escd) free(escd);
+			break;
+		    case FS_TYPE_BNODE:
+			fprintf(out, "%s", row[c].lex);
+		}
+	    }
+	    fprintf(out, "\r\n");
+	}
+    }
+
+    if (q->warnings) {
+        GSList *it;
+        for (it = q->warnings; it; it = it->next) {
+            if (it->data) {
+                fprintf(out, "# %s\r\n", (char *)it->data);
             } else {
                 fs_error(LOG_ERR, "found NULL warning");
             }
@@ -2343,8 +2518,10 @@ void fs_query_results_output(fs_query *q, const char *fmt, int flags, FILE *out)
 
     if (!strcmp(fmt, "sparql")) {
 	output_sparql(q, flags, out);
-    } else if (!strcmp(fmt, "text") || !strcmp(fmt, "ascii")) {
+    } else if (!strcmp(fmt, "text") || !strcmp(fmt, "ascii") || !strcmp(fmt, "tsv")) {
 	output_text(q, flags, out);
+    } else if (!strcmp(fmt, "csv")) {
+	output_csv(q, flags, out);
     } else if (!strcmp(fmt, "json")) {
 	output_json(q, flags, out);
     } else if (!strcmp(fmt, "testcase")) {

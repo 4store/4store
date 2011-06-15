@@ -1,8 +1,8 @@
+		"Dave Beckett"
+		"Jo Walsh"
+		"Libby Miller"
+		"Mark Thompson"
+		"Nick Gibbins"
 # parser warning: Variable a was selected but is unused in the query. on line 1
 # parser warning: Variable b was selected but is unused in the query. on line 1
 ?a	?b	?name
-NULL	NULL	"Dave Beckett"
-NULL	NULL	"Jo Walsh"
-NULL	NULL	"Libby Miller"
-NULL	NULL	"Mark Thompson"
-NULL	NULL	"Nick Gibbins"
