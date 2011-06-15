@@ -1667,7 +1667,7 @@ fs_value fn_rand(fs_query *q)
     }
     
     fs_value v = fs_value_double(genrand64_real2());
-	v.lex = g_strdup_printf("%.17f", v.fp);
+    v.lex = g_strdup_printf("%.17f", v.fp);
     fs_query_add_freeable(q, v.lex);
 
     return v;
