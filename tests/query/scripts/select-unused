@@ -3,4 +3,4 @@
 $TESTPATH/frontend/4s-query $1 '
 PREFIX foaf: <http://xmlns.com/foaf/0.1/>
 SELECT ?a ?b ?name
-WHERE { ?x <http://xmlns.com/foaf/0.1/knows> ?p . ?p foaf:name ?name }' | sort
+WHERE { ?x <http://xmlns.com/foaf/0.1/knows> ?p . ?p foaf:name ?name }' | sed 's/query\./query/' | sort
