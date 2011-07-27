@@ -77,6 +77,7 @@ fs_value fn_timezone(fs_query *q, fs_value v);
 fs_value fn_strstarts(fs_query *q, fs_value arg1, fs_value arg2);
 fs_value fn_strends(fs_query *q, fs_value arg1, fs_value arg2);
 fs_value fn_contains(fs_query *q, fs_value arg1, fs_value arg2);
+fs_value fn_rand(fs_query *q);
 
 /* casts and similar */
 fs_value fn_cast(fs_query *q, fs_value v, fs_value d);

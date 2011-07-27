@@ -1,0 +1,14 @@
+#!/bin/bash
+
+source sparql.sh
+
+put "$EPR" ../../data/numbers.ttl 'text/turtle' 'http://example.com/numbers.ttl'
+OUTPUT=`sparql "$EPR" 'SELECT ?s (RAND() AS ?r) WHERE { ?s ?p ?o. } LIMIT 1' | tail -1 | grep -c "0\.[0-9]\{17\}e0"`
+delete "$EPR" 'http://example.com/numbers.ttl'
+
+if [ $OUTPUT = 1 ]
+then
+    echo "pass"
+else
+    echo "fail"
+fi

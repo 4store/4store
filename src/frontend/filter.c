@@ -21,6 +21,7 @@
 #include <math.h>
 #include <string.h>
 #include <pcre.h>
+#include <time.h>
 
 #include "filter-datatypes.h"
 #include "filter.h"
@@ -28,6 +29,7 @@
 #include "../common/4s-hash.h"
 #include "../common/error.h"
 #include "../common/rdf-constants.h"
+#include "../libs/mt19937-64/mt64.h"
 
 typedef struct _fs_date_fields {
     int year;
@@ -1654,6 +1656,21 @@ fs_value fn_contains(fs_query *q, fs_value arg1, fs_value arg2)
     arg2 = fs_value_fill_lexical(q, arg2);
 
     return fs_value_boolean(strstr(arg1.lex, arg2.lex) != NULL);
+}
+
+fs_value fn_rand(fs_query *q)
+{
+    static int seeded = 0;
+    if (!seeded) {
+        init_genrand64(time(NULL));
+        seeded = 1;
+    }
+    
+    fs_value v = fs_value_double(genrand64_real2());
+    v.lex = g_strdup_printf("%.17f", v.fp);
+    fs_query_add_freeable(q, v.lex);
+
+    return v;
 }
 
 /* vi:set expandtab sts=4 sw=4: */
