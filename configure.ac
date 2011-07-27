@@ -113,6 +113,7 @@ AC_CONFIG_FILES([version.sh
                  src/libs/Makefile
                  src/libs/double-metaphone/Makefile
                  src/libs/stemmer/Makefile
+                 src/libs/mt19937-64/Makefile
                  src/utilities/Makefile
                  src/common/params.h
                  4store-0.pc])
