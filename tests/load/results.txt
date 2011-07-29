@@ -1,0 +1,1708 @@
+Query: SELECT DISTINCT * WHERE { ?s ?p ?o } LIMIT 100
+curl -s -H Accept: text/plain http://localhost:13579/sparql/?query=SELECT%20DISTINCT%20*%20WHERE%20\{%20%3fs%20%3fp%20%3fo%20\}%20LIMIT%20100
+Query: SELECT DISTINCT * WHERE { ?s ?p ?o } LIMIT 100
+curl -s -H Accept: text/plain http://localhost:13579/sparql/?query=SELECT%20DISTINCT%20*%20WHERE%20\{%20%3fs%20%3fp%20%3fo%20\}%20LIMIT%20100
+Query: SELECT DISTINCT * WHERE { ?s ?p ?o } LIMIT 100
+curl -s -H Accept: text/plain http://localhost:13579/sparql/?query=SELECT%20DISTINCT%20*%20WHERE%20\{%20%3fs%20%3fp%20%3fo%20\}%20LIMIT%20100
+Query: SELECT DISTINCT * WHERE { ?s ?p ?o } LIMIT 100
+curl -s -H Accept: text/plain http://localhost:13579/sparql/?query=SELECT%20DISTINCT%20*%20WHERE%20\{%20%3fs%20%3fp%20%3fo%20\}%20LIMIT%20100
+?s	?p	?o
+_:bd010000000081	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/W>
+_:b11000000000080	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/W>
+_:b43020000000003	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/N>
+_:b45020000000080	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/W>
+_:b45020000000081	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/W>
+_:b48020000000082	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/E>
+_:b48020000000083	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/E>
+_:b4c020000000081	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/E>
+_:b60000000000002	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/W>
+_:b6b020000000082	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/S>
+_:b6e020000000081	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/N>
+_:b6e020000000082	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/S>
+_:b7f000000000001	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/E>
+_:b81000000000082	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/E>
+_:ba8010000000081	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/W>
+_:bd7000000000081	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/W>
+_:b108010000000087	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/N>
+_:b149020000000086	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/E>
+_:b17f000000000007	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/E>
+_:b1d1000000000085	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/S>
+_:b1e4000000000086	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/W>
+_:b1f0000000000086	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/E>
+_:b20a000000000008	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/S>
+_:b23f02000000000b	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/S>
+_:b246020000000008	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/W>
+_:b248020000000088	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/E>
+_:b249020000000088	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/E>
+_:b24902000000008a	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/E>
+_:b24902000000008b	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/E>
+_:b24f02000000000a	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/W>
+_:b25202000000008a	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/E>
+_:b255020000000009	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/W>
+_:b258020000000088	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/S>
+_:b26c020000000088	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/W>
+_:b2c5010000000088	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/S>
+_:b2d100000000008b	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/W>
+_:b31b00000000000f	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/W>
+_:b33501000000000e	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/S>
+_:b33f01000000008e	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/W>
+_:b33f02000000000f	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/S>
+_:b34101000000008d	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/W>
+_:b34602000000000c	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/W>
+_:b34602000000000e	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/W>
+_:b34802000000008c	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/E>
+_:b34802000000008d	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/E>
+_:b34802000000008f	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/E>
+_:b35102000000008f	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/E>
+_:b35202000000008c	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/W>
+_:b35c02000000008c	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/W>
+_:b36301000000000c	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/S>
+_:b36702000000000e	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/N>
+_:b36e02000000008f	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/E>
+_:b37f00000000008c	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/E>
+_:b3d100000000008e	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/N>
+_:b413000000000011	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/E>
+_:b43a000000000013	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/W>
+_:b43f020000000010	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/W>
+_:b446020000000012	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/W>
+_:b446020000000013	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/W>
+_:b449020000000090	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/E>
+_:b449020000000091	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/E>
+_:b461010000000091	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/W>
+_:b465020000000092	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/W>
+_:b467020000000010	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/S>
+_:b469020000000013	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/S>
+_:b4d1010000000013	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/N>
+_:b50d010000000096	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/E>
+_:b52b010000000017	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/N>
+_:b53a020000000095	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/S>
+_:b546020000000015	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/W>
+_:b546020000000016	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/W>
+_:b546020000000017	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/W>
+_:b549020000000097	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/E>
+_:b550020000000097	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/W>
+_:b560000000000015	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/W>
+_:b56c020000000097	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/N>
+_:b58b000000000095	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/E>
+_:b5c4010000000015	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/S>
+_:b5d5010000000096	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/W>
+_:b5e0010000000015	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/E>
+_:b61500000000001b	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/E>
+_:b63a020000000098	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/N>
+_:b645020000000099	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/W>
+_:b649020000000098	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/E>
+_:b658020000000099	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/W>
+_:b66302000000001a	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/W>
+_:b6a201000000009a	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/E>
+_:b6f600000000009a	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/E>
+_:b70600000000009d	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/W>
+_:b72600000000001e	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/N>
+_:b73300000000009d	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/W>
+_:b74602000000001c	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/W>
+_:b75002000000009c	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/W>
+_:b75b00000000009c	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/W>
+_:b76000000000001c	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/W>
+_:b76502000000009d	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/W>
+_:b76502000000009e	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/E>
+_:b76802000000001d	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/E>
+_:b77202000000009c	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/N>
+_:b77202000000009d	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/S>
+?s	?p	?o
+_:bd010000000081	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/W>
+_:b11000000000080	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/W>
+_:b43020000000003	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/N>
+_:b45020000000080	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/W>
+_:b45020000000081	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/W>
+_:b48020000000082	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/E>
+_:b48020000000083	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/E>
+_:b4c020000000081	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/E>
+_:b60000000000002	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/W>
+_:b6b020000000082	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/S>
+_:b6e020000000081	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/N>
+_:b6e020000000082	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/S>
+_:b7f000000000001	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/E>
+_:b81000000000082	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/E>
+_:ba8010000000081	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/W>
+_:bd7000000000081	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/W>
+_:b108010000000087	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/N>
+_:b149020000000086	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/E>
+_:b17f000000000007	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/E>
+_:b1d1000000000085	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/S>
+_:b1e4000000000086	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/W>
+_:b1f0000000000086	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/E>
+_:b20a000000000008	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/S>
+_:b23f02000000000b	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/S>
+_:b246020000000008	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/W>
+_:b248020000000088	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/E>
+_:b249020000000088	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/E>
+_:b24902000000008a	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/E>
+_:b24902000000008b	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/E>
+_:b24f02000000000a	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/W>
+_:b25202000000008a	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/E>
+_:b255020000000009	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/W>
+_:b258020000000088	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/S>
+_:b26c020000000088	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/W>
+_:b2c5010000000088	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/S>
+_:b2d100000000008b	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/W>
+_:b31b00000000000f	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/W>
+_:b33501000000000e	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/S>
+_:b33f01000000008e	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/W>
+_:b33f02000000000f	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/S>
+_:b34101000000008d	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/W>
+_:b34602000000000c	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/W>
+_:b34602000000000e	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/W>
+_:b34802000000008c	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/E>
+_:b34802000000008d	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/E>
+_:b34802000000008f	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/E>
+_:b35102000000008f	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/E>
+_:b35202000000008c	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/W>
+_:b35c02000000008c	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/W>
+_:b36301000000000c	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/S>
+_:b36702000000000e	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/N>
+_:b36e02000000008f	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/E>
+_:b37f00000000008c	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/E>
+_:b3d100000000008e	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/N>
+_:b413000000000011	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/E>
+_:b43a000000000013	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/W>
+_:b43f020000000010	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/W>
+_:b446020000000012	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/W>
+_:b446020000000013	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/W>
+_:b449020000000090	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/E>
+_:b449020000000091	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/E>
+_:b461010000000091	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/W>
+_:b465020000000092	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/W>
+_:b467020000000010	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/S>
+_:b469020000000013	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/S>
+_:b4d1010000000013	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/N>
+_:b50d010000000096	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/E>
+_:b52b010000000017	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/N>
+_:b53a020000000095	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/S>
+_:b546020000000015	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/W>
+_:b546020000000016	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/W>
+_:b546020000000017	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/W>
+_:b549020000000097	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/E>
+_:b550020000000097	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/W>
+_:b560000000000015	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/W>
+_:b56c020000000097	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/N>
+_:b58b000000000095	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/E>
+_:b5c4010000000015	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/S>
+_:b5d5010000000096	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/W>
+_:b5e0010000000015	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/E>
+_:b61500000000001b	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/E>
+_:b63a020000000098	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/N>
+_:b645020000000099	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/W>
+_:b649020000000098	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/E>
+_:b658020000000099	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/W>
+_:b66302000000001a	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/W>
+_:b6a201000000009a	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/E>
+_:b6f600000000009a	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/E>
+_:b70600000000009d	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/W>
+_:b72600000000001e	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/N>
+_:b73300000000009d	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/W>
+_:b74602000000001c	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/W>
+_:b75002000000009c	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/W>
+_:b75b00000000009c	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/W>
+_:b76000000000001c	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/W>
+_:b76502000000009d	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/W>
+_:b76502000000009e	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/E>
+_:b76802000000001d	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/E>
+_:b77202000000009c	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/N>
+_:b77202000000009d	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/S>
+?s	?p	?o
+_:bd010000000081	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/W>
+_:b11000000000080	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/W>
+_:b43020000000003	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/N>
+_:b45020000000080	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/W>
+_:b45020000000081	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/W>
+_:b48020000000082	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/E>
+_:b48020000000083	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/E>
+_:b4c020000000081	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/E>
+_:b60000000000002	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/W>
+_:b6b020000000082	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/S>
+_:b6e020000000081	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/N>
+_:b6e020000000082	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/S>
+_:b7f000000000001	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/E>
+_:b81000000000082	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/E>
+_:ba8010000000081	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/W>
+_:bd7000000000081	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/W>
+_:b108010000000087	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/N>
+_:b149020000000086	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/E>
+_:b17f000000000007	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/E>
+_:b1d1000000000085	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/S>
+_:b1e4000000000086	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/W>
+_:b1f0000000000086	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/E>
+_:b20a000000000008	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/S>
+_:b23f02000000000b	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/S>
+_:b246020000000008	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/W>
+_:b248020000000088	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/E>
+_:b249020000000088	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/E>
+_:b24902000000008a	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/E>
+_:b24902000000008b	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/E>
+_:b24f02000000000a	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/W>
+_:b25202000000008a	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/E>
+_:b255020000000009	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/W>
+_:b258020000000088	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/S>
+_:b26c020000000088	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/W>
+_:b2c5010000000088	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/S>
+_:b2d100000000008b	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/W>
+_:b31b00000000000f	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/W>
+_:b33501000000000e	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/S>
+_:b33f01000000008e	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/W>
+_:b33f02000000000f	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/S>
+_:b34101000000008d	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/W>
+_:b34602000000000c	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/W>
+_:b34602000000000e	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/W>
+_:b34802000000008c	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/E>
+_:b34802000000008d	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/E>
+_:b34802000000008f	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/E>
+_:b35102000000008f	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/E>
+_:b35202000000008c	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/W>
+_:b35c02000000008c	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/W>
+_:b36301000000000c	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/S>
+_:b36702000000000e	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/N>
+_:b36e02000000008f	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/E>
+_:b37f00000000008c	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/E>
+_:b3d100000000008e	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/N>
+_:b413000000000011	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/E>
+_:b43a000000000013	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/W>
+_:b43f020000000010	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/W>
+_:b446020000000012	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/W>
+_:b446020000000013	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/W>
+_:b449020000000090	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/E>
+_:b449020000000091	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/E>
+_:b461010000000091	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/W>
+_:b465020000000092	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/W>
+_:b467020000000010	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/S>
+_:b469020000000013	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/S>
+_:b4d1010000000013	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/N>
+_:b50d010000000096	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/E>
+_:b52b010000000017	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/N>
+_:b53a020000000095	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/S>
+_:b546020000000015	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/W>
+_:b546020000000016	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/W>
+_:b546020000000017	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/W>
+_:b549020000000097	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/E>
+_:b550020000000097	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/W>
+_:b560000000000015	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/W>
+_:b56c020000000097	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/N>
+_:b58b000000000095	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/E>
+_:b5c4010000000015	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/S>
+_:b5d5010000000096	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/W>
+_:b5e0010000000015	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/E>
+_:b61500000000001b	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/E>
+_:b63a020000000098	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/N>
+_:b645020000000099	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/W>
+_:b649020000000098	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/E>
+_:b658020000000099	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/W>
+_:b66302000000001a	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/W>
+_:b6a201000000009a	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/E>
+_:b6f600000000009a	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/E>
+_:b70600000000009d	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/W>
+_:b72600000000001e	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/N>
+_:b73300000000009d	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/W>
+_:b74602000000001c	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/W>
+_:b75002000000009c	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/W>
+_:b75b00000000009c	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/W>
+_:b76000000000001c	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/W>
+_:b76502000000009d	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/W>
+_:b76502000000009e	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/E>
+_:b76802000000001d	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/E>
+_:b77202000000009c	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/N>
+_:b77202000000009d	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/S>
+?s	?p	?o
+_:bd010000000081	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/W>
+_:b11000000000080	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/W>
+_:b43020000000003	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/N>
+_:b45020000000080	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/W>
+_:b45020000000081	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/W>
+_:b48020000000082	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/E>
+_:b48020000000083	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/E>
+_:b4c020000000081	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/E>
+_:b60000000000002	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/W>
+_:b6b020000000082	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/S>
+_:b6e020000000081	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/N>
+_:b6e020000000082	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/S>
+_:b7f000000000001	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/E>
+_:b81000000000082	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/E>
+_:ba8010000000081	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/W>
+_:bd7000000000081	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/W>
+_:b108010000000087	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/N>
+_:b149020000000086	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/E>
+_:b17f000000000007	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/E>
+_:b1d1000000000085	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/S>
+_:b1e4000000000086	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/W>
+_:b1f0000000000086	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/E>
+_:b20a000000000008	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/S>
+_:b23f02000000000b	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/S>
+_:b246020000000008	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/W>
+_:b248020000000088	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/E>
+_:b249020000000088	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/E>
+_:b24902000000008a	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/E>
+_:b24902000000008b	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/E>
+_:b24f02000000000a	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/W>
+_:b25202000000008a	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/E>
+_:b255020000000009	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/W>
+_:b258020000000088	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/S>
+_:b26c020000000088	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/W>
+_:b2c5010000000088	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/S>
+_:b2d100000000008b	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/W>
+_:b31b00000000000f	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/W>
+_:b33501000000000e	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/S>
+_:b33f01000000008e	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/W>
+_:b33f02000000000f	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/S>
+_:b34101000000008d	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/W>
+_:b34602000000000c	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/W>
+_:b34602000000000e	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/W>
+_:b34802000000008c	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/E>
+_:b34802000000008d	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/E>
+_:b34802000000008f	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/E>
+_:b35102000000008f	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/E>
+_:b35202000000008c	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/W>
+_:b35c02000000008c	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/W>
+_:b36301000000000c	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/S>
+_:b36702000000000e	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/N>
+_:b36e02000000008f	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/E>
+_:b37f00000000008c	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/E>
+_:b3d100000000008e	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/N>
+_:b413000000000011	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/E>
+_:b43a000000000013	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/W>
+_:b43f020000000010	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/W>
+_:b446020000000012	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/W>
+_:b446020000000013	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/W>
+_:b449020000000090	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/E>
+_:b449020000000091	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/E>
+_:b461010000000091	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/W>
+_:b465020000000092	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/W>
+_:b467020000000010	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/S>
+_:b469020000000013	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/S>
+_:b4d1010000000013	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/N>
+_:b50d010000000096	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/E>
+_:b52b010000000017	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/N>
+_:b53a020000000095	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/S>
+_:b546020000000015	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/W>
+_:b546020000000016	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/W>
+_:b546020000000017	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/W>
+_:b549020000000097	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/E>
+_:b550020000000097	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/W>
+_:b560000000000015	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/W>
+_:b56c020000000097	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/N>
+_:b58b000000000095	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/E>
+_:b5c4010000000015	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/S>
+_:b5d5010000000096	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/W>
+_:b5e0010000000015	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/E>
+_:b61500000000001b	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/E>
+_:b63a020000000098	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/N>
+_:b645020000000099	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/W>
+_:b649020000000098	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/E>
+_:b658020000000099	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/W>
+_:b66302000000001a	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/W>
+_:b6a201000000009a	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/E>
+_:b6f600000000009a	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/E>
+_:b70600000000009d	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/W>
+_:b72600000000001e	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/N>
+_:b73300000000009d	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/W>
+_:b74602000000001c	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/W>
+_:b75002000000009c	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/W>
+_:b75b00000000009c	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/W>
+_:b76000000000001c	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/W>
+_:b76502000000009d	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/W>
+_:b76502000000009e	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/E>
+_:b76802000000001d	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/E>
+_:b77202000000009c	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/N>
+_:b77202000000009d	<http://www.census.gov/tiger/2002/vocab#directionPrefix>	<http://www.census.gov/tiger/2002/featid/direction/S>
+Query: SELECT DISTINCT * WHERE { ?s ?p "Smith" }
+curl -s -H Accept: text/plain http://localhost:13579/sparql/?query=SELECT%20DISTINCT%20*%20WHERE%20\{%20%3fs%20%3fp%20"Smith"%20\}
+Query: SELECT DISTINCT * WHERE { ?s ?p "Smith" }
+curl -s -H Accept: text/plain http://localhost:13579/sparql/?query=SELECT%20DISTINCT%20*%20WHERE%20\{%20%3fs%20%3fp%20"Smith"%20\}
+Query: SELECT DISTINCT * WHERE { ?s ?p "Smith" }
+curl -s -H Accept: text/plain http://localhost:13579/sparql/?query=SELECT%20DISTINCT%20*%20WHERE%20\{%20%3fs%20%3fp%20"Smith"%20\}
+Query: SELECT DISTINCT * WHERE { ?s ?p "Smith" }
+curl -s -H Accept: text/plain http://localhost:13579/sparql/?query=SELECT%20DISTINCT%20*%20WHERE%20\{%20%3fs%20%3fp%20"Smith"%20\}
+?s	?p
+_:b28d010000000009	<http://www.census.gov/tiger/2002/vocab#name>
+_:b36102000000008f	<http://www.census.gov/tiger/2002/vocab#name>
+_:b68801000000009b	<http://www.census.gov/tiger/2002/vocab#name>
+_:b962020000000025	<http://www.census.gov/tiger/2002/vocab#name>
+_:b14570100000000d3	<http://www.census.gov/tiger/2002/vocab#name>
+_:b195b020000000066	<http://www.census.gov/tiger/2002/vocab#name>
+?s	?p
+_:b28d010000000009	<http://www.census.gov/tiger/2002/vocab#name>
+_:b36102000000008f	<http://www.census.gov/tiger/2002/vocab#name>
+_:b68801000000009b	<http://www.census.gov/tiger/2002/vocab#name>
+_:b962020000000025	<http://www.census.gov/tiger/2002/vocab#name>
+_:b14570100000000d3	<http://www.census.gov/tiger/2002/vocab#name>
+_:b195b020000000066	<http://www.census.gov/tiger/2002/vocab#name>
+?s	?p
+_:b28d010000000009	<http://www.census.gov/tiger/2002/vocab#name>
+_:b36102000000008f	<http://www.census.gov/tiger/2002/vocab#name>
+_:b68801000000009b	<http://www.census.gov/tiger/2002/vocab#name>
+_:b962020000000025	<http://www.census.gov/tiger/2002/vocab#name>
+_:b14570100000000d3	<http://www.census.gov/tiger/2002/vocab#name>
+_:b195b020000000066	<http://www.census.gov/tiger/2002/vocab#name>
+Query: SELECT DISTINCT ?name WHERE { ?s <http://www.census.gov/tiger/2002/vocab#name> ?name } ORDER BY ?name
+curl -s -H Accept: text/plain http://localhost:13579/sparql/?query=SELECT%20DISTINCT%20%3fname%20WHERE%20\{%20%3fs%20<http://www.census.gov/tiger/2002/vocab#name>%20%3fname%20\}%20ORDER%20BY%20%3fname
+Query: SELECT DISTINCT ?name WHERE { ?s <http://www.census.gov/tiger/2002/vocab#name> ?name } ORDER BY ?name
+curl -s -H Accept: text/plain http://localhost:13579/sparql/?query=SELECT%20DISTINCT%20%3fname%20WHERE%20\{%20%3fs%20<http://www.census.gov/tiger/2002/vocab#name>%20%3fname%20\}%20ORDER%20BY%20%3fname
+Query: SELECT DISTINCT ?name WHERE { ?s <http://www.census.gov/tiger/2002/vocab#name> ?name } ORDER BY ?name
+curl -s -H Accept: text/plain http://localhost:13579/sparql/?query=SELECT%20DISTINCT%20%3fname%20WHERE%20\{%20%3fs%20<http://www.census.gov/tiger/2002/vocab#name>%20%3fname%20\}%20ORDER%20BY%20%3fname
+?s	?p
+_:b28d010000000009	<http://www.census.gov/tiger/2002/vocab#name>
+_:b36102000000008f	<http://www.census.gov/tiger/2002/vocab#name>
+_:b68801000000009b	<http://www.census.gov/tiger/2002/vocab#name>
+_:b962020000000025	<http://www.census.gov/tiger/2002/vocab#name>
+_:b14570100000000d3	<http://www.census.gov/tiger/2002/vocab#name>
+_:b195b020000000066	<http://www.census.gov/tiger/2002/vocab#name>
+400 Parser error
+This is a 4store SPARQL server v1.1.3-32-g5405d75
+
+parser error: SPARQL syntax error at '<' on line 1
+400 Parser error
+This is a 4store SPARQL server v1.1.3-32-g5405d75
+
+parser error: SPARQL syntax error at '<' on line 1
+Query: SELECT DISTINCT ?name WHERE { ?s <http://www.census.gov/tiger/2002/vocab#name> ?name } ORDER BY ?name
+curl -s -H Accept: text/plain http://localhost:13579/sparql/?query=SELECT%20DISTINCT%20%3fname%20WHERE%20\{%20%3fs%20<http://www.census.gov/tiger/2002/vocab#name>%20%3fname%20\}%20ORDER%20BY%20%3fname
+400 Parser error
+This is a 4store SPARQL server v1.1.3-32-g5405d75
+
+parser error: SPARQL syntax error at '<' on line 1
+Query: SELECT ?s WHERE { ?s ?p ?o } LIMIT 100
+curl -s -H Accept: text/plain http://localhost:13579/sparql/?query=SELECT%20%3fs%20WHERE%20\{%20%3fs%20%3fp%20%3fo%20\}%20LIMIT%20100
+Query: SELECT ?s WHERE { ?s ?p ?o } LIMIT 100
+curl -s -H Accept: text/plain http://localhost:13579/sparql/?query=SELECT%20%3fs%20WHERE%20\{%20%3fs%20%3fp%20%3fo%20\}%20LIMIT%20100
+Query: SELECT ?s WHERE { ?s ?p ?o } LIMIT 100
+curl -s -H Accept: text/plain http://localhost:13579/sparql/?query=SELECT%20%3fs%20WHERE%20\{%20%3fs%20%3fp%20%3fo%20\}%20LIMIT%20100
+400 Parser error
+This is a 4store SPARQL server v1.1.3-32-g5405d75
+
+parser error: SPARQL syntax error at '<' on line 1
+Query: SELECT ?s WHERE { ?s ?p ?o } LIMIT 100
+curl -s -H Accept: text/plain http://localhost:13579/sparql/?query=SELECT%20%3fs%20WHERE%20\{%20%3fs%20%3fp%20%3fo%20\}%20LIMIT%20100
+?s
+<http://www.census.gov/tiger/2002/landmark/6001/734>
+<http://www.census.gov/tiger/2002/landmark/6001/734>
+<http://www.census.gov/tiger/2002/landmark/6001/756>
+<http://www.census.gov/tiger/2002/landmark/6001/128>
+<http://www.census.gov/tiger/2002/landmark/6001/231>
+<http://www.census.gov/tiger/2002/landmark/6001/136>
+<http://www.census.gov/tiger/2002/landmark/6001/656>
+<http://www.census.gov/tiger/2002/landmark/6001/153>
+<http://www.census.gov/tiger/2002/landmark/6001/238>
+<http://www.census.gov/tiger/2002/landmark/6001/238>
+<http://www.census.gov/tiger/2002/landmark/6001/238>
+<http://www.census.gov/tiger/2002/landmark/6001/614>
+<http://www.census.gov/tiger/2002/landmark/6001/556>
+<http://www.census.gov/tiger/2002/landmark/6001/702>
+<http://www.census.gov/tiger/2002/landmark/6001/571>
+<http://www.census.gov/tiger/2002/landmark/6001/131>
+<http://www.census.gov/tiger/2002/landmark/6001/131>
+<http://www.census.gov/tiger/2002/landmark/6001/226>
+<http://www.census.gov/tiger/2002/landmark/6001/138>
+<http://www.census.gov/tiger/2002/landmark/6001/241>
+<http://www.census.gov/tiger/2002/landmark/6001/241>
+<http://www.census.gov/tiger/2002/landmark/6001/241>
+<http://www.census.gov/tiger/2002/landmark/6001/681>
+<http://www.census.gov/tiger/2002/landmark/6001/666>
+<http://www.census.gov/tiger/2002/landmark/6001/163>
+<http://www.census.gov/tiger/2002/landmark/6001/163>
+<http://www.census.gov/tiger/2002/landmark/6001/581>
+<http://www.census.gov/tiger/2002/landmark/6001/688>
+<http://www.census.gov/tiger/2002/landmark/6001/106>
+<http://www.census.gov/tiger/2002/landmark/6001/524>
+<http://www.census.gov/tiger/2002/landmark/6001/524>
+<http://www.census.gov/tiger/2002/landmark/6001/524>
+<http://www.census.gov/tiger/2002/landmark/6001/524>
+<http://www.census.gov/tiger/2002/landmark/6001/524>
+<http://www.census.gov/tiger/2002/landmark/6001/524>
+<http://www.census.gov/tiger/2002/landmark/6001/588>
+<http://www.census.gov/tiger/2002/landmark/6001/148>
+<http://www.census.gov/tiger/2002/landmark/6001/793>
+<http://www.census.gov/tiger/2002/landmark/6001/475>
+<http://www.census.gov/tiger/2002/landmark/6001/475>
+<http://www.census.gov/tiger/2002/landmark/6001/211>
+<http://www.census.gov/tiger/2002/landmark/6001/693>
+<http://www.census.gov/tiger/2002/landmark/6001/1>
+<http://www.census.gov/tiger/2002/landmark/6001/1>
+<http://www.census.gov/tiger/2002/landmark/6001/1>
+<http://www.census.gov/tiger/2002/landmark/6001/1>
+<http://www.census.gov/tiger/2002/landmark/6001/1>
+<http://www.census.gov/tiger/2002/landmark/6001/1>
+<http://www.census.gov/tiger/2002/landmark/6001/1>
+<http://www.census.gov/tiger/2002/landmark/6001/1>
+<http://www.census.gov/tiger/2002/landmark/6001/1>
+<http://www.census.gov/tiger/2002/landmark/6001/1>
+<http://www.census.gov/tiger/2002/landmark/6001/1>
+<http://www.census.gov/tiger/2002/landmark/6001/1>
+<http://www.census.gov/tiger/2002/landmark/6001/1>
+<http://www.census.gov/tiger/2002/landmark/6001/1>
+<http://www.census.gov/tiger/2002/landmark/6001/1>
+<http://www.census.gov/tiger/2002/landmark/6001/1>
+<http://www.census.gov/tiger/2002/landmark/6001/1>
+<http://www.census.gov/tiger/2002/landmark/6001/1>
+<http://www.census.gov/tiger/2002/landmark/6001/1>
+<http://www.census.gov/tiger/2002/landmark/6001/1>
+<http://www.census.gov/tiger/2002/landmark/6001/1>
+<http://www.census.gov/tiger/2002/landmark/6001/1>
+<http://www.census.gov/tiger/2002/landmark/6001/1>
+<http://www.census.gov/tiger/2002/landmark/6001/1>
+<http://www.census.gov/tiger/2002/landmark/6001/1>
+<http://www.census.gov/tiger/2002/landmark/6001/1>
+<http://www.census.gov/tiger/2002/landmark/6001/1>
+<http://www.census.gov/tiger/2002/landmark/6001/1>
+<http://www.census.gov/tiger/2002/landmark/6001/1>
+<http://www.census.gov/tiger/2002/landmark/6001/1>
+<http://www.census.gov/tiger/2002/landmark/6001/1>
+<http://www.census.gov/tiger/2002/landmark/6001/1>
+<http://www.census.gov/tiger/2002/landmark/6001/1>
+<http://www.census.gov/tiger/2002/landmark/6001/1>
+<http://www.census.gov/tiger/2002/landmark/6001/1>
+<http://www.census.gov/tiger/2002/landmark/6001/1>
+<http://www.census.gov/tiger/2002/landmark/6001/1>
+<http://www.census.gov/tiger/2002/landmark/6001/1>
+<http://www.census.gov/tiger/2002/landmark/6001/1>
+<http://www.census.gov/tiger/2002/landmark/6001/778>
+<http://www.census.gov/tiger/2002/landmark/6001/778>
+<http://www.census.gov/tiger/2002/landmark/6001/778>
+<http://www.census.gov/tiger/2002/landmark/6001/363>
+<http://www.census.gov/tiger/2002/landmark/6001/781>
+<http://www.census.gov/tiger/2002/landmark/6001/275>
+<http://www.census.gov/tiger/2002/landmark/6001/275>
+<http://www.census.gov/tiger/2002/landmark/6001/275>
+<http://www.census.gov/tiger/2002/landmark/6001/275>
+<http://www.census.gov/tiger/2002/landmark/6001/275>
+<http://www.census.gov/tiger/2002/landmark/6001/275>
+<http://www.census.gov/tiger/2002/landmark/6001/275>
+<http://www.census.gov/tiger/2002/landmark/6001/275>
+<http://www.census.gov/tiger/2002/landmark/6001/275>
+<http://www.census.gov/tiger/2002/landmark/6001/598>
+<http://www.census.gov/tiger/2002/landmark/6001/463>
+<http://www.census.gov/tiger/2002/landmark/6001/824>
+<http://www.census.gov/tiger/2002/landmark/6001/306>
+<http://www.census.gov/tiger/2002/landmark/6001/788>
+?s
+<http://www.census.gov/tiger/2002/landmark/6001/734>
+<http://www.census.gov/tiger/2002/landmark/6001/734>
+<http://www.census.gov/tiger/2002/landmark/6001/756>
+<http://www.census.gov/tiger/2002/landmark/6001/128>
+<http://www.census.gov/tiger/2002/landmark/6001/231>
+<http://www.census.gov/tiger/2002/landmark/6001/136>
+<http://www.census.gov/tiger/2002/landmark/6001/656>
+<http://www.census.gov/tiger/2002/landmark/6001/153>
+<http://www.census.gov/tiger/2002/landmark/6001/238>
+<http://www.census.gov/tiger/2002/landmark/6001/238>
+<http://www.census.gov/tiger/2002/landmark/6001/238>
+<http://www.census.gov/tiger/2002/landmark/6001/614>
+<http://www.census.gov/tiger/2002/landmark/6001/556>
+<http://www.census.gov/tiger/2002/landmark/6001/702>
+<http://www.census.gov/tiger/2002/landmark/6001/571>
+<http://www.census.gov/tiger/2002/landmark/6001/131>
+<http://www.census.gov/tiger/2002/landmark/6001/131>
+<http://www.census.gov/tiger/2002/landmark/6001/226>
+<http://www.census.gov/tiger/2002/landmark/6001/138>
+<http://www.census.gov/tiger/2002/landmark/6001/241>
+<http://www.census.gov/tiger/2002/landmark/6001/241>
+<http://www.census.gov/tiger/2002/landmark/6001/241>
+<http://www.census.gov/tiger/2002/landmark/6001/681>
+<http://www.census.gov/tiger/2002/landmark/6001/666>
+<http://www.census.gov/tiger/2002/landmark/6001/163>
+<http://www.census.gov/tiger/2002/landmark/6001/163>
+<http://www.census.gov/tiger/2002/landmark/6001/581>
+<http://www.census.gov/tiger/2002/landmark/6001/688>
+<http://www.census.gov/tiger/2002/landmark/6001/106>
+<http://www.census.gov/tiger/2002/landmark/6001/524>
+<http://www.census.gov/tiger/2002/landmark/6001/524>
+<http://www.census.gov/tiger/2002/landmark/6001/524>
+<http://www.census.gov/tiger/2002/landmark/6001/524>
+<http://www.census.gov/tiger/2002/landmark/6001/524>
+<http://www.census.gov/tiger/2002/landmark/6001/524>
+<http://www.census.gov/tiger/2002/landmark/6001/588>
+<http://www.census.gov/tiger/2002/landmark/6001/148>
+<http://www.census.gov/tiger/2002/landmark/6001/793>
+<http://www.census.gov/tiger/2002/landmark/6001/475>
+<http://www.census.gov/tiger/2002/landmark/6001/475>
+<http://www.census.gov/tiger/2002/landmark/6001/211>
+<http://www.census.gov/tiger/2002/landmark/6001/693>
+<http://www.census.gov/tiger/2002/landmark/6001/1>
+<http://www.census.gov/tiger/2002/landmark/6001/1>
+<http://www.census.gov/tiger/2002/landmark/6001/1>
+<http://www.census.gov/tiger/2002/landmark/6001/1>
+<http://www.census.gov/tiger/2002/landmark/6001/1>
+<http://www.census.gov/tiger/2002/landmark/6001/1>
+<http://www.census.gov/tiger/2002/landmark/6001/1>
+<http://www.census.gov/tiger/2002/landmark/6001/1>
+<http://www.census.gov/tiger/2002/landmark/6001/1>
+<http://www.census.gov/tiger/2002/landmark/6001/1>
+<http://www.census.gov/tiger/2002/landmark/6001/1>
+<http://www.census.gov/tiger/2002/landmark/6001/1>
+<http://www.census.gov/tiger/2002/landmark/6001/1>
+<http://www.census.gov/tiger/2002/landmark/6001/1>
+<http://www.census.gov/tiger/2002/landmark/6001/1>
+<http://www.census.gov/tiger/2002/landmark/6001/1>
+<http://www.census.gov/tiger/2002/landmark/6001/1>
+<http://www.census.gov/tiger/2002/landmark/6001/1>
+<http://www.census.gov/tiger/2002/landmark/6001/1>
+<http://www.census.gov/tiger/2002/landmark/6001/1>
+<http://www.census.gov/tiger/2002/landmark/6001/1>
+<http://www.census.gov/tiger/2002/landmark/6001/1>
+<http://www.census.gov/tiger/2002/landmark/6001/1>
+<http://www.census.gov/tiger/2002/landmark/6001/1>
+<http://www.census.gov/tiger/2002/landmark/6001/1>
+<http://www.census.gov/tiger/2002/landmark/6001/1>
+<http://www.census.gov/tiger/2002/landmark/6001/1>
+<http://www.census.gov/tiger/2002/landmark/6001/1>
+<http://www.census.gov/tiger/2002/landmark/6001/1>
+<http://www.census.gov/tiger/2002/landmark/6001/1>
+<http://www.census.gov/tiger/2002/landmark/6001/1>
+<http://www.census.gov/tiger/2002/landmark/6001/1>
+<http://www.census.gov/tiger/2002/landmark/6001/1>
+<http://www.census.gov/tiger/2002/landmark/6001/1>
+<http://www.census.gov/tiger/2002/landmark/6001/1>
+<http://www.census.gov/tiger/2002/landmark/6001/1>
+<http://www.census.gov/tiger/2002/landmark/6001/1>
+<http://www.census.gov/tiger/2002/landmark/6001/1>
+<http://www.census.gov/tiger/2002/landmark/6001/1>
+<http://www.census.gov/tiger/2002/landmark/6001/778>
+<http://www.census.gov/tiger/2002/landmark/6001/778>
+<http://www.census.gov/tiger/2002/landmark/6001/778>
+<http://www.census.gov/tiger/2002/landmark/6001/363>
+<http://www.census.gov/tiger/2002/landmark/6001/781>
+<http://www.census.gov/tiger/2002/landmark/6001/275>
+<http://www.census.gov/tiger/2002/landmark/6001/275>
+<http://www.census.gov/tiger/2002/landmark/6001/275>
+<http://www.census.gov/tiger/2002/landmark/6001/275>
+<http://www.census.gov/tiger/2002/landmark/6001/275>
+<http://www.census.gov/tiger/2002/landmark/6001/275>
+<http://www.census.gov/tiger/2002/landmark/6001/275>
+<http://www.census.gov/tiger/2002/landmark/6001/275>
+<http://www.census.gov/tiger/2002/landmark/6001/275>
+<http://www.census.gov/tiger/2002/landmark/6001/598>
+<http://www.census.gov/tiger/2002/landmark/6001/463>
+<http://www.census.gov/tiger/2002/landmark/6001/824>
+<http://www.census.gov/tiger/2002/landmark/6001/306>
+<http://www.census.gov/tiger/2002/landmark/6001/788>
+?s
+<http://www.census.gov/tiger/2002/landmark/6001/734>
+<http://www.census.gov/tiger/2002/landmark/6001/734>
+<http://www.census.gov/tiger/2002/landmark/6001/756>
+<http://www.census.gov/tiger/2002/landmark/6001/128>
+<http://www.census.gov/tiger/2002/landmark/6001/231>
+<http://www.census.gov/tiger/2002/landmark/6001/136>
+<http://www.census.gov/tiger/2002/landmark/6001/656>
+<http://www.census.gov/tiger/2002/landmark/6001/153>
+<http://www.census.gov/tiger/2002/landmark/6001/238>
+<http://www.census.gov/tiger/2002/landmark/6001/238>
+<http://www.census.gov/tiger/2002/landmark/6001/238>
+<http://www.census.gov/tiger/2002/landmark/6001/614>
+<http://www.census.gov/tiger/2002/landmark/6001/556>
+<http://www.census.gov/tiger/2002/landmark/6001/702>
+<http://www.census.gov/tiger/2002/landmark/6001/571>
+<http://www.census.gov/tiger/2002/landmark/6001/131>
+<http://www.census.gov/tiger/2002/landmark/6001/131>
+<http://www.census.gov/tiger/2002/landmark/6001/226>
+<http://www.census.gov/tiger/2002/landmark/6001/138>
+<http://www.census.gov/tiger/2002/landmark/6001/241>
+<http://www.census.gov/tiger/2002/landmark/6001/241>
+<http://www.census.gov/tiger/2002/landmark/6001/241>
+<http://www.census.gov/tiger/2002/landmark/6001/681>
+<http://www.census.gov/tiger/2002/landmark/6001/666>
+<http://www.census.gov/tiger/2002/landmark/6001/163>
+<http://www.census.gov/tiger/2002/landmark/6001/163>
+<http://www.census.gov/tiger/2002/landmark/6001/581>
+<http://www.census.gov/tiger/2002/landmark/6001/688>
+<http://www.census.gov/tiger/2002/landmark/6001/106>
+<http://www.census.gov/tiger/2002/landmark/6001/524>
+<http://www.census.gov/tiger/2002/landmark/6001/524>
+<http://www.census.gov/tiger/2002/landmark/6001/524>
+<http://www.census.gov/tiger/2002/landmark/6001/524>
+<http://www.census.gov/tiger/2002/landmark/6001/524>
+<http://www.census.gov/tiger/2002/landmark/6001/524>
+<http://www.census.gov/tiger/2002/landmark/6001/588>
+<http://www.census.gov/tiger/2002/landmark/6001/148>
+<http://www.census.gov/tiger/2002/landmark/6001/793>
+<http://www.census.gov/tiger/2002/landmark/6001/475>
+<http://www.census.gov/tiger/2002/landmark/6001/475>
+<http://www.census.gov/tiger/2002/landmark/6001/211>
+<http://www.census.gov/tiger/2002/landmark/6001/693>
+<http://www.census.gov/tiger/2002/landmark/6001/1>
+<http://www.census.gov/tiger/2002/landmark/6001/1>
+<http://www.census.gov/tiger/2002/landmark/6001/1>
+<http://www.census.gov/tiger/2002/landmark/6001/1>
+<http://www.census.gov/tiger/2002/landmark/6001/1>
+<http://www.census.gov/tiger/2002/landmark/6001/1>
+<http://www.census.gov/tiger/2002/landmark/6001/1>
+<http://www.census.gov/tiger/2002/landmark/6001/1>
+<http://www.census.gov/tiger/2002/landmark/6001/1>
+<http://www.census.gov/tiger/2002/landmark/6001/1>
+<http://www.census.gov/tiger/2002/landmark/6001/1>
+<http://www.census.gov/tiger/2002/landmark/6001/1>
+<http://www.census.gov/tiger/2002/landmark/6001/1>
+<http://www.census.gov/tiger/2002/landmark/6001/1>
+<http://www.census.gov/tiger/2002/landmark/6001/1>
+<http://www.census.gov/tiger/2002/landmark/6001/1>
+<http://www.census.gov/tiger/2002/landmark/6001/1>
+<http://www.census.gov/tiger/2002/landmark/6001/1>
+<http://www.census.gov/tiger/2002/landmark/6001/1>
+<http://www.census.gov/tiger/2002/landmark/6001/1>
+<http://www.census.gov/tiger/2002/landmark/6001/1>
+<http://www.census.gov/tiger/2002/landmark/6001/1>
+<http://www.census.gov/tiger/2002/landmark/6001/1>
+<http://www.census.gov/tiger/2002/landmark/6001/1>
+<http://www.census.gov/tiger/2002/landmark/6001/1>
+<http://www.census.gov/tiger/2002/landmark/6001/1>
+<http://www.census.gov/tiger/2002/landmark/6001/1>
+<http://www.census.gov/tiger/2002/landmark/6001/1>
+<http://www.census.gov/tiger/2002/landmark/6001/1>
+<http://www.census.gov/tiger/2002/landmark/6001/1>
+<http://www.census.gov/tiger/2002/landmark/6001/1>
+<http://www.census.gov/tiger/2002/landmark/6001/1>
+<http://www.census.gov/tiger/2002/landmark/6001/1>
+<http://www.census.gov/tiger/2002/landmark/6001/1>
+<http://www.census.gov/tiger/2002/landmark/6001/1>
+<http://www.census.gov/tiger/2002/landmark/6001/1>
+<http://www.census.gov/tiger/2002/landmark/6001/1>
+<http://www.census.gov/tiger/2002/landmark/6001/1>
+<http://www.census.gov/tiger/2002/landmark/6001/1>
+<http://www.census.gov/tiger/2002/landmark/6001/778>
+<http://www.census.gov/tiger/2002/landmark/6001/778>
+<http://www.census.gov/tiger/2002/landmark/6001/778>
+<http://www.census.gov/tiger/2002/landmark/6001/363>
+<http://www.census.gov/tiger/2002/landmark/6001/781>
+<http://www.census.gov/tiger/2002/landmark/6001/275>
+<http://www.census.gov/tiger/2002/landmark/6001/275>
+<http://www.census.gov/tiger/2002/landmark/6001/275>
+<http://www.census.gov/tiger/2002/landmark/6001/275>
+<http://www.census.gov/tiger/2002/landmark/6001/275>
+<http://www.census.gov/tiger/2002/landmark/6001/275>
+<http://www.census.gov/tiger/2002/landmark/6001/275>
+<http://www.census.gov/tiger/2002/landmark/6001/275>
+<http://www.census.gov/tiger/2002/landmark/6001/275>
+<http://www.census.gov/tiger/2002/landmark/6001/598>
+<http://www.census.gov/tiger/2002/landmark/6001/463>
+<http://www.census.gov/tiger/2002/landmark/6001/824>
+<http://www.census.gov/tiger/2002/landmark/6001/306>
+<http://www.census.gov/tiger/2002/landmark/6001/788>
+?s
+<http://www.census.gov/tiger/2002/landmark/6001/734>
+<http://www.census.gov/tiger/2002/landmark/6001/734>
+<http://www.census.gov/tiger/2002/landmark/6001/756>
+<http://www.census.gov/tiger/2002/landmark/6001/128>
+<http://www.census.gov/tiger/2002/landmark/6001/231>
+<http://www.census.gov/tiger/2002/landmark/6001/136>
+<http://www.census.gov/tiger/2002/landmark/6001/656>
+<http://www.census.gov/tiger/2002/landmark/6001/153>
+<http://www.census.gov/tiger/2002/landmark/6001/238>
+<http://www.census.gov/tiger/2002/landmark/6001/238>
+<http://www.census.gov/tiger/2002/landmark/6001/238>
+<http://www.census.gov/tiger/2002/landmark/6001/614>
+<http://www.census.gov/tiger/2002/landmark/6001/556>
+<http://www.census.gov/tiger/2002/landmark/6001/702>
+<http://www.census.gov/tiger/2002/landmark/6001/571>
+<http://www.census.gov/tiger/2002/landmark/6001/131>
+<http://www.census.gov/tiger/2002/landmark/6001/131>
+<http://www.census.gov/tiger/2002/landmark/6001/226>
+<http://www.census.gov/tiger/2002/landmark/6001/138>
+<http://www.census.gov/tiger/2002/landmark/6001/241>
+<http://www.census.gov/tiger/2002/landmark/6001/241>
+<http://www.census.gov/tiger/2002/landmark/6001/241>
+<http://www.census.gov/tiger/2002/landmark/6001/681>
+<http://www.census.gov/tiger/2002/landmark/6001/666>
+<http://www.census.gov/tiger/2002/landmark/6001/163>
+<http://www.census.gov/tiger/2002/landmark/6001/163>
+<http://www.census.gov/tiger/2002/landmark/6001/581>
+<http://www.census.gov/tiger/2002/landmark/6001/688>
+<http://www.census.gov/tiger/2002/landmark/6001/106>
+<http://www.census.gov/tiger/2002/landmark/6001/524>
+<http://www.census.gov/tiger/2002/landmark/6001/524>
+<http://www.census.gov/tiger/2002/landmark/6001/524>
+<http://www.census.gov/tiger/2002/landmark/6001/524>
+<http://www.census.gov/tiger/2002/landmark/6001/524>
+<http://www.census.gov/tiger/2002/landmark/6001/524>
+<http://www.census.gov/tiger/2002/landmark/6001/588>
+<http://www.census.gov/tiger/2002/landmark/6001/148>
+<http://www.census.gov/tiger/2002/landmark/6001/793>
+<http://www.census.gov/tiger/2002/landmark/6001/475>
+<http://www.census.gov/tiger/2002/landmark/6001/475>
+<http://www.census.gov/tiger/2002/landmark/6001/211>
+<http://www.census.gov/tiger/2002/landmark/6001/693>
+<http://www.census.gov/tiger/2002/landmark/6001/1>
+<http://www.census.gov/tiger/2002/landmark/6001/1>
+<http://www.census.gov/tiger/2002/landmark/6001/1>
+<http://www.census.gov/tiger/2002/landmark/6001/1>
+<http://www.census.gov/tiger/2002/landmark/6001/1>
+<http://www.census.gov/tiger/2002/landmark/6001/1>
+<http://www.census.gov/tiger/2002/landmark/6001/1>
+<http://www.census.gov/tiger/2002/landmark/6001/1>
+<http://www.census.gov/tiger/2002/landmark/6001/1>
+<http://www.census.gov/tiger/2002/landmark/6001/1>
+<http://www.census.gov/tiger/2002/landmark/6001/1>
+<http://www.census.gov/tiger/2002/landmark/6001/1>
+<http://www.census.gov/tiger/2002/landmark/6001/1>
+<http://www.census.gov/tiger/2002/landmark/6001/1>
+<http://www.census.gov/tiger/2002/landmark/6001/1>
+<http://www.census.gov/tiger/2002/landmark/6001/1>
+<http://www.census.gov/tiger/2002/landmark/6001/1>
+<http://www.census.gov/tiger/2002/landmark/6001/1>
+<http://www.census.gov/tiger/2002/landmark/6001/1>
+<http://www.census.gov/tiger/2002/landmark/6001/1>
+<http://www.census.gov/tiger/2002/landmark/6001/1>
+<http://www.census.gov/tiger/2002/landmark/6001/1>
+<http://www.census.gov/tiger/2002/landmark/6001/1>
+<http://www.census.gov/tiger/2002/landmark/6001/1>
+<http://www.census.gov/tiger/2002/landmark/6001/1>
+<http://www.census.gov/tiger/2002/landmark/6001/1>
+<http://www.census.gov/tiger/2002/landmark/6001/1>
+<http://www.census.gov/tiger/2002/landmark/6001/1>
+<http://www.census.gov/tiger/2002/landmark/6001/1>
+<http://www.census.gov/tiger/2002/landmark/6001/1>
+<http://www.census.gov/tiger/2002/landmark/6001/1>
+<http://www.census.gov/tiger/2002/landmark/6001/1>
+<http://www.census.gov/tiger/2002/landmark/6001/1>
+<http://www.census.gov/tiger/2002/landmark/6001/1>
+<http://www.census.gov/tiger/2002/landmark/6001/1>
+<http://www.census.gov/tiger/2002/landmark/6001/1>
+<http://www.census.gov/tiger/20Query: SELECT ?p WHERE { ?s ?p ?o } LIMIT 100
+curl -s -H Accept: text/plain http://localhost:13579/sparql/?query=SELECT%20%3fp%20WHERE%20\{%20%3fs%20%3fp%20%3fo%20\}%20LIMIT%20100
+02/landmark/6001/1>
+<http://www.census.gov/tiger/2002/landmark/6001/1>
+<http://www.census.gov/tiger/2002/landmark/6001/1>
+<http://www.census.gov/tiger/2002/landmark/6001/778>
+<http://www.census.gov/tiger/2002/landmark/6001/778>
+<http://www.census.gov/tiger/2002/landmark/6001/778>
+<http://www.census.gov/tiger/2002/landmark/6001/363>
+<http://www.census.gov/tiger/2002/landmark/6001/781>
+<http://www.census.gov/tiger/2002/landmark/6001/275>
+<http://www.census.gov/tiger/2002/landmark/6001/275>
+<http://www.census.gov/tiger/2002/landmark/6001/275>
+<http://www.census.gov/tiger/2002/landmark/6001/275>
+<http://www.census.gov/tiger/2002/landmark/6001/275>
+<http://www.census.gov/tiger/2002/landmark/6001/275>
+<http://www.census.gov/tiger/2002/landmark/6001/275>
+<http://www.census.gov/tiger/2002/landmark/6001/275>
+<http://www.census.gov/tiger/2002/landmark/6001/275>
+<http://www.census.gov/tiger/2002/landmark/6001/598>
+<http://www.census.gov/tiger/2002/landmark/6001/463>
+<http://www.census.gov/tiger/2002/landmark/6001/824>
+<http://www.census.gov/tiger/2002/landmark/6001/306>
+<http://www.census.gov/tiger/2002/landmark/6001/788>
+Query: SELECT ?p WHERE { ?s ?p ?o } LIMIT 100
+curl -s -H Accept: text/plain http://localhost:13579/sparql/?query=SELECT%20%3fp%20WHERE%20\{%20%3fs%20%3fp%20%3fo%20\}%20LIMIT%20100
+Query: SELECT ?p WHERE { ?s ?p ?o } LIMIT 100
+curl -s -H Accept: text/plain http://localhost:13579/sparql/?query=SELECT%20%3fp%20WHERE%20\{%20%3fs%20%3fp%20%3fo%20\}%20LIMIT%20100
+Query: SELECT ?p WHERE { ?s ?p ?o } LIMIT 100
+curl -s -H Accept: text/plain http://localhost:13579/sparql/?query=SELECT%20%3fp%20WHERE%20\{%20%3fs%20%3fp%20%3fo%20\}%20LIMIT%20100
+?p
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+?p
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+Query: SELECT ?o WHERE { ?s ?p ?o } LIMIT 100
+curl -s -H Accept: text/plain http://localhost:13579/sparql/?query=SELECT%20%3fo%20WHERE%20\{%20%3fs%20%3fp%20%3fo%20\}%20LIMIT%20100
+Query: SELECT ?o WHERE { ?s ?p ?o } LIMIT 100
+curl -s -H Accept: text/plain http://localhost:13579/sparql/?query=SELECT%20%3fo%20WHERE%20\{%20%3fs%20%3fp%20%3fo%20\}%20LIMIT%20100
+?p
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+Query: SELECT ?o WHERE { ?s ?p ?o } LIMIT 100
+curl -s -H Accept: text/plain http://localhost:13579/sparql/?query=SELECT%20%3fo%20WHERE%20\{%20%3fs%20%3fp%20%3fo%20\}%20LIMIT%20100
+?p
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+<http://www.census.gov/tiger/2002/vocab#area>
+Query: SELECT ?o WHERE { ?s ?p ?o } LIMIT 100
+curl -s -H Accept: text/plain http://localhost:13579/sparql/?query=SELECT%20%3fo%20WHERE%20\{%20%3fs%20%3fp%20%3fo%20\}%20LIMIT%20100
+?o
+<http://www.census.gov/tiger/2002/polygon/c1370/19309>
+<http://www.census.gov/tiger/2002/polygon/c1370/19308>
+<http://www.census.gov/tiger/2002/polygon/c1370/19372>
+<http://www.census.gov/tiger/2002/polygon/c1370/4228>
+<http://www.census.gov/tiger/2002/polygon/c1370/8024>
+<http://www.census.gov/tiger/2002/polygon/c1370/4771>
+<http://www.census.gov/tiger/2002/polygon/c1370/19020>
+<http://www.census.gov/tiger/2002/polygon/c1370/5032>
+<http://www.census.gov/tiger/2002/polygon/c1370/8372>
+<http://www.census.gov/tiger/2002/polygon/c1370/8285>
+<http://www.census.gov/tiger/2002/polygon/c1370/8289>
+<http://www.census.gov/tiger/2002/polygon/c1370/17438>
+<http://www.census.gov/tiger/2002/polygon/c1370/15608>
+<http://www.census.gov/tiger/2002/polygon/c1370/19163>
+<http://www.census.gov/tiger/2002/polygon/c1370/16181>
+<http://www.census.gov/tiger/2002/polygon/c1370/4395>
+<http://www.census.gov/tiger/2002/polygon/c1370/19094>
+<http://www.census.gov/tiger/2002/polygon/c1370/7709>
+<http://www.census.gov/tiger/2002/polygon/c1370/4677>
+<http://www.census.gov/tiger/2002/polygon/c1370/8453>
+<http://www.census.gov/tiger/2002/polygon/c1370/8452>
+<http://www.census.gov/tiger/2002/polygon/c1370/8451>
+<http://www.census.gov/tiger/2002/polygon/c1370/19120>
+<http://www.census.gov/tiger/2002/polygon/c1370/19060>
+<http://www.census.gov/tiger/2002/polygon/c1370/5637>
+<http://www.census.gov/tiger/2002/polygon/c1370/18011>
+<http://www.census.gov/tiger/2002/polygon/c1370/16394>
+<http://www.census.gov/tiger/2002/polygon/c1370/19136>
+<http://www.census.gov/tiger/2002/polygon/c1370/3350>
+<http://www.census.gov/tiger/2002/polygon/c1370/14668>
+<http://www.census.gov/tiger/2002/polygon/c1370/14664>
+<http://www.census.gov/tiger/2002/polygon/c1370/14625>
+<http://www.census.gov/tiger/2002/polygon/c1370/14626>
+<http://www.census.gov/tiger/2002/polygon/c1370/14670>
+<http://www.census.gov/tiger/2002/polygon/c1370/14665>
+<http://www.census.gov/tiger/2002/polygon/c1370/16751>
+<http://www.census.gov/tiger/2002/polygon/c1370/4904>
+<http://www.census.gov/tiger/2002/polygon/c1370/19541>
+<http://www.census.gov/tiger/2002/polygon/c1370/15518>
+<http://www.census.gov/tiger/2002/polygon/c1370/14005>
+<http://www.census.gov/tiger/2002/polygon/c1370/6974>
+<http://www.census.gov/tiger/2002/polygon/c1370/19151>
+<http://www.census.gov/tiger/2002/polygon/c1370/103>
+<http://www.census.gov/tiger/2002/polygon/c1370/126>
+<http://www.census.gov/tiger/2002/polygon/c1370/18727>
+<http://www.census.gov/tiger/2002/polygon/c1370/15702>
+<http://www.census.gov/tiger/2002/polygon/c1370/92>
+<http://www.census.gov/tiger/2002/polygon/c1370/75>
+<http://www.census.gov/tiger/2002/polygon/c1370/43>
+<http://www.census.gov/tiger/2002/polygon/c1370/15588>
+<http://www.census.gov/tiger/2002/polygon/c1370/15261>
+<http://www.census.gov/tiger/2002/polygon/c1370/123>
+<http://www.census.gov/tiger/2002/polygon/c1370/93>
+<http://www.census.gov/tiger/2002/polygon/c1370/15636>
+<http://www.census.gov/tiger/2002/polygon/c1370/146>
+<http://www.census.gov/tiger/2002/polygon/c1370/2>
+<http://www.census.gov/tiger/2002/polygon/c1370/143>
+<http://www.census.gov/tiger/2002/polygon/c1370/15265>
+<http://www.census.gov/tiger/2002/polygon/c1370/94>
+<http://www.census.gov/tiger/2002/polygon/c1370/18728>
+<http://www.census.gov/tiger/2002/polygon/c1370/40>
+<http://www.census.gov/tiger/2002/polygon/c1370/15698>
+<http://www.census.gov/tiger/2002/polygon/c1370/95>
+<http://www.census.gov/tiger/2002/polygon/c1370/100>
+<http://www.census.gov/tiger/2002/polygon/c1370/41>
+<http://www.census.gov/tiger/2002/polygon/c1370/29>
+<http://www.census.gov/tiger/2002/polygon/c1370/101>
+<http://www.census.gov/tiger/2002/polygon/c1370/96>
+<http://www.census.gov/tiger/2002/polygon/c1370/97>
+<http://www.census.gov/tiger/2002/polygon/c1370/15259>
+<http://www.census.gov/tiger/2002/polygon/c1370/15270>
+<http://www.census.gov/tiger/2002/polygon/c1370/105>
+<http://www.census.gov/tiger/2002/polygon/c1370/111>
+<http://www.census.gov/tiger/2002/polygon/c1370/10>
+<http://www.census.gov/tiger/2002/polygon/c1370/15645>
+<http://www.census.gov/tiger/2002/polygon/c1370/98>
+<http://www.census.gov/tiger/2002/polygon/c1370/18043>
+<http://www.census.gov/tiger/2002/polygon/c1370/99>
+<http://www.census.gov/tiger/2002/polygon/c1370/106>
+<http://www.census.gov/tiger/2002/polygon/c1370/125>
+<http://www.census.gov/tiger/2002/polygon/c1370/102>
+<http://www.census.gov/tiger/2002/polygon/c1370/19496>
+<http://www.census.gov/tiger/2002/polygon/c1370/19498>
+<http://www.census.gov/tiger/2002/polygon/c1370/19485>
+<http://www.census.gov/tiger/2002/polygon/c1370/12463>
+<http://www.census.gov/tiger/2002/polygon/c1370/19499>
+<http://www.census.gov/tiger/2002/polygon/c1370/10625>
+<http://www.census.gov/tiger/2002/polygon/c1370/17982>
+<http://www.census.gov/tiger/2002/polygon/c1370/10626>
+<http://www.census.gov/tiger/2002/polygon/c1370/10565>
+<http://www.census.gov/tiger/2002/polygon/c1370/16225>
+<http://www.census.gov/tiger/2002/polygon/c1370/16223>
+<http://www.census.gov/tiger/2002/polygon/c1370/16224>
+<http://www.census.gov/tiger/2002/polygon/c1370/19159>
+<http://www.census.gov/tiger/2002/polygon/c1370/16210>
+<http://www.census.gov/tiger/2002/polygon/c1370/17248>
+<http://www.census.gov/tiger/2002/polygon/c1370/13764>
+<http://www.census.gov/tiger/2002/polygon/c1370/20006>
+<http://www.census.gov/tiger/2002/polygon/c1370/11135>
+<http://www.census.gov/tiger/2002/polygon/c1370/19520>
+?o
+<http://www.census.gov/tiger/2002/polygon/c1370/19309>
+<http://www.census.gov/tiger/2002/polygon/c1370/19308>
+<http://www.census.gov/tiger/2002/polygon/c1370/19372>
+<http://www.census.gov/tiger/2002/polygon/c1370/4228>
+<http://www.census.gov/tiger/2002/polygon/c1370/8024>
+<http://www.census.gov/tiger/2002/polygon/c1370/4771>
+<http://www.census.gov/tiger/2002/polygon/c1370/19020>
+<http://www.census.gov/tiger/2002/polygon/c1370/5032>
+<http://www.census.gov/tiger/2002/polygon/c1370/8372>
+<http://www.census.gov/tiger/2002/polygon/c1370/8285>
+<http://www.census.gov/tiger/2002/polygon/c1370/8289>
+<http://www.census.gov/tiger/2002/polygon/c1370/17438>
+<http://www.census.gov/tiger/2002/polygon/c1370/15608>
+<http://www.census.gov/tiger/2002/polygon/c1370/19163>
+<http://www.census.gov/tiger/2002/polygon/c1370/16181>
+<http://www.census.gov/tiger/2002/polygon/c1370/4395>
+<http://www.census.gov/tiger/2002/polygon/c1370/19094>
+<http://www.census.gov/tiger/2002/polygon/c1370/7709>
+<http://www.census.gov/tiger/2002/polygon/c1370/4677>
+<http://www.census.gov/tiger/2002/polygon/c1370/8453>
+<http://www.census.gov/tiger/2002/polygon/c1370/8452>
+<http://www.census.gov/tiger/2002/polygon/c1370/8451>
+<http://www.census.gov/tiger/2002/polygon/c1370/19120>
+<http://www.census.gov/tiger/2002/polygon/c1370/19060>
+<http://www.census.gov/tiger/2002/polygon/c1370/5637>
+<http://www.census.gov/tiger/2002/polygon/c1370/18011>
+<http://www.census.gov/tiger/2002/polygon/c1370/16394>
+<http://www.census.gov/tiger/2002/polygon/c1370/19136>
+<http://www.census.gov/tiger/2002/polygon/c1370/3350>
+<http://www.census.gov/tiger/2002/polygon/c1370/14668>
+<http://www.census.gov/tiger/2002/polygon/c1370/14664>
+<http://www.census.gov/tiger/2002/polygon/c1370/14625>
+<http://www.census.gov/tiger/2002/polygon/c1370/14626>
+<http://www.census.gov/tiger/2002/polygon/c1370/14670>
+<http://www.census.gov/tiger/2002/polygon/c1370/14665>
+<http://www.census.gov/tiger/2002/polygon/c1370/16751>
+<http://www.census.gov/tiger/2002/polygon/c1370/4904>
+<http://www.census.gov/tiger/2002/polygon/c1370/19541>
+<http://www.census.gov/tiger/2002/polygon/c1370/15518>
+<http://www.census.gov/tiger/2002/polygon/c1370/14005>
+<http://www.census.gov/tiger/2002/polygon/c1370/6974>
+<http://www.census.gov/tiger/2002/polygon/c1370/19151>
+<http://www.census.gov/tiger/2002/polygon/c1370/103>
+<http://www.census.gov/tiger/2002/polygon/c1370/126>
+<http://www.census.gov/tiger/2002/polygon/c1370/18727>
+<http://www.census.gov/tiger/2002/polygon/c1370/15702>
+<http://www.census.gov/tiger/2002/polygon/c1370/92>
+<http://www.census.gov/tiger/2002/polygon/c1370/75>
+<http://www.census.gov/tiger/2002/polygon/c1370/43>
+<http://www.census.gov/tiger/2002/polygon/c1370/15588>
+<http://www.census.gov/tiger/2002/polygon/c1370/15261>
+<http://www.census.gov/tiger/2002/polygon/c1370/123>
+<http://www.census.gov/tiger/2002/polygon/c1370/93>
+<http://www.census.gov/tiger/2002/polygon/c1370/15636>
+<http://www.census.gov/tiger/2002/polygon/c1370/146>
+<http://www.census.gov/tiger/2002/polygon/c1370/2>
+<http://www.census.gov/tiger/2002/polygon/c1370/143>
+<http://www.census.gov/tiger/2002/polygon/c1370/15265>
+<http://www.census.gov/tiger/2002/polygon/c1370/94>
+<http://www.census.gov/tiger/2002/polygon/c1370/18728>
+<http://www.census.gov/tiger/2002/polygon/c1370/40>
+<http://www.census.gov/tiger/2002/polygon/c1370/15698>
+<http://www.census.gov/tiger/2002/polygon/c1370/95>
+<http://www.census.gov/tiger/2002/polygon/c1370/100>
+<http://www.census.gov/tiger/2002/polygon/c1370/41>
+<http://www.census.gov/tiger/2002/polygon/c1370/29>
+<http://www.census.gov/tiger/2002/polygon/c1370/101>
+<http://www.census.gov/tiger/2002/polygon/c1370/96>
+<http://www.census.gov/tiger/2002/polygon/c1370/97>
+<http://www.census.gov/tiger/2002/polygon/c1370/15259>
+<http://www.census.gov/tiger/2002/polygon/c1370/15270>
+<http://www.census.gov/tiger/2002/polygon/c1370/105>
+<http://www.census.gov/tiger/2002/polygon/c1370/111>
+<http://www.census.gov/tiger/2002/polygon/c1370/10>
+<http://www.census.gov/tiger/2002/polygon/c1370/15645>
+<http://www.census.gov/tiger/2002/polygon/c1370/98>
+<http://www.census.gov/tiger/2002/polygon/c1370/18043>
+<http://www.census.gov/tiger/2002/polygon/c1370/99>
+<http://www.census.gov/tiger/2002/polygon/c1370/106>
+<http://www.census.gov/tiger/2002/polygon/c1370/125>
+<http://www.census.gov/tiger/2002/polygon/c1370/102>
+<http://www.census.gov/tiger/2002/polygon/c1370/19496>
+<http://www.census.gov/tiger/2002/polygon/c1370/19498>
+<http://www.census.gov/tiger/2002/polygon/c1370/19485>
+<http://www.census.gov/tiger/2002/polygon/c1370/12463>
+<http://www.census.gov/tiger/2002/polygon/c1370/19499>
+<http://www.census.gov/tiger/2002/polygon/c1370/10625>
+<http://www.census.gov/tiger/2002/polygon/c1370/17982>
+<http://www.census.gov/tiger/2002/polygon/c1370/10626>
+<http://www.census.gov/tiger/2002/polygon/c1370/10565>
+<http://www.census.gov/tiger/2002/polygon/c1370/16225>
+<http://www.census.gov/tiger/2002/polygon/c1370/16223>
+<http://www.census.gov/tiger/2002/polygon/c1370/16224>
+<http://www.census.gov/tiger/2002/polygon/c1370/19159>
+<http://www.census.gov/tiger/2002/polygon/c1370/16210>
+<http://www.census.gov/tiger/2002/polygon/c1370/17248>
+<http://www.census.gov/tiger/2002/polygon/c1370/13764>
+<http://www.census.gov/tiger/2002/polygon/c1370/20006>
+<http://www.census.gov/tiger/2002/polygon/c1370/11135>
+<http://www.census.gov/tiger/2002/polygon/c1370/19520>
+?o
+<http://www.census.gov/tiger/2002/polygon/c1370/19309>
+<http://www.census.gov/tiger/2002/polygon/c1370/19308>
+<http://www.census.gov/tiger/2002/polygon/c1370/19372>
+<http://www.census.gov/tiger/2002/polygon/c1370/4228>
+<http://www.census.gov/tiger/2002/polygon/c1370/8024>
+<http://www.census.gov/tiger/2002/polygon/c1370/4771>
+<http://www.census.gov/tiger/2002/polygon/c1370/19020>
+<http://www.census.gov/tiger/2002/polygon/c1370/5032>
+<http://www.census.gov/tiger/2002/polygon/c1370/8372>
+<http://www.census.gov/tiger/2002/polygon/c1370/8285>
+<http://www.census.gov/tiger/2002/polygon/c1370/8289>
+<http://www.census.gov/tiger/2002/polygon/c1370/17438>
+<http://www.census.gov/tiger/2002/polygon/c1370/15608>
+<http://www.census.gov/tiger/2002/polygon/c1370/19163>
+<http://www.census.gov/tiger/2002/polygon/c1370/16181>
+<http://www.census.gov/tiger/2002/polygon/c1370/4395>
+<http://www.census.gov/tiger/2002/polygon/c1370/19094>
+<http://www.census.gov/tiger/2002/polygon/c1370/7709>
+<http://www.census.gov/tiger/2002/polygon/c1370/4677>
+<http://www.census.gov/tiger/2002/polygon/c1370/8453>
+<http://www.census.gov/tiger/2002/polygon/c1370/8452>
+<http://www.census.gov/tiger/2002/polygon/c1370/8451>
+<http://www.census.gov/tiger/2002/polygon/c1370/19120>
+<http://www.census.gov/tiger/2002/polygon/c1370/19060>
+<http://www.census.gov/tiger/2002/polygon/c1370/5637>
+<http://www.census.gov/tiger/2002/polygon/c1370/18011>
+<http://www.census.gov/tiger/2002/polygon/c1370/16394>
+<http://www.census.gov/tiger/2002/polygon/c1370/19136>
+<http://www.census.gov/tiger/2002/polygon/c1370/3350>
+<http://www.census.gov/tiger/2002/polygon/c1370/14668>
+<http://www.census.gov/tiger/2002/polygon/c1370/14664>
+<http://www.census.gov/tiger/2002/polygon/c1370/14625>
+<http://www.census.gov/tiger/2002/polygon/c1370/14626>
+<http://www.census.gov/tiger/2002/polygon/c1370/14670>
+<http://www.census.gov/tiger/2002/polygon/c1370/14665>
+<http://www.census.gov/tiger/2002/polygon/c1370/16751>
+<http://www.census.gov/tiger/2002/polygon/c1370/4904>
+<http://www.census.gov/tiger/2002/polygon/c1370/19541>
+<http://www.census.gov/tiger/2002/polygon/c1370/15518>
+<http://www.census.gov/tiger/2002/polygon/c1370/14005>
+<http://www.census.gov/tiger/2002/polygon/c1370/6974>
+<http://www.census.gov/tiger/2002/polygon/c1370/19151>
+<http://www.census.gov/tiger/2002/polygon/c1370/103>
+<http://www.census.gov/tiger/2002/polygon/c1370/126>
+<http://www.census.gov/tiger/2002/polygon/c1370/18727>
+<http://www.census.gov/tiger/2002/polygon/c1370/15702>
+<http://www.census.gov/tiger/2002/polygon/c1370/92>
+<http://www.census.gov/tiger/2002/polygon/c1370/75>
+<http://www.census.gov/tiger/2002/polygon/c1370/43>
+<http://www.census.gov/tiger/2002/polygon/c1370/15588>
+<http://www.census.gov/tiger/2002/polygon/c1370/15261>
+<http://www.census.gov/tiger/2002/polygon/c1370/123>
+<http://www.census.gov/tiger/2002/polygon/c1370/93>
+<http://www.census.gov/tiger/2002/polygon/c1370/15636>
+<http://www.census.gov/tiger/2002/polygon/c1370/146>
+<http://www.census.gov/tiger/2002/polygon/c1370/2>
+<http://www.census.gov/tiger/2002/polygon/c1370/143>
+<http://www.census.gov/tiger/2002/polygon/c1370/15265>
+<http://www.census.gov/tiger/2002/polygon/c1370/94>
+<http://www.census.gov/tiger/2002/polygon/c1370/18728>
+<http://www.census.gov/tiger/2002/polygon/c1370/40>
+<http://www.census.gov/tiger/2002/polygon/c1370/15698>
+<http://www.census.gov/tiger/2002/polygon/c1370/95>
+<http://www.census.gov/tiger/2002/polygon/c1370/100>
+<http://www.census.gov/tiger/2002/polygon/c1370/41>
+<http://www.census.gov/tiger/2002/polygon/c1370/29>
+<http://www.census.gov/tiger/2002/polygon/c1370/101>
+<http://www.census.gov/tiger/2002/polygon/c1370/96>
+<http://www.census.gov/tiger/2002/polygon/c1370/97>
+<http://www.census.gov/tiger/2002/polygon/c1370/15259>
+<http://www.census.gov/tiger/2002/polygon/c1370/15270>
+<http://www.census.gov/tiger/2002/polygon/c1370/105>
+<http://www.census.gov/tiger/2002/polygon/c1370/111>
+<http://www.census.gov/tiger/2002/polygon/c1370/10>
+<http://www.census.gov/tiger/2002/polygon/c1370/15645>
+<http://www.census.gov/tiger/2002/polygon/c1370/98>
+<http://www.census.gov/tiger/2002/polygon/c1370/18043>
+<http://www.census.gov/tiger/2002/polygon/c1370/99>
+<http://www.census.gov/tiger/2002/polygon/c1370/106>
+<http://www.census.gov/tiger/2002/polygon/c1370/125>
+<http://www.census.gov/tiger/2002/polygon/c1370/102>
+<http://www.census.gov/tiger/2002/polygon/c1370/19496>
+<http://www.census.gov/tiger/2002/polygon/c1370/19498>
+<http://www.census.gov/tiger/2002/polygon/c1370/19485>
+<http://www.census.gov/tiger/2002/polygon/c1370/12463>
+<http://www.census.gov/tiger/2002/polygon/c1370/19499>
+<http://www.census.gov/tiger/2002/polygon/c1370/10625>
+<http://www.census.gov/tiger/2002/polygon/c1370/17982>
+<http://www.census.gov/tiger/2002/polygon/c1370/10626>
+<http://www.census.gov/tiger/2002/polygon/c1370/10565>
+<http://www.census.gov/tiger/2002/polygon/c1370/16225>
+<http://www.census.gov/tiger/2002/polygon/c1370/16223>
+<http://www.census.gov/tiger/2002/polygon/c1370/16224>
+<http://www.census.gov/tiger/2002/polygon/c1370/19159>
+<http://www.census.gov/tiger/2002/polygon/c1370/16210>
+<http://www.census.gov/tiger/2002/polygon/c1370/17248>
+<http://www.census.gov/tiger/2002/polygon/c1370/13764>
+<http://www.census.gov/tiger/2002/polygon/c1370/20006>
+<http://www.census.gov/tiger/2002/polygon/c1370/11135>
+<http://www.census.gov/tiger/2002/polygon/c1370/19520>
+?o
+<http://www.census.gov/tiger/2002/polygon/c1370/19309>
+<http://www.census.gov/tiger/2002/polygon/c1370/19308>
+<http://www.census.gov/tiger/2002/polygon/c1370/19372>
+<http://www.census.gov/tiger/2002/polygon/c1370/4228>
+<http://www.census.gov/tiger/2002/polygon/c1370/8024>
+<http://www.census.gov/tiger/2002/polygon/c1370/4771>
+<http://www.census.gov/tiger/2002/polygon/c1370/19020>
+<http://www.census.gov/tiger/2002/polygon/c1370/5032>
+<http://www.census.gov/tiger/2002/polygon/c1370/8372>
+<http://www.census.gov/tiger/2002/polygon/c1370/8285>
+<http://www.census.gov/tiger/2002/polygon/c1370/8289>
+<http://www.census.gov/tiger/2002/polygon/c1370/17438>
+<http://www.census.gov/tiger/2002/polygon/c1370/15608>
+<http://www.census.gov/tiger/2002/polygon/c1370/19163>
+<http://www.census.gov/tiger/2002/polygon/c1370/16181>
+<http://www.census.gov/tiger/2002/polygon/c1370/4395>
+<http://www.census.gov/tiger/2002/polygon/c1370/19094>
+<http://www.census.gov/tiger/2002/polygon/c1370/7709>
+<http://www.census.gov/tiger/2002/polygon/c1370/4677>
+<http://www.census.gov/tiger/2002/polygon/c1370/8453>
+<http://www.census.gov/tiger/2002/polygon/c1370/8452>
+<http://www.census.gov/tiger/2002/polygon/c1370/8451>
+<http://www.census.gov/tiger/2002/polygon/c1370/19120>
+<http://www.census.gov/tiger/2002/polygon/c1370/19060>
+<http://www.census.gov/tiger/2002/polygon/c1370/5637>
+<http://www.census.gov/tiger/2002/polygon/c1370/18011>
+<http://www.census.gov/tiger/2002/polygon/c1370/16394>
+<http://www.census.gov/tiger/2002/polygon/c1370/19136>
+<http://www.census.gov/tiger/2002/polygon/c1370/3350>
+<http://www.census.gov/tiger/2002/polygon/c1370/14668>
+<http://www.census.gov/tiger/2002/polygon/c1370/14664>
+<http://www.census.gov/tiger/2002/polygon/c1370/14625>
+<http://www.census.gov/tiger/2002/polygon/c1370/14626>
+<http://www.census.gov/tiger/2002/polygon/c1370/14670>
+<http://www.census.gov/tiger/2002/polygon/c1370/14665>
+<http://www.census.gov/tiger/2002/polygon/c1370/16751>
+<http://www.census.gov/tiger/2002/polygon/c1370/4904>
+<http://www.census.gov/tiger/2002/polygon/c1370/19541>
+<http://www.census.gov/tiger/2002/polygon/c1370/15518>
+<http://www.census.gov/tiger/2002/polygon/c1370/14005>
+<http://www.census.gov/tiger/2002/polygon/c1370/6974>
+<http://www.census.gov/tiger/2002/polygon/c1370/19151>
+<http://www.census.gov/tiger/2002/polygon/c1370/103>
+<http://www.census.gov/tiger/2002/polygon/c1370/126>
+<http://www.census.gov/tiger/2002/polygon/c1370/18727>
+<http://www.census.gov/tiger/2002/polygon/c1370/15702>
+<http://www.census.gov/tiger/2002/polygon/c1370/92>
+<http://www.census.gov/tiger/2002/polygon/c1370/75>
+<http://www.census.gov/tiger/2002/polygon/c1370/43>
+<http://www.census.gov/tiger/2002/polygon/c1370/15588>
+<http://www.census.gov/tiger/2002/polygon/c1370/15261>
+<http://www.census.gov/tiger/2002/polygon/c1370/123>
+<http://www.census.gov/tiger/2002/polygon/c1370/93>
+<http://www.census.gov/tiger/2002/polygon/c1370/15636>
+<http://www.census.gov/tiger/2002/polygon/c1370/146>
+<http://www.census.gov/tiger/2002/polygon/c1370/2>
+<http://www.census.gov/tiger/2002/polygon/c1370/143>
+<http://www.census.gov/tiger/2002/polygon/c1370/15265>
+<http://www.census.gov/tiger/2002/polygon/c1370/94>
+<http://www.census.gov/tiger/2002/polygon/c1370/18728>
+<http://www.census.gov/tiger/2002/polygon/c1370/40>
+<http://www.census.gov/tiger/2002/polygon/c1370/15698>
+<http://www.census.gov/tiger/2002/polygon/c1370/95>
+<http://www.census.gov/tiger/2002/polygon/c1370/100>
+<http://www.census.gov/tiger/2002/polygon/c1370/41>
+<http://www.census.gov/tiger/2002/polygon/c1370/29>
+<http://www.census.gov/tiger/2002/polygon/c1370/101>
+<http://www.census.gov/tiger/2002/polygon/c1370/96>
+<http://www.census.gov/tiger/2002/polygon/c1370/97>
+<http://www.census.gov/tiger/2002/polygon/c1370/15259>
+<http://www.census.gov/tiger/2002/polygon/c1370/15270>
+<http://www.census.gov/tiger/2002/polygon/c1370/105>
+<http://www.census.gov/tiger/2002/polygon/c1370/111>
+<http://www.census.gov/tiger/2002/polygon/c1370/10>
+<http://www.census.gov/tiger/2002/polygon/c1370/15645>
+<http://www.census.gov/tiger/2002/polygon/c1370/98>
+<http://www.census.gov/tiger/2002/polygon/c1370/18043>
+<http://www.census.gov/tiger/2002/polygon/c1370/99>
+<http://www.census.gov/tiger/2002/polygon/c1370/106>
+<http://www.census.gov/tiger/2002/polygon/c1370/125>
+<http://www.census.gov/tiger/2002/polygon/c1370/102>
+<http://www.census.gov/tiger/2002/polygon/c1370/19496>
+<http://www.census.gov/tiger/2002/polygon/c1370/19498>
+<http://www.census.gov/tiger/2002/polygon/c1370/19485>
+<http://www.census.gov/tiger/2002/polygon/c1370/12463>
+<http://www.census.gov/tiger/2002/polygon/c1370/19499>
+<http://www.census.gov/tiger/2002/polygon/c1370/10625>
+<http://www.census.gov/tiger/2002/polygon/c1370/17982>
+<http://www.census.gov/tiger/2002/polygon/c1370/10626>
+<http://www.census.gov/tiger/2002/polygon/c1370/10565>
+<http://www.census.gov/tiger/2002/polygon/c1370/16225>
+<http://www.census.gov/tiger/2002/polygon/c1370/16223>
+<http://www.census.gov/tiger/2002/polygon/c1370/16224>
+<http://www.census.gov/tiger/2002/polygon/c1370/19159>
+<http://www.census.gov/tiger/2002/polygon/c1370/16210>
+<http://www.census.gov/tiger/2002/polygon/c1370/17248>
+<http://www.census.gov/tiger/2002/polygon/c1370/13764>
+<http://www.census.gov/tiger/2002/polygon/c1370/20006>
+<http://www.census.gov/tiger/2002/polygon/c1370/11135>
+<http://www.census.gov/tiger/2002/polygon/c1370/19520>
