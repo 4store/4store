@@ -28,6 +28,23 @@ void fs_query_add_freeable(fs_query *q, void *ptr)
     q->free_list = g_slist_prepend(q->free_list, ptr);
 }
 
+void fs_query_add_row_freeable(fs_query *q, void *ptr)
+{
+    if (!q) return;
+
+    q->free_row_list = g_slist_prepend(q->free_row_list, ptr);
+}
+
+void fs_query_free_row_freeable(fs_query *q)
+{
+#warning LEAK
+    for (GSList *it = q->free_row_list; it; it = it->next) {
+        g_free(it->data);
+    }
+    g_slist_free(q->free_row_list);
+    q->free_row_list = NULL;
+}
+
 fsp_link *fs_query_link(fs_query *q)
 {
     if (q) {

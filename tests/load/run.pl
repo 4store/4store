@@ -19,7 +19,8 @@ if ($pid = fork()) {
 	if ($httppid = fork()) {
 		sleep(1);
 	} else {
-		exec('valgrind', '--trace-children="yes"', '--log-file=valgrind.txt', "../../src/http/4s-httpd", "-X", "-D", "-p", "13579", $kb_name);
+		exec('valgrind', '--leak-check=full', '--trace-children=yes', '--log-file-exactly=valgrind.txt', "../../src/http/4s-httpd", "-X", "-D", "-p", "13579", $kb_name);
+		#exec("../../src/http/4s-httpd", "-X", "-D", "-p", "13579", $kb_name);
 		die "failed to exec HTTP sever: $!";
 	}
 	print("4s-httpd running on PID $httppid\n");
@@ -36,8 +37,10 @@ if ($pid = fork()) {
 	while (my $cpid = wait()) {
 		$children--;
 		last if $cpid == -1 || $children == 0;
-		print("$cpid exited\n");
 		# do nothing
+	}
+	for my $t (1..40) {
+		unlink("results-$t.txt");
 	}
 	$ret = kill 15, $httppid;
 	if (!$ret) {

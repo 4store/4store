@@ -983,6 +983,7 @@ void fs_query_free(fs_query *q)
             g_free(it->data);
         }
 	g_slist_free(q->free_list);
+        fs_query_free_row_freeable(q);
 
         if (q->default_graphs) fs_rid_vector_free(q->default_graphs);
 

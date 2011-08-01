@@ -75,6 +75,8 @@ struct _fs_query {
     raptor_uri *base;
     GSList *free_list;			/* list of pointers to be freed
 					 * with g_free */
+    GSList *free_row_list;		/* pointers to be freed after the
+					 * current row is output */
     GSList *warnings;
     int *ordering;
     double start_time;

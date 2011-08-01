@@ -214,6 +214,8 @@ void fsp_hit_limits_reset(fsp_link *link)
 
 void fsp_hit_limits_add(fsp_link *link, int delta)
 {
+  if (delta < 1) return;
+
   (link->hit_limits) += delta;
 }
 

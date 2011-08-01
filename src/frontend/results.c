@@ -79,7 +79,7 @@ static int resolve(fs_query *q, fs_rid rid, fs_resource *res)
 	res->rid = rid;
 	res->attr = FS_RID_NULL;
 	res->lex = g_strdup_printf("_:b%llx", FS_BNODE_NUM(rid));
-        fs_query_add_freeable(q, res->lex);
+        fs_query_add_row_freeable(q, res->lex);
 
 	return 0;
     }
@@ -88,7 +88,11 @@ static int resolve(fs_query *q, fs_rid rid, fs_resource *res)
     g_static_mutex_lock(&cache_mutex);
     if (res_l2_cache[rid & CACHE_MASK].rid == rid) {
         q->qs->cache_success_l2++;
-	memcpy(res, &res_l2_cache[rid & CACHE_MASK], sizeof(fs_resource));
+        /* deep copy resource */
+        res->rid = res_l2_cache[rid & CACHE_MASK].rid;
+        res->attr = res_l2_cache[rid & CACHE_MASK].attr;
+        res->lex = g_strdup(res_l2_cache[rid & CACHE_MASK].lex);
+        fs_query_add_row_freeable(q, res->lex);
         g_static_mutex_unlock(&cache_mutex);
 
 	return 0;
@@ -97,17 +101,21 @@ static int resolve(fs_query *q, fs_rid rid, fs_resource *res)
     if (!res_l1_cache) {
         setup_l1_cache();
     }
-    gpointer hit;
+    fs_resource *hit;
     if ((hit = g_hash_table_lookup(res_l1_cache, &rid))) {
         q->qs->cache_success_l1++;
-	memcpy(res, hit, sizeof(fs_resource));
+        /* deep copy */
+        res->rid = hit->rid;
+        res->attr = hit->attr;
+        res->lex = g_strdup(hit->lex);
+        fs_query_add_row_freeable(q, res->lex);
         g_static_mutex_unlock(&cache_mutex);
 
         return 0;
     }
-    g_static_mutex_unlock(&cache_mutex);
 
-GTimer *tmr=NULL;
+    g_static_mutex_unlock(&cache_mutex);
+    GTimer *tmr = NULL;
     if (q->qs->verbosity) {
         tmr = g_timer_new();
         q->qs->cache_fail++;
@@ -118,20 +126,23 @@ GTimer *tmr=NULL;
 #ifdef DEBUG_FILTER
 printf("resolving %016llx\n", rid);
 #endif
-    fsp_resolve(q->link, FS_RID_SEGMENT(rid, q->segments), r, res);
-    fs_rid *trid = malloc(sizeof(fs_rid));
-    fs_resource *tres = malloc(sizeof(fs_resource));
-    *trid = rid;
-    tres->rid = res->rid;
-    tres->attr = res->attr;
-    tres->lex = res->lex;
     g_static_mutex_lock(&cache_mutex);
-    g_hash_table_insert(res_l1_cache, trid, tres);
+    if (g_hash_table_lookup(res_l1_cache, &rid) == NULL) {
+        fsp_resolve(q->link, FS_RID_SEGMENT(rid, q->segments), r, res);
+        fs_rid *trid = malloc(sizeof(fs_rid));
+        fs_resource *tres = malloc(sizeof(fs_resource));
+        *trid = rid;
+        tres->rid = res->rid;
+        tres->attr = res->attr;
+        tres->lex = g_strdup(res->lex);
+        fs_query_add_row_freeable(q, res->lex);
+        g_hash_table_insert(res_l1_cache, trid, tres);
+    }
     g_static_mutex_unlock(&cache_mutex);
     fs_rid_vector_free(r);
 
     if (q->qs->verbosity) {
-        q->qs->resolve_unique_elapse += g_timer_elapsed(tmr,NULL);
+        q->qs->resolve_unique_elapse += g_timer_elapsed(tmr, NULL);
         g_timer_destroy(tmr);
     }
 
@@ -784,6 +795,11 @@ static int resolve_precache_all(fsp_link *l, fs_rid_vector *rv[], int segments)
     for (int s=0; s<segments; s++) {
         for (int i=0; i<rv[s]->length; i++) {
             if (res[s][i].rid == FS_RID_NULL) break;
+            if (g_hash_table_lookup(res_l1_cache, &(res[s][i].rid))) {
+                free(res[s][i].lex);
+   
+                continue;
+            }
             fs_rid *trid = malloc(sizeof(fs_rid));
             fs_resource *tres = malloc(sizeof(fs_resource));
             *trid = res[s][i].rid;
@@ -2244,7 +2260,7 @@ fs_row *fs_query_fetch_header_row(fs_query *q)
     return q->resrow;
 }
 
-/* call with mutex held only */
+/* call with mutex held only, pushed L1 cache entry into L2 */
 static gboolean cache_dump(gpointer key, gpointer value, gpointer user_data)
 {
     fs_resource *res = value;
@@ -2319,6 +2335,9 @@ fs_row *fs_query_fetch_row(fs_query *q)
 {
     if (!q) return NULL;
 
+    /* free up stuff used by previous row */
+    fs_query_free_row_freeable(q);
+
 nextrow: ;
     long int next_row = q->row + 1;
     fs_rid_vector *grows = NULL;
@@ -2386,7 +2405,7 @@ nextrow: ;
         return NULL;
     }
     if (q->row >= rows) {
-	if (fsp_hit_limits(q->link)) {
+	if (fsp_hit_limits(q->link) > 0) {
 	    fs_error(LOG_ERR, "hit soft limit %d times", fsp_hit_limits(q->link));
 	    char *msg = g_strdup_printf("hit complexity limit %d times, increasing soft limit may give more results", fsp_hit_limits(q->link));
 	    q->warnings = g_slist_prepend(q->warnings, msg);
@@ -2531,6 +2550,8 @@ void fs_query_results_output(fs_query *q, const char *fmt, int flags, FILE *out)
     } else {
 	fprintf(out, "unknown format: %s\n", fmt);
     }
+
+    //fs_query_free_row_freeable(q);
 }
 
 void fs_value_to_row(fs_query *q, fs_value v, fs_row *r)
