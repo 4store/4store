@@ -41,6 +41,9 @@
 #define KB_STATUS_STOPPED 2
 #define KB_STATUS_UNKNOWN 3
 
+/* Default port for 4s-boss - currently FS_DEFAULT_PORT-1 */
+#define FS_ADMIND_PORT 6733
+
 /* Linked list of information about a KB on a storage node */
 typedef struct _fsa_kb_info {
     unsigned char *name;
