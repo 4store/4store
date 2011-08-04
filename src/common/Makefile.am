@@ -12,7 +12,7 @@ AM_LDFLAGS = @MDNS_LIBS@
 hashtest_SOURCES = hashtest.c
 hashtest_LDADD = lib4sintl.a @GLIB_LIBS@
 
-lib4sintl_a_SOURCES = 4s-common.c 4s-client.c 4s-server.c 4s-mdns.c datatypes.c error.c umac.c rijndael-alg-fst.c md5.c hash.c
+lib4sintl_a_SOURCES = 4s-common.c 4s-client.c 4s-server.c 4s-mdns.c datatypes.c error.c umac.c rijndael-alg-fst.c md5.c hash.c ../admin/admin_common.c ../admin/admin_protocol.c ../admin/admin_frontend.c
 
 libsort_a_SOURCES = msort.c qsort.c
 
