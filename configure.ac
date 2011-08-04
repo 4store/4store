@@ -108,6 +108,7 @@ AC_CONFIG_FILES([version.sh
                  src/Makefile
                  src/backend/Makefile
                  src/common/Makefile
+                 src/admin/Makefile
                  src/frontend/Makefile
                  src/http/Makefile
                  src/libs/Makefile
@@ -126,7 +127,7 @@ echo
 echo "Configuration status:"
 
 if test "X$have_avahi" = Xno -a "X$have_dns_sd" = Xno; then
-	AC_MSG_WARN("No mDNS libraries are available, you will only be able to run one store per machine")
+	AC_MSG_WARN("No mDNS libraries are available, you will need to run 4s-boss on each storage node")
 	AC_MSG_WARN("Install Avahi (-glib and -client) to get mDNS support on Linux")
 else
 	echo "   Found mDNS libraries, cluster suport enabled"
