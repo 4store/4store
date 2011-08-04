@@ -590,11 +590,11 @@ void fsp_mdns_setup_frontend(fsp_link *link)
     switch (usage) {
         /* use only 4s-boss */
         case ADMIND_USAGE_SOLE:
-            setup_frontend_from_admind(fsp_link *link);
+            setup_frontend_from_admind(link);
             break;
         /* try 4s-boss, fall back to localhost */
         case ADMIND_USAGE_DEFAULT:
-            rv = setup_frontend_from_admind(fsp_link *link);
+            rv = setup_frontend_from_admind(link);
             if (rv < 1)  {
                 fsp_add_backend(link, "127.0.0.1", FS_DEFAULT_PORT, 0);
             }
@@ -603,7 +603,7 @@ void fsp_mdns_setup_frontend(fsp_link *link)
         case ADMIND_USAGE_FALLBACK:
             rv = fsp_add_backend(link, "127.0.0.1", FS_DEFAULT_PORT, 0);
             if (rv < 1) {
-                setup_frontend_from_admind(fsp_link *link);
+                setup_frontend_from_admind(link);
             }
             break;
         /* just use localhost (was previous default in 4store <= 1.1.3) */
