@@ -20,6 +20,7 @@
 
 #include "4s-internals.h"
 #include "error.h"
+#include "../admin/admin_common.h"
 #include "../admin/admin_frontend.h"
 
 #include <stdlib.h>
@@ -607,7 +608,7 @@ void fsp_mdns_setup_frontend(fsp_link *link)
             break;
         /* just use localhost (was previous default in 4store <= 1.1.3) */
         case ADMIND_USAGE_NONE:
-        case ADM_CONFIG_ERROR:
+        case ADM_ERR_BAD_CONFIG:
         default:
             fsp_add_backend(link, "127.0.0.1", FS_DEFAULT_PORT, 0);
     }
