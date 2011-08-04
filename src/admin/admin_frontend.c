@@ -135,7 +135,8 @@ int fsaf_connect_to_admind(char *host, int port, struct addrinfo *hints,
     }
     freeaddrinfo(server_ai);
 
-    fs_error(LOG_DEBUG, "connected to %s:%d on %s", host, port, ipaddr);
+    fs_error(LOG_DEBUG, "connected to %s:%d (%s) on sock_fd %d",
+             host, port, ipaddr, sock_fd);
     return sock_fd;
 }
 
@@ -328,10 +329,10 @@ fsa_kb_info *fsaf_fetch_kb_info(char *kb_name, fsa_node_addr *nodes)
             }
         }
 
-        /* cleanup */
         close(sock_fd);
-        free(cmd_pkt);
     }
+
+    free(cmd_pkt);
 
     return ki_list;
 }

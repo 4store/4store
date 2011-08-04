@@ -296,6 +296,8 @@ static int recv_from_client(int client_fd, unsigned char *buf, int len)
         FD_CLR(client_fd, &master_read_fds);
     }
 
+    fs_error(LOG_DEBUG, "received %d bytes from client", nbytes);
+
     return nbytes;
 }
 
