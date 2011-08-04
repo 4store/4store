@@ -184,10 +184,7 @@ fsa_kb_info *fsaf_fetch_kb_info(char *kb_name, fsa_node_addr *nodes)
 
     unsigned char *buf;
     unsigned char header_buf[ADM_HEADER_LEN]; /* store single header packet */
-    int nbytes; /* number of bytes sent/received in network calls */
-    int sock_fd;
-
-    int i, rv;
+    int nbytes, sock_fd, rv;
 
     struct addrinfo hints;
 
@@ -264,6 +261,7 @@ fsa_kb_info *fsaf_fetch_kb_info(char *kb_name, fsa_node_addr *nodes)
         buf = (unsigned char *)malloc(datasize);
         if (buf == NULL) {
             errno = ENOMEM;
+            free(cmd_pkt);
             return NULL;
         }
 
@@ -295,7 +293,7 @@ fsa_kb_info *fsaf_fetch_kb_info(char *kb_name, fsa_node_addr *nodes)
                 int done = 0;
 
                 while (!done) {
-                    cur_ki->ipaddr = strdup(ipaddr);
+                    cur_ki->ipaddr = (unsigned char *)strdup(ipaddr);
                     if (cur_ki->next == NULL) {
                         /* if last item in list */
                         cur_ki->next = ki_list; /* append existing vals */
@@ -324,14 +322,15 @@ fsa_kb_info *fsaf_fetch_kb_info(char *kb_name, fsa_node_addr *nodes)
 
             if (kid != NULL) {
                 /* copy ip addr to struct */
-                kid->ipaddr = strdup(ipaddr);
+                kid->ipaddr = (unsigned char *)strdup(ipaddr);
                 kid->next = ki_list;
                 ki_list = kid;
             }
         }
 
-        /* done with client, close connection */
+        /* cleanup */
         close(sock_fd);
+        free(cmd_pkt);
     }
 
     return ki_list;
