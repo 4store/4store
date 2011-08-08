@@ -66,7 +66,7 @@ int fsab_kb_info_init(fsa_kb_info *ki, const char *kb_name)
 
     if (ri_file == NULL) {
         fs_error(LOG_ERR, "failed to read runtime info file at '%s': %s",
-                 strerror(errno));
+                 path, strerror(errno));
         free(path);
     }
     else {
