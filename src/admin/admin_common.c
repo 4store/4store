@@ -75,7 +75,7 @@ int fsa_get_admind_port(GKeyFile *config_file)
     int port;
     GError *err = NULL;
 
-    cport = g_key_file_get_value(config_file, "default", "admind_port", &err);
+    cport = g_key_file_get_value(config_file, "default", "4s-boss_port", &err);
 
     /* if field not set in config, use default port */
     if (cport == NULL) {
