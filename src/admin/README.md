@@ -48,7 +48,7 @@ Optional:
     4s-boss_port = <port number>
 
 
-#### 4s-boss_port ####
+#### Setting: 4s-boss_port ####
 
 Default:
 
@@ -67,7 +67,7 @@ Optional:
     4s-boss_discovery = none|default|fallback|sole
 
 
-#### nodes ####
+#### Setting: nodes ####
 
 Default:
 
@@ -87,11 +87,11 @@ Example:
     nodes = foo1;foo2:6000;foo3.example.org:1234;127.0.0.1;[2001:db8::1]:6733
 
 
-#### 4s-boss_discovery ####
+#### Setting: 4s-boss_discovery ####
 
 Default:
 
-  4s-boss_discovery = none
+    4s-boss_discovery = none
 
 This field can take one of four values, 'none', 'default', 'fallback' or
 'sole'.
