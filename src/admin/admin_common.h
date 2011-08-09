@@ -50,7 +50,7 @@
 #define ADM_LOG_TO_STDERR   0
 #define ADM_LOG_TO_FS_ERROR 1
 
-#define fsa_error(s, f...) { if (s <= fsa_log_level) { if (fsa_log_to == ADM_LOG_TO_FS_ERROR) { fs_error(s, f); } else { fprintf(stderr, "%s: [%s] ", program_invocation_short_name, fsa_log_level_to_string(s)); fprintf(stderr, f); fprintf(stderr, "\n"); } } }
+#define fsa_error(s, f...) { if (s <= fsa_log_level) { if (fsa_log_to == ADM_LOG_TO_FS_ERROR) { fs_error(s, f); } else { fprintf(stderr, "%s: ", program_invocation_short_name); fprintf(stderr, f); fprintf(stderr, "\n"); } } }
 
 /* Define these for use if GNU extensions not enabled. Will set manually
    in 4s-boss and 4s-admin anyway */

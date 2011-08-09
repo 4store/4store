@@ -65,15 +65,13 @@ static int argc;
 static char **argv;
 /***** End of global application state *****/
 
-/* conditionally print to stream depending on verbosity level */
-static void print_v(int level, FILE *stream, const char *fmt, ...)
+/* Conditionally print to stdout depending on verbosity level.
+   Conditional printing to stderr should be handled by fsa_error already. */
+/*
+static void printv(int level, FILE *stream, const char *fmt, ...)
 {
     if (verbosity < level) {
         return;
-    }
-
-    if (level == V_DEBUG) {
-        fprintf(stream, "%s [debug]: ", program_invocation_short_name);
     }
 
     va_list argp;
@@ -82,6 +80,7 @@ static void print_v(int level, FILE *stream, const char *fmt, ...)
     va_end(argp);
     fprintf(stream, "\n");
 }
+*/
 
 /* get num digits in a positive integer */
 static int int_len(int n)
@@ -102,9 +101,9 @@ static fsa_node_addr *get_storage_nodes(void)
 
     /* use localhost if no config file found */
     if (config == NULL) {
-        print_v(V_NORMAL, stderr,
-                "Unable to read config file at '%s', assuming localhost\n",
-                FS_CONFIG_FILE); 
+        fsa_error(LOG_WARNING,
+                  "Unable to read config file at '%s', assuming localhost\n",
+                  FS_CONFIG_FILE); 
         nodes = fsa_node_addr_new("localhost");
         nodes->port = default_port;
         return nodes;
@@ -117,9 +116,9 @@ static fsa_node_addr *get_storage_nodes(void)
 
     /* if no nodes found in config file, use localhost */
     if (nodes == NULL) {
-        print_v(V_NORMAL, stderr,
-                "No nodes found in '%s', assuming localhost\n",
-                FS_CONFIG_FILE); 
+        fsa_error(LOG_WARNING,
+                  "No nodes found in '%s', assuming localhost\n",
+                  FS_CONFIG_FILE); 
         nodes = fsa_node_addr_new("localhost");
         nodes->port = default_port;
         return nodes;
@@ -328,7 +327,7 @@ static void print_version(void)
 /* Parse command line opts/args into variables */
 static int parse_cmdline_opts(int argc)
 {
-    print_v(V_DEBUG, stderr, "parsing command line arguments/options");
+    fsa_error(LOG_DEBUG, "parsing command line arguments/options");
 
     int c;
     int opt_index = 0;
@@ -432,9 +431,8 @@ static int cmd_list_kbs(void)
             int node_num = atoi(host_or_nodenum);
             nodes = node_num_to_node_addr(node_num);
             if (nodes == NULL) {
-                print_v(V_NORMAL, stderr,
-                        "Node number '%d' not found in config\n",
-                        node_num);
+                fsa_error(LOG_ERR, "Node number '%d' not found in config\n",
+                          node_num);
                 return 1;
             }
         }
@@ -442,9 +440,9 @@ static int cmd_list_kbs(void)
             /* get host by name */
             nodes = node_name_to_node_addr(host_or_nodenum);
             if (nodes == NULL) {
-                print_v(V_NORMAL, stderr,
-                        "Node with name '%s' not found in config\n",
-                        host_or_nodenum);
+                fsa_error(LOG_ERR,
+                          "Node with name '%s' not found in config\n",
+                          host_or_nodenum);
                 return 1;
             }
         }
@@ -476,14 +474,12 @@ static int cmd_list_kbs(void)
                 printf("no kbs on node\n");
             }
             else if (errno == ADM_ERR_CONN_FAILED) {
-                print_v(V_NORMAL, stderr,
-                        "Connection to node %d (%s:%d) failed\n",
-                        node_num, node->host, node->port);
+                /* do nothing, error already handled */
             }
             else {
-                print_v(V_NORMAL, stderr,
-                        "Connection to node %d (%s:%d) failed: %s\n",
-                        node_num, node->host, node->port, strerror(errno));
+                fsa_error(LOG_ERR,
+                          "Connection to node %d (%s:%d) failed: %s\n",
+                          node_num, node->host, node->port, strerror(errno));
             }
         }
         else {
@@ -582,16 +578,16 @@ static int cmd_check_nodes(void)
 
     if (config == NULL) {
         /* assume localhost if no config file found */
-        print_v(V_NORMAL, stderr,
-                "Unable to read config file at '%s', assuming localhost\n",
-                FS_CONFIG_FILE); 
+        fsa_error(LOG_WARNING,
+                  "Unable to read config file at '%s', assuming localhost\n",
+                  FS_CONFIG_FILE); 
     }
     else {
         nodes = fsa_get_node_list(config);
         if (nodes == NULL) {
-            print_v(V_NORMAL, stderr,
-                    "No nodes found in '%s', assuming localhost\n",
-                    FS_CONFIG_FILE); 
+            fsa_error(LOG_WARNING,
+                      "No nodes found in '%s', assuming localhost\n",
+                      FS_CONFIG_FILE); 
             default_port = fsa_get_admind_port(config);
         }
     }
@@ -655,23 +651,22 @@ static int cmd_list_nodes(void)
         return 1;
     }
 
-    print_v(V_DEBUG, stderr,
-            "Attempting to read config file at %s", FS_CONFIG_FILE);
+    fsa_error(LOG_DEBUG, "Attempting to read config file at %s",
+              FS_CONFIG_FILE);
 
     /* attempt to read /etc/4store.conf */
     GKeyFile *config = fsa_get_config();
 
     /* assume localhost if no config file found */
     if (config == NULL) {
-        print_v(V_NORMAL, stderr,
-                "Unable to read config file at '%s', assuming localhost\n",
-                FS_CONFIG_FILE); 
+        fsa_error(LOG_WARNING,
+                  "Unable to read config file at '%s', assuming localhost\n",
+                  FS_CONFIG_FILE); 
         printf("0 localhost:%d\n", FS_ADMIND_PORT);
         return 0;
     }
 
-    print_v(V_DEBUG, stderr,
-            "Looking for node config in %s", FS_CONFIG_FILE);
+    fsa_error(LOG_DEBUG, "Looking for node config in %s", FS_CONFIG_FILE);
     fsa_node_addr *nodes = fsa_get_node_list(config);
 
     /* if no 'nodes = host1:port;host2:port' entry, assume localhost */
@@ -679,9 +674,9 @@ static int cmd_list_nodes(void)
         int default_port = fsa_get_admind_port(config);
         fsa_config_free(config);
 
-        print_v(V_NORMAL, stderr,
-                "No nodes found in '%s', assuming localhost\n",
-                FS_CONFIG_FILE); 
+        fsa_error(LOG_WARNING,
+                  "No nodes found in '%s', assuming localhost\n",
+                  FS_CONFIG_FILE); 
         printf("0 localhost:%d\n", default_port);
         return 0;
     }
@@ -696,7 +691,7 @@ static int cmd_list_nodes(void)
         n_nodes += 1;
     }
 
-    print_v(V_DEBUG, stderr, "%d nodes to print", n_nodes);
+    fsa_error(LOG_DEBUG, "%d nodes to print", n_nodes);
 
     /* loop through again to print each entry */
     for (p = nodes; p != NULL; p = p->next) {
@@ -717,7 +712,7 @@ static int handle_command(void)
         return 1;
     }
 
-    print_v(V_DEBUG, stderr, "command '%s' called", argv[cmd_index]);
+    fsa_error(LOG_DEBUG, "command '%s' called", argv[cmd_index]);
 
     if (strcmp(argv[cmd_index], "list-nodes") == 0) {
         return cmd_list_nodes();
@@ -729,8 +724,7 @@ static int handle_command(void)
         return cmd_list_kbs();
     }
     else {
-        print_v(V_NORMAL, stdout, "%s: unrecognized command '%s'",
-                program_invocation_short_name, argv[cmd_index]);
+        fsa_error(LOG_ERR, "unrecognized command '%s'", argv[cmd_index]);
         print_usage(1);
         return 1;
     }
@@ -760,13 +754,13 @@ int main(int local_argc, char **local_argv)
 
     /* Handle simple flags (version, help) */
     if (help_flag) {
-        print_v(V_DEBUG, stderr, "help command called");
+        fsa_error(LOG_DEBUG, "help command called");
         print_help();
         return 0;
     }
 
     if (version_flag) {
-        print_v(V_DEBUG, stderr, "version command called");
+        fsa_error(LOG_DEBUG, "version command called");
         print_version();
         return 0;
     }
