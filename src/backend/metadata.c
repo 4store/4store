@@ -258,6 +258,7 @@ void fs_metadata_close(fs_metadata *m)
         g_free(m->entries[e].val);
     }
     free(m->entries);
+    raptor_free_world(m->rw);
     free(m);
 }
 
