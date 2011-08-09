@@ -56,7 +56,7 @@ int fsab_kb_info_init(fsa_kb_info *ki, const char *kb_name)
     /* generate full path to runtime.info */
     rv = sprintf(path, FS_RI_FILE, kb_name);
     if (rv < 0) {
-        fs_error(LOG_DEBUG, "sprintf failed");
+        fsa_error(LOG_DEBUG, "sprintf failed");
         free(path);
         return -1;
     }
@@ -65,8 +65,8 @@ int fsab_kb_info_init(fsa_kb_info *ki, const char *kb_name)
     ri_file = fopen(path, "r");
 
     if (ri_file == NULL) {
-        fs_error(LOG_ERR, "failed to read runtime info file at '%s': %s",
-                 path, strerror(errno));
+        fsa_error(LOG_ERR, "failed to read runtime info file at '%s': %s",
+                  path, strerror(errno));
         free(path);
     }
     else {
@@ -83,7 +83,7 @@ int fsab_kb_info_init(fsa_kb_info *ki, const char *kb_name)
 
         rv = fcntl(fd, F_GETLK, &ri_lock);
         if (rv == -1) {
-            fs_error(LOG_CRIT, "fnctl locking error: %s", strerror(errno));
+            fsa_error(LOG_CRIT, "fnctl locking error: %s", strerror(errno));
             fclose(ri_file);
             return -1;
         }
@@ -96,8 +96,8 @@ int fsab_kb_info_init(fsa_kb_info *ki, const char *kb_name)
 
             rv = fscanf(ri_file, "%d %d", &pid, &port);
             if (rv == 0 || rv == EOF) {
-                fs_error(LOG_CRIT,
-                         "bad data in runtime info file, fscanf failed");
+                fsa_error(LOG_CRIT,
+                          "bad data in runtime info file, fscanf failed");
                 fclose(ri_file);
                 return -1;
             }
@@ -135,10 +135,10 @@ int fsab_kb_info_init(fsa_kb_info *ki, const char *kb_name)
         fs_rid_vector_free(vec);
         fs_metadata_close(md);
 
-        fs_error(LOG_DEBUG, "metadata.net read for kb %s", kb_name);
+        fsa_error(LOG_DEBUG, "metadata.net read for kb %s", kb_name);
     }
     else {
-        fs_error(LOG_ERR, "unable to read metadata.nt for kb %s", kb_name);
+        fsa_error(LOG_ERR, "unable to read metadata.nt for kb %s", kb_name);
     }
 
     return 0;
@@ -153,7 +153,7 @@ fsa_kb_info *fsab_get_local_kb_info(const char *kb_name)
 
     rv = fsab_kb_info_init(ki, kb_name);
     if (rv == -1) {
-        fs_error(LOG_ERR, "failed to get local kb info for kb %s", kb_name);
+        fsa_error(LOG_ERR, "failed to get local kb info for kb %s", kb_name);
         errno = ADM_ERR_GENERIC; 
         fsa_kb_info_free(ki);
         return NULL;
@@ -174,8 +174,8 @@ fsa_kb_info *fsab_get_local_kb_info_all(void)
 
     dp = opendir(FS_STORE_ROOT);
     if (dp == NULL) {
-        fs_error(LOG_ERR, "failed to open directory '%s': %s",
-                 FS_STORE_ROOT, strerror(errno));
+        fsa_error(LOG_ERR, "failed to open directory '%s': %s",
+                  FS_STORE_ROOT, strerror(errno));
         errno = ADM_ERR_GENERIC;
         return NULL;
     }
@@ -189,8 +189,8 @@ fsa_kb_info *fsab_get_local_kb_info_all(void)
         cur_ki = fsa_kb_info_new();
         rv = fsab_kb_info_init(cur_ki, entry->d_name);
         if (rv == -1) {
-            fs_error(LOG_ERR, "failed to initialise kb info for %s",
-                     entry->d_name);
+            fsa_error(LOG_ERR, "failed to initialise kb info for %s",
+                      entry->d_name);
             fsa_kb_info_free(cur_ki);
             continue;
         }

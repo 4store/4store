@@ -29,6 +29,18 @@
 #include "../common/params.h"
 #include "../common/error.h"
 
+#define ADM_LOG_TO_STDERR   0
+#define ADM_LOG_TO_FS_ERROR 1
+
+#ifndef __USE_GNU
+char *program_invocation_name = NULL;
+char *program_invocation_short_name = NULL;
+#endif
+
+/* Globals which control error/debug messages */
+int fsa_log_to = ADM_LOG_TO_FS_ERROR;
+int fsa_log_level = ADM_LOG_LEVEL;
+
 /* Get /etc/4store.conf as GKeyFile */
 GKeyFile *fsa_get_config(void)
 {
@@ -43,8 +55,8 @@ GKeyFile *fsa_get_config(void)
         if (err->code != G_FILE_ERROR_NOENT
             && err->code != G_FILE_ERROR_EXIST
             && err->code != G_FILE_ERROR_ISDIR) {
-            fs_error(LOG_ERR, "error reading %s: %s(%d)",
-                     filename, err->message, err->code);
+            fsa_error(LOG_ERR, "error reading %s: %s(%d)",
+                      filename, err->message, err->code);
         }
         g_error_free(err);
         g_key_file_free(config_file);
@@ -209,8 +221,8 @@ int fsa_sendall(int socket, unsigned char *buf, int *len)
     *len = num_bytes_sent;
 
     if (n == -1) {
-        fs_error(LOG_ERR, "failed to send full packet, %d bytes sent", 
-                 num_bytes_sent);
+        fsa_error(LOG_ERR, "failed to send full packet, %d bytes sent", 
+                  num_bytes_sent);
         return -1;
     }
 
@@ -318,11 +330,11 @@ int fsa_fetch_header(int sock_fd, unsigned char *buf)
     int nbytes = recv(sock_fd, buf, ADM_HEADER_LEN, MSG_WAITALL);
     if (nbytes <= 0) {
         if (nbytes == 0) {
-            fs_error(LOG_DEBUG, "socket %d hung up", sock_fd);
+            fsa_error(LOG_DEBUG, "socket %d hung up", sock_fd);
         }
         else {
-            fs_error(LOG_ERR, "error receiving header on socket %d: %s",
-                     sock_fd, strerror(errno));
+            fsa_error(LOG_ERR, "error receiving header on socket %d: %s",
+                      sock_fd, strerror(errno));
         }
         close(sock_fd);
         return -1;
@@ -346,4 +358,19 @@ int fsa_is_int(const char *str)
     }
 
     return 1;
+}
+
+const char *fsa_log_level_to_string(int log_level)
+{
+    switch (log_level) {
+        case LOG_ALERT:   return "alert";
+        case LOG_CRIT:    return "crit";
+        case LOG_DEBUG:   return "debug";
+        case LOG_EMERG:   return "emerg";
+        case LOG_ERR:     return "err";
+        case LOG_INFO:    return "info";
+        case LOG_NOTICE:  return "notice";
+        case LOG_WARNING: return "warning";
+        default:          return NULL;
+    }
 }

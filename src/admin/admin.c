@@ -63,7 +63,6 @@ static int args_index = -1;
 /* argc and argv used in most functions, so global for convenience */
 static int argc;
 static char **argv;
-static char *progname;
 /***** End of global application state *****/
 
 /* conditionally print to stream depending on verbosity level */
@@ -74,7 +73,7 @@ static void print_v(int level, FILE *stream, const char *fmt, ...)
     }
 
     if (level == V_DEBUG) {
-        fprintf(stream, "%s [debug]: ", progname);
+        fprintf(stream, "%s [debug]: ", program_invocation_short_name);
     }
 
     va_list argp;
@@ -252,11 +251,11 @@ static fsa_node_addr *node_num_to_node_addr(int node_num)
 static void print_usage(int listhelp)
 {
     printf("Usage: %s [--version] [--help] [--verbose] <command> [<args>]\n",
-           progname);
+           program_invocation_short_name);
 
     if (listhelp) {
         printf("Try `%s help' or `%s help <command> for more information\n",
-               progname, progname);
+               program_invocation_short_name, program_invocation_short_name);
     }
 }
 
@@ -277,7 +276,7 @@ static void print_help(void)
 "  check-nodes  Check whether storage nodes are reachable\n"
 "  list-stores  List stores, along with the nodes they're hosted on\n"
 "\n",
-            progname
+            program_invocation_short_name
         );
     }
     else {
@@ -294,7 +293,7 @@ static void print_help(void)
             printf(
 "Usage: %s %s\n"
 "List names of all storage nodes known\n",
-                progname, argv[i]
+                program_invocation_short_name, argv[i]
             );
         }
         else if (strcmp(argv[i], "check-nodes") == 0) {
@@ -302,7 +301,7 @@ static void print_help(void)
 "Usage: %s %s\n"
 "Check that the admin daemon on each storage node is reachable over the \n"
 "network. Returns 0 if all nodes are reachable, non-zero if not.\n",
-                progname, argv[i]
+                program_invocation_short_name, argv[i]
             );
         }
         else if (strcmp(argv[i], "list-stores") == 0) {
@@ -310,12 +309,12 @@ static void print_help(void)
 "Usage: %s %s [<host_name or node_number>]\n"
 "List all running or stopped stores. Specify a host name or node number to \n"
 "only list stores on that host.\n",
-                progname, argv[i]
+                program_invocation_short_name, argv[i]
             );
         }
         else {
             printf("%s: unrecognized command '%s'\n",
-                   progname, argv[i]);
+                   program_invocation_short_name, argv[i]);
         }
     }
 }
@@ -323,7 +322,7 @@ static void print_help(void)
 /* Print version of 4store this was built with */
 static void print_version(void)
 {
-    printf("%s, built for 4store %s\n", progname, GIT_REV);
+    printf("%s, built for 4store %s\n", program_invocation_short_name, GIT_REV);
 }
 
 /* Parse command line opts/args into variables */
@@ -731,7 +730,7 @@ static int handle_command(void)
     }
     else {
         print_v(V_NORMAL, stdout, "%s: unrecognized command '%s'",
-                progname, argv[cmd_index]);
+                program_invocation_short_name, argv[cmd_index]);
         print_usage(1);
         return 1;
     }
@@ -744,7 +743,14 @@ int main(int local_argc, char **local_argv)
     /* argc and argv used pretty much everywhere, so make global */
     argc = local_argc;
     argv = local_argv;
-    progname = basename(argv[0]);
+
+    /* will be set already if __USE_GNU is defined, but set anyway */
+    program_invocation_name = argv[0];
+    program_invocation_short_name = basename(argv[0]);
+
+    /* Set logging to stderr and log level globals */
+    fsa_log_to = ADM_LOG_TO_STDERR;
+    fsa_log_level = ADM_LOG_LEVEL;
 
     /* Parse command line options and arguments into global vars  */
     rv = parse_cmdline_opts(argc);

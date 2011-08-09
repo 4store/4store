@@ -2,6 +2,7 @@
 #define ADMIN_COMMON_H
 
 #include <glib.h>
+#include <syslog.h>
 
 /*
 "AC" vers command data_len data
@@ -43,6 +44,25 @@
 
 /* Default port for 4s-boss - currently FS_DEFAULT_PORT-1 */
 #define FS_ADMIND_PORT 6733
+
+/* Logging settings and macro */
+#define ADM_LOG_LEVEL LOG_ERR
+#define ADM_LOG_TO_STDERR   0
+#define ADM_LOG_TO_FS_ERROR 1
+
+#define fsa_error(s, f...) { if (s <= fsa_log_level) { if (fsa_log_to == ADM_LOG_TO_FS_ERROR) { fs_error(s, f); } else { fprintf(stderr, "%s: [%s] ", program_invocation_short_name, fsa_log_level_to_string(s)); fprintf(stderr, f); fprintf(stderr, "\n"); } } }
+
+/* Define these for use if GNU extensions not enabled. Will set manually
+   in 4s-boss and 4s-admin anyway */
+#ifndef __USE_GNU
+extern char *program_invocation_name;
+extern char *program_invocation_short_name;
+#endif
+
+
+/* Globals used throughout code */
+extern int fsa_log_to;
+extern int fsa_log_level;
 
 /* Linked list of information about a KB on a storage node */
 typedef struct _fsa_kb_info {
@@ -90,5 +110,6 @@ int fsa_fetch_header(int sock_fd, unsigned char *buf);
 
 /* Misc/utility functions */
 int fsa_is_int(const char *str);
+const char *fsa_log_level_to_string(int log_level);
 
 #endif

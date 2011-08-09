@@ -35,8 +35,8 @@ int fsaf_get_admind_usage(void)
 {
     GKeyFile *conf = fsa_get_config();
     if (conf == NULL) {
-        fs_error(LOG_DEBUG,
-                 "could not read config file, returning default port");
+        fsa_error(LOG_DEBUG,
+                  "could not read config file, returning default port");
         return ADMIND_USAGE_NONE;
     }
     
@@ -49,8 +49,8 @@ int fsaf_get_admind_usage(void)
 
     /* field not set in config file */
     if (usage_str == NULL) {
-        fs_error(LOG_DEBUG,
-                 "no port set in config file, returning default port");
+        fsa_error(LOG_DEBUG,
+                  "no port set in config file, returning default port");
         g_error_free(err);
         fsa_config_free(conf);
         return ADMIND_USAGE_NONE;
@@ -91,7 +91,7 @@ int fsaf_connect_to_admind(char *host, int port, struct addrinfo *hints,
     sprintf(cport, "%d", port);
     rv = getaddrinfo(host, cport, hints, &server_ai);
     if (rv != 0) {
-        fs_error(LOG_DEBUG, "getaddrinfo failed: %s", gai_strerror(rv));
+        fsa_error(LOG_DEBUG, "getaddrinfo failed: %s", gai_strerror(rv));
         errno = rv; /* use gai_strerror to get value */
         return -1;
     }
@@ -100,13 +100,13 @@ int fsaf_connect_to_admind(char *host, int port, struct addrinfo *hints,
     for (p = server_ai; p != NULL; p = p->ai_next) {
         sock_fd = socket(p->ai_family, p->ai_socktype, p->ai_protocol);
         if (sock_fd == -1) {
-            fs_error(LOG_DEBUG, "socket failed: %s", strerror(errno));
+            fsa_error(LOG_DEBUG, "socket failed: %s", strerror(errno));
             continue;
         }
 
         rv = connect(sock_fd, p->ai_addr, p->ai_addrlen);
         if (rv == -1) {
-            fs_error(LOG_DEBUG, "connect failed: %s", strerror(errno));
+            fsa_error(LOG_DEBUG, "connect failed: %s", strerror(errno));
             close(sock_fd);
             continue;
         }
@@ -118,7 +118,7 @@ int fsaf_connect_to_admind(char *host, int port, struct addrinfo *hints,
 
     /* check that we actually connected */
     if (p == NULL) {
-        fs_error(LOG_DEBUG, "failed to connect to %s:%d", host, port);
+        fsa_error(LOG_DEBUG, "failed to connect to %s:%d", host, port);
         freeaddrinfo(server_ai);
         errno = ADM_ERR_CONN_FAILED;
         return -1;
@@ -136,30 +136,30 @@ int fsaf_connect_to_admind(char *host, int port, struct addrinfo *hints,
     }
     freeaddrinfo(server_ai);
 
-    fs_error(LOG_DEBUG, "connected to %s:%d (%s) on sock_fd %d",
-             host, port, ipaddr, sock_fd);
+    fsa_error(LOG_DEBUG, "connected to %s:%d (%s) on sock_fd %d",
+              host, port, ipaddr, sock_fd);
     return sock_fd;
 }
 
 /* convenience wrapper around recv */
 static int recv_from_admind(int sock_fd, unsigned char *buf, size_t datasize)
 {
-    fs_error(LOG_DEBUG, "waiting for %d bytes from client", (int)datasize);
+    fsa_error(LOG_DEBUG, "waiting for %d bytes from client", (int)datasize);
 
     int nbytes = nbytes = recv(sock_fd, buf, datasize, MSG_WAITALL);
     if (nbytes <= 0) {
         if (nbytes == 0) {
-            fs_error(LOG_DEBUG, "client socket %d hung up", sock_fd);
+            fsa_error(LOG_DEBUG, "client socket %d hung up", sock_fd);
         }
         else {
-            fs_error(LOG_ERR, "error receiving data from client: %s",
+            fsa_error(LOG_ERR, "error receiving data from client: %s",
                      strerror(errno));
         }
         close(sock_fd);
         return nbytes;
     }
 
-    fs_error(LOG_DEBUG, "received %d bytes from client", nbytes);
+    fsa_error(LOG_DEBUG, "received %d bytes from client", nbytes);
     return nbytes;
 }
 
@@ -178,7 +178,7 @@ fsa_kb_info *fsaf_fetch_kb_info(char *kb_name, fsa_node_addr *nodes)
 
     /* if no nodes given, get all nodes from config */
     if (nodes == NULL) {
-        fs_error(LOG_DEBUG, "fetching kb info for all nodes");
+        fsa_error(LOG_DEBUG, "fetching kb info for all nodes");
         GKeyFile *conf = fsa_get_config();
         nodes = fsa_get_node_list(conf);
         fsa_config_free(conf);
@@ -204,24 +204,24 @@ fsa_kb_info *fsaf_fetch_kb_info(char *kb_name, fsa_node_addr *nodes)
 
     if (kb_name == NULL) {
         /* get info on all kbs */
-        fs_error(LOG_DEBUG, "fetching info for all kbs");
+        fsa_error(LOG_DEBUG, "fetching info for all kbs");
         cmd_pkt = fsap_encode_cmd_get_kb_info_all(&cmd_len);
     }
     else {
         /* request info on named kb */
-        fs_error(LOG_DEBUG, "fetching info for kb '%s'", kb_name);
+        fsa_error(LOG_DEBUG, "fetching info for kb '%s'", kb_name);
         cmd_pkt = fsap_encode_cmd_get_kb_info(kb_name, &cmd_len);
     }
 
-    fs_error(LOG_DEBUG, "admin command length is %d bytes", cmd_len);
+    fsa_error(LOG_DEBUG, "admin command length is %d bytes", cmd_len);
 
     /* connect to each storage node */
     for (cur_node = nodes; cur_node != NULL; cur_node = cur_node->next) {
         sock_fd = fsaf_connect_to_admind(cur_node->host, cur_node->port,
                                          &hints, ipaddr);
         if (sock_fd == -1) {
-            fs_error(LOG_ERR, "failed to connect to %s:%d, skipping node",
-                     cur_node->host, cur_node->port);
+            fsa_error(LOG_ERR, "failed to connect to %s:%d, skipping node",
+                      cur_node->host, cur_node->port);
             continue;
         }
 
@@ -229,32 +229,32 @@ fsa_kb_info *fsaf_fetch_kb_info(char *kb_name, fsa_node_addr *nodes)
         nbytes = cmd_len;
         rv = fsa_sendall(sock_fd, cmd_pkt, &nbytes);
         if (rv == -1) {
-            fs_error(LOG_ERR, "failed to send command to %s:%d, skipping node",
-                     cur_node->host, cur_node->port);
+            fsa_error(LOG_ERR, "failed to send command to %s:%d, skipping node",
+                      cur_node->host, cur_node->port);
             continue;
         }
 
-        fs_error(LOG_DEBUG,
-                 "header (%d bytes) sent to %s:%d, waiting for response",
-                 nbytes, cur_node->host, cur_node->port);
+        fsa_error(LOG_DEBUG,
+                  "header (%d bytes) sent to %s:%d, waiting for response",
+                  nbytes, cur_node->host, cur_node->port);
 
         /* get response header from node */
         rv = fsa_fetch_header(sock_fd, header_buf);
         if (rv == -1) {
-            fs_error(LOG_ERR,
-                     "failed to get response from %s:%d, skipping node",
-                     cur_node->host, cur_node->port);
+            fsa_error(LOG_ERR,
+                      "failed to get response from %s:%d, skipping node",
+                      cur_node->host, cur_node->port);
             continue;
         }
 
-        fs_error(LOG_DEBUG, "response received from %s:%d",
-                 cur_node->host, cur_node->port);
+        fsa_error(LOG_DEBUG, "response received from %s:%d",
+                  cur_node->host, cur_node->port);
 
         /* server sent us data */
         rv = fsap_decode_header(header_buf, &cmdval, &datasize);
         if (rv == -1) {
-            fs_error(LOG_ERR, "unable to decode header from %s:%d",
-                     cur_node->host, cur_node->port);
+            fsa_error(LOG_ERR, "unable to decode header from %s:%d",
+                      cur_node->host, cur_node->port);
             close(sock_fd);
             continue;
         }
@@ -267,13 +267,13 @@ fsa_kb_info *fsaf_fetch_kb_info(char *kb_name, fsa_node_addr *nodes)
             return NULL;
         }
 
-        fs_error(LOG_DEBUG, "response header from %s:%d decoded",
-                 cur_node->host, cur_node->port);
+        fsa_error(LOG_DEBUG, "response header from %s:%d decoded",
+                  cur_node->host, cur_node->port);
 
         /* handle response from client */
         if (cmdval == ADM_RSP_GET_KB_INFO_ALL) {
-            fs_error(LOG_DEBUG, "ADM_RSP_GET_KB_INFO_ALL received");
-            fs_error(LOG_DEBUG, "fetching data from client");
+            fsa_error(LOG_DEBUG, "ADM_RSP_GET_KB_INFO_ALL received");
+            fsa_error(LOG_DEBUG, "fetching data from client");
 
             nbytes = recv_from_admind(sock_fd, buf, datasize);
             if (nbytes <= 0) {
@@ -309,8 +309,8 @@ fsa_kb_info *fsaf_fetch_kb_info(char *kb_name, fsa_node_addr *nodes)
             }
         }
         else if (cmdval == ADM_RSP_GET_KB_INFO) {
-            fs_error(LOG_DEBUG, "ADM_RSP_GET_KB_INFO_ALL received");
-            fs_error(LOG_DEBUG, "fetching data from client");
+            fsa_error(LOG_DEBUG, "ADM_RSP_GET_KB_INFO_ALL received");
+            fsa_error(LOG_DEBUG, "fetching data from client");
 
             nbytes = recv_from_admind(sock_fd, buf, datasize);
             if (nbytes <= 0) {

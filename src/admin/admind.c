@@ -39,6 +39,7 @@
 #include "../common/params.h"
 #include "../backend/metadata.h"
 
+#include "admin_common.h"
 #include "admin_protocol.h"
 #include "admin_backend.h"
 
@@ -62,20 +63,6 @@ static fd_set read_fds;
 static int fd_max;
 static int listener_fd;
 /***** End of Server State *****/
-
-/* Perform any global setup operations here */
-static void setup_logging(void)
-{
-    /* Enable logging to syslog and set default level */
-    fsp_syslog_enable();
-    setlogmask(LOG_UPTO(LOG_DEBUG));
-}
-
-/* Close syslog and exit with given code */
-static void cleanup_logging(void)
-{
-    fsp_syslog_disable();
-}
 
 static void print_usage(int listhelp) {
     printf("Usage: %s [OPTION]...\n", progname);
@@ -224,8 +211,8 @@ static void fork_from_parent(void)
     pid = fork();
     if (pid == -1) {
         /* fork failed */
-        fs_error(LOG_ERR, "fork() error starting daemon: %s",
-                 strerror(errno));
+        fsa_error(LOG_ERR, "fork() error starting daemon: %s",
+                  strerror(errno));
         exit(EXIT_FAILURE);
     }
     else if (pid > 0) {
@@ -245,8 +232,8 @@ static void daemonize(void)
     /* create new process group */
     sid = setsid();
     if (sid < 0) {
-        fs_error(LOG_ERR, "setsid() error starting daemon: %s",
-                 strerror(errno));
+        fsa_error(LOG_ERR, "setsid() error starting daemon: %s",
+                  strerror(errno));
         exit(EXIT_FAILURE);
     }
 
@@ -255,11 +242,8 @@ static void daemonize(void)
 
     /* change working directory somewhere known */
     if (chdir("/") == -1) {
-        fs_error(LOG_ERR, "chdir failed: %s", strerror(errno));
+        fsa_error(LOG_ERR, "chdir failed: %s", strerror(errno));
     }
-
-    /* cleanly close syslog */
-    cleanup_logging();
 
     /* close all file descriptors */
     for (fd = getdtablesize(); fd >= 0; fd--) {
@@ -274,8 +258,10 @@ static void daemonize(void)
     rv = dup(fd); /* stdout */
     rv = dup(fd); /* stderr */
 
-    /* reopen syslog */
-    setup_logging();
+    /* log to syslog instead of stderr */
+    fsp_syslog_enable();
+    fsa_log_to = ADM_LOG_TO_FS_ERROR;
+    setlogmask(LOG_UPTO(fsa_log_level));
 }
 
 /* receive data from client, clear from master fd set on error/hangup */
@@ -284,11 +270,11 @@ static int recv_from_client(int client_fd, unsigned char *buf, int len)
     int nbytes = recv(client_fd, buf, len, MSG_WAITALL);
     if (nbytes <= 0) {
         if (nbytes == 0) {
-            fs_error(LOG_DEBUG, "client on fd %d hung up", client_fd);
+            fsa_error(LOG_DEBUG, "client on fd %d hung up", client_fd);
         }
         else {
-            fs_error(LOG_ERR, "error receiving from client: %s",
-                     strerror(errno));
+            fsa_error(LOG_ERR, "error receiving from client: %s",
+                      strerror(errno));
         }
 
         /* cleanup client fd */
@@ -296,7 +282,7 @@ static int recv_from_client(int client_fd, unsigned char *buf, int len)
         FD_CLR(client_fd, &master_read_fds);
     }
 
-    fs_error(LOG_DEBUG, "received %d bytes from client", nbytes);
+    fsa_error(LOG_DEBUG, "received %d bytes from client", nbytes);
 
     return nbytes;
 }
@@ -321,7 +307,7 @@ static int setup_server(void)
     /* get host details */
     rv = getaddrinfo(NULL, server_port, &hints, &ai);
     if (rv == -1) {
-        fs_error(LOG_ERR, "getaddrinfo failed: %s", gai_strerror(rv));
+        fsa_error(LOG_ERR, "getaddrinfo failed: %s", gai_strerror(rv));
         return -1;
     }
 
@@ -329,7 +315,7 @@ static int setup_server(void)
     for (p = ai; p != NULL; p = p->ai_next) {
         listener_fd = socket(p->ai_family, p->ai_socktype, p->ai_protocol);
         if (listener_fd == -1) {
-            fs_error(LOG_DEBUG, "socket failed: %s", strerror(errno));
+            fsa_error(LOG_DEBUG, "socket failed: %s", strerror(errno));
             continue;
         }
 
@@ -337,21 +323,21 @@ static int setup_server(void)
         rv = setsockopt(listener_fd, SOL_SOCKET, SO_REUSEADDR,
                         &yes, sizeof(int));
         if (rv == -1) {
-            fs_error(LOG_WARNING, "setsockopt SO_REUSEADDR failed: %s",
-                     strerror(errno));
+            fsa_error(LOG_WARNING, "setsockopt SO_REUSEADDR failed: %s",
+                      strerror(errno));
         }
 
         /* attempt to bind to socket */
         rv = bind(listener_fd, p->ai_addr, p->ai_addrlen);
         if (rv == -1) {
-            fs_error(LOG_DEBUG, "server socket bind failed: %s",
-                     strerror(errno));
+            fsa_error(LOG_DEBUG, "server socket bind failed: %s",
+                      strerror(errno));
             close(listener_fd);
             continue;
         }
 
         /* found something to bind to, so break out of loop */
-        fs_error(LOG_DEBUG, "socket bind successful");
+        fsa_error(LOG_DEBUG, "socket bind successful");
         break;
     }
 
@@ -360,14 +346,14 @@ static int setup_server(void)
 
     /* if NULL, it means we failed to bind to anything */
     if (p == NULL) {
-        fs_error(LOG_ERR, "failed to bind to any socket");
+        fsa_error(LOG_ERR, "failed to bind to any socket");
         return -1;
     }
 
     /* start listening on bound socket */
     rv = listen(listener_fd, 5);
     if (rv == -1) {
-        fs_error(LOG_ERR, "failed to listen on socket: %s", strerror(errno));
+        fsa_error(LOG_ERR, "failed to listen on socket: %s", strerror(errno));
         return -1;
     }
 
@@ -383,12 +369,12 @@ static int setup_server(void)
 /* convenience function - logs error, and sends it to client */
 static void send_error_message(int sock_fd, const char *msg)
 {
-    fs_error(LOG_ERR, msg);
+    fsa_error(LOG_ERR, msg);
 
     int len, rv;
     unsigned char *response = fsap_encode_rsp_error(msg, &len);
     if (response == NULL) {
-        fs_error(LOG_CRIT, "failed to encode error message");
+        fsa_error(LOG_CRIT, "failed to encode error message");
         return;
     }
 
@@ -396,8 +382,8 @@ static void send_error_message(int sock_fd, const char *msg)
     free(response); /* done with response buffer */
 
     if (rv == -1) {
-        fs_error(LOG_ERR, "failed to send response to client: %s",
-                 strerror(errno));
+        fsa_error(LOG_ERR, "failed to send response to client: %s",
+                  strerror(errno));
     }
 }
 
@@ -411,7 +397,7 @@ static void handle_new_connection(void)
 
     new_fd = accept(listener_fd, (struct sockaddr *)&remote_addr, &addr_len);
     if (new_fd == -1) {
-        fs_error(LOG_ERR, "accept failed: %s", strerror(errno));
+        fsa_error(LOG_ERR, "accept failed: %s", strerror(errno));
         return;
     }
 
@@ -421,7 +407,7 @@ static void handle_new_connection(void)
         fd_max = new_fd;
     }
 
-    fs_error(LOG_DEBUG, "new connection on fd %d", new_fd);
+    fsa_error(LOG_DEBUG, "new connection on fd %d", new_fd);
 }
 
 static void handle_cmd_get_kb_info_all(int client_fd)
@@ -445,18 +431,18 @@ static void handle_cmd_get_kb_info_all(int client_fd)
         return;
     }
 
-    fs_error(LOG_DEBUG, "response size is %d bytes", len);
+    fsa_error(LOG_DEBUG, "response size is %d bytes", len);
 
     /* send entire response back to client */
     rv = fsa_sendall(client_fd, response, &len);
     free(response); /* done with response buffer */
     if (rv == -1) {
-        fs_error(LOG_ERR, "failed to send response to client: %s",
-                 strerror(errno));
+        fsa_error(LOG_ERR, "failed to send response to client: %s",
+                  strerror(errno));
         return;
     }
 
-    fs_error(LOG_DEBUG, "%d bytes sent to client", len);
+    fsa_error(LOG_DEBUG, "%d bytes sent to client", len);
 }
 
 /* get all information about a specific kb on this host, send to client */
@@ -494,18 +480,18 @@ static void handle_cmd_get_kb_info(int client_fd, uint16_t datasize)
         return;
     }
 
-    fs_error(LOG_DEBUG, "response size is %d bytes", len);
+    fsa_error(LOG_DEBUG, "response size is %d bytes", len);
 
     /* send entire response back to client */
     rv = fsa_sendall(client_fd, response, &len);
     free(response); /* done with response buffer */
     if (rv == -1) {
-        fs_error(LOG_ERR, "failed to send response to client: %s",
-                 strerror(errno));
+        fsa_error(LOG_ERR, "failed to send response to client: %s",
+                  strerror(errno));
         return;
     }
 
-    fs_error(LOG_DEBUG, "%d bytes sent to client", len);
+    fsa_error(LOG_DEBUG, "%d bytes sent to client", len);
 }
 
 /* receive header from client, work out what request they want */
@@ -525,13 +511,13 @@ static void handle_client_data(int client_fd)
     /* decode header data we received from client */
     rv = fsap_decode_header(header_buf, &cmdval, &datasize);
     if (rv == -1) {
-        fs_error(LOG_ERR, "unable to decode header sent by client");
+        fsa_error(LOG_ERR, "unable to decode header sent by client");
         close(client_fd);
         FD_CLR(client_fd, &master_read_fds);
         return;
     }
 
-    fs_error(LOG_DEBUG, "got command: %d, datasize: %d", cmdval, datasize);
+    fsa_error(LOG_DEBUG, "got command: %d, datasize: %d", cmdval, datasize);
 
     /* work out which command the client is requesting */
     switch (cmdval) {
@@ -542,7 +528,7 @@ static void handle_client_data(int client_fd)
             handle_cmd_get_kb_info(client_fd, datasize);
             break;
         default:
-            fs_error(LOG_ERR, "unknown client request");
+            fsa_error(LOG_ERR, "unknown client request");
             close(client_fd);
             FD_CLR(client_fd, &master_read_fds);
             break;
@@ -561,7 +547,7 @@ static int server_loop(void)
         /* block until we have new connection or data from client */
         rv = select(fd_max+1, &read_fds, NULL, NULL, NULL);
         if (rv == -1) {
-            fs_error(LOG_ERR, "select failed: %s", strerror(errno));
+            fsa_error(LOG_ERR, "select failed: %s", strerror(errno));
             return -1;
         }
 
@@ -586,7 +572,12 @@ int main(int argc, char **argv)
     int rv;
 
     /* Set program name globally */
-    progname = basename(argv[0]);
+    program_invocation_name = argv[0];
+    program_invocation_short_name = basename(argv[0]);
+
+    /* Log to stderr until (and if) we daemonize */
+    fsa_log_to = ADM_LOG_TO_STDERR;
+    fsa_log_level = ADM_LOG_LEVEL;
 
     /* parse command line args/opts into globals */
     rv = parse_cmdline_opts(argc, argv);
@@ -610,9 +601,6 @@ int main(int argc, char **argv)
     if (rv == -1) {
         return EXIT_FAILURE;
     }
-
-    /* Enable syslog and log level (errors to stderr so far) */
-    setup_logging();
 
     /* daemonize if needed */
     if (daemonize_flag) {
