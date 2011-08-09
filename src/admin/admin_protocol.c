@@ -67,6 +67,9 @@ static unsigned char *init_packet(int cmd, int len)
     p += n;
     total += n;
 
+    /* zero remaining buffer */
+    memset(p, 0, len);
+
     return buf;
 }
 
