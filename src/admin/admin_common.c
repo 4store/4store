@@ -360,6 +360,163 @@ int fsa_is_int(const char *str)
     return 1;
 }
 
+/* comparison function for fsa_kb_info_sort */
+static int kb_info_compare_name(const fsa_kb_info* a, const fsa_kb_info *b)
+{
+    return strcmp((char *)a->name, (char *)b->name);
+}
+
+/* comparison function for fsa_kb_info_sort */
+static int kb_info_compare_port(const fsa_kb_info* a, const fsa_kb_info *b)
+{
+    /* cast to signed int */
+    int ia = (int)a->port;    
+    int ib = (int)b->port;
+    return ia - ib;
+}
+
+/* comparison function for fsa_kb_info_sort */
+static int kb_info_compare_status(const fsa_kb_info* a, const fsa_kb_info *b)
+{
+    /* cast to signed int */
+    int ia = (int)a->status;    
+    int ib = (int)b->status;
+    return ia - ib;
+}
+
+/* Sort kb_info list on different params */
+/*
+void fsa_kb_info_sort(fsa_kb_info *ki, int sort_type)
+{
+    int n_items = 0;
+    fsa_kb_info *p = ki;
+
+    for (p = ki; p != NULL; p = p->next) {
+        n_items += 1;
+    }
+
+    if (sort_type == KB_SORT_BY_NAME) {
+        qsort(ki, n_items, sizeof(fsa_kb_info), kb_info_compare_name);
+    }
+    else if (sort_type == KB_SORT_BY_PORT) {
+        qsort(ki, n_items, sizeof(fsa_kb_info), kb_info_compare_port);
+    }
+    else if (sort_type == KB_SORT_BY_STATUS) {
+        qsort(ki, n_items, sizeof(fsa_kb_info), kb_info_compare_status);
+    }
+}
+*/
+
+/* Sorting on various fields for kb_info list.
+   Based on mergesort code from:
+   http://www.chiark.greenend.org.uk/~sgtatham/algorithms/listsort.html */
+fsa_kb_info *fsa_kb_info_sort(fsa_kb_info *list, int sort_type)
+{
+    if (list == NULL) {
+        return NULL;
+    }
+
+    fsa_kb_info *p, *q, *e, *tail;
+    int insize, nmerges, psize, qsize, i;
+    int (*compare)(const fsa_kb_info*, const fsa_kb_info*);
+
+    switch (sort_type) {
+        case KB_SORT_BY_STATUS:
+            compare = &kb_info_compare_status;
+            break;
+        case KB_SORT_BY_PORT:
+            compare = &kb_info_compare_port;
+            break;
+        case KB_SORT_BY_NAME:
+        default:
+            compare = &kb_info_compare_name;
+    }
+
+
+    insize = 1;
+
+    while (1) {
+        p = list;
+        list = NULL;
+        tail = NULL;
+
+        nmerges = 0;
+
+        while (p != NULL) {
+            nmerges += 1; /* there is a merge to be done */
+
+            /* step insize places along from p */
+            q = p;
+            psize = 0;
+            for (i = 0; i < insize; i++) {
+                psize += 1;
+                q = q->next;
+
+                if (q == NULL) {
+                    break;
+                }
+            }
+
+            /* if q hasn't fallen off end, have 2 lists to merge */
+            qsize = insize;
+
+            /* merge 2 lists */
+            while (psize > 0 || (qsize > 0 && q)) {
+                /* work out whether next elem comes from p or q */
+                if (psize == 0) {
+                    /* p empty, get from q */
+                    e = q;
+                    q = q->next;
+                    qsize -= 1;
+                }
+                else if (qsize == 0 || q == NULL) {
+                    /* q empty, get from p */
+                    e = p;
+                    p = p->next;
+                    psize -= 1;
+                }
+                else if (compare(p, q) <= 0) {
+                    /* 1st elem of p is lower or same, get from p */
+                    e = p;
+                    p = p->next;
+                    psize -= 1;
+                }
+                else {
+                    /* 1st elem of q is lower, get from q */
+                    e = q;
+                    q = q->next;
+                    qsize -= 1;
+                }
+
+                /* add next elem to merged list */
+                if (tail != NULL) {
+                    tail->next = e;
+                }
+                else {
+                    list = e;
+                }
+
+                tail = e;
+            }
+
+            /* both p and q have stepped insize places */
+            p = q;
+        }
+
+        tail->next = NULL;
+
+        /* if only 1 merge or empty list, done, so return */
+        if (nmerges <= 1) {
+            return list;
+        }
+
+        /* carry on, merge lists twice the size */
+        insize *= 2;
+    }
+}
+
+/* not currently used */
+/*
 const char *fsa_log_level_to_string(int log_level)
 {
     switch (log_level) {
@@ -374,3 +531,4 @@ const char *fsa_log_level_to_string(int log_level)
         default:          return NULL;
     }
 }
+*/

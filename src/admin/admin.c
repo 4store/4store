@@ -269,6 +269,7 @@ static void print_help(void)
 "    --help    Display this message and exit\n"
 "    --version Display version information and exit\n"
 "    --verbose Increase amount of information returned\n"
+"    --debug   Output full debugging information\n"
 "\n"
 "Common commands (use `%s help <command>' for more info)\n"
 "  list-nodes   List hostname:port of all known storage nodes\n"
@@ -370,6 +371,7 @@ static int parse_cmdline_opts(int argc)
     /* set verbosity based on options */
     if (debug_flag) {
         verbosity = V_DEBUG;
+        fsa_log_level = LOG_DEBUG;
     }
     else if (verbose_flag) {
         verbosity = V_VERBOSE;

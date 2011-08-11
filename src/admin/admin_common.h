@@ -50,6 +50,11 @@
 #define ADM_LOG_TO_STDERR   0
 #define ADM_LOG_TO_FS_ERROR 1
 
+/* Sort types for kb_info */
+#define KB_SORT_BY_NAME   0
+#define KB_SORT_BY_PORT   1
+#define KB_SORT_BY_STATUS 2
+
 #define fsa_error(s, f...) { if (s <= fsa_log_level) { if (fsa_log_to == ADM_LOG_TO_FS_ERROR) { fs_error(s, f); } else { fprintf(stderr, "%s: ", program_invocation_short_name); fprintf(stderr, f); fprintf(stderr, "\n"); } } }
 
 /* Define these for use if GNU extensions not enabled. Will set manually
@@ -110,6 +115,7 @@ int fsa_fetch_header(int sock_fd, unsigned char *buf);
 
 /* Misc/utility functions */
 int fsa_is_int(const char *str);
-const char *fsa_log_level_to_string(int log_level);
+fsa_kb_info *fsa_kb_info_sort(fsa_kb_info *ki, int sort_type);
+/*const char *fsa_log_level_to_string(int log_level);*/
 
 #endif
