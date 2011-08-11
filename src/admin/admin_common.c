@@ -87,7 +87,7 @@ int fsa_get_admind_port(GKeyFile *config_file)
     int port;
     GError *err = NULL;
 
-    cport = g_key_file_get_value(config_file, "default", "4s-boss_port", &err);
+    cport = g_key_file_get_value(config_file, "4s-boss", "port", &err);
 
     /* if field not set in config, use default port */
     if (cport == NULL) {
@@ -164,7 +164,7 @@ fsa_node_addr *fsa_get_node_list(GKeyFile *config_file)
     gsize len;
     GError *err = NULL;
     gchar **nodes =
-        g_key_file_get_string_list(config_file, "default", "nodes", &len, &err);
+        g_key_file_get_string_list(config_file, "4s-boss", "nodes", &len, &err);
 
     if (nodes == NULL) {
         g_error_free(err);

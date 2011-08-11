@@ -34,25 +34,62 @@ It will later be extended to support full administration of a cluster.
 
 
 
+Quick Start
+-----------
+
+### On each storage node:
+
+Run 4s-boss. This will start the daemon running on port 6733 by default.
+
+Run 4s-backend <kb_name> to start any stores for the cluster (this can be
+done before or after starting 4s-boss).
+
+To stop the 4s-boss daemon, use:
+    killall 4s-boss
+or
+    kill <4s-boss pid>
+
+
+### On master node:
+
+Add the hostnames of each storage node, and how 4s-boss should be used
+to /etc/4store.conf (create it if it doesn't exist).  A sample configuration
+might look like:
+
+    [4s-boss]
+        discovery = default
+        nodes = host1;host2;host3;host4
+
+To check that the 4s-boss daemon on each node is reachable, use the 4s-admin
+command:
+    4s-admin list-stores
+
+Assuming all is well, you should get a list of running stores from each storage
+node.
+
+You should then be able to use 4s-httpd and 4s-import as normal.
+
+
+
 Configuration
 -------------
 
 Configuration options are kept in /etc/4store.conf.  All options should be put
-in the [default] section of the configuration file.
+in the [4s-boss] section of the configuration file.
 
 
 ### Configuration for storage nodes ###
 
 Optional:
 
-    4s-boss_port = <port number>
+    port = <port number>
 
 
-#### Setting: 4s-boss_port ####
+#### Setting: port ####
 
 Default:
 
-    4s-boss_port = 6733
+    port = 6733
 
 This is read by the 4s-boss daemon at startup, and can be overridden by 
 passing a command line option to 4s-boss instead.  If this isn't set in
@@ -64,7 +101,7 @@ passing a command line option to 4s-boss instead.  If this isn't set in
 Optional:
 
     nodes = <host1:port>;<host2:port>;<host3>;<host4>;...
-    4s-boss_discovery = none|default|fallback|sole
+    discovery = none|default|fallback|sole
 
 
 #### Setting: nodes ####
@@ -87,18 +124,18 @@ Example:
     nodes = foo1;foo2:6000;foo3.example.org:1234;127.0.0.1;[2001:db8::1]:6733
 
 
-#### Setting: 4s-boss_discovery ####
+#### Setting: discovery ####
 
 Default:
 
-    4s-boss_discovery = none
+    discovery = none
 
 This field can take one of four values, 'none', 'default', 'fallback' or
 'sole'.
 
-This specifies how (and if) 4s-boss on storage nodes is used for store
-discovery.  This setting will affect how things like 4s-httpd and 4s-import
-find out about running 4s-backend processes.
+This specifies how (and if) 4s-boss on is used for store discovery.  This
+setting will affect how things like 4s-httpd and 4s-import find out about
+running 4s-backend processes.
 
 Settings are:
 
@@ -115,33 +152,3 @@ or lookup fails, Avahi/mDNS will be used as a fallback (if available).
 such as Avahi/mDNS won't be used even if available.
 
 
-
-Getting Started
----------------
-
-### On each storage node:
-
-Run 4s-boss. This will start the daemon running on port 6733 by default.
-
-Run 4s-backend <kb_name> to start any stores for the cluster (this can be
-done before or after starting 4s-boss).
-
-
-### On master node:
-
-Add the hostnames of each storage node, and how 4s-boss should be used
-to /etc/4store.conf (create it if it doesn't exist).  A sample configuration
-might look like:
-
-    [default]
-        4s-boss_discovery = default
-        nodes = host1;host2;host3;host4
-
-To check that the 4s-boss daemon on each node is reachable, use the 4s-admin
-command:
-    4s-admin list-stores
-
-Assuming all is well, you should get a list of running stores from each storage
-node.
-
-You should then be able to use 4s-httpd and 4s-import as normal.

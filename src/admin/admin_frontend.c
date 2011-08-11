@@ -45,7 +45,7 @@ int fsaf_get_admind_usage(void)
     GError *err = NULL;
 
     usage_str =
-        g_key_file_get_value(conf, "default", "4s-boss_discovery", &err);
+        g_key_file_get_value(conf, "4s-boss", "discovery", &err);
 
     /* field not set in config file */
     if (usage_str == NULL) {
