@@ -13,6 +13,7 @@ $test = 1;
 my @tests = ();
 my $errs = 1;
 my $spawn = 1;
+my $valgrind = 0;
 
 $SIG{USR2} = 'IGNORE';
 $SIG{TERM} = 'IGNORE';
@@ -30,6 +31,9 @@ if ($ARGV[0]) {
 	} elsif ($ARGV[0] eq "--nospawn") {
 		shift;
 		$spawn = 0;
+	} elsif ($ARGV[0] eq "--valgrind") {
+		shift;
+		$valgrind = 1;
 	}
 	while ($t = shift) {
 		$t =~ s/^(.\/)?scripts\///;
@@ -45,10 +49,20 @@ if (!@tests) {
 if ($pid = fork()) {
 	sleep(2);
 	if ($httppid = fork()) {
-		sleep(1);
+		if ($valgrind) {
+			sleep(4);
+		} else {
+			sleep(1);
+		}
 	} else {
+		my @cmd = ("../../src/http/4s-httpd", "-X", "-D", "-p", "13579", $kb_name);
+		if ($valgrind) {
+			print("Running httpd under valgrind, output in valgrind.txt\n");
+			unshift(@cmd, 'valgrind', '--trace-children=yes', '--log-file-exactly=valgrind.txt');
+		}
 		close STDERR;
-		exec("../../src/http/4s-httpd", "-X", "-D", "-p", "13579", "$kb_name");
+		print(join(" ", @cmd)."\n");
+		exec(@cmd);
 		die "failed to exec HTTP sever: $!";
 	}
 	print("4s-httpd running on PID $httppid\n");
