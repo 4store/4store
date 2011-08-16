@@ -24,6 +24,7 @@
 #include <errno.h>
 #include <stdio.h>
 #include <dirent.h>
+#include <signal.h>
 
 #include "../common/params.h"
 #include "../common/error.h"
@@ -135,7 +136,7 @@ int fsab_kb_info_init(fsa_kb_info *ki, const char *kb_name)
         fs_rid_vector_free(vec);
         fs_metadata_close(md);
 
-        fsa_error(LOG_DEBUG, "metadata.net read for kb %s", kb_name);
+        fsa_error(LOG_DEBUG, "metadata.nt read for kb %s", kb_name);
     }
     else {
         fsa_error(LOG_ERR, "unable to read metadata.nt for kb %s", kb_name);
@@ -205,4 +206,55 @@ fsa_kb_info *fsab_get_local_kb_info_all(void)
     /* set errno to differentiate between no kbs, and error */
     errno = 0;
     return first_ki;
+}
+
+int fsab_stop_local_kb_all(void)
+{
+    return 1;
+}
+
+/* return 0 on success, -1 otherwise, and sets err */
+int fsab_stop_local_kb(const char *kb_name, int *err)
+{
+    fs_error(LOG_DEBUG, "stopping kb '%s'", kb_name);
+
+    fsa_kb_info *ki = fsab_get_local_kb_info(kb_name);
+    if (ki == NULL) {
+        *err = ADM_ERR_KB_GET_INFO;
+        return -1;
+    }
+
+    /* check whether kb is running */
+    if (ki->status == KB_STATUS_STOPPED) {
+        fs_error(LOG_INFO, "cannot stop %s, already stopped", kb_name);
+        *err = ADM_ERR_KB_STATUS_STOPPED;
+        return -1;
+    }
+    else if (ki->status == KB_STATUS_UNKNOWN) {
+        fs_error(LOG_ERR, "cannot stop %s, runtime status unknown", kb_name);
+        *err = ADM_ERR_KB_STATUS_UNKNOWN;
+        return -1;
+    }
+
+    /* sanity check */
+    if (ki->status != KB_STATUS_RUNNING) {
+        *err = ADM_ERR_GENERIC;
+        return -1;
+    }
+
+    /* check that we've got a sensible pid of the running store */
+    if (ki->pid == 0) {
+        fs_error(LOG_ERR, "cannot stop %s, no pid found", kb_name);
+        *err = ADM_ERR_GENERIC;
+        return -1;
+    }
+
+    /* send sigterm to 4s-backend process, returns 0 or -1, sets errno  */
+    int rv = kill(ki->pid, SIGTERM);
+    if (rv != 0) {
+        *err = ADM_ERR_SEE_ERRNO;
+        return -1;
+    }
+
+    return 0;
 }

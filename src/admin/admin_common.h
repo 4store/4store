@@ -28,14 +28,22 @@
 #define ADM_RSP_GET_KB_INFO     6
 #define ADM_CMD_GET_KB_INFO_ALL 7
 #define ADM_RSP_GET_KB_INFO_ALL 8
+#define ADM_CMD_STOP_KB         9
+#define ADM_RSP_STOP_KB        10
 #define ADM_RSP_ERROR         255
 
 /* Error codes */
-#define ADM_ERR_PROTO       101
-#define ADM_ERR_PROTO_VERS  102
-#define ADM_ERR_CONN_FAILED 103
-#define ADM_ERR_BAD_CONFIG  104
-#define ADM_ERR_GENERIC     105
+#define ADM_ERR_OK                0
+#define ADM_ERR_PROTO             1
+#define ADM_ERR_PROTO_VERS        2
+#define ADM_ERR_CONN_FAILED       3
+#define ADM_ERR_BAD_CONFIG        4
+#define ADM_ERR_KB_GET_INFO       5
+#define ADM_ERR_KB_STATUS_STOPPED 6
+#define ADM_ERR_KB_STATUS_UNKNOWN 7
+#define ADM_ERR_NETWORK           8
+#define ADM_ERR_SEE_ERRNO       254
+#define ADM_ERR_GENERIC         255
 
 /* Status codes */
 #define KB_STATUS_RUNNING 1
@@ -46,7 +54,7 @@
 #define FS_ADMIND_PORT 6733
 
 /* Logging settings and macro */
-#define ADM_LOG_LEVEL LOG_ERR
+#define ADM_LOG_LEVEL LOG_DEBUG
 #define ADM_LOG_TO_STDERR   0
 #define ADM_LOG_TO_FS_ERROR 1
 
@@ -116,6 +124,7 @@ int fsa_fetch_header(int sock_fd, unsigned char *buf);
 /* Misc/utility functions */
 int fsa_is_int(const char *str);
 fsa_kb_info *fsa_kb_info_sort(fsa_kb_info *ki, int sort_type);
+int fsa_is_valid_kb_name(const char *kb_name);
 /*const char *fsa_log_level_to_string(int log_level);*/
 
 #endif

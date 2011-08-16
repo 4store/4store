@@ -337,3 +337,88 @@ fsa_kb_info *fsaf_fetch_kb_info(char *kb_name, fsa_node_addr *nodes)
 
     return ki_list;
 }
+
+/* Send command to a server, and receive an response.
+   Arguments: node, sock_fd - the server to send to
+              cmd, len - the command to send, and its length
+   Returns: undecoded response from server
+   Sets:    response - ADM_RSP_* code
+            bufsize - size of response from server
+            err - success/error status of call */
+unsigned char *fsa_send_recv_cmd(fsa_node_addr *node, int sock_fd,
+                                 unsigned char *cmd, int len,
+                                 int *response, int *bufsize, int *err)
+{
+    fsa_error(LOG_DEBUG,
+              "sending command with length %d bytes to %s:%d on sock %d",
+              len, node->host, node->port, sock_fd);
+
+    int rv;
+    static unsigned char header_buf[ADM_HEADER_LEN];
+
+    *bufsize = 0; /* set to 0 until we create/fill a buffer */
+
+    /* send command packet */
+    rv = fsa_sendall(sock_fd, cmd, &len);
+    if (rv == -1) {
+        fsa_error(LOG_ERR,
+                  "failed to send command to %s:%d",
+                  node->host, node->port);
+        *err = ADM_ERR_NETWORK;
+        return NULL;
+    }
+
+    /* get response header */
+    rv = fsa_fetch_header(sock_fd, header_buf);
+    if (rv == -1) {
+        fsa_error(LOG_ERR,
+                  "failed to get response from %s:%d",
+                  node->host, node->port);
+        *err = ADM_ERR_NETWORK;
+        return NULL;
+    }
+
+    fsa_error(LOG_DEBUG, "response received from %s:%d",
+              node->host, node->port);
+
+    /* server sent us data, so decode header */
+    uint8_t cmdval;
+    uint16_t datasize;
+    rv = fsap_decode_header(header_buf, &cmdval, &datasize);
+    if (rv == -1) {
+        fsa_error(LOG_CRIT, "unable to decode header from %s:%d",
+                  node->host, node->port);
+        *err = ADM_ERR_PROTO;
+        return NULL;
+    }
+
+    *response = cmdval;
+
+    fsa_error(LOG_DEBUG, "response header from %s:%d decoded",
+              node->host, node->port);
+
+    unsigned char *buf = NULL;
+
+    if (datasize > 0) {
+        /* create buffer for rest of data from server */
+        buf = (unsigned char *)malloc(datasize);
+        if (buf == NULL) {
+            errno = ENOMEM;
+            *err = ADM_ERR_SEE_ERRNO;
+            return NULL;
+        }
+        *bufsize = datasize;
+
+        rv = recv_from_admind(sock_fd, buf, datasize);
+        if (rv <= 0) {
+            /* error already handled */
+            free(buf);
+            *err = ADM_ERR_NETWORK;
+            return NULL;
+        }
+    }
+
+    *err = ADM_ERR_OK;
+    return buf;
+}
+

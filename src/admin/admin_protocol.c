@@ -105,10 +105,20 @@ int fsap_decode_header(const unsigned char *buf, uint8_t *cmd, uint16_t *size)
     return 0;
 }
 
-unsigned char *fsap_encode_cmd_get_kb_port(const char *kb_name, int *len)
+void fsap_set_command_bytes(unsigned char *buf, uint8_t new_cmd)
+{
+    /* move to start of command section of buffer */
+    unsigned char *p = buf + ADM_H_LEN + ADM_H_VERS_LEN;
+
+    /* overwrite old command value */
+    memcpy(p, &new_cmd, ADM_H_CMD_LEN);
+}
+
+
+unsigned char *fsap_encode_cmd_stop_kb(const char *kb_name, int *len)
 {
     int data_len = strlen(kb_name);
-    unsigned char *buf = init_packet(ADM_CMD_GET_KB_PORT, data_len);
+    unsigned char *buf = init_packet(ADM_CMD_STOP_KB, data_len);
     unsigned char *p = buf;
     p += ADM_HEADER_LEN; /* move to start of data section */
 
@@ -117,16 +127,24 @@ unsigned char *fsap_encode_cmd_get_kb_port(const char *kb_name, int *len)
     return buf;
 }
 
-unsigned char *fsap_encode_rsp_get_kb_port(int port)
+unsigned char *fsap_encode_rsp_stop_kb(int status, int *len)
 {
-    uint16_t port_num = (uint16_t)port;
-    int data_len = sizeof(uint16_t);
-    unsigned char *buf = init_packet(ADM_RSP_GET_KB_PORT, data_len);
+    uint8_t return_val = (uint8_t)status;
+    int data_len = sizeof(uint8_t);
+    unsigned char *buf = init_packet(ADM_RSP_STOP_KB, data_len);
     unsigned char *p = buf;
     p += ADM_HEADER_LEN;
 
-    memcpy(p, &port_num, data_len);
+    memcpy(p, &return_val, data_len);
+    *len = data_len + ADM_HEADER_LEN;
     return buf;
+}
+
+int fsap_decode_rsp_stop_kb(unsigned char *buf)
+{
+    uint8_t status;
+    memcpy(&status, buf, sizeof(uint8_t));
+    return (int)status;
 }
 
 unsigned char *fsap_encode_cmd_get_kb_info(const char *kb_name, int *len)
@@ -214,6 +232,15 @@ unsigned char *fsap_encode_rsp_error(const char *msg, int *len)
     memcpy(p, msg, data_len);
     *len = data_len + ADM_HEADER_LEN;
     return buf;
+}
+
+char *fsap_decode_rsp_error(unsigned char *buf, int len)
+{
+    char *msg = (char *)malloc(len + 1);
+    memcpy(msg, buf, len);
+    msg[len] = '\0';
+
+    return msg;
 }
 
 unsigned char *fsap_encode_rsp_get_kb_info(const fsa_kb_info *ki, int *len)

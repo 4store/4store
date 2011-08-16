@@ -494,6 +494,74 @@ static void handle_cmd_get_kb_info(int client_fd, uint16_t datasize)
     fsa_error(LOG_DEBUG, "%d bytes sent to client", len);
 }
 
+/* stop a running kb */
+static void handle_cmd_stop_kb(int client_fd, uint16_t datasize)
+{
+    int rv, err;
+    int result = -1;
+
+    /* datasize = num chars in kb name */
+    unsigned char *kb_name = (unsigned char *)malloc(datasize + 1);
+
+    /* get kb name from client */
+    rv = recv_from_client(client_fd, kb_name, datasize);
+    if (rv <= 0) {
+        /* errors already logged/handled */
+        free(kb_name);
+        return;
+    }
+    kb_name[datasize] = '\0';
+
+    rv = fsab_stop_local_kb((char *)kb_name, &err);
+    if (rv == 0) {
+        result = 0;
+    }
+    else {
+        /* warnings/known errors */
+        switch (err) {
+            case ADM_ERR_KB_GET_INFO:
+            case ADM_ERR_KB_STATUS_STOPPED:
+            case ADM_ERR_KB_STATUS_UNKNOWN:
+                result = err;
+                break;
+            default:
+                break;
+        }
+    }
+
+    free(kb_name);
+
+    if (result < 0) {
+        /* send error message to client */
+        send_error_message(client_fd,
+                           "server failed to kill 4s-backend process");
+        return;
+    }
+    
+    /* encode message for client */
+    int len;
+    unsigned char *response = fsap_encode_rsp_stop_kb(result, &len);
+
+    if (response == NULL) {
+        send_error_message(client_fd, "failed to encode result");
+        return;
+    }
+
+    fsa_error(LOG_DEBUG, "response size is %d bytes", len);
+
+    /* send entire response back to client */
+    rv = fsa_sendall(client_fd, response, &len);
+    free(response); /* done with response buffer */
+    if (rv == -1) {
+        fsa_error(LOG_ERR, "failed to send response to client: %s",
+                  strerror(errno));
+        return;
+    }
+
+    fsa_error(LOG_DEBUG, "%d bytes sent to client", len);
+}
+
+
 /* receive header from client, work out what request they want */
 static void handle_client_data(int client_fd)
 {
@@ -526,6 +594,9 @@ static void handle_client_data(int client_fd)
             break;
         case ADM_CMD_GET_KB_INFO:
             handle_cmd_get_kb_info(client_fd, datasize);
+            break;
+        case ADM_CMD_STOP_KB:
+            handle_cmd_stop_kb(client_fd, datasize);
             break;
         default:
             fsa_error(LOG_ERR, "unknown client request");

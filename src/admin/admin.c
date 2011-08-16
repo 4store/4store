@@ -275,6 +275,7 @@ static void print_help(void)
 "  list-nodes   List hostname:port of all known storage nodes\n"
 "  check-nodes  Check whether storage nodes are reachable\n"
 "  list-stores  List stores, along with the nodes they're hosted on\n"
+"  stop-stores  Stop a store backend process on all nodes\n"
 "\n",
             program_invocation_short_name
         );
@@ -309,6 +310,14 @@ static void print_help(void)
 "Usage: %s %s [<host_name or node_number>]\n"
 "List all running or stopped stores. Specify a host name or node number to \n"
 "only list stores on that host.\n",
+                program_invocation_short_name, argv[i]
+            );
+        }
+        else if (strcmp(argv[i], "stop-stores") == 0) {
+            printf(
+"Usage: %s %s <store_name>\n"
+"Stop 4s-backend processes for a given store across all nodes of the \n"
+"cluster.\n",
                 program_invocation_short_name, argv[i]
             );
         }
@@ -348,7 +357,7 @@ static int parse_cmdline_opts(int argc)
     };
 
     while(1) {
-        c = getopt_long(argc, argv, "", long_opts, &opt_index);
+        c = getopt_long(argc, argv, "+", long_opts, &opt_index);
 
         /* end of options */
         if (c == -1) {
@@ -407,6 +416,127 @@ static void print_invalid_arg(void)
 {
     printf("Invalid argument to '%s': %s\n",
            argv[cmd_index], argv[args_index]);
+}
+
+static int cmd_stop_stores(void)
+{
+    if (args_index < 0) {
+        /* no argument given, display help text */
+        fsa_error(
+            LOG_ERR,
+"No store name(s) given. See `%s help %s' for details",
+            argv[cmd_index], program_invocation_short_name 
+        );
+        return 1;
+    }
+
+    if (strcmp("-a", argv[args_index]) == 0) {
+        /* TODO handle stop all */
+    }
+    else {
+        /* check for invalid store names */
+        for (int i = args_index; i < argc; i++) {
+            if (!fsa_is_valid_kb_name(argv[i])) {
+                fsa_error(LOG_ERR, "'%s' is not a valid store name", argv[i]);
+                return 1;
+            }
+        }
+    }
+    
+    /* get list of all storage nodes */
+    fsa_node_addr *nodes = get_storage_nodes();
+
+    /* Setup hints information */
+    struct addrinfo hints;
+    memset(&hints, 0, sizeof(hints));
+    hints.ai_family = AF_UNSPEC;
+    hints.ai_socktype = SOCK_STREAM;
+
+    int sock_fd, len;
+    char ipaddr[INET6_ADDRSTRLEN];
+    unsigned char *buf;
+
+    int node_num = 0;
+    unsigned char *cmd;
+
+    /* to be set by fsa_send_recv_cmd */
+    int response, bufsize, err;
+
+    for (fsa_node_addr *n = nodes; n != NULL; n = nodes->next) {
+        sock_fd = fsaf_connect_to_admind(n->host, n->port, &hints, ipaddr);
+
+        printf("%d %s ", node_num, n->host);
+        node_num += 1;
+
+        if (sock_fd == -1) {
+            printf(ANSI_COLOUR_RED "unreachable\n");
+            continue;
+        }
+        printf("\n");
+        
+        for (int i = args_index; i < argc; i++) {
+            /* send stop command for each kb */
+            cmd = fsap_encode_cmd_stop_kb(argv[i], &len);
+            if (cmd == NULL) {
+                fsa_error(LOG_CRIT, "failed to encode stop stores command");
+                break;
+            }
+
+            fsa_error(LOG_DEBUG, "sending stop-store '%s' command to %s:%d",
+                      argv[i], n->host, n->port);
+
+            buf = fsa_send_recv_cmd(n, sock_fd, cmd, len,
+                                    &response, &bufsize, &err);
+
+            /* usually a network error */
+            if (buf == NULL) {
+                /* error already handled */
+                break;
+            }
+
+            /* server side error */
+            if (response == ADM_RSP_ERROR) {
+                char *msg = fsap_decode_rsp_error(buf, bufsize);
+                fsa_error(LOG_ERR, "server error: %s", msg);
+                free(msg);
+                free(buf);
+                break;
+            }
+
+            /* unexpected response type */
+            if (response != ADM_RSP_STOP_KB) {
+                fsa_error(LOG_CRIT, "unknown response from server");
+                free(buf);
+                break;
+            }
+
+            if (bufsize != sizeof(uint8_t)) {
+                fsa_error(LOG_CRIT, "incorrect response size from server");
+                free(buf);
+                break;
+            }
+
+            int status = fsap_decode_rsp_stop_kb(buf);
+            printf("  %s - ", argv[i]);
+            switch (status) {
+                case ADM_ERR_OK:
+                case ADM_ERR_KB_STATUS_STOPPED:
+                    printf("stopped\n");
+                    break;
+                case ADM_ERR_KB_STATUS_UNKNOWN:
+                default:
+                    printf("unknown\n");
+                    break;
+            }
+
+            free(buf);
+        }
+
+        /* done with current server */
+        close(sock_fd);
+    }
+
+    return 0;
 }
 
 static int cmd_list_kbs(void)
@@ -724,6 +854,9 @@ static int handle_command(void)
     }
     else if (strcmp(argv[cmd_index], "list-stores") == 0) {
         return cmd_list_kbs();
+    }
+    else if (strcmp(argv[cmd_index], "stop-stores") == 0) {
+        return cmd_stop_stores();
     }
     else {
         fsa_error(LOG_ERR, "unrecognized command '%s'", argv[cmd_index]);

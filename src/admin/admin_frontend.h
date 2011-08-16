@@ -22,4 +22,8 @@ fsa_kb_info *fsaf_fetch_kb_info_all(void);
 
 fsa_kb_info *fsaf_fetch_kb_info(char *kb_name, fsa_node_addr *nodes);
 
+/* Wrapper around common send/receive call to servers */
+unsigned char *fsa_send_recv_cmd(fsa_node_addr *node, int sock_fd,
+                                 unsigned char *cmd, int len,
+                                 int *response, int *bufsize, int *err);
 #endif

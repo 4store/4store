@@ -515,6 +515,24 @@ fsa_kb_info *fsa_kb_info_sort(fsa_kb_info *list, int sort_type)
     }
 }
 
+int fsa_is_valid_kb_name(const char *kb_name)
+{
+    if (kb_name == NULL) {
+        return 0;
+    }
+
+    char *rv;
+    for (int i = 0; i < strlen(kb_name); i++) {
+        rv = strchr(FS_LEGAL_KB_CHARS, kb_name[i]);
+        if (rv == NULL) {
+            return 0;
+        }
+    }
+
+    return 1;
+}
+
+
 /* not currently used */
 /*
 const char *fsa_log_level_to_string(int log_level)
