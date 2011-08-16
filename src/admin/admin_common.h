@@ -54,7 +54,7 @@
 #define FS_ADMIND_PORT 6733
 
 /* Logging settings and macro */
-#define ADM_LOG_LEVEL LOG_DEBUG
+#define ADM_LOG_LEVEL LOG_ERR
 #define ADM_LOG_TO_STDERR   0
 #define ADM_LOG_TO_FS_ERROR 1
 

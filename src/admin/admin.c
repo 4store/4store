@@ -462,7 +462,7 @@ static int cmd_stop_stores(void)
     /* to be set by fsa_send_recv_cmd */
     int response, bufsize, err;
 
-    for (fsa_node_addr *n = nodes; n != NULL; n = nodes->next) {
+    for (fsa_node_addr *n = nodes; n != NULL; n = n->next) {
         sock_fd = fsaf_connect_to_admind(n->host, n->port, &hints, ipaddr);
 
         printf("%d %s ", node_num, n->host);
