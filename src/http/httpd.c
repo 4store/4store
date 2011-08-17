@@ -348,15 +348,17 @@ static void http_query_worker(gpointer data, gpointer user_data)
        http_send(ctxt, "\n");
        w = w->next;
     }
-    http_close(ctxt);
     fs_query_free(ctxt->qr);
     ctxt->qr = NULL;
-    free(ctxt->query_string);
-    ctxt->query_string = NULL;
+    if (ctxt->query_string) {
+      free(ctxt->query_string);
+      ctxt->query_string = NULL;
+    }
     if (ctxt->output) {
       g_free(ctxt->output);
       ctxt->output = NULL;
     }
+    http_close(ctxt);
 
     return;
   }
