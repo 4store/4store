@@ -114,6 +114,37 @@ void fsap_set_command_bytes(unsigned char *buf, uint8_t new_cmd)
     memcpy(p, &new_cmd, ADM_H_CMD_LEN);
 }
 
+unsigned char *fsap_encode_cmd_start_kb(const char *kb_name, int *len)
+{
+    int data_len = strlen(kb_name);
+    unsigned char *buf = init_packet(ADM_CMD_START_KB, data_len);
+    unsigned char *p = buf;
+    p += ADM_HEADER_LEN; /* move to start of data section */
+
+    memcpy(p, kb_name, data_len);
+    *len = data_len + ADM_HEADER_LEN;
+    return buf;
+}
+
+unsigned char *fsap_encode_rsp_start_kb(int status, int *len)
+{
+    uint8_t return_val = (uint8_t)status;
+    int data_len = sizeof(uint8_t);
+    unsigned char *buf = init_packet(ADM_RSP_START_KB, data_len);
+    unsigned char *p = buf;
+    p += ADM_HEADER_LEN;
+
+    memcpy(p, &return_val, data_len);
+    *len = data_len + ADM_HEADER_LEN;
+    return buf;
+}
+
+int fsap_decode_rsp_start_kb(unsigned char *buf)
+{
+    uint8_t status;
+    memcpy(&status, buf, sizeof(uint8_t));
+    return (int)status;
+}
 
 unsigned char *fsap_encode_cmd_stop_kb(const char *kb_name, int *len)
 {

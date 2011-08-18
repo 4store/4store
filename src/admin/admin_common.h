@@ -30,6 +30,8 @@
 #define ADM_RSP_GET_KB_INFO_ALL 8
 #define ADM_CMD_STOP_KB         9
 #define ADM_RSP_STOP_KB        10
+#define ADM_CMD_START_KB       11
+#define ADM_RSP_START_KB       12
 #define ADM_RSP_ERROR         255
 
 /* Error codes */
@@ -39,9 +41,10 @@
 #define ADM_ERR_CONN_FAILED       3
 #define ADM_ERR_BAD_CONFIG        4
 #define ADM_ERR_KB_GET_INFO       5
-#define ADM_ERR_KB_STATUS_STOPPED 6
-#define ADM_ERR_KB_STATUS_UNKNOWN 7
-#define ADM_ERR_NETWORK           8
+#define ADM_ERR_KB_STATUS_RUNNING 7
+#define ADM_ERR_KB_STATUS_STOPPED 8
+#define ADM_ERR_KB_STATUS_UNKNOWN 9
+#define ADM_ERR_NETWORK          10 
 #define ADM_ERR_SEE_ERRNO       254
 #define ADM_ERR_GENERIC         255
 

@@ -258,3 +258,83 @@ int fsab_stop_local_kb(const char *kb_name, int *err)
 
     return 0;
 }
+
+/* Returns -1 on error, 0 on success. Sets exit_val to exit value of
+   4-backend, sets output to the output from running the command, and sets
+   err to the reason for error. */
+int fsab_start_local_kb(const char *kb_name, int *exit_val, char **output,
+                         int *err)
+{
+    fsa_error(LOG_DEBUG, "starting kb '%s'", kb_name);
+
+    /* set defaults to indicate no output or retval yet */
+    *exit_val = -1;
+    *output = NULL;
+
+    fsa_kb_info *ki = fsab_get_local_kb_info(kb_name);
+    if (ki == NULL) {
+        *err = ADM_ERR_KB_GET_INFO;
+        return -1;
+    }
+
+    /* check whether kb is running */
+    if (ki->status == KB_STATUS_RUNNING) {
+        fs_error(LOG_INFO, "cannot start %s, already started", kb_name);
+        *err = ADM_ERR_KB_STATUS_RUNNING;
+        return -1;
+    }
+
+    /* TODO get 4s-backend location from config */
+    /* TODO check 4s-backend found in path */
+    char *cmdname = "4s-backend";
+    char *cmd = (char *)malloc(strlen(cmdname) + 1 + strlen(kb_name) + 1);
+    sprintf(cmd, "%s %s", cmdname, kb_name);
+
+    fsa_error(LOG_DEBUG, "running '%s'", cmd);
+
+    FILE *backend = popen(cmd, "r");
+    free(cmd);
+
+    if (backend == NULL) {
+        fsa_error(LOG_ERR, "popen failed: %s", strerror(errno));
+        *err = ADM_ERR_SEE_ERRNO;
+        return -1;
+    }
+
+    /* capture output */
+    char line[500];
+    int size = 0;
+    while (fgets(line, 500, backend) != NULL) {
+        if (*output == NULL) {
+            size = strlen(line) + 1;
+            *output = (char *)malloc(size);
+            strcpy(*output, line);
+        }
+        else {
+            size += strlen(line);
+            *output = (char *)realloc(*output, size);
+            strcat(*output, line);
+        }
+    }
+
+    fsa_error(LOG_DEBUG, "output from command is: %s", *output);
+
+    int rv = pclose(backend);
+    if (rv == -1) {
+        fsa_error(LOG_ERR, "pclose failed: %s", strerror(errno));
+        free(*output);
+        *output = NULL;
+        return ADM_ERR_SEE_ERRNO;
+    }
+    else {
+        *exit_val = WEXITSTATUS(rv);
+        fsa_error(LOG_DEBUG, "command exited with status: %d", *exit_val);
+    }
+
+    if (*exit_val == 0) {
+        return 0;
+    }
+    else {
+        return -1;
+    }
+}

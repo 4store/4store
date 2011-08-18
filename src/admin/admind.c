@@ -49,6 +49,7 @@ static int verbose_flag = 0;
 static int help_flag = 0;
 static int version_flag = 0;
 static int daemonize_flag = 1;
+static int debug_flag = 0;
 static const char *cport = NULL;
 
 /* Port to actually run server on */
@@ -81,6 +82,7 @@ static void print_help(void)
 "  -D, --no-daemonize    do not daemonise\n"
 "      --help            display this message and exit\n"
 "      --verbose         display more detailed output\n"
+"      --debug           display full debugging output\n"
 "      --version         display version information and exit\n",
         FS_ADMIND_PORT
     );
@@ -99,6 +101,7 @@ static int parse_cmdline_opts(int argc, char **argv)
     struct option long_opts[] = {
         {"version",         no_argument,        &version_flag,      1},
         {"verbose",         no_argument,        &verbose_flag,      1},
+        {"debug",           no_argument,        &debug_flag,        1},
         {"help",            no_argument,        &help_flag,         1},
         {"no-daemonize",    no_argument,        &daemonize_flag,    0},
         {"port",            required_argument,  NULL,               'p'},
@@ -494,6 +497,77 @@ static void handle_cmd_get_kb_info(int client_fd, uint16_t datasize)
     fsa_error(LOG_DEBUG, "%d bytes sent to client", len);
 }
 
+
+/* start a stopped kb */
+static void handle_cmd_start_kb(int client_fd, uint16_t datasize)
+{
+    int rv, err, exit_val;
+    int result = -1;
+    char *msg;
+
+    /* datasize = num chars in kb name */
+    unsigned char *kb_name = (unsigned char *)malloc(datasize + 1);
+
+    /* get kb name from client */
+    rv = recv_from_client(client_fd, kb_name, datasize);
+    if (rv <= 0) {
+        /* errors already logged/handled */
+        free(kb_name);
+        return;
+    }
+    kb_name[datasize] = '\0';
+
+    rv = fsab_start_local_kb((char *)kb_name, &exit_val, &msg, &err);
+    free(kb_name);
+
+    if (rv == 0) {
+        result = 0;
+    }
+    else {
+        /* warnings/known errors */
+        switch (err) {
+            case ADM_ERR_KB_GET_INFO:       /* failed to check kb exists */
+            case ADM_ERR_KB_STATUS_RUNNING: /* kb already started */
+                result = err;
+                break;
+            default:
+                break;
+        }
+    }
+
+    if (result < 0) {
+        /* send error message to client */
+        send_error_message(client_fd, msg);
+        free(msg);
+        return;
+    }
+    else {
+        free(msg);
+    }
+    
+    /* encode message for client */
+    int len;
+    unsigned char *response = fsap_encode_rsp_start_kb(result, &len);
+
+    if (response == NULL) {
+        send_error_message(client_fd, "failed to encode result");
+        return;
+    }
+
+    fsa_error(LOG_DEBUG, "response size is %d bytes", len);
+
+    /* send entire response back to client */
+    rv = fsa_sendall(client_fd, response, &len);
+    free(response); /* done with response buffer */
+    if (rv == -1) {
+        fsa_error(LOG_ERR, "failed to send response to client: %s",
+                  strerror(errno));
+        return;
+    }
+
+    fsa_error(LOG_DEBUG, "%d bytes sent to client", len);
+}
+
 /* stop a running kb */
 static void handle_cmd_stop_kb(int client_fd, uint16_t datasize)
 {
@@ -598,6 +672,9 @@ static void handle_client_data(int client_fd)
         case ADM_CMD_STOP_KB:
             handle_cmd_stop_kb(client_fd, datasize);
             break;
+        case ADM_CMD_START_KB:
+            handle_cmd_start_kb(client_fd, datasize);
+            break;
         default:
             fsa_error(LOG_ERR, "unknown client request");
             close(client_fd);
@@ -654,6 +731,11 @@ int main(int argc, char **argv)
     rv = parse_cmdline_opts(argc, argv);
     if (rv == -1) {
         return EXIT_FAILURE;
+    }
+
+    /* check if debugging output turned on */
+    if (debug_flag) {
+        fsa_log_level = LOG_DEBUG;
     }
 
     /* handle simple commands (help/version) */
