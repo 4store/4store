@@ -34,7 +34,8 @@
    Called manually by the various mdns functions below */
 static int setup_frontend_from_admind(fsp_link *link)
 {
-    fsa_kb_info *ki = fsaf_fetch_kb_info(link->kb_name, NULL);
+    fsa_kb_info *ki = fsaf_fetch_kb_info((unsigned char *)link->kb_name,
+                                         NULL);
     if (ki == NULL) {
         return -1;
     }
