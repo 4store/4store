@@ -142,9 +142,9 @@ int fsaf_connect_to_admind(char *host, int port, struct addrinfo *hints,
 }
 
 /* convenience wrapper around recv */
-static int recv_from_admind(int sock_fd, unsigned char *buf, size_t datasize)
+int fsaf_recv_from_admind(int sock_fd, unsigned char *buf, size_t datasize)
 {
-    fsa_error(LOG_DEBUG, "waiting for %d bytes from client", (int)datasize);
+    fsa_error(LOG_DEBUG, "waiting for %d bytes from server", (int)datasize);
 
     int nbytes = nbytes = recv(sock_fd, buf, datasize, MSG_WAITALL);
     if (nbytes <= 0) {
@@ -152,14 +152,14 @@ static int recv_from_admind(int sock_fd, unsigned char *buf, size_t datasize)
             fsa_error(LOG_DEBUG, "client socket %d hung up", sock_fd);
         }
         else {
-            fsa_error(LOG_ERR, "error receiving data from client: %s",
+            fsa_error(LOG_ERR, "error receiving data from server: %s",
                      strerror(errno));
         }
         close(sock_fd);
         return nbytes;
     }
 
-    fsa_error(LOG_DEBUG, "received %d bytes from client", nbytes);
+    fsa_error(LOG_DEBUG, "received %d bytes from server", nbytes);
     return nbytes;
 }
 
@@ -172,7 +172,8 @@ fsa_kb_info *fsaf_fetch_kb_info_all()
 
 /* Get info on a kb from any number of nodes. For all kbs, or all nodes,
    set the corresponding argument to NULL */
-fsa_kb_info *fsaf_fetch_kb_info(char *kb_name, fsa_node_addr *nodes)
+fsa_kb_info *fsaf_fetch_kb_info(const unsigned char *kb_name,
+                                fsa_node_addr *nodes)
 {
     fsa_node_addr *cur_node;
 
@@ -275,7 +276,7 @@ fsa_kb_info *fsaf_fetch_kb_info(char *kb_name, fsa_node_addr *nodes)
             fsa_error(LOG_DEBUG, "ADM_RSP_GET_KB_INFO_ALL received");
             fsa_error(LOG_DEBUG, "fetching data from client");
 
-            nbytes = recv_from_admind(sock_fd, buf, datasize);
+            nbytes = fsaf_recv_from_admind(sock_fd, buf, datasize);
             if (nbytes <= 0) {
                 /* error already handled */
                 free(buf);
@@ -312,7 +313,7 @@ fsa_kb_info *fsaf_fetch_kb_info(char *kb_name, fsa_node_addr *nodes)
             fsa_error(LOG_DEBUG, "ADM_RSP_GET_KB_INFO_ALL received");
             fsa_error(LOG_DEBUG, "fetching data from client");
 
-            nbytes = recv_from_admind(sock_fd, buf, datasize);
+            nbytes = fsaf_recv_from_admind(sock_fd, buf, datasize);
             if (nbytes <= 0) {
                 /* error already handled */
                 free(buf);
@@ -345,7 +346,7 @@ fsa_kb_info *fsaf_fetch_kb_info(char *kb_name, fsa_node_addr *nodes)
    Sets:    response - ADM_RSP_* code
             bufsize - size of response from server
             err - success/error status of call */
-unsigned char *fsa_send_recv_cmd(fsa_node_addr *node, int sock_fd,
+unsigned char *fsaf_send_recv_cmd(fsa_node_addr *node, int sock_fd,
                                  unsigned char *cmd, int len,
                                  int *response, int *bufsize, int *err)
 {
@@ -409,7 +410,7 @@ unsigned char *fsa_send_recv_cmd(fsa_node_addr *node, int sock_fd,
         }
         *bufsize = datasize;
 
-        rv = recv_from_admind(sock_fd, buf, datasize);
+        rv = fsaf_recv_from_admind(sock_fd, buf, datasize);
         if (rv <= 0) {
             /* error already handled */
             free(buf);

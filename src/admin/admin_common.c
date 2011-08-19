@@ -201,6 +201,32 @@ fsa_node_addr *fsa_get_node_list(GKeyFile *config_file)
     return first_na;
 }
 
+fsa_kb_response *fsa_kb_response_new(void)
+{
+    fsa_kb_response *kbr = (fsa_kb_response *)malloc(sizeof(fsa_kb_response));
+    kbr->return_val = ADM_RSP_ERROR;
+    kbr->kb_name = NULL;
+    kbr->msg = NULL;
+
+    return kbr;
+}
+
+void fsa_kb_response_free(fsa_kb_response *kbr)
+{
+    if (kbr == NULL) {
+        return;
+    }
+
+    if (kbr->kb_name != NULL) {
+        free(kbr->kb_name);
+    }
+
+    if (kbr->msg != NULL) {
+        free(kbr->msg);
+    }
+    free(kbr);
+}
+
 /* Utility function to force sending of all bytes in a packet */
 int fsa_sendall(int socket, unsigned char *buf, int *len)
 {

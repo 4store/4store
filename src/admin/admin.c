@@ -433,18 +433,20 @@ static void print_invalid_arg(void)
 /* Used to handle store starting/stopping, interface is mostly identical */
 static int start_or_stop_stores(int action)
 {
+    int all = 0; /* if -a flag, then start/stop all, instead of kb name */
+
     if (args_index < 0) {
         /* no argument given, display help text */
         fsa_error(
             LOG_ERR,
-"No store name(s) given. See `%s help %s' for details",
-            argv[cmd_index], program_invocation_short_name 
+            "No store name(s) given. Use `%s help %s' for details",
+            program_invocation_short_name, argv[cmd_index]
         );
         return 1;
     }
 
     if (strcmp("-a", argv[args_index]) == 0) {
-        /* TODO handle start/stop all */
+        all = 1; /* all stores */
     }
     else {
         /* check for invalid store names */
@@ -483,18 +485,18 @@ static int start_or_stop_stores(int action)
         node_num += 1;
 
         if (sock_fd == -1) {
-            printf(ANSI_COLOUR_RED "unreachable\n");
+            printf(ANSI_COLOUR_RED "unreachable\n" ANSI_COLOUR_RESET);
             continue;
         }
         printf("\n");
         
-        for (int i = args_index; i < argc; i++) {
-            /* send start/stop command for each kb */
+        if (all) {
+            /* start/stop all kbs */
             if (action == STOP_STORE) {
-                cmd = fsap_encode_cmd_stop_kb(argv[i], &len);
+                cmd = fsap_encode_cmd_stop_kb_all(&len);
             }
             else if (action == START_STORE) {
-                cmd = fsap_encode_cmd_start_kb(argv[i], &len);
+                cmd = fsap_encode_cmd_start_kb_all(&len);
             }
 
             if (cmd == NULL) {
@@ -504,11 +506,12 @@ static int start_or_stop_stores(int action)
                 break;
             }
 
-            fsa_error(LOG_DEBUG, "sending %s '%s' command to %s:%d",
-                      argv[cmd_index], argv[i], n->host, n->port);
+            fsa_error(LOG_DEBUG, "sending '%s' command to %s:%d",
+                      argv[cmd_index], n->host, n->port);
 
-            buf = fsa_send_recv_cmd(n, sock_fd, cmd, len,
-                                    &response, &bufsize, &err);
+            /* send command and get reply */
+            buf = fsaf_send_recv_cmd(n, sock_fd, cmd, len,
+                                     &response, &bufsize, &err);
 
             /* usually a network error */
             if (buf == NULL) {
@@ -517,50 +520,186 @@ static int start_or_stop_stores(int action)
                 break;
             }
 
-            printf("  %s - ", argv[i]);
+            /* should get this if all went well */
+            if (response == ADM_RSP_EXPECT_N) {
+                int rv;
+                uint8_t rspval;
+                uint16_t datasize;
+                unsigned char header_buf[ADM_HEADER_LEN];
+                fsa_kb_response *kbr = NULL;
 
-            int status;
-            char *msg = NULL;
+                int expected_responses = fsap_decode_rsp_expect_n(buf);
+                free(buf);
 
-            switch (response) {
-                case ADM_RSP_STOP_KB:
-                    status = fsap_decode_rsp_stop_kb(buf);
-                    switch (status) {
+                fsa_error(LOG_DEBUG, "expecting %d responses from server",
+                          expected_responses);
+
+                /* get packet from server for each kb started/stopped */
+                for (int i = 0; i < expected_responses; i++) {
+                    rv = fsa_fetch_header(sock_fd, header_buf);
+                    if (rv == -1) {
+                        fsa_error(LOG_ERR,
+                                  "failed to get response from %s:%d",
+                                  n->host, n->port);
+                        break;
+                    }
+
+                    fsa_error(LOG_DEBUG, "got header %d/%d",
+                              i+1, expected_responses);
+
+                    rv = fsap_decode_header(header_buf, &rspval, &datasize);
+                    if (rv == -1) {
+                        fsa_error(LOG_CRIT,
+                                  "unable to decode header from %s:%d",
+                                  n->host, n->port);
+                        break;
+                    }
+
+                    if (rspval == ADM_RSP_ABORT_EXPECT) {
+                        fsa_error(LOG_ERR, "operation aborted by server");
+                        break;
+                    }
+
+                    buf = (unsigned char *)malloc(datasize);
+                    rv = fsaf_recv_from_admind(sock_fd, buf, datasize);
+                    if (rv < 0) {
+                        /* error already handled/logged */
+                        free(buf);
+                        break;
+                    }
+
+                    if (rspval == ADM_RSP_STOP_KB) {
+                        kbr = fsap_decode_rsp_stop_kb(buf);
+                        printf("  %-10s ", kbr->kb_name);
+                        switch (kbr->return_val) {
+                            case ADM_ERR_OK:
+                            case ADM_ERR_KB_STATUS_STOPPED:
+                                printf(ANSI_COLOUR_GREEN "stopped");
+                                break;
+                            default:
+                                printf(ANSI_COLOUR_RED "unknown");
+                                break;
+                        }
+                    }
+                    else if (rspval == ADM_RSP_START_KB) {
+                        kbr = fsap_decode_rsp_start_kb(buf);
+                        printf("  %-10s ", kbr->kb_name);
+                        switch (kbr->return_val) {
+                            case ADM_ERR_OK:
+                            case ADM_ERR_KB_STATUS_RUNNING:
+                                printf(ANSI_COLOUR_GREEN "running");
+                                break;
+                            case ADM_ERR_KB_STATUS_STOPPED:
+                                printf(ANSI_COLOUR_YELLOW "stopped");
+                                break;
+                            default:
+                                printf(ANSI_COLOUR_RED "unknown");
+                                break;
+                        }
+                    }
+                    printf(ANSI_COLOUR_RESET "\n");
+
+                    free(buf);
+                    buf = NULL;
+                    fsa_kb_response_free(kbr);
+                    kbr = NULL;
+                }
+            }
+            else if (response == ADM_RSP_ERROR) {
+                unsigned char *errmsg = fsap_decode_rsp_error(buf, bufsize);
+                fsa_error(LOG_ERR, "server error: %s", errmsg);
+                free(errmsg);
+                free(buf);
+            }
+            else {
+                fsa_error(LOG_ERR, "unexpected response from server: %d",
+                          response);
+                free(buf);
+            }
+        }
+        else {
+            /* stop kbs given on command line */
+            for (int i = args_index; i < argc; i++) {
+                /* send start/stop command for each kb */
+                if (action == STOP_STORE) {
+                    cmd = fsap_encode_cmd_stop_kb((unsigned char *)argv[i],
+                                                  &len);
+                }
+                else if (action == START_STORE) {
+                    cmd = fsap_encode_cmd_start_kb((unsigned char *)argv[i],
+                                                   &len);
+                }
+
+                if (cmd == NULL) {
+                    fsa_error(LOG_CRIT, "failed to encode %s command",
+                            argv[cmd_index]);
+                    n_errors += 1;
+                    break;
+                }
+
+                fsa_error(LOG_DEBUG, "sending %s '%s' command to %s:%d",
+                          argv[cmd_index], argv[i], n->host, n->port);
+
+                buf = fsaf_send_recv_cmd(n, sock_fd, cmd, len,
+                                         &response, &bufsize, &err);
+                free(cmd);
+                cmd = NULL;
+
+                /* usually a network error */
+                if (buf == NULL) {
+                    /* error already handled */
+                    n_errors += 1;
+                    break;
+                }
+
+                printf("  %-10s", argv[i]);
+
+                fsa_kb_response *kbr = NULL;
+
+                if (response == ADM_RSP_STOP_KB) {
+                    kbr = fsap_decode_rsp_stop_kb(buf);
+                    switch (kbr->return_val) {
                         case ADM_ERR_OK:
                         case ADM_ERR_KB_STATUS_STOPPED:
-                            printf("stopped\n");
+                            printf(ANSI_COLOUR_GREEN "stopped");
                             break;
-                        case ADM_ERR_KB_STATUS_UNKNOWN:
                         default:
-                            printf("unknown\n");
+                            printf(ANSI_COLOUR_RED "unknown");
                             break;
                     }
-                    break;
-                case ADM_RSP_START_KB:
-                    status = fsap_decode_rsp_start_kb(buf);
-                    switch (status) {
+                    printf(ANSI_COLOUR_RESET "\n");
+                    fsa_kb_response_free(kbr);
+                }
+                else if (response == ADM_RSP_START_KB) {
+                    kbr = fsap_decode_rsp_start_kb(buf);
+                    switch (kbr->return_val) {
                         case ADM_ERR_OK:
                         case ADM_ERR_KB_STATUS_RUNNING:
-                            printf("running\n");
+                            printf(ANSI_COLOUR_GREEN "running");
                             break;
-                        case ADM_ERR_KB_STATUS_UNKNOWN:
+                        case ADM_ERR_KB_STATUS_STOPPED:
+                            printf(ANSI_COLOUR_YELLOW "stopped");
+                            break;
                         default:
-                            printf("unknown\n");
+                            printf(ANSI_COLOUR_RED "unknown");
                             break;
                     }
-                    break;
-                case ADM_RSP_ERROR:
-                    msg = fsap_decode_rsp_error(buf, bufsize);
+                    printf(ANSI_COLOUR_RESET "\n");
+                    fsa_kb_response_free(kbr);
+                }
+                else if (response == ADM_RSP_ERROR) {
+                    unsigned char *msg = fsap_decode_rsp_error(buf, bufsize);
                     printf("unknown: %s\n", msg);
                     free(msg);
                     n_errors += 1;
-                    break;
-                default:
+                }
+                else {
                     fsa_error(LOG_CRIT, "unknown response from server");
-                    break;
+                    n_errors += 1;
+                }
+                
+                free(buf);
             }
-            
-            free(buf);
         }
 
         /* done with current server */

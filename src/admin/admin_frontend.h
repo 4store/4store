@@ -17,13 +17,17 @@ int fsaf_get_admind_usage(void);
 int fsaf_connect_to_admind(char *host, int port, struct addrinfo *hints,
                            char *ipaddr);
 
+/* Get data from admind (header already received) */
+int fsaf_recv_from_admind(int sock_fd, unsigned char *buf, size_t datasize);
+
 /* Get info on all KBs on all storage nodes */
 fsa_kb_info *fsaf_fetch_kb_info_all(void);
 
-fsa_kb_info *fsaf_fetch_kb_info(char *kb_name, fsa_node_addr *nodes);
+fsa_kb_info *fsaf_fetch_kb_info(const unsigned char *kb_name,
+                                fsa_node_addr *nodes);
 
 /* Wrapper around common send/receive call to servers */
-unsigned char *fsa_send_recv_cmd(fsa_node_addr *node, int sock_fd,
-                                 unsigned char *cmd, int len,
-                                 int *response, int *bufsize, int *err);
+unsigned char *fsaf_send_recv_cmd(fsa_node_addr *node, int sock_fd,
+                                  unsigned char *cmd, int len,
+                                  int *response, int *bufsize, int *err);
 #endif

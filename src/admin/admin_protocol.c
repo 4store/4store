@@ -114,41 +114,134 @@ void fsap_set_command_bytes(unsigned char *buf, uint8_t new_cmd)
     memcpy(p, &new_cmd, ADM_H_CMD_LEN);
 }
 
-unsigned char *fsap_encode_cmd_start_kb(const char *kb_name, int *len)
+/* convenience function for common return type.
+   Returns rv it was encoded with, sets kb_name and msg to strings that
+   need freeing. */
+static fsa_kb_response *decode_kb_response(const unsigned char *buf)
 {
-    int data_len = strlen(kb_name);
-    unsigned char *buf = init_packet(ADM_CMD_START_KB, data_len);
-    unsigned char *p = buf;
-    p += ADM_HEADER_LEN; /* move to start of data section */
+    uint8_t kb_name_len;
+    uint16_t msg_len;
 
-    memcpy(p, kb_name, data_len);
-    *len = data_len + ADM_HEADER_LEN;
-    return buf;
+    fsa_kb_response *kbr = fsa_kb_response_new();
+
+    memcpy(&(kbr->return_val), buf, sizeof(uint8_t));
+    buf += sizeof(uint8_t);
+
+    memcpy(&kb_name_len, buf, sizeof(uint8_t));
+    buf += sizeof(uint8_t);
+
+    memcpy(&msg_len, buf, sizeof(uint16_t));
+    buf += sizeof(uint16_t);
+
+    if (kb_name_len > 0) {
+        kbr->kb_name = (unsigned char *)malloc(kb_name_len + 1);
+        memcpy(kbr->kb_name, buf, kb_name_len);
+        kbr->kb_name[kb_name_len] = '\0';
+        buf += kb_name_len;
+    }
+
+    if (msg_len > 0) {
+        kbr->msg = (unsigned char *)malloc(msg_len + 1);
+        memcpy(kbr->msg, buf, msg_len);
+        kbr->msg[msg_len] = '\0';
+        buf += msg_len;
+    }
+
+    return kbr;
 }
 
-unsigned char *fsap_encode_rsp_start_kb(int status, int *len)
+/* convenience function for common return type. */
+static unsigned char *encode_kb_response(int rsp, int retval,
+                                         const unsigned char *kb_name,
+                                         const unsigned char *msg,
+                                         int *len)
 {
-    uint8_t return_val = (uint8_t)status;
-    int data_len = sizeof(uint8_t);
-    unsigned char *buf = init_packet(ADM_RSP_START_KB, data_len);
+    uint8_t return_val = (uint8_t)retval;
+    uint8_t kb_name_len = 0;
+    uint16_t msg_len = 0;
+
+    /* encode kb_name length into 1 byte */
+    if (kb_name != NULL) {
+        int len = strlen((char *)kb_name);
+        if (len > 255) {
+            /* too long to encode */
+            return NULL;
+        }
+        kb_name_len = (uint8_t)len;
+    }
+
+    /* encode msg length into 2 bytes */
+    if (msg != NULL) {
+        int len = strlen((char *)msg);
+        if (len > 65535) {
+            /* too long to encode */
+            return NULL;
+        }
+        msg_len = (uint16_t)len;
+    }
+
+    int data_len = (2 * sizeof(uint8_t))
+                 + sizeof(uint16_t)
+                 + kb_name_len
+                 + msg_len
+                 ;
+    unsigned char *buf = init_packet(rsp, data_len);
     unsigned char *p = buf;
     p += ADM_HEADER_LEN;
 
-    memcpy(p, &return_val, data_len);
+    memcpy(p, &return_val, sizeof(uint8_t));
+    p += sizeof(uint8_t);
+
+    memcpy(p, &kb_name_len, sizeof(uint8_t));
+    p += sizeof(uint8_t);
+
+    memcpy(p, &msg_len, sizeof(uint16_t));
+    p += sizeof(uint16_t);
+
+    if (kb_name_len > 0) {
+        memcpy(p, kb_name, kb_name_len);
+        p += kb_name_len;
+    }
+
+    if (msg_len > 0) {
+        memcpy(p, msg, msg_len);
+        p += msg_len;
+    }
+
+    *len = ADM_HEADER_LEN + data_len;
+    return buf;
+}
+
+/* expect n more messages */
+unsigned char *fsap_encode_rsp_expect_n(int n, int *len)
+{
+    uint16_t n_messages = (uint16_t)n;
+    int data_len = sizeof(uint16_t);
+    unsigned char *buf = init_packet(ADM_RSP_EXPECT_N, data_len);
+    unsigned char *p = buf;
+    p += ADM_HEADER_LEN;
+
+    memcpy(p, &n_messages, data_len);
     *len = data_len + ADM_HEADER_LEN;
     return buf;
 }
 
-int fsap_decode_rsp_start_kb(unsigned char *buf)
+int fsap_decode_rsp_expect_n(const unsigned char *buf)
 {
-    uint8_t status;
-    memcpy(&status, buf, sizeof(uint8_t));
-    return (int)status;
+    uint16_t n_messages;
+    memcpy(&n_messages, buf, sizeof(uint16_t));
+    return (int)n_messages;
 }
 
-unsigned char *fsap_encode_cmd_stop_kb(const char *kb_name, int *len)
+unsigned char *fsap_encode_cmd_stop_kb_all(int *len)
 {
-    int data_len = strlen(kb_name);
+    *len = ADM_HEADER_LEN;
+    return fsap_encode_cmd_no_params(ADM_CMD_STOP_KB_ALL);
+}
+
+unsigned char *fsap_encode_cmd_stop_kb(const unsigned char *kb_name, int *len)
+{
+    int data_len = strlen((char *)kb_name);
     unsigned char *buf = init_packet(ADM_CMD_STOP_KB, data_len);
     unsigned char *p = buf;
     p += ADM_HEADER_LEN; /* move to start of data section */
@@ -158,29 +251,55 @@ unsigned char *fsap_encode_cmd_stop_kb(const char *kb_name, int *len)
     return buf;
 }
 
-unsigned char *fsap_encode_rsp_stop_kb(int status, int *len)
+unsigned char *fsap_encode_rsp_stop_kb(int retval,
+                                       const unsigned char *kb_name,
+                                       const unsigned char *msg,
+                                       int *len)
 {
-    uint8_t return_val = (uint8_t)status;
-    int data_len = sizeof(uint8_t);
-    unsigned char *buf = init_packet(ADM_RSP_STOP_KB, data_len);
-    unsigned char *p = buf;
-    p += ADM_HEADER_LEN;
+    return encode_kb_response(ADM_RSP_STOP_KB, retval, kb_name, msg, len);
+}
 
-    memcpy(p, &return_val, data_len);
+fsa_kb_response *fsap_decode_rsp_stop_kb(const unsigned char *buf)
+{
+    return decode_kb_response(buf);
+}
+
+unsigned char *fsap_encode_cmd_start_kb_all(int *len)
+{
+    *len = ADM_HEADER_LEN;
+    return fsap_encode_cmd_no_params(ADM_CMD_START_KB_ALL);
+}
+
+unsigned char *fsap_encode_cmd_start_kb(const unsigned char *kb_name,
+                                        int *len)
+{
+    int data_len = strlen((char *)kb_name);
+    unsigned char *buf = init_packet(ADM_CMD_START_KB, data_len);
+    unsigned char *p = buf;
+    p += ADM_HEADER_LEN; /* move to start of data section */
+
+    memcpy(p, kb_name, data_len);
     *len = data_len + ADM_HEADER_LEN;
     return buf;
 }
 
-int fsap_decode_rsp_stop_kb(unsigned char *buf)
+unsigned char *fsap_encode_rsp_start_kb(int retval,
+                                        const unsigned char *kb_name,
+                                        const unsigned char *msg,
+                                        int *len)
 {
-    uint8_t status;
-    memcpy(&status, buf, sizeof(uint8_t));
-    return (int)status;
+    return encode_kb_response(ADM_RSP_START_KB, retval, kb_name, msg, len);
 }
 
-unsigned char *fsap_encode_cmd_get_kb_info(const char *kb_name, int *len)
+fsa_kb_response *fsap_decode_rsp_start_kb(const unsigned char *buf)
 {
-    int data_len = strlen(kb_name);
+    return decode_kb_response(buf);
+}
+
+unsigned char *fsap_encode_cmd_get_kb_info(const unsigned char *kb_name,
+                                           int *len)
+{
+    int data_len = strlen((char *)kb_name);
     unsigned char *buf = init_packet(ADM_CMD_GET_KB_INFO, data_len);
     unsigned char *p = buf;
     p += ADM_HEADER_LEN;
@@ -253,9 +372,9 @@ fsa_kb_info *fsap_decode_rsp_get_kb_info_all(const unsigned char *buf)
 }
 
 /* send to indicate that a generic client/server error occured */
-unsigned char *fsap_encode_rsp_error(const char *msg, int *len)
+unsigned char *fsap_encode_rsp_error(const unsigned char *msg, int *len)
 {
-    int data_len = strlen(msg);
+    int data_len = strlen((char *)msg);
     unsigned char *buf = init_packet(ADM_RSP_ERROR, data_len);
     unsigned char *p = buf;
     p += ADM_HEADER_LEN;
@@ -265,9 +384,9 @@ unsigned char *fsap_encode_rsp_error(const char *msg, int *len)
     return buf;
 }
 
-char *fsap_decode_rsp_error(unsigned char *buf, int len)
+unsigned char *fsap_decode_rsp_error(const unsigned char *buf, int len)
 {
-    char *msg = (char *)malloc(len + 1);
+    unsigned char *msg = (char *)malloc(len + 1);
     memcpy(msg, buf, len);
     msg[len] = '\0';
 

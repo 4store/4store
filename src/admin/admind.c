@@ -43,6 +43,9 @@
 #include "admin_protocol.h"
 #include "admin_backend.h"
 
+#define STOP_STORES  0
+#define START_STORES 1
+
 /***** Server State *****/
 /* Fields initialised by parse_cmdline_opts() */
 static int verbose_flag = 0;
@@ -290,6 +293,23 @@ static int recv_from_client(int client_fd, unsigned char *buf, int len)
     return nbytes;
 }
 
+static unsigned char *get_string_from_client(int client_fd, int len)
+{
+    /* len = num chars in string to fetch */
+    unsigned char *str = (unsigned char *)malloc(len + 1);
+
+    /* get kb name from client */
+    int nbytes = recv_from_client(client_fd, str, len);
+    if (nbytes <= 0) {
+        /* errors already logged/handled */
+        free(str);
+        return NULL;
+    }
+    str[len] = '\0';
+
+    return str;
+}
+
 static int setup_server(void)
 {
     struct addrinfo hints;
@@ -375,7 +395,9 @@ static void send_error_message(int sock_fd, const char *msg)
     fsa_error(LOG_ERR, msg);
 
     int len, rv;
-    unsigned char *response = fsap_encode_rsp_error(msg, &len);
+    unsigned char *response =
+        fsap_encode_rsp_error((unsigned char *)msg, &len);
+
     if (response == NULL) {
         fsa_error(LOG_CRIT, "failed to encode error message");
         return;
@@ -388,6 +410,32 @@ static void send_error_message(int sock_fd, const char *msg)
         fsa_error(LOG_ERR, "failed to send response to client: %s",
                   strerror(errno));
     }
+}
+
+/* tell client to expect n more messages */
+static int send_expect_n(int sock_fd, int n)
+{
+    fsa_error(LOG_DEBUG, "telling client to expect %d more messages", n);
+
+    int len, rv;
+    unsigned char *msg = fsap_encode_rsp_expect_n(n, &len);
+    if (msg == NULL) {
+        fsa_error(LOG_CRIT, "failed to encode expect n message");
+        return -1;
+    }
+
+    rv = fsa_sendall(sock_fd, msg, &len);
+    free(msg); /* done with msg buffer */
+
+    if (rv == -1) {
+        fsa_error(LOG_CRIT, "failed to send response to client: %s",
+                  strerror(errno));
+    }
+    else {
+        fsa_error(LOG_DEBUG, "expect_n sent %d bytes", len);
+    }
+
+    return rv;
 }
 
 
@@ -451,24 +499,18 @@ static void handle_cmd_get_kb_info_all(int client_fd)
 /* get all information about a specific kb on this host, send to client */
 static void handle_cmd_get_kb_info(int client_fd, uint16_t datasize)
 {
-    int rv, len, nbytes;
+    int rv, len;
     fsa_kb_info *ki;
     unsigned char *response;
     unsigned char *kb_name;
 
-    /* datasize = num chars in kb name */
-    kb_name = (unsigned char *)malloc(datasize + 1);
-
-    /* get kb name from client */
-    nbytes = recv_from_client(client_fd, kb_name, datasize);
-    if (nbytes <= 0) {
+    kb_name = get_string_from_client(client_fd, datasize);
+    if (kb_name == NULL) {
         /* errors already logged/handled */
-        free(kb_name);
         return;
     }
-    kb_name[datasize] = '\0';
 
-    ki = fsab_get_local_kb_info((char *)kb_name);
+    ki = fsab_get_local_kb_info(kb_name);
     free(kb_name); /* done with kb_name */
     if (ki == NULL) {
         send_error_message(client_fd, "failed to get local kb info");
@@ -497,129 +539,137 @@ static void handle_cmd_get_kb_info(int client_fd, uint16_t datasize)
     fsa_error(LOG_DEBUG, "%d bytes sent to client", len);
 }
 
-
-/* start a stopped kb */
-static void handle_cmd_start_kb(int client_fd, uint16_t datasize)
-{
-    int rv, err, exit_val;
-    int result = -1;
-    char *msg;
-
-    /* datasize = num chars in kb name */
-    unsigned char *kb_name = (unsigned char *)malloc(datasize + 1);
-
-    /* get kb name from client */
-    rv = recv_from_client(client_fd, kb_name, datasize);
-    if (rv <= 0) {
-        /* errors already logged/handled */
-        free(kb_name);
-        return;
-    }
-    kb_name[datasize] = '\0';
-
-    rv = fsab_start_local_kb((char *)kb_name, &exit_val, &msg, &err);
-    free(kb_name);
-
-    if (rv == 0) {
-        result = 0;
-    }
-    else {
-        /* warnings/known errors */
-        switch (err) {
-            case ADM_ERR_KB_GET_INFO:       /* failed to check kb exists */
-            case ADM_ERR_KB_STATUS_RUNNING: /* kb already started */
-                result = err;
-                break;
-            default:
-                break;
-        }
-    }
-
-    if (result < 0) {
-        /* send error message to client */
-        send_error_message(client_fd, msg);
-        free(msg);
-        return;
-    }
-    else {
-        free(msg);
-    }
-    
-    /* encode message for client */
-    int len;
-    unsigned char *response = fsap_encode_rsp_start_kb(result, &len);
-
-    if (response == NULL) {
-        send_error_message(client_fd, "failed to encode result");
-        return;
-    }
-
-    fsa_error(LOG_DEBUG, "response size is %d bytes", len);
-
-    /* send entire response back to client */
-    rv = fsa_sendall(client_fd, response, &len);
-    free(response); /* done with response buffer */
-    if (rv == -1) {
-        fsa_error(LOG_ERR, "failed to send response to client: %s",
-                  strerror(errno));
-        return;
-    }
-
-    fsa_error(LOG_DEBUG, "%d bytes sent to client", len);
-}
-
-/* stop a running kb */
-static void handle_cmd_stop_kb(int client_fd, uint16_t datasize)
+static void start_or_stop_kb_all(int client_fd, int action)
 {
     int rv, err;
-    int result = -1;
+    int n_kbs = 0;
+
+    /* get all local kbs */
+    fsa_kb_info *ki = fsab_get_local_kb_info_all();
+    if (ki == NULL) {
+        send_error_message(client_fd, "unable to find any stores");
+        return;
+    }
+
+    /* count number of kbs */
+    for (fsa_kb_info *p = ki; p != NULL; p = p->next) {
+        n_kbs += 1;
+    }
+
+    /* tell client to expect a message for each */
+    rv = send_expect_n(client_fd, n_kbs);
+    if (rv == -1) {
+        /* failed to send message to client, so give up */
+        fsa_kb_info_free(ki);
+        return;
+    }
+
+    int exit_val; /* ignored for now */
+    unsigned char *msg = NULL; /* sent back to client */
+    int return_val; /* sent back to client */
+
+    int len; /* response length */
+    unsigned char *response = NULL; /* response buffer */
+
+    for (fsa_kb_info *p = ki; p != NULL; p = p->next) {
+        if (action == STOP_STORES) {
+            rv = fsab_stop_local_kb(p->name, &err);
+        }
+        else if (action == START_STORES) {
+            rv = fsab_start_local_kb(p->name, &exit_val, &msg, &err);
+        }
+
+        if (rv < 0) {
+            return_val = err;
+        }
+        else {
+            return_val = ADM_ERR_OK;
+        }
+
+        /* encode message for client */
+        if (action == STOP_STORES) {
+            response =
+                fsap_encode_rsp_stop_kb(return_val, p->name, msg, &len);
+        }
+        else if (action == START_STORES) {
+            response =
+                fsap_encode_rsp_start_kb(return_val, p->name, msg, &len);
+        }
+
+        if (msg != NULL) {
+            free(msg);
+            msg = NULL;
+        }
+
+        fsa_error(LOG_DEBUG, "response size is %d bytes", len);
+
+        /* send entire response back to client */
+        rv = fsa_sendall(client_fd, response, &len);
+        free(response); /* done with response buffer */
+        response = NULL;
+        if (rv == -1) {
+            fsa_error(LOG_ERR, "failed to send response to client: %s",
+                      strerror(errno));
+            continue;
+        }
+
+        fsa_error(LOG_DEBUG, "%d bytes sent to client", len);
+    }
+
+    fsa_kb_info_free(ki);
+}
+
+static void handle_cmd_stop_kb_all(int client_fd)
+{
+    start_or_stop_kb_all(client_fd, STOP_STORES);
+}
+
+static void handle_cmd_start_kb_all(int client_fd)
+{
+    start_or_stop_kb_all(client_fd, START_STORES);
+}
+
+/* start or stop a running kb */
+static void start_or_stop_kb(int client_fd, uint16_t datasize, int action)
+{
+    int rv, err;
+    unsigned char *msg = NULL;
+    int return_val; /* value to send back to client */
 
     /* datasize = num chars in kb name */
-    unsigned char *kb_name = (unsigned char *)malloc(datasize + 1);
-
-    /* get kb name from client */
-    rv = recv_from_client(client_fd, kb_name, datasize);
-    if (rv <= 0) {
+    unsigned char *kb_name = get_string_from_client(client_fd, datasize);
+    if (kb_name == NULL) {
         /* errors already logged/handled */
-        free(kb_name);
         return;
     }
-    kb_name[datasize] = '\0';
 
-    rv = fsab_stop_local_kb((char *)kb_name, &err);
-    if (rv == 0) {
-        result = 0;
+    if (action == STOP_STORES) {
+        rv = fsab_stop_local_kb(kb_name, &err);
+    }
+    else if (action == START_STORES) {
+        int exit_val; /* ignore command exit val for now */
+        rv = fsab_start_local_kb(kb_name, &exit_val, &msg, &err);
+    }
+
+    if (rv < 0) {
+        return_val = err;
     }
     else {
-        /* warnings/known errors */
-        switch (err) {
-            case ADM_ERR_KB_GET_INFO:
-            case ADM_ERR_KB_STATUS_STOPPED:
-            case ADM_ERR_KB_STATUS_UNKNOWN:
-                result = err;
-                break;
-            default:
-                break;
-        }
+        return_val = ADM_ERR_OK;
     }
 
-    free(kb_name);
-
-    if (result < 0) {
-        /* send error message to client */
-        send_error_message(client_fd,
-                           "server failed to kill 4s-backend process");
-        return;
-    }
-    
     /* encode message for client */
     int len;
-    unsigned char *response = fsap_encode_rsp_stop_kb(result, &len);
-
-    if (response == NULL) {
-        send_error_message(client_fd, "failed to encode result");
-        return;
+    unsigned char *response;
+    
+    if (action == STOP_STORES) {
+        response = fsap_encode_rsp_stop_kb(return_val, kb_name, msg, &len);
     }
+    else if (action == START_STORES) {
+        response = fsap_encode_rsp_start_kb(return_val, kb_name, msg, &len);
+    }
+    free(msg);
+    free(kb_name);
 
     fsa_error(LOG_DEBUG, "response size is %d bytes", len);
 
@@ -635,6 +685,15 @@ static void handle_cmd_stop_kb(int client_fd, uint16_t datasize)
     fsa_error(LOG_DEBUG, "%d bytes sent to client", len);
 }
 
+static void handle_cmd_stop_kb(int client_fd, uint16_t datasize)
+{
+    start_or_stop_kb(client_fd, datasize, STOP_STORES);
+}
+
+static void handle_cmd_start_kb(int client_fd, uint16_t datasize)
+{
+    start_or_stop_kb(client_fd, datasize, START_STORES);
+}
 
 /* receive header from client, work out what request they want */
 static void handle_client_data(int client_fd)
@@ -674,6 +733,12 @@ static void handle_client_data(int client_fd)
             break;
         case ADM_CMD_START_KB:
             handle_cmd_start_kb(client_fd, datasize);
+            break;
+        case ADM_CMD_STOP_KB_ALL:
+            handle_cmd_stop_kb_all(client_fd);
+            break;
+        case ADM_CMD_START_KB_ALL:
+            handle_cmd_start_kb_all(client_fd);
             break;
         default:
             fsa_error(LOG_ERR, "unknown client request");

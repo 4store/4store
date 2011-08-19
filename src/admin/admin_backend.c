@@ -37,17 +37,17 @@
 /* Read runtime.info and metadata.nt to fill in info for a kb.
  * Leave ipaddr unset, caller can set if needed.
  */
-int fsab_kb_info_init(fsa_kb_info *ki, const char *kb_name)
+int fsab_kb_info_init(fsa_kb_info *ki, const unsigned char *kb_name)
 {
     FILE *ri_file;
     int len, rv;
     char *path;
     fs_metadata *md;
 
-    ki->name = (unsigned char *)strdup(kb_name);
+    ki->name = (unsigned char *)strdup((char *)kb_name);
 
     /* alloc mem for string path to runtime.info */
-    len = (strlen(FS_RI_FILE)-2) + strlen(kb_name) + 1;
+    len = (strlen(FS_RI_FILE)-2) + strlen((char *)kb_name) + 1;
     path = (char *)malloc(len * sizeof(char));
     if (path == NULL) {
         errno = ENOMEM;
@@ -117,7 +117,7 @@ int fsab_kb_info_init(fsa_kb_info *ki, const char *kb_name)
     }
 
     /* pull data from metadata.nt */
-    md = fs_metadata_open(kb_name);
+    md = fs_metadata_open((char *)kb_name);
     if (md != NULL) {
         ki->num_segments =
             atoi(fs_metadata_get_string(md, FS_MD_SEGMENTS, "-1"));
@@ -147,7 +147,7 @@ int fsab_kb_info_init(fsa_kb_info *ki, const char *kb_name)
 
 /* get all local info about a kb. Uses errno to differentiate between
    returning NULL when there are no kbs, and NULL due to a read error */
-fsa_kb_info *fsab_get_local_kb_info(const char *kb_name)
+fsa_kb_info *fsab_get_local_kb_info(const unsigned char *kb_name)
 {
     int rv;
     fsa_kb_info *ki = fsa_kb_info_new();
@@ -188,7 +188,7 @@ fsa_kb_info *fsab_get_local_kb_info_all(void)
         }
 
         cur_ki = fsa_kb_info_new();
-        rv = fsab_kb_info_init(cur_ki, entry->d_name);
+        rv = fsab_kb_info_init(cur_ki, (unsigned char *)entry->d_name);
         if (rv == -1) {
             fsa_error(LOG_ERR, "failed to initialise kb info for %s",
                       entry->d_name);
@@ -208,13 +208,8 @@ fsa_kb_info *fsab_get_local_kb_info_all(void)
     return first_ki;
 }
 
-int fsab_stop_local_kb_all(void)
-{
-    return 1;
-}
-
 /* return 0 on success, -1 otherwise, and sets err */
-int fsab_stop_local_kb(const char *kb_name, int *err)
+int fsab_stop_local_kb(const unsigned char *kb_name, int *err)
 {
     fs_error(LOG_DEBUG, "stopping kb '%s'", kb_name);
 
@@ -228,17 +223,20 @@ int fsab_stop_local_kb(const char *kb_name, int *err)
     if (ki->status == KB_STATUS_STOPPED) {
         fs_error(LOG_INFO, "cannot stop %s, already stopped", kb_name);
         *err = ADM_ERR_KB_STATUS_STOPPED;
+        fsa_kb_info_free(ki);
         return -1;
     }
     else if (ki->status == KB_STATUS_UNKNOWN) {
         fs_error(LOG_ERR, "cannot stop %s, runtime status unknown", kb_name);
         *err = ADM_ERR_KB_STATUS_UNKNOWN;
+        fsa_kb_info_free(ki);
         return -1;
     }
 
     /* sanity check */
     if (ki->status != KB_STATUS_RUNNING) {
         *err = ADM_ERR_GENERIC;
+        fsa_kb_info_free(ki);
         return -1;
     }
 
@@ -246,6 +244,7 @@ int fsab_stop_local_kb(const char *kb_name, int *err)
     if (ki->pid == 0) {
         fs_error(LOG_ERR, "cannot stop %s, no pid found", kb_name);
         *err = ADM_ERR_GENERIC;
+        fsa_kb_info_free(ki);
         return -1;
     }
 
@@ -254,16 +253,18 @@ int fsab_stop_local_kb(const char *kb_name, int *err)
     if (rv != 0) {
         *err = ADM_ERR_SEE_ERRNO;
         return -1;
+        fsa_kb_info_free(ki);
     }
 
+    fsa_kb_info_free(ki);
     return 0;
 }
 
 /* Returns -1 on error, 0 on success. Sets exit_val to exit value of
    4-backend, sets output to the output from running the command, and sets
    err to the reason for error. */
-int fsab_start_local_kb(const char *kb_name, int *exit_val, char **output,
-                         int *err)
+int fsab_start_local_kb(const unsigned char *kb_name, int *exit_val,
+                        unsigned char **output, int *err)
 {
     fsa_error(LOG_DEBUG, "starting kb '%s'", kb_name);
 
@@ -287,7 +288,8 @@ int fsab_start_local_kb(const char *kb_name, int *exit_val, char **output,
     /* TODO get 4s-backend location from config */
     /* TODO check 4s-backend found in path */
     char *cmdname = "4s-backend";
-    char *cmd = (char *)malloc(strlen(cmdname) + 1 + strlen(kb_name) + 1);
+    int malloc_size = strlen(cmdname) + 1 + strlen((char *)kb_name) + 1;
+    char *cmd = (char *)malloc(malloc_size);
     sprintf(cmd, "%s %s", cmdname, kb_name);
 
     fsa_error(LOG_DEBUG, "running '%s'", cmd);
@@ -307,13 +309,13 @@ int fsab_start_local_kb(const char *kb_name, int *exit_val, char **output,
     while (fgets(line, 500, backend) != NULL) {
         if (*output == NULL) {
             size = strlen(line) + 1;
-            *output = (char *)malloc(size);
-            strcpy(*output, line);
+            *output = (unsigned char *)malloc(size);
+            strcpy((char *)*output, line);
         }
         else {
             size += strlen(line);
-            *output = (char *)realloc(*output, size);
-            strcat(*output, line);
+            *output = (unsigned char *)realloc(*output, size);
+            strcat((char *)*output, line);
         }
     }
 

@@ -32,6 +32,12 @@
 #define ADM_RSP_STOP_KB        10
 #define ADM_CMD_START_KB       11
 #define ADM_RSP_START_KB       12
+#define ADM_CMD_STOP_KB_ALL    13
+#define ADM_CMD_START_KB_ALL   14
+#define ADM_RSP_STOP_KB_ALL    15
+#define ADM_RSP_START_KB_ALL   16
+#define ADM_RSP_EXPECT_N      253
+#define ADM_RSP_ABORT_EXPECT  254
 #define ADM_RSP_ERROR         255
 
 /* Error codes */
@@ -102,6 +108,13 @@ typedef struct _fsa_node_addr {
     struct _fsa_node_addr *next;
 } fsa_node_addr;
 
+/* Holds server response about an action on kb */
+typedef struct _fsa_kb_response {
+    uint8_t return_val;
+    unsigned char *kb_name;
+    unsigned char *msg;
+} fsa_kb_response;
+
 /* KB info creation + debugging functions */
 fsa_kb_info *fsa_kb_info_new();
 void fsa_kb_info_free(fsa_kb_info *ki);
@@ -113,6 +126,10 @@ char *fsa_kb_info_status_to_string(int status);
 fsa_node_addr *fsa_node_addr_new(const char *host);
 void fsa_node_addr_free(fsa_node_addr *na);
 void fsa_node_addr_free_one(fsa_node_addr *na);
+
+/* kb response creation/free functions */
+fsa_kb_response *fsa_kb_response_new();
+void fsa_kb_response_free(fsa_kb_response *kbr);
 
 /* Config file reading */
 GKeyFile *fsa_get_config();
