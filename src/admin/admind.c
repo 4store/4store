@@ -381,6 +381,7 @@ static int setup_server(void)
     }
 
     /* add listener to master set */
+    fcntl(listener_fd, F_SETFD, FD_CLOEXEC);
     FD_SET(listener_fd, &master_read_fds);
 
     /* track largest file descriptor */
