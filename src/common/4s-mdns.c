@@ -347,7 +347,7 @@ void fsp_mdns_setup_backend (uint16_t port, const char *kb_name,
 {
     int usage = fsaf_get_admind_usage();
     if (usage == ADMIND_USAGE_SOLE) {
-        /* backend doens't need to register */
+        /* backend does not need to register */
         return;
     }
 
@@ -507,45 +507,83 @@ static void browse_reply
 
 void fsp_mdns_setup_frontend(fsp_link *link)
 {
-  DNSServiceRef ref;
+    int rv;
+    int usage = fsaf_get_admind_usage();
 
-  if (DNSServiceBrowse(&ref, 0, 0, SERVICE_TYPE, NULL, browse_reply, link) !=
-      kDNSServiceErr_NoError) {
-    fs_error(LOG_ERR, "failed to browse for "SERVICE_TYPE": %s",
-	     strerror(errno));
+    /* only use 4s-boss for lookups, don't even setup mdns */
+    if (usage == ADMIND_USAGE_SOLE) {
+        setup_frontend_from_admind(link);
+        return;
+    }
+
+    /* try 4s-boss, set up mdns if this fails */
+    if (usage == ADMIND_USAGE_DEFAULT) {
+        rv = setup_frontend_from_admind(link);
+        if (rv > 0) {
+            return;
+        }
+    }
+
+    /* usage should == FALLBACK/NONE/error, so try mdns next */
+
+    DNSServiceRef ref;
+
+    if (DNSServiceBrowse(&ref, 0, 0, SERVICE_TYPE, NULL, browse_reply, link) !=
+        kDNSServiceErr_NoError) {
+      fs_error(LOG_ERR, "failed to browse for "SERVICE_TYPE": %s",
+               strerror(errno));
+      return;
+    }
+
+    const int bfd = DNSServiceRefSockFD(ref);
+//printf("@@ bfd=%d\n", bfd);
+    fd_set browse_fds;
+    do {
+        FD_ZERO(&browse_fds);
+        FD_SET(bfd, &browse_fds);
+        struct timeval timeout = { .tv_sec = 2, .tv_usec = 0 };
+//printf("@@ select\n");
+        int sel = select(bfd+1, &browse_fds, NULL, NULL, &timeout);
+//printf("@@ done select\n");
+
+        /* if select fails and fallback set, try 4s-boss instead */
+        if (usage == ADMIND_USAGE_FALLBACK && sel != 1) {
+            rv = setup_frontend_from_admind(link);
+            if (rv > 0) {
+                /* success, so cleanup and return */
+                DNSServiceRefDeallocate(ref);
+                return;
+            }
+        }
+
+        if (sel == 1) {
+//printf("@@ got response\n");
+            if (DNSServiceProcessResult(ref) != kDNSServiceErr_NoError) {
+                /* if lookup fails and fallback set, try 4s-boss instead */
+                if (usage == ADMIND_USAGE_FALLBACK) {
+                    rv = setup_frontend_from_admind(link);
+                    if (rv > 0) {
+                        /* success, so cleanup and return */
+                        return;
+                    }
+                }
+                
+                fs_error(LOG_ERR, "failed to process result for "SERVICE_TYPE": %s",
+                strerror(errno));
+                return;
+            }
+//printf("@@ handled response\n");
+        } else if (sel == -1) {
+            fs_error(LOG_ERR, "select failed: %s", strerror(errno));
+        } else if (sel == 0) {
+            fs_error(LOG_INFO, "timed out waiting for mDNS response");
+        } else {
+            fs_error(LOG_ERR, "mDNS fallthrough case, sel = %d", sel);
+        }
+    } while (link->segments == 0 || found < link->segments);
+    DNSServiceRefDeallocate(ref);
 
     return;
-  }
-
-  const int bfd = DNSServiceRefSockFD(ref);
-//printf("@@ bfd=%d\n", bfd);
-  fd_set browse_fds;
-  do {
-    FD_ZERO(&browse_fds);
-    FD_SET(bfd, &browse_fds);
-    struct timeval timeout = { .tv_sec = 2, .tv_usec = 0 };
-//printf("@@ select\n");
-    int sel = select(bfd+1, &browse_fds, NULL, NULL, &timeout);
-//printf("@@ done select\n");
-    if (sel == 1) {
-//printf("@@ got response\n");
-      if (DNSServiceProcessResult(ref) != kDNSServiceErr_NoError) {
-        fs_error(LOG_ERR, "failed to process result for "SERVICE_TYPE": %s",
-             strerror(errno));
-        return;
-      }
-//printf("@@ handled response\n");
-    } else if (sel == -1) {
-      fs_error(LOG_ERR, "select failed: %s", strerror(errno));
-    } else if (sel == 0) {
-      fs_error(LOG_INFO, "timed out waiting for mDNS response");
-    } else {
-      fs_error(LOG_ERR, "mDNS fallthrough case, sel = %d", sel);
-    }
-  } while (link->segments == 0 || found < link->segments);
-  DNSServiceRefDeallocate(ref);
-
-  return;
 }
 
 int fsp_mdns_retry_frontend (fsp_link *link, int msecs)
@@ -560,6 +598,12 @@ void fsp_mdns_cleanup_frontend (fsp_link *link)
 
 void fsp_mdns_setup_backend(uint16_t port, const char *kb_name, int segments)
 {
+    int usage = fsaf_get_admind_usage();
+    if (usage == ADMIND_USAGE_SOLE) {
+        /* backend does not need to register */
+        return;
+    }
+
   char host_name[HOST_NAME_MAX + 1];
   gethostname(host_name, HOST_NAME_MAX);
 
