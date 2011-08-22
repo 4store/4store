@@ -319,17 +319,22 @@ static void print_help(void)
         }
         else if (strcmp(argv[i], "stop-stores") == 0) {
             printf(
-"Usage: %s %s <store_name>\n"
-"Stop 4s-backend processes for a given store across all nodes of the \n"
-"cluster.\n",
+"Usage: %s %s <store_names>...\n"
+"       %s %s -a\n"
+"Stop 4s-backend processes for given stores across all nodes of the \n"
+"cluster.  Either pass in a space separated list of store names, or use\n"
+"the '-a' argument to stop all stores.\n",
+                program_invocation_short_name, argv[i],
                 program_invocation_short_name, argv[i]
             );
         }
         else if (strcmp(argv[i], "start-stores") == 0) {
             printf(
-"Usage: %s %s <store_name>\n"
+"Usage: %s %s <store_names>...\n"
+"       %s %s -a\n"
 "Start 4s-backend processes for a given store across all nodes of the \n"
 "cluster.\n",
+                program_invocation_short_name, argv[i],
                 program_invocation_short_name, argv[i]
             );
         }

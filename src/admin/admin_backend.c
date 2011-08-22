@@ -285,9 +285,8 @@ int fsab_start_local_kb(const unsigned char *kb_name, int *exit_val,
         return -1;
     }
 
-    /* TODO get 4s-backend location from config */
     /* TODO check 4s-backend found in path */
-    char *cmdname = "4s-backend";
+    char *cmdname = FS_BIN_DIR "/4s-backend";
     int malloc_size = strlen(cmdname) + 1 + strlen((char *)kb_name) + 1;
     char *cmd = (char *)malloc(malloc_size);
     sprintf(cmd, "%s %s", cmdname, kb_name);
