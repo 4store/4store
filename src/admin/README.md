@@ -166,13 +166,17 @@ For a full listing of command line options available for 4s-boss and 4s-admin,
 and for a full list of 4s-admin commands, use:
 
     4s-boss --help
-        and
+
+and
+
     4s-admin --help
 
 For help on a specific 4s-admin command, use:
 
     4s-admin help <command>
-        e.g.
+
+e.g.
+
     4s-admin help start-stores
 
 
@@ -205,7 +209,9 @@ default, ensure that firewall rules are in place to allow this.
 To enable full debugging output when troubleshooting, use:
 
     4s-admin --debug <command> [<command options>]
-        e.g.
+
+e.g.
+
     4s-admin --debug stop-stores -a
 
 
@@ -217,7 +223,7 @@ If you have any problems using 4s-boss or 4s-admin, you can find help at:
 
 * [4store mailing list][2]
 * [#4store on freenode IRC][3]
-* email me - [Dave Challis <suicas@gmail.com>][4]
+* email me - Dave Challis <suicas@gmail.com>
 
 Send any bug reports/issues to:
 
@@ -227,4 +233,3 @@ Send any bug reports/issues to:
 [1]: http://4store.org/trac/wiki/CreateDatabase
 [2]: http://groups.google.com/group/4store-support
 [3]: irc://irc.freenode.net/#4store
-[4]: mailto:suicas@gmail.com
