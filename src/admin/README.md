@@ -41,12 +41,15 @@ Quick Start
 Run 4s-boss. This will start the daemon running on port 6733 by default.
 
 To stop the 4s-boss daemon, use:
+
     killall 4s-boss
+
 or
+
     kill <4s-boss pid>
 
 Stores can be started/stopped by 4s-admin (see next section), but they will
-need to be created first, but using [4s-backend-setup][1].
+need to be created first, using [4s-backend-setup][1].
 
 ### On master node:
 
