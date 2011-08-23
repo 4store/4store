@@ -1,5 +1,5 @@
 function uriescape {
-	escaped=`echo "$1" | sed 's/ /%20/g; s/\*/\\*/g; s/{/\\\{/g; s/}/\\\}/g; s/\?/%3f/g; s/&/%38/g; s/+/%2b/g; s/"/\\"/g; s/\[/\\\[/g; s/\]/\\\]/g'`
+	escaped=`echo "$1" | sed 's/ /%20/g; s/#/%34/g; s/\*/\\*/g; s/{/\\\{/g; s/}/\\\}/g; s/\?/%3f/g; s/&/%38/g; s/+/%2b/g; s/"/\\"/g; s/\[/\\\[/g; s/\]/\\\]/g'`
 }
 
 function postescape {
