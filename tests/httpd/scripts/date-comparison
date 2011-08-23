@@ -1,0 +1,18 @@
+#!/bin/bash
+
+source sparql.sh
+
+put "$EPR" ../../data/dates.ttl 'text/turtle' 'http://example.com/dates.ttl'
+
+sparql "$EPR" "\
+SELECT ?o ?v \
+WHERE { GRAPH <http://example.com/dates.ttl> \
+{ ?o <test:date> ?v }} \
+ORDER BY ?v"
+
+sparql "$EPR" 'BASE <http://example.com/> SELECT * WHERE { GRAPH <http://example.com/dates.ttl> { <a> <test:date> ?date1 . <h> <test:date> ?date2 .  FILTER ( ?date1 < ?date2 ) }}'
+sparql "$EPR" 'BASE <http://example.com/> ASK WHERE { GRAPH <http://example.com/dates.ttl> { <g> <test:date> ?date1.  <h> <test:date> ?date2.  FILTER ( ?date1 = ?date2 ) .}}'
+sparql "$EPR" 'BASE <http://example.com/> PREFIX xsd: <http://www.w3.org/2001/XMLSchema#> ASK WHERE { GRAPH <http://example.com/dates.ttl> { <a> <test:date> ?date1.  <h> <test:date> ?date2.  FILTER ( ?date1 <= ?date2 ) .}}'
+sparql "$EPR" 'BASE <http://example.com/> PREFIX xsd: <http://www.w3.org/2001/XMLSchema#dateTime> SELECT * WHERE { GRAPH <http://example.com/dates.ttl> { <a> <test:date> ?date1 . FILTER (?date1 < "2010-03-09T00:00:01Z"^^xsd:dateTime) } }'
+
+delete "$EPR" 'http://example.com/dates.ttl'
