@@ -1,5 +1,5 @@
 function uriescape {
-	escaped=`echo "$1" | tr -d '\012\015' | sed 's/ /%20/g; s/#/%34/g; s/\*/\\*/g; s/{/\\\{/g; s/}/\\\}/g; s/\?/%3f/g; s/&/%38/g; s/+/%2b/g; s/"/\\"/g; s/\[/\\\[/g; s/\]/\\\]/g'`
+	escaped=`echo "$1" | tr '\012\015' '  ' | sed 's/ /%20/g; s/#/%23/g; s/\*/\\*/g; s/{/\\\{/g; s/}/\\\}/g; s/\?/%3f/g; s/&/%38/g; s/+/%2b/g; s/"/\\"/g; s/\[/\\\[/g; s/\]/\\\]/g; s/%20$//'`
 }
 
 function postescape {
@@ -10,7 +10,6 @@ function postescape {
 function sparql {
 	uriescape "$2";
 	echo "Query: $2"
-	echo "Query: $escaped"
 	curl -s -H "Accept: text/plain" "$1/sparql/?query=$escaped"
 }
 
