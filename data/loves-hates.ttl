@@ -1,0 +1,6 @@
+@prefix : <http://example.com/> .
+
+:John  :loves :sushi .
+:John  :loves :Mary .
+:Frank :hates :sushi .
+:John  :hates :olives .
