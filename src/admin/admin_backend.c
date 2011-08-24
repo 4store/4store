@@ -282,8 +282,10 @@ int fsab_start_local_kb(const unsigned char *kb_name, int *exit_val,
     if (ki->status == KB_STATUS_RUNNING) {
         fs_error(LOG_INFO, "cannot start %s, already started", kb_name);
         *err = ADM_ERR_KB_STATUS_RUNNING;
+        fsa_kb_info_free(ki);
         return -1;
     }
+    fsa_kb_info_free(ki);
 
     /* TODO check 4s-backend found in path */
     char *cmdname = FS_BIN_DIR "/4s-backend";
