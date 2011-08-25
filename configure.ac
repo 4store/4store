@@ -63,7 +63,7 @@ PKG_CHECK_MODULES([AVAHI], avahi-glib, have_avahi=yes, have_avahi=no)
 if test $have_avahi = no; then
 	AC_CHECK_FUNC([DNSServiceRegister], [have_dns_sd=yes], [have_dns_sd=no])
 	if test $have_dns_sd = no; then
-		AC_MSG_WARN([No mDNS library found (avahi or dns-sd), cluster support disabled])
+		AC_MSG_WARN([No mDNS library found (avahi or dns-sd), cluster support available through 4s-boss])
 	else
 		AC_DEFINE([USE_DNS_SD], [], [Defined if the dns-sd library is available])
 	fi
@@ -127,7 +127,7 @@ echo
 echo "Configuration status:"
 
 if test "X$have_avahi" = Xno -a "X$have_dns_sd" = Xno; then
-	AC_MSG_WARN("No mDNS libraries are available, you will need to run 4s-boss on each storage node")
+	AC_MSG_WARN("No mDNS libraries are available, cluster support available through 4s-boss")
 	AC_MSG_WARN("Install Avahi (-glib and -client) to get mDNS support on Linux")
 else
 	echo "   Found mDNS libraries, cluster suport enabled"
