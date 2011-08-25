@@ -393,7 +393,7 @@ static int setup_server(void)
 /* convenience function - logs error, and sends it to client */
 static void send_error_message(int sock_fd, const char *msg)
 {
-    fsa_error(LOG_ERR, msg);
+    fsa_error(LOG_ERR, "%s", msg);
 
     int len, rv;
     unsigned char *response =
@@ -647,7 +647,8 @@ static void start_or_stop_kb(int client_fd, uint16_t datasize, int action)
     if (action == STOP_STORES) {
         rv = fsab_stop_local_kb(kb_name, &err);
     }
-    else if (action == START_STORES) {
+    else {
+        /* action == START_STORES */
         int exit_val; /* ignore command exit val for now */
         rv = fsab_start_local_kb(kb_name, &exit_val, &msg, &err);
     }
@@ -666,7 +667,8 @@ static void start_or_stop_kb(int client_fd, uint16_t datasize, int action)
     if (action == STOP_STORES) {
         response = fsap_encode_rsp_stop_kb(return_val, kb_name, msg, &len);
     }
-    else if (action == START_STORES) {
+    else {
+        /* action == START_STORES */
         response = fsap_encode_rsp_start_kb(return_val, kb_name, msg, &len);
     }
     free(msg);
