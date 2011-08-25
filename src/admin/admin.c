@@ -275,8 +275,7 @@ static void print_help(void)
 "    --debug   Output full debugging information\n"
 "\n"
 "Common commands (use `%s help <command>' for more info)\n"
-"  list-nodes   List hostname:port of all known storage nodes\n"
-"  check-nodes  Check whether storage nodes are reachable\n"
+"  list-nodes   List hostname:port and status of all known storage nodes\n"
 "  list-stores  List stores, along with the nodes they're hosted on\n"
 "  stop-stores  Stop a store backend process on all nodes\n"
 "  start-stores Start a store backend process on all nodes\n"
@@ -297,15 +296,8 @@ static void print_help(void)
         if (strcmp(argv[i], "list-nodes") == 0) {
             printf(
 "Usage: %s %s\n"
-"List names of all storage nodes known\n",
-                program_invocation_short_name, argv[i]
-            );
-        }
-        else if (strcmp(argv[i], "check-nodes") == 0) {
-            printf(
-"Usage: %s %s\n"
-"Check that the admin daemon on each storage node is reachable over the \n"
-"network. Returns 0 if all nodes are reachable, non-zero if not.\n",
+"List names of all storage nodes known, and checks whether or not each\n"
+"node is reachable over the network.\n",
                 program_invocation_short_name, argv[i]
             );
         }
@@ -320,7 +312,7 @@ static void print_help(void)
         else if (strcmp(argv[i], "stop-stores") == 0) {
             printf(
 "Usage: %s %s <store_names>...\n"
-"       %s %s -a\n"
+"       %s %s -a|--all\n"
 "Stop 4s-backend processes for given stores across all nodes of the \n"
 "cluster.  Either pass in a space separated list of store names, or use\n"
 "the '-a' argument to stop all stores.\n",
@@ -331,9 +323,10 @@ static void print_help(void)
         else if (strcmp(argv[i], "start-stores") == 0) {
             printf(
 "Usage: %s %s <store_names>...\n"
-"       %s %s -a\n"
-"Start 4s-backend processes for a given store across all nodes of the \n"
-"cluster.\n",
+"       %s %s -a|--all\n"
+"Start 4s-backend processes for given stores across all nodes of the \n"
+"cluster.  Either pass in a space separated list of store names, or use\n"
+"the '-a' argument to start all stores.\n",
                 program_invocation_short_name, argv[i],
                 program_invocation_short_name, argv[i]
             );
@@ -450,7 +443,8 @@ static int start_or_stop_stores(int action)
         return 1;
     }
 
-    if (strcmp("-a", argv[args_index]) == 0) {
+    if (strcmp("-a", argv[args_index]) == 0
+        || strcmp("--all", argv[args_index]) == 0) {
         all = 1; /* all stores */
     }
     else {
@@ -864,7 +858,7 @@ static int cmd_list_kbs(void)
 }
 
 /* Check whether admin daemon on all nodes is reachable */
-static int cmd_check_nodes(void)
+static int cmd_list_nodes(void)
 {
     /* this command has no arguments, exit if any are found */
     if (args_index >= 0) {
@@ -962,69 +956,6 @@ static int cmd_check_nodes(void)
     return all_nodes_ok;
 }
 
-/* List all storage nodes known, probably from /etc/4store.conf */
-static int cmd_list_nodes(void)
-{
-    /* this command has no arguments, exit if any are found */
-    if (args_index >= 0) {
-        print_invalid_arg();
-        return 1;
-    }
-
-    fsa_error(LOG_DEBUG, "Attempting to read config file at %s",
-              FS_CONFIG_FILE);
-
-    /* attempt to read /etc/4store.conf */
-    GKeyFile *config = fsa_get_config();
-
-    /* assume localhost if no config file found */
-    if (config == NULL) {
-        fsa_error(LOG_WARNING,
-                  "Unable to read config file at '%s', assuming localhost\n",
-                  FS_CONFIG_FILE); 
-        printf("0 localhost:%d\n", FS_ADMIND_PORT);
-        return 0;
-    }
-
-    fsa_error(LOG_DEBUG, "Looking for node config in %s", FS_CONFIG_FILE);
-    fsa_node_addr *nodes = fsa_get_node_list(config);
-
-    /* if no 'nodes = host1:port;host2:port' entry, assume localhost */
-    if (nodes == NULL) {
-        int default_port = fsa_get_admind_port(config);
-        fsa_config_free(config);
-
-        fsa_error(LOG_WARNING,
-                  "No nodes found in '%s', assuming localhost\n",
-                  FS_CONFIG_FILE); 
-        printf("0 localhost:%d\n", default_port);
-        return 0;
-    }
-
-    /* print list of storage nodes */
-    fsa_node_addr *p;
-    int node_num = 0;
-    int n_nodes = 0;
-
-    /* loop through once to get count */
-    for (p = nodes; p != NULL; p = p->next) {
-        n_nodes += 1;
-    }
-
-    fsa_error(LOG_DEBUG, "%d nodes to print", n_nodes);
-
-    /* loop through again to print each entry */
-    for (p = nodes; p != NULL; p = p->next) {
-        printf("%-*d %s:%d\n", int_len(n_nodes), node_num, p->host, p->port);
-        node_num += 1;
-    }
-
-    fsa_node_addr_free(nodes);
-    fsa_config_free(config);
-
-    return 0;
-}
-
 static int handle_command(void)
 {
     if (cmd_index < 0) {
@@ -1036,9 +967,6 @@ static int handle_command(void)
 
     if (strcmp(argv[cmd_index], "list-nodes") == 0) {
         return cmd_list_nodes();
-    }
-    else if (strcmp(argv[cmd_index], "check-nodes") == 0) {
-        return cmd_check_nodes();
     }
     else if (strcmp(argv[cmd_index], "list-stores") == 0) {
         return cmd_list_kbs();
