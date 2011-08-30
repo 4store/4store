@@ -26,6 +26,7 @@
 #include <dirent.h>
 #include <libgen.h>
 #include <errno.h>
+#include <signal.h>
 #include <sys/stat.h>
 
 #include <sys/select.h>
@@ -270,6 +271,26 @@ static void daemonize(void)
     setlogmask(LOG_UPTO(fsa_log_level));
 }
 
+static void signal_handler(int sig)
+{
+    fsa_error(LOG_INFO, "Received %s (%d) signal", strsignal(sig), sig);
+
+    switch (sig) {
+        case SIGTERM:
+            FD_CLR(listener_fd, &master_read_fds);
+            close(listener_fd);
+            fsa_error(LOG_INFO, "%s shutdown cleanly",
+                      program_invocation_short_name);
+            fsp_syslog_disable();
+            exit(EXIT_SUCCESS);
+            break;
+        default:
+            fsa_error(LOG_DEBUG, "Signal %s (%d) unhandled",
+                      strsignal(sig), sig);
+            break;
+    }
+}
+
 /* receive data from client, clear from master fd set on error/hangup */
 static int recv_from_client(int client_fd, unsigned char *buf, int len)
 {
@@ -386,6 +407,9 @@ static int setup_server(void)
 
     /* track largest file descriptor */
     fd_max = listener_fd;
+
+    /* set up signal handlers */
+    signal(SIGTERM, signal_handler);
 
     return 0;
 }
