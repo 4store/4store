@@ -125,6 +125,7 @@ int fsab_kb_info_init(fsa_kb_info *ki, const unsigned char *kb_name)
             atoi(fs_metadata_get_string(md, FS_MD_SEGMENTS, "-1"));
 
         fs_rid_vector *vec = fs_metadata_get_int_vector(md, FS_MD_SEGMENT_P);
+        fs_rid_vector_sort(vec);
 
         /* segment ID and max segments should be 256 */
         ki->p_segments_len = (uint8_t)vec->length;
