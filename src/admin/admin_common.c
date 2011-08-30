@@ -158,9 +158,15 @@ void fsa_node_addr_free_one(fsa_node_addr *na)
     free(na);
 }
 
-/* Get list of storage nodes admind host/ports from /etc/4store.conf */
+/* Get list of storage nodes admind host/ports from /etc/4store.conf, default
+   to localhost */
 fsa_node_addr *fsa_get_node_list(GKeyFile *config_file)
 {
+    fsa_node_addr *first_na = NULL;
+    fsa_node_addr *na = NULL;
+
+    int default_port = fsa_get_admind_port(config_file);
+
     gsize len;
     GError *err = NULL;
     gchar **nodes =
@@ -168,14 +174,13 @@ fsa_node_addr *fsa_get_node_list(GKeyFile *config_file)
 
     if (nodes == NULL) {
         g_error_free(err);
-        return NULL;
+        first_na = fsa_node_addr_new("localhost");
+        first_na->port = default_port;
+        return first_na;
     }
 
-    int default_port = fsa_get_admind_port(config_file);
     gchar *cur;
     char *tok;
-    fsa_node_addr *first_na = NULL;
-    fsa_node_addr *na = NULL;
 
     /* build list in reverse order to keep string order from conf */    
     for (int i = len-1; i >= 0; i--) {
