@@ -276,6 +276,7 @@ static void signal_handler(int sig)
     fsa_error(LOG_INFO, "Received %s (%d) signal", strsignal(sig), sig);
 
     switch (sig) {
+        case SIGINT:
         case SIGTERM:
             FD_CLR(listener_fd, &master_read_fds);
             close(listener_fd);
@@ -410,6 +411,7 @@ static int setup_server(void)
 
     /* set up signal handlers */
     signal(SIGTERM, signal_handler);
+    signal(SIGINT, signal_handler);
 
     return 0;
 }
