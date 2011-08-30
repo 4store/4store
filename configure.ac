@@ -28,6 +28,14 @@ AC_ARG_WITH([storage_path],
 FS_STORE_ROOT="$with_storage_path"
 AC_SUBST(FS_STORE_ROOT)
 
+AC_ARG_WITH([config_file],
+	[AS_HELP_STRING([--with-config-file=PATH],
+	                [set path and filename of runtime configuration file default=/etc/4store.conf])],
+	[],
+	[with_config_file=/etc/4store.conf])
+FS_CONFIG_FILE="$with_config_file"
+AC_SUBST(FS_CONFIG_FILE)
+
 FS_INSERT_DEDUP=0
 AC_ARG_ENABLE([dedup-insert],
 	[AS_HELP_STRING([--enable-dedup-insert],
