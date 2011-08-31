@@ -186,15 +186,42 @@ fsa_node_addr *fsa_get_node_list(GKeyFile *config_file)
     for (int i = len-1; i >= 0; i--) {
         cur = nodes[i];
 
-        tok = strtok(cur, ":");
-        na = fsa_node_addr_new(tok);
+        if (cur[0] == '[') {
+            int cur_len = strlen(cur);
+            int start = 1;
+            int end = 1;
 
-        tok = strtok(NULL, ":");
-        if (tok != NULL) {
-            na->port = atoi(tok);
+            while (cur[end] != ']' && end < cur_len) {
+                end += 1;
+            }
+
+            char *v6addr = (char *)malloc(end - start + 1);
+            strncpy(v6addr, &cur[start], end - start);
+            v6addr[end - start] = '\0';
+
+            na = fsa_node_addr_new(v6addr);
+            free(v6addr);
+
+            end += 1;
+            if (end >= cur_len || cur[end] != ':') {
+                na->port = default_port;
+            }
+            else {
+                na->port = atoi(&cur[end+1]);
+            }
         }
         else {
-            na->port = default_port;
+            /* treat as v4 addr or hostname */
+            tok = strtok(cur, ":");
+            na = fsa_node_addr_new(tok);
+
+            tok = strtok(NULL, ":");
+            if (tok != NULL) {
+                na->port = atoi(tok);
+            }
+            else {
+                na->port = default_port;
+            }
         }
 
         na->next = first_na;

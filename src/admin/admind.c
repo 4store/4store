@@ -66,7 +66,7 @@ static char *progname = NULL;
 static fd_set master_read_fds;
 static fd_set read_fds;
 static int fd_max;
-static int listener_fd;
+static int listener_fds[2]; /* 0 -> ipv4, 1 -> ipv6 */
 /***** End of Server State *****/
 
 static void print_usage(int listhelp) {
@@ -278,8 +278,12 @@ static void signal_handler(int sig)
     switch (sig) {
         case SIGINT:
         case SIGTERM:
-            FD_CLR(listener_fd, &master_read_fds);
-            close(listener_fd);
+            for (int i = 0; i < sizeof(listener_fds); i++) {
+                if (listener_fds[i] > -1) {
+                    FD_CLR(listener_fds[i], &master_read_fds);
+                    close(listener_fds[i]);
+                }
+            }
             fsa_error(LOG_INFO, "%s shutdown cleanly",
                       program_invocation_short_name);
             fsp_syslog_disable();
@@ -340,6 +344,9 @@ static int setup_server(void)
     int rv;
     int yes = 1;
 
+    listener_fds[0] = -1;
+    listener_fds[1] = -1;
+
     /* zero global and local data structures */
     FD_ZERO(&master_read_fds);
     FD_ZERO(&read_fds);
@@ -357,57 +364,83 @@ static int setup_server(void)
     }
 
     /* loop until we can bind to a socket */
+    int i;
     for (p = ai; p != NULL; p = p->ai_next) {
-        listener_fd = socket(p->ai_family, p->ai_socktype, p->ai_protocol);
-        if (listener_fd == -1) {
+        if (p->ai_family == AF_INET) {
+            i = 0; /* v4 index */
+        }
+        else {
+            i = 1; /* v6 index */
+        }
+
+        if (listener_fds[i] > -1) {
+            /* listener for this protocol already set */
+            continue;
+        }
+
+        listener_fds[i] = socket(p->ai_family, p->ai_socktype, p->ai_protocol);
+        if (listener_fds[i] == -1) {
             fsa_error(LOG_DEBUG, "socket failed: %s", strerror(errno));
             continue;
         }
 
         /* Get rid of address in use error, ignore errors */
-        rv = setsockopt(listener_fd, SOL_SOCKET, SO_REUSEADDR,
+        rv = setsockopt(listener_fds[i], SOL_SOCKET, SO_REUSEADDR,
                         &yes, sizeof(int));
         if (rv == -1) {
             fsa_error(LOG_WARNING, "setsockopt SO_REUSEADDR failed: %s",
                       strerror(errno));
         }
 
+        if (p->ai_family == AF_INET6) {
+            rv = setsockopt(listener_fds[i], IPPROTO_IPV6, IPV6_V6ONLY,
+                            &yes, sizeof(int));
+            if (rv == -1) {
+                fsa_error(LOG_WARNING, "setsockopt IPPROTO_IPV6 failed: %s",
+                          strerror(errno));
+            }
+        }
+
         /* attempt to bind to socket */
-        rv = bind(listener_fd, p->ai_addr, p->ai_addrlen);
+        rv = bind(listener_fds[i], p->ai_addr, p->ai_addrlen);
         if (rv == -1) {
             fsa_error(LOG_DEBUG, "server socket bind failed: %s",
                       strerror(errno));
-            close(listener_fd);
+            close(listener_fds[i]);
+            listener_fds[i] = -1;
             continue;
         }
-
-        /* found something to bind to, so break out of loop */
         fsa_error(LOG_DEBUG, "socket bind successful");
-        break;
+
+        /* start listening on bound socket */
+        rv = listen(listener_fds[i], 5);
+        if (rv == -1) {
+            fsa_error(LOG_ERR,
+                      "failed to listen on socket: %s", strerror(errno));
+            close(listener_fds[i]);
+            listener_fds[i] = -1;
+            continue;
+        }
+        fsa_error(LOG_DEBUG, "socket listen successful");
+
+        /* add listener to master set */
+        fcntl(listener_fds[i], F_SETFD, FD_CLOEXEC);
+        FD_SET(listener_fds[i], &master_read_fds);
+
+        /* track largest file descriptor */
+        if (listener_fds[i] > fd_max) {
+            fd_max = listener_fds[i];
+        }
     }
 
     /* done with addrinfo now */
     freeaddrinfo(ai);
 
-    /* if NULL, it means we failed to bind to anything */
-    if (p == NULL) {
-        fsa_error(LOG_ERR, "failed to bind to any socket");
+    /* we failed to listen on anything */
+    if (listener_fds[0] < 0 && listener_fds[1] < 0) {
+        fsa_error(LOG_ERR, "failed to listen to any socket");
         return -1;
     }
-
-    /* start listening on bound socket */
-    rv = listen(listener_fd, 5);
-    if (rv == -1) {
-        fsa_error(LOG_ERR, "failed to listen on socket: %s", strerror(errno));
-        return -1;
-    }
-
-    /* add listener to master set */
-    fcntl(listener_fd, F_SETFD, FD_CLOEXEC);
-    FD_SET(listener_fd, &master_read_fds);
-
-    /* track largest file descriptor */
-    fd_max = listener_fd;
 
     /* set up signal handlers */
     signal(SIGTERM, signal_handler);
@@ -467,13 +500,15 @@ static int send_expect_n(int sock_fd, int n)
 
 
 /* accept new client connection, and add to master read fd set */
-static void handle_new_connection(void)
+static void handle_new_connection(int l_index)
 {
     struct sockaddr_storage remote_addr;
     socklen_t addr_len = sizeof(remote_addr);
     int new_fd;
 
-    new_fd = accept(listener_fd, (struct sockaddr *)&remote_addr, &addr_len);
+    new_fd = accept(listener_fds[l_index],
+                    (struct sockaddr *)&remote_addr,
+                    &addr_len);
     if (new_fd == -1) {
         fsa_error(LOG_ERR, "accept failed: %s", strerror(errno));
         return;
@@ -796,9 +831,13 @@ static int server_loop(void)
         /* loop through all fds, check if any ready to be read */
         for (fd = 0; fd <= fd_max; fd++) {
             if (FD_ISSET(fd, &read_fds)) {
-                if (fd == listener_fd) {
-                    /* new client is connecting */
-                    handle_new_connection(); 
+                if (fd == listener_fds[0]) {
+                    /* new ipv4 client */
+                    handle_new_connection(0); 
+                }
+                else if (fd == listener_fds[1]) {
+                    /* new ipv6 client */
+                    handle_new_connection(1); 
                 }
                 else {
                     /* client has data for us */
