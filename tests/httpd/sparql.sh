@@ -6,11 +6,11 @@ function postescape {
 	escaped=`echo "$1" | sed 's/ /%20/g; s/\*/\\*/g; s/\?/%3f/g; s/&/%38/g; s/+/%2b/g;'`
 }
 
-# usage: sparql $endpoint $query
+# usage: sparql $endpoint $query $extra_cgi
 function sparql {
 	uriescape "$2";
 	echo "Query: $2"
-	curl -s -H "Accept: text/plain" "$1/sparql/?query=$escaped"
+	curl -s -H "Accept: text/plain" "$1/sparql/?query=${escaped}$3"
 }
 
 # usage: update $endpoint $update
