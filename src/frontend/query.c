@@ -1887,8 +1887,10 @@ static fs_rid const_literal_to_rid(fs_query *q, rasqal_literal *l, fs_rid *attr)
 	    return fs_hash_literal(l->value.integer ?
 			"true" : "false", *attr);
 	case RASQAL_LITERAL_INTEGER:
+        *attr = fs_c.xsd_integer;
+	    return fs_hash_literal((char *)l->string, *attr);
 	case RASQAL_LITERAL_INTEGER_SUBTYPE:
-            *attr = fs_c.xsd_integer;
+            *attr = fs_c.xsd_int;
 	    return fs_hash_literal((char *)l->string, *attr);
 	case RASQAL_LITERAL_DOUBLE:
             *attr = fs_c.xsd_double;
@@ -1996,6 +1998,11 @@ int fs_bind_slot(fs_query *q, int block, fs_binding *b,
 			"true" : "false", fs_c.xsd_boolean));
 	    break;
 	case RASQAL_LITERAL_INTEGER_SUBTYPE:
+	    if (!lit_allowed) {
+		return 1;
+	    }
+	    fs_rid_vector_append(v, fs_hash_literal((char *)l->string, fs_c.xsd_int));
+	    break;
 	case RASQAL_LITERAL_INTEGER:
 	    if (!lit_allowed) {
 		return 1;
