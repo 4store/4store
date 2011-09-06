@@ -49,6 +49,8 @@ static int setup_frontend_from_admind(fsp_link *link)
             n_backends += 1;
         }
     }
+
+    fsa_kb_info_free(ki);
     return n_backends;
 }
 

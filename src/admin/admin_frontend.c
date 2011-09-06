@@ -176,6 +176,7 @@ fsa_kb_info *fsaf_fetch_kb_info(const unsigned char *kb_name,
                                 fsa_node_addr *nodes)
 {
     fsa_node_addr *cur_node;
+    int free_nodes = 0; /* free nodes if they werem't passed to function */
 
     /* if no nodes given, get all nodes from config */
     if (nodes == NULL) {
@@ -183,6 +184,7 @@ fsa_kb_info *fsaf_fetch_kb_info(const unsigned char *kb_name,
         GKeyFile *conf = fsa_get_config();
         nodes = fsa_get_node_list(conf);
         fsa_config_free(conf);
+        free_nodes = 1;
     }
 
     unsigned char *buf;
@@ -335,6 +337,9 @@ fsa_kb_info *fsaf_fetch_kb_info(const unsigned char *kb_name,
     }
 
     free(cmd_pkt);
+    if (free_nodes) {
+        fsa_node_addr_free(nodes);
+    }
 
     return ki_list;
 }
