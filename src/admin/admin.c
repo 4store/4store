@@ -909,7 +909,7 @@ static int cmd_list_nodes(void)
 
     /* printing/output related vars */
     int all_nodes_ok = 0;
-    int hostlen = 0;
+    int hostlen = 13;
     int len;
     int node_num = 0;
     int n_nodes = 0;
@@ -957,6 +957,17 @@ static int cmd_list_nodes(void)
     }
     buf = (char *)malloc(hostlen + 1);
 
+    int n_nodes_len = int_len(n_nodes);
+    if (n_nodes_len < 11) {
+        n_nodes_len = 11;
+    }
+
+    /* print column headers */
+    printf(ANSI_COLOUR_BLUE
+           "%-*s %-*s status      ip_address\n"
+           ANSI_COLOUR_RESET,
+           n_nodes_len, "node_number", hostlen, "hostname:port");
+
     /* loop through all nodes and attempt to connect admin daemon on each */
     for (p = nodes; p != NULL; p = p->next) {
         /* set default output for IP address */
@@ -967,7 +978,7 @@ static int cmd_list_nodes(void)
 
         /* print result of attempted connection */
         sprintf(buf, "%s:%d", p->host, p->port);
-        printf("%-*d %-*s ", int_len(n_nodes), node_num, hostlen, buf);
+        printf("%-*d %-*s ", n_nodes_len, node_num, hostlen, buf);
         if (sock_fd == -1) {
             printf(ANSI_COLOUR_RED "unreachable");
             all_nodes_ok = 2;
