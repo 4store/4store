@@ -273,7 +273,14 @@ static void daemonize(void)
 
 static void signal_handler(int sig)
 {
-    fsa_error(LOG_INFO, "Received %s (%d) signal", strsignal(sig), sig);
+    if (daemonize_flag) {
+        /* make info message a bit clearer in syslog */
+        fsa_error(LOG_INFO, "%s received %s (%d) signal",
+                  program_invocation_short_name, strsignal(sig), sig);
+    }
+    else {
+        fsa_error(LOG_INFO, "received %s (%d) signal", strsignal(sig), sig);
+    }
 
     switch (sig) {
         case SIGINT:
@@ -284,13 +291,20 @@ static void signal_handler(int sig)
                     close(listener_fds[i]);
                 }
             }
-            fsa_error(LOG_INFO, "%s shutdown cleanly",
-                      program_invocation_short_name);
+
+            if (daemonize_flag) {
+                fsa_error(LOG_INFO, "%s shutdown cleanly",
+                          program_invocation_short_name);
+            }
+            else {
+                fsa_error(LOG_INFO, "shutdown cleanly");
+            }
+
             fsp_syslog_disable();
             exit(EXIT_SUCCESS);
             break;
         default:
-            fsa_error(LOG_DEBUG, "Signal %s (%d) unhandled",
+            fsa_error(LOG_DEBUG, "signal %s (%d) unhandled",
                       strsignal(sig), sig);
             break;
     }
@@ -897,6 +911,15 @@ int main(int argc, char **argv)
     rv = setup_server();
     if (rv == -1) {
         return EXIT_FAILURE;
+    }
+
+    if (daemonize_flag) {
+        /* make info message a bit clearer in syslog */
+        fsa_error(LOG_INFO, "%s started on port %s",
+                  program_invocation_short_name, server_port);
+    }
+    else {
+        fsa_error(LOG_INFO, "started on port %s", server_port);
     }
 
     /* handle client connections and requests */
