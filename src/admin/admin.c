@@ -767,10 +767,21 @@ static int cmd_list_kbs(void)
     fsa_kb_info *ki;
     fsa_kb_info *kis;
     int node_num = 0;
+    int node_header_printed = 0;
+    int info_header_printed = 0;
 
     /* connect to each node separately */
     while (node != NULL) {
-        printf("%d\t%s:%d\n", node_num, node->host, node->port);
+        if (!node_header_printed) {
+            printf(ANSI_COLOUR_BLUE
+                  "node_number\thostname:port\n"
+                  ANSI_COLOUR_RESET);
+            node_header_printed = 1;
+        }
+        else {
+            printf("\n");
+        }
+        printf("%-11d\t%s:%d\n", node_num, node->host, node->port);
 
         /* only pass a single node to fetch_kb_info, so break linked list  */
         tmp_node = node->next;
@@ -814,6 +825,15 @@ static int cmd_list_kbs(void)
                 }
             }
 
+            /* print header */
+            if (!info_header_printed) {
+                printf(ANSI_COLOUR_BLUE
+                       "  %-*s\tstatus\tport\tnumber_of_segments\n"
+                       ANSI_COLOUR_RESET,
+                       max_name, "store_name");
+                info_header_printed = 1;
+            }
+
             /* print kb info */
             for (ki = kis; ki != NULL; ki = ki->next) {
                 printf("  %-*s\t", max_name, ki->name);
@@ -830,17 +850,30 @@ static int cmd_list_kbs(void)
                 printf("%s", fsa_kb_info_status_to_string(ki->status));
                 printf(ANSI_COLOUR_RESET);
                 printf("\t");
-                printf("%d\t", ki->port);
+
+                if (ki->port > 0) {
+                    printf("%d\t", ki->port);
+                }
+                else {
+                    printf("\t");
+                }
 
                 if (ki->p_segments_len > 0) {
-                    for (int i = 0; i < ki->p_segments_len; i++) {
-                        printf("%d", ki->p_segments_data[i]);
-                        if (i == ki->p_segments_len-1) {
-                            printf(" of %d", ki->num_segments);
+                    if (verbosity == V_VERBOSE) {
+                        for (int i = 0; i < ki->p_segments_len; i++) {
+                            printf("%d", ki->p_segments_data[i]);
+                            if (i == ki->p_segments_len-1) {
+                                printf(" of %d", ki->num_segments);
+                            }
+                            else {
+                                printf(",");
+                            }
                         }
-                        else {
-                            printf(",");
-                        }
+                    }
+                    else {
+                        /* print summary of segments */
+                        printf("%d of %d",
+                               ki->p_segments_len, ki->num_segments);
                     }
                 }
                 printf("\n");
