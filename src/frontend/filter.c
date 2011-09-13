@@ -22,6 +22,7 @@
 #include <string.h>
 #include <pcre.h>
 #include <time.h>
+#include <errno.h>
 
 #include "filter-datatypes.h"
 #include "filter.h"
@@ -124,6 +125,9 @@ static fs_value cast_double(fs_value a)
     if (a.lex && strlen(a.lex)) {
         char *end = NULL;
         a.fp = strtod(a.lex, &end);
+        /* this is bad, but some code somewhere is checking errno when a
+         * function is returning sucess and getting tripped up by this */
+        errno = 0;
         if (*end == '\0') {
             a.valid |= fs_valid_bit(FS_V_FP);
 

@@ -1,0 +1,15 @@
+#!/bin/bash
+
+# This tests a deeply strange bug where bad double casts were setting errno,
+# and tripping up some other code which was testing errno when it shouldn't
+
+source sparql.sh
+
+put "$EPR" ../../data/numbers.ttl 'text/turtle' 'http://example.com/numbers.ttl'
+
+sparql "$EPR" 'SELECT ?s ?d (STR(?d) AS ?abs_d) WHERE { ?s <test:num> ?d . } ORDER BY ?s'
+
+sparql "$EPR" 'SELECT ?s (RAND() AS ?r) WHERE { ?s ?p ?o. } LIMIT 1' | sed "s/0\.[0-9]\{17\}e0/RANDOM_NUMBER/"
+echo $OUTPUT
+
+delete "$EPR" 'http://example.com/numbers.ttl'
