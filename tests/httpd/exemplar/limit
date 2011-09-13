@@ -1,0 +1,49 @@
+201 imported successfully
+This is a 4store SPARQL server [VERSION]
+Query: SELECT ?s ?d (STR(?d) AS ?abs_d) WHERE { ?s <test:num> ?d . } ORDER BY ?s
+?s	?d	?abs_d
+<http://example.com/a>	0	"0"
+<http://example.com/b>	-0	"-0"
+<http://example.com/c>	+0	"+0"
+<http://example.com/d>	1234	"1234"
+<http://example.com/e>	-1234	"-1234"
+<http://example.com/f>	+1234	"+1234"
+<http://example.com/g>	1234567890123456789	"1234567890123456789"
+<http://example.com/h>	-1234567890123456789	"-1234567890123456789"
+<http://example.com/i>	+1234567890123456789	"+1234567890123456789"
+<http://example.com/j>	1234567890.23239300	"1234567890.23239300"
+<http://example.com/k>	-1234567890.23239300	"-1234567890.23239300"
+<http://example.com/l>	+1234567890.23239300	"+1234567890.23239300"
+<http://example.com/m>	"23.0e999999999999999999999999"^^<http://www.w3.org/2001/XMLSchema#float>	"23.0e999999999999999999999999"
+<http://example.com/n>	"+23.0e999999999999999999999999"^^<http://www.w3.org/2001/XMLSchema#float>	"+23.0e999999999999999999999999"
+<http://example.com/o>	"-23.0e999999999999999999999999"^^<http://www.w3.org/2001/XMLSchema#float>	"-23.0e999999999999999999999999"
+<http://example.com/p>	"12345678901234567890.23239300"^^<http://www.w3.org/2001/XMLSchema#float>	"12345678901234567890.23239300"
+<http://example.com/q>	"-12345678901234567890.23239300"^^<http://www.w3.org/2001/XMLSchema#float>	"-12345678901234567890.23239300"
+<http://example.com/r>	"+12345678901234567890.23239300"^^<http://www.w3.org/2001/XMLSchema#float>	"+12345678901234567890.23239300"
+<http://example.com/s>	2.4999	"2.4999"
+<http://example.com/t>	2.5	"2.5"
+<http://example.com/u>	-2.5	"-2.5"
+<http://example.com/v>	-2.500001	"-2.500001"
+<http://example.com/w>	2.500001	"2.500001"
+<http://example.com/x>	-2.499999	"-2.499999"
+<http://example.com/y>	0000.0004999000	"0000.0004999000"
+<http://example.com/z>	2.000050000	"2.000050000"
+<http://example.com/za>	-2.00050000	"-2.00050000"
+<http://example.com/zb>	"2.4999"^^<http://www.w3.org/2001/XMLSchema#float>	"2.4999"
+<http://example.com/zc>	"2.5"^^<http://www.w3.org/2001/XMLSchema#float>	"2.5"
+<http://example.com/zd>	"-2.5"^^<http://www.w3.org/2001/XMLSchema#float>	"-2.5"
+<http://example.com/ze>	"-2.500001"^^<http://www.w3.org/2001/XMLSchema#float>	"-2.500001"
+<http://example.com/zf>	"2.500001"^^<http://www.w3.org/2001/XMLSchema#float>	"2.500001"
+<http://example.com/zg>	"-2.499999"^^<http://www.w3.org/2001/XMLSchema#float>	"-2.499999"
+<http://example.com/zh>	2.4999e0	"2.4999"
+<http://example.com/zi>	2.5e0	"2.5"
+<http://example.com/zj>	-2.5e0	"-2.5"
+<http://example.com/zk>	-2.500001e0	"-2.500001"
+<http://example.com/zl>	2.500001e0	"2.500001"
+<http://example.com/zm>	-2.499999e0	"-2.499999"
+Query: SELECT ?s (RAND() AS ?r) WHERE { ?s ?p ?o. } LIMIT 1
+?s	?r
+<http://example.com/ze>	RANDOM_NUMBER
+
+200 deleted successfully
+This is a 4store SPARQL server [VERSION]
