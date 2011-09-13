@@ -1,6 +1,6 @@
 201 imported successfully
 This is a 4store SPARQL server [VERSION]
-Query: SELECT ?o ?v WHERE { GRAPH <http://example.com/dates.ttl> { ?o <test:date> ?v }} ORDER BY ?v
+Query: SELECT ?o ?v WHERE { GRAPH <http://example.com/dates.ttl> { ?o <test:date> ?v }} ORDER BY ?o
 ?o	?v
 <http://example.com/a>	"2010-03-09"^^<http://www.w3.org/2001/XMLSchema#dateTime>
 <http://example.com/b>	"2010-03-09T22:30:00Z"^^<http://www.w3.org/2001/XMLSchema#dateTime>
