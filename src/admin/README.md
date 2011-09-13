@@ -63,14 +63,18 @@ for a cluster with 4 storage nodes might look like:
 
 To check that the 4s-boss daemon on each node is reachable, use the 4s-admin
 command:
+
     4s-admin list-stores
 
 Assuming all is well, you should get a list of running stores from each storage
 node.
 
 To start stores across the cluster, use:
+
     4s-admin start-stores <store1> <store2> <store3> ...
+
         or
+
     4s-admin start-stores -a
 
 You should then be able to use 4s-httpd and 4s-import as normal.
