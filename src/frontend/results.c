@@ -1440,6 +1440,8 @@ static char *xml_escape(const char *from, int len)
     return to;
 }
 
+/* must be called with rasqal_mutex held if multithreaded */
+
 static void describe_uri(fs_query *q, fs_rid rid, raptor_uri *uri)
 {
     if (rid == FS_RID_NULL) {
@@ -1502,7 +1504,6 @@ static void handle_describe(fs_query *q, const char *type, FILE *output)
         raptor_serializer_set_namespace(q->ser, p->uri, p->prefix);
     }
     raptor_serializer_start_to_file_handle(q->ser, q->base, output);
-    g_static_mutex_unlock(&rasqal_mutex);
 
     fs_p_vector *vars = fs_p_vector_new(0);
     raptor_sequence *desc = rasqal_query_get_describe_sequence(q->rq);
@@ -1529,7 +1530,6 @@ static void handle_describe(fs_query *q, const char *type, FILE *output)
             raptor_free_term(dterm);
         }
     }
-    g_static_mutex_lock(&rasqal_mutex);
     raptor_serializer_serialize_end(q->ser);
     raptor_free_serializer(q->ser);
     g_static_mutex_unlock(&rasqal_mutex);
@@ -1579,6 +1579,7 @@ static void handle_construct(fs_query *q, const char *type, FILE *output)
                 fsp_quad_import(q->link, FS_RID_SEGMENT(quad[1], q->segments), FS_BIND_BY_SUBJECT, 1, &quad);
             }
         } else {
+            g_static_mutex_lock(&rasqal_mutex);
             raptor_statement st;
             raptor_statement_init(&st, q->qs->raptor_world);
             st.graph = NULL;
@@ -1618,6 +1619,7 @@ static void handle_construct(fs_query *q, const char *type, FILE *output)
                 raptor_free_term(st.predicate);
                 raptor_free_term(st.object);
             }
+            g_static_mutex_unlock(&rasqal_mutex);
         }
     }
 
