@@ -19,8 +19,8 @@ if ($pid = fork()) {
 	if ($httppid = fork()) {
 		sleep(1);
 	} else {
-		#exec('valgrind', '--tool=helgrind', '--num-callers=20', '--trace-children=yes', '--log-file=valgrind.txt', "../../src/http/4s-httpd", "-X", "-D", "-p", "13579", $kb_name);
-		exec("../../src/http/4s-httpd", "-X", "-D", "-p", "13579", $kb_name);
+		exec('valgrind', '--trace-children=yes', '--log-file=valgrind.txt', "../../src/http/4s-httpd", "-X", "-D", "-p", "13579", $kb_name);
+		#exec("../../src/http/4s-httpd", "-X", "-D", "-p", "13579", $kb_name);
 		die "failed to exec HTTP sever: $!";
 	}
 	print("4s-httpd running on PID $httppid\n");
