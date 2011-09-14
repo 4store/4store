@@ -9,6 +9,8 @@
 #include "query-cache.h"
 #include "../common/4store.h"
 
+GStaticMutex rasqal_mutex;
+
 fs_query_state *fs_query_init(fsp_link *link, rasqal_world *rasworld, raptor_world *rapworld);
 int fs_query_fini(fs_query_state *qs);
 

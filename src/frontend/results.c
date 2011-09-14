@@ -21,6 +21,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <pthread.h>
 
 #include "4store-config.h"
 #include "results.h"
@@ -51,6 +52,7 @@ static const char *NULL_PROXY = " ";
 static const char *BNODE_PROXY = "*";
 
 static GStaticMutex cache_mutex = G_STATIC_MUTEX_INIT;
+pthread_mutex_t rasqal_ser_mutex = PTHREAD_MUTEX_INITIALIZER;
 
 static fs_resource res_l2_cache[CACHE_SIZE];
 
@@ -978,7 +980,7 @@ static raptor_term *slot_fill(fs_query *q, rasqal_literal *l, fs_row *row)
 static void insert_slot_fill(fs_query *q, fs_rid *rid,
                              rasqal_literal *l, fs_row *row)
 {
-    fs_resource res;
+    fs_resource res = { FS_RID_NULL, NULL, FS_RID_NULL };
 
     switch (l->type) {
     case RASQAL_LITERAL_URI:
@@ -1486,9 +1488,11 @@ static void describe_uri(fs_query *q, fs_rid rid, raptor_uri *uri)
 
 static void handle_describe(fs_query *q, const char *type, FILE *output)
 {
+    g_static_mutex_lock(&rasqal_mutex);
     q->ser = raptor_new_serializer(q->qs->raptor_world, type);
     if (!q->ser) {
         fs_error(LOG_ERR, "no such serialiser '%s'", type);
+        g_static_mutex_unlock(&rasqal_mutex);
 
         return;
     }
@@ -1498,6 +1502,7 @@ static void handle_describe(fs_query *q, const char *type, FILE *output)
         raptor_serializer_set_namespace(q->ser, p->uri, p->prefix);
     }
     raptor_serializer_start_to_file_handle(q->ser, q->base, output);
+    g_static_mutex_unlock(&rasqal_mutex);
 
     fs_p_vector *vars = fs_p_vector_new(0);
     raptor_sequence *desc = rasqal_query_get_describe_sequence(q->rq);
@@ -1524,8 +1529,10 @@ static void handle_describe(fs_query *q, const char *type, FILE *output)
             raptor_free_term(dterm);
         }
     }
+    g_static_mutex_lock(&rasqal_mutex);
     raptor_serializer_serialize_end(q->ser);
     raptor_free_serializer(q->ser);
+    g_static_mutex_unlock(&rasqal_mutex);
     fs_p_vector_free(vars);
 }
 
@@ -1548,6 +1555,7 @@ static void handle_construct(fs_query *q, const char *type, FILE *output)
         models->data[0] = quad[0];
         fsp_new_model_all(q->link, models);
     } else {
+        g_static_mutex_lock(&rasqal_mutex);
         q->ser = raptor_new_serializer(q->qs->raptor_world, type);
         for (int i=0; 1; i++) {
             rasqal_prefix *p = rasqal_query_get_prefix(q->rq, i);
@@ -1555,6 +1563,7 @@ static void handle_construct(fs_query *q, const char *type, FILE *output)
             raptor_serializer_set_namespace(q->ser, p->uri, p->prefix);
         }
         raptor_serializer_start_to_file_handle(q->ser, q->base, output);
+        g_static_mutex_unlock(&rasqal_mutex);
     }
 
     while ((row = fs_query_fetch_row(q))) {
@@ -1653,8 +1662,10 @@ static void handle_construct(fs_query *q, const char *type, FILE *output)
         }
         fsp_stop_import_all(q->link);
     } else {
+        g_static_mutex_lock(&rasqal_mutex);
         raptor_serializer_serialize_end(q->ser);
         raptor_free_serializer(q->ser);
+        g_static_mutex_unlock(&rasqal_mutex);
     }
 }
 
@@ -2288,7 +2299,7 @@ static void prefetch_lexical_data(fs_query *q, long int next_row,const int rows)
     }
 
     /* dump L1 cache into L2 */
-    g_static_mutex_lock (&cache_mutex);
+    g_static_mutex_lock(&cache_mutex);
     if (res_l1_cache) g_hash_table_foreach_steal(res_l1_cache, cache_dump, NULL);
 
     int lookup_buffer_size = RESOURCE_LOOKUP_BUFFER;
