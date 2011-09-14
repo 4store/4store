@@ -23,6 +23,7 @@
 #include <string.h>
 #include <ctype.h>
 #include <glib.h>
+#include <pthread.h>
 #include <rasqal.h>
 
 #include "4store-config.h"
@@ -46,6 +47,8 @@
 #define DESC_SIZE 1024
 
 #define DEBUG_SIZE(n, thing) printf("@@ %d * sizeof(%s) = %zd\n", n, #thing, n * sizeof(thing))
+
+GStaticMutex rasqal_mutex = G_STATIC_MUTEX_INIT;
 
 static void graph_pattern_walk(fsp_link *link, rasqal_graph_pattern *p, fs_query *q, rasqal_literal *model, int optional, int uni);
 static int fs_handle_query_triple(fs_query *q, int block, rasqal_triple *t);
@@ -231,6 +234,7 @@ fs_query_state *fs_query_init(fsp_link *link, rasqal_world *rasworld, raptor_wor
         }
     }
 
+    g_static_mutex_lock(&rasqal_mutex);
     if (rasworld) {
         qs->rasqal_world = rasworld;
     } else {
@@ -246,8 +250,11 @@ fs_query_state *fs_query_init(fsp_link *link, rasqal_world *rasworld, raptor_wor
     if (rasqal_world_open(qs->rasqal_world)) {
         fs_error(LOG_ERR, "failed to intialise rasqal world");
 	fs_query_fini(qs);
+        g_static_mutex_unlock(&rasqal_mutex);
+
 	return NULL;
     }
+    g_static_mutex_unlock(&rasqal_mutex);
     if (rapworld) {
         qs->raptor_world = rapworld;
     } else {
@@ -334,6 +341,7 @@ fs_query *fs_query_execute(fs_query_state *qs, fsp_link *link, raptor_uri *bu, c
 
     fsp_hit_limits_reset(link);
 
+    g_static_mutex_lock(&rasqal_mutex);
     rasqal_query *rq = rasqal_new_query(qs->rasqal_world, "sparql11", NULL);
     if (!rq) {
         rq = rasqal_new_query(qs->rasqal_world, "laqrs", NULL);
@@ -341,6 +349,7 @@ fs_query *fs_query_execute(fs_query_state *qs, fsp_link *link, raptor_uri *bu, c
     if (!rq) {
         rq = rasqal_new_query(qs->rasqal_world, "sparql", NULL);
     }
+    g_static_mutex_unlock(&rasqal_mutex);
     if (!rq) {
         fs_error(LOG_ERR, "failed to initialise query system");
 
@@ -361,7 +370,9 @@ fs_query *fs_query_execute(fs_query_state *qs, fsp_link *link, raptor_uri *bu, c
     }
     q->boolean = 1;
     rasqal_world_set_log_handler(q->qs->rasqal_world, q, log_handler);
+    g_static_mutex_lock(&rasqal_mutex);
     int ret = rasqal_query_prepare(rq, (unsigned char *)query, bu);
+    g_static_mutex_unlock(&rasqal_mutex);
     if (ret) {
 	return q;
     }
@@ -959,7 +970,11 @@ int fs_query_process_pattern(fs_query *q, rasqal_graph_pattern *pattern, raptor_
 void fs_query_free(fs_query *q)
 {
     if (q) {
-        if (q->rq) rasqal_free_query(q->rq);
+        if (q->rq) {
+            g_static_mutex_lock(&rasqal_mutex);
+            rasqal_free_query(q->rq);
+            g_static_mutex_unlock(&rasqal_mutex);
+        }
 	fs_binding_free(q->bb[0]);
 	if (q->resrow) free(q->resrow);
 	if (q->ordering) free(q->ordering);
