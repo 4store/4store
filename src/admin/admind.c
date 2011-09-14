@@ -59,9 +59,6 @@ static const char *cport = NULL;
 /* Port to actually run server on */
 static char server_port[6];
 
-/* Name of executing program */
-static char *progname = NULL;
-
 /* Socket/network globals */
 static fd_set master_read_fds;
 static fd_set read_fds;
@@ -70,10 +67,11 @@ static int listener_fds[2]; /* 0 -> ipv4, 1 -> ipv6 */
 /***** End of Server State *****/
 
 static void print_usage(int listhelp) {
-    printf("Usage: %s [OPTION]...\n", progname);
+    printf("Usage: %s [OPTION]...\n", program_invocation_short_name);
 
     if (listhelp) {
-        printf("Try `%s --help' for more information.\n", progname);
+        printf("Try `%s --help' for more information.\n",
+               program_invocation_short_name);
     }
 }
 
@@ -94,7 +92,7 @@ static void print_help(void)
 
 static void print_version(void)
 {
-    printf("%s, built for 4store %s\n", progname, GIT_REV);
+    printf("%s, built for 4store %s\n", program_invocation_short_name, GIT_REV);
 }
 
 static int parse_cmdline_opts(int argc, char **argv)
@@ -168,21 +166,21 @@ static int init_server_port(void)
                 fprintf(
                     stderr,
                     "%s: non-numeric port specified in %s",
-                    progname, FS_CONFIG_FILE
+                    program_invocation_short_name, FS_CONFIG_FILE
                 );
             }
             else if (errno == ERANGE) {
                 fprintf(
                     stderr,
                     "%s: port number out of range 0-65535 in %s",
-                    progname, FS_CONFIG_FILE
+                    program_invocation_short_name, FS_CONFIG_FILE
                 );
             }
             else {
                 fprintf(
                     stderr,
                     "%s: unknown error reading port from config file at %s\n",
-                    progname, FS_CONFIG_FILE
+                    program_invocation_short_name, FS_CONFIG_FILE
                 );
             }
             return -1;
@@ -193,14 +191,14 @@ static int init_server_port(void)
 
         if (!fsa_is_int(cport)) {
             fprintf(stderr, "%s: non-numeric port specified on command line\n",
-                    progname);
+                    program_invocation_short_name);
             return -1;
         }
 
         port = atoi(cport);
         if (port < 0 || port > 65535) {
             fprintf(stderr, "%s: port number %d out of range 0-65535\n",
-                    progname, port);
+                    program_invocation_short_name, port);
             return -1;
         }
     }
