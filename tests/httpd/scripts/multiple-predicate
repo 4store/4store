@@ -1,0 +1,16 @@
+#!/bin/bash
+
+source sparql.sh
+
+put "$EPR" ../../data/loves-hates.ttl 'text/turtle' 'http://example.com/loves-hates.ttl'
+
+sparql "$EPR" '
+PREFIX : <http://example.com/>
+SELECT ?s ?p ?o
+WHERE {
+  ?s ?p :sushi .
+  ?s ?p ?o
+}
+ORDER BY ?s ?p ?o'
+
+delete "$EPR" 'http://example.com/loves-hates.ttl'

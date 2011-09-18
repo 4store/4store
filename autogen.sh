@@ -50,19 +50,19 @@ programs="automake aclocal autoconf autoheader libtoolize"
 # automake 1.9 requires autoconf 2.58
 # automake 1.8 requires autoconf 2.58
 # automake 1.7 requires autoconf 2.54
-automake_min_vers=011000
+automake_min_vers=010700
 aclocal_min_vers=$automake_min_vers
-autoconf_min_vers=026000
+autoconf_min_vers=025400
 autoheader_min_vers=$autoconf_min_vers
-libtoolize_min_vers=020200
+libtoolize_min_vers=010400
+swig_min_vers=010324
 
 # Default program arguments
-automake_args="--gnu --add-missing --force --copy -Wall"
-aclocal_args=$ACLOCAL_FLAGS
+automake_args="--add-missing"
 autoconf_args=
-libtoolize_args="--force --copy --automake"
-configure_args="--enable-maintainer-mode"
-
+libtoolize_args="$ltdl --force --copy --automake"
+aclocal_args="-I /usr/local/share/aclocal"
+automake_args="--gnu --add-missing --force --copy"
 
 # You should not need to edit below here
 ######################################################################

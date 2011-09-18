@@ -1,0 +1,16 @@
+201 imported successfully
+This is a 4store SPARQL server [VERSION]
+Query: 
+PREFIX : <http://example.com/>
+SELECT ?s ?p ?o
+WHERE {
+  ?s ?p :sushi .
+  ?s ?p ?o
+}
+ORDER BY ?s ?p ?o
+?s	?p	?o
+<http://example.com/Frank>	<http://example.com/hates>	<http://example.com/sushi>
+<http://example.com/John>	<http://example.com/loves>	<http://example.com/Mary>
+<http://example.com/John>	<http://example.com/loves>	<http://example.com/sushi>
+200 deleted successfully
+This is a 4store SPARQL server [VERSION]

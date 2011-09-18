@@ -1,0 +1,13 @@
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+<a> <test:date> "2010-03-09"^^xsd:dateTime .
+
+<b> <test:date> "2010-03-09T22:30:00Z"^^xsd:dateTime .
+<c> <test:date> "2010-03-09T22:30:01Z"^^xsd:dateTime .
+<d> <test:date> "2010-03-09T22:31:00Z"^^xsd:dateTime .
+<e> <test:date> "2010-03-09T23:30:00Z"^^xsd:dateTime .
+<f> <test:date> "2010-03-09T23:59:59Z"^^xsd:dateTime .
+<g> <test:date> "2010-03-10T00:00:00Z"^^xsd:dateTime .
+
+<h> <test:date> "2010-03-10"^^xsd:dateTime .
+<i> <test:date> "2010-03-11"^^xsd:dateTime .

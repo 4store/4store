@@ -545,6 +545,11 @@ void foreach_freq_one(gpointer key, gpointer value, gpointer user_data)
 
 void fs_optimiser_freq_print(fs_query_state *qs)
 {
+    if (!qs->freq_s) {
+        printf("This backend does not support histograms\n");
+
+        return;
+    }
     printf("(subject predicate)\n");
     g_hash_table_foreach(qs->freq_s, foreach_freq_both, qs->link);
     g_hash_table_foreach(qs->freq_s, foreach_freq_one, qs->link);

@@ -22,6 +22,7 @@
 #include <string.h>
 #include <pcre.h>
 #include <time.h>
+#include <errno.h>
 
 #include "filter-datatypes.h"
 #include "filter.h"
@@ -124,6 +125,9 @@ static fs_value cast_double(fs_value a)
     if (a.lex && strlen(a.lex)) {
         char *end = NULL;
         a.fp = strtod(a.lex, &end);
+        /* this is bad, but some code somewhere is checking errno when a
+         * function is returning sucess and getting tripped up by this */
+        errno = 0;
         if (*end == '\0') {
             a.valid |= fs_valid_bit(FS_V_FP);
 
@@ -1671,6 +1675,41 @@ fs_value fn_rand(fs_query *q)
     fs_query_add_freeable(q, v.lex);
 
     return v;
+}
+
+fs_value fn_hash_intl(fs_query *q, fs_value arg, GChecksumType type)
+{
+#if GLIB_MAJOR_VERSION >= 2 && GLIB_MINOR_VERSION >= 16
+    if (!fs_is_plain_or_string(arg)) {
+        return fs_value_error(FS_ERROR_INVALID_TYPE, NULL);
+    }
+    arg = fs_value_fill_lexical(q, arg);
+
+    GChecksum *sum = g_checksum_new(type);
+    g_checksum_update(sum, (guchar *)arg.lex, -1);
+    char *str = g_strdup(g_checksum_get_string(sum));
+    g_checksum_free(sum);
+    fs_query_add_freeable(q, str);
+
+    return fs_value_plain(str);
+#else
+    return fs_value_error(FS_ERROR_INVALID_TYPE, "glib version does not support hash functions, at least 2.16.0 required");
+#endif
+}
+
+fs_value fn_md5(fs_query *q, fs_value arg)
+{
+    return fn_hash_intl(q, arg, G_CHECKSUM_MD5);
+}
+
+fs_value fn_sha1(fs_query *q, fs_value arg)
+{
+    return fn_hash_intl(q, arg, G_CHECKSUM_SHA1);
+}
+
+fs_value fn_sha256(fs_query *q, fs_value arg)
+{
+    return fn_hash_intl(q, arg, G_CHECKSUM_SHA256);
 }
 
 /* vi:set expandtab sts=4 sw=4: */

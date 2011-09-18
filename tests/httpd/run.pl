@@ -58,7 +58,7 @@ if ($pid = fork()) {
 		my @cmd = ("../../src/http/4s-httpd", "-X", "-D", "-p", "13579", $kb_name);
 		if ($valgrind) {
 			print("Running httpd under valgrind, output in valgrind.txt\n");
-			unshift(@cmd, 'valgrind', '--trace-children=yes', '--log-file-exactly=valgrind.txt');
+			unshift(@cmd, 'valgrind', '-v', '--trace-children=yes', '--log-file=valgrind.txt');
 		}
 		close STDERR;
 		print(join(" ", @cmd)."\n");
