@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# autogen.sh - Generates initial makefiles from a pristine CVS tree
+# autogen.sh - Generates initial makefiles from a pristine GIT tree
 #
 # USAGE:
 #   autogen.sh [configure options]
@@ -12,14 +12,10 @@
 #  programs that would be run.
 #   e.g. DRYRUN=1 ./autogen.sh
 #
-# AUTOMAKE ACLOCAL AUTOCONF AUTOHEADER LIBTOOLIZE GTKDOCIZE
+# AUTOMAKE ACLOCAL AUTOCONF AUTOHEADER LIBTOOLIZE
 #  If set (named after program) then this overrides any searching for
 #  the programs on the current PATH.
 #   e.g. AUTOMAKE=automake-1.7 ACLOCAL=aclocal-1.7 ./autogen.sh
-#
-# CONFIG_DIR (default ../config)
-#  The directory where fresh GNU config.guess and config.sub can be
-#  found for automatic copying in-place.
 #
 # PATH
 #  Where the programs are searched for
@@ -28,7 +24,7 @@
 #  Source directory
 #
 # This script is based on similar scripts used in various tools
-# commonly made available via CVS and used with GNU automake.
+# commonly made available via GIT and used with GNU automake.
 # Try 'locate autogen.sh' on your system and see what you get.
 #
 # This script is in the public domain
@@ -37,46 +33,35 @@
 # Directory for the sources
 SRCDIR=${SRCDIR-.}
 
-# Where the GNU config.sub, config.guess might be found
-CONFIG_DIR=${CONFIG_DIR-../config}
+# Because GIT doesn't support empty directories
+if [ ! -d "$SRCDIR/build-scripts" ]; then
+    mkdir "$SRCDIR/build-scripts"
+fi
 
 # The programs required for configuring which will be searched for
 # in the current PATH.
 # Set an envariable of the same name in uppercase, to override scan
 #
 programs="automake aclocal autoconf autoheader libtoolize"
-confs=`find . -name configure.ac -print`
-if grep "^GTK_DOC_CHECK" $confs >/dev/null; then
-  programs="$programs gtkdocize"
-fi
-if grep "^AC_CHECK_PROGS.SWIG" $confs >/dev/null; then
-  programs="$programs swig"
-fi
-ltdl=
-if grep "^AC_LIBLTDL_" $confs >/dev/null; then
-  ltdl="--ltdl"
-fi
 
 # Some dependencies for autotools:
+# automake 1.11 requires autoconf 2.62
 # automake 1.10 requires autoconf 2.60
 # automake 1.9 requires autoconf 2.58
 # automake 1.8 requires autoconf 2.58
 # automake 1.7 requires autoconf 2.54
-automake_min_vers=010700
+automake_min_vers=011000
 aclocal_min_vers=$automake_min_vers
-autoconf_min_vers=025400
+autoconf_min_vers=026000
 autoheader_min_vers=$autoconf_min_vers
-libtoolize_min_vers=010400
-gtkdocize_min_vers=010300
-swig_min_vers=010324
+libtoolize_min_vers=020200
 
 # Default program arguments
-automake_args="--add-missing"
+automake_args="--gnu --add-missing --force --copy -Wall"
+aclocal_args=$ACLOCAL_FLAGS
 autoconf_args=
-libtoolize_args="$ltdl --force --copy --automake"
-gtkdocize_args="--copy"
-aclocal_args=
-automake_args="--gnu --add-missing --force --copy"
+libtoolize_args="--force --copy --automake"
+configure_args="--enable-maintainer-mode"
 
 
 # You should not need to edit below here
@@ -166,7 +151,7 @@ update_prog_version() {
 
   nameglob="$prog*"
   if [ -x /usr/bin/uname ]; then
-    if [ `/usr/bin/uname` = 'Darwin' -a $prog = 'libtoolize' ] ; then
+    if [ `/usr/bin/uname`x = 'Darwinx' -a $prog = 'libtoolize' ] ; then
       nameglob="g$nameglob"
     fi
   fi
@@ -261,69 +246,39 @@ done
 
 echo "$program: Dependencies satisfied"
 
-if test -d $SRCDIR/libltdl; then
-  touch $SRCDIR/libltdl/NO-AUTO-GEN
+cd "$SRCDIR"
+# Ensure that these are created by the versions on this system
+# (indirectly via automake)
+$DRYRUN rm -f ltconfig ltmain.sh libtool stamp-h*
+# Made by automake
+$DRYRUN rm -f missing depcomp
+# automake junk
+$DRYRUN rm -rf autom4te*.cache
+
+config_macro_dir=`sed -ne 's/^AC_CONFIG_MACRO_DIR(\([^)]*\).*/\1/p' configure.ac`
+if test "X$config_macro_dir" = X; then
+  config_macro_dir=.
+else
+  aclocal_args="$aclocal_args -I $config_macro_dir "
 fi
 
-config_dir=
-if test -d $CONFIG_DIR; then
-  config_dir=`cd $CONFIG_DIR; pwd`
+config_aux_dir=`sed -ne 's/^AC_CONFIG_AUX_DIR(\([^)]*\).*/\1/p' configure.ac`
+if test "X$config_aux_dir" = X; then
+  config_aux_dir=.
 fi
 
+echo "$program: Running $libtoolize $libtoolize_args"
+$DRYRUN rm -f ltmain.sh libtool
+eval $DRYRUN $libtoolize $libtoolize_args
 
-for coin in `find $SRCDIR -name configure.ac -print`
-do 
-  dir=`dirname $coin`
-  if test -f "$dir/NO-AUTO-GEN"; then
-    echo $program: Skipping $dir -- flagged as no auto-gen
-  else
-    echo " "
-    echo $program: Processing directory $dir
-    ( cd "$dir"
-
-      # Ensure that these are created by the versions on this system
-      # (indirectly via automake)
-      $DRYRUN rm -f ltconfig ltmain.sh libtool stamp-h*
-      # Made by automake
-      $DRYRUN rm -f missing depcomp
-      # automake junk
-      $DRYRUN rm -rf autom4te*.cache
-
-      if test "X$config_dir" != X; then
-        echo "$program: Updating config.guess and config.sub"
-	for file in config.guess config.sub; do
-	  cfile=$config_dir/$file
-	  if test -f $cfile; then
-	    $DRYRUN rm -f $file
-	    $DRYRUN cp -p $cfile $file
-	  fi
-	done
-      fi
-
-      echo "$program: Running $libtoolize $libtoolize_args"
-      $DRYRUN rm -f ltmain.sh libtool
-      eval $DRYRUN $libtoolize $libtoolize_args
-
-      if grep "^GTK_DOC_CHECK" configure.ac >/dev/null; then
-        # gtkdocize junk
-        $DRYRUN rm -rf gtk-doc.make
-        echo "$program: Running $gtkdocize $gtkdocize_args"
-        $DRYRUN $gtkdocize $gtkdocize_args
-      fi
-
-      echo "$program: Running $aclocal $aclocal_args"
-      $DRYRUN $aclocal $aclocal_args
-      if grep "^AM_CONFIG_HEADER" configure.ac >/dev/null; then
-	echo "$program: Running $autoheader"
-	$DRYRUN $autoheader
-      fi
-      echo "$program: Running $automake $automake_args"
-      $DRYRUN $automake $automake_args $automake_args
-      echo "$program: Running $autoconf"
-      $DRYRUN $autoconf $autoconf_args
-    )
-  fi
-done
+echo "$program: Running $aclocal $aclocal_args"
+$DRYRUN $aclocal $aclocal_args
+echo "$program: Running $autoheader"
+$DRYRUN $autoheader
+echo "$program: Running $automake $automake_args"
+$DRYRUN $automake $automake_args
+echo "$program: Running $autoconf"
+$DRYRUN $autoconf $autoconf_args
 
 
 rm -f config.cache
