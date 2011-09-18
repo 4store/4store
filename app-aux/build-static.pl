@@ -12,7 +12,6 @@ my $DEFAULT_CONFIGURE_ARGS = "--enable-static --disable-shared --prefix=$ROOT_DI
                              "--disable-gtk-doc --disable-dependency-tracking ".
                              "--disable-rebuilds";
 
-
 my $packages = [
     {
         'url' => 'http://pkgconfig.freedesktop.org/releases/pkg-config-0.25.tar.gz',
@@ -107,6 +106,8 @@ $ENV{'CLASSPATH'} = '';
 
 # Add extra CFLAGS if this is Mac OS X
 if (`uname` =~ /^Darwin/) {
+    die "Mac OS X Developer Tools are not available." unless (-e '/Developer/');
+
     # Build x86_64 only binary against 10.5+
     my $SDK = '/Developer/SDKs/MacOSX10.5.sdk';
     my $ARCHES = '-arch x86_64';
@@ -125,14 +126,6 @@ if (`uname` =~ /^Darwin/) {
     $ENV{"CPP"} = "/Developer/usr/bin/cpp-$GCC_VER";
     $ENV{"CXX"} = "/Developer/usr/bin/g++-$GCC_VER";
     die "gcc version $GCC_VER is not available." unless (-e $ENV{'CC'});
-
-    # Not sure why these are required
-    $ENV{'CFLAGS'} .= " -I$SDK/usr/include";
-    $ENV{'LDFLAGS'} .= " -L$SDK/usr/lib";
-
-    # Hack for ZLIB detection
-    $ENV{'ZLIB_CFLAGS'} = '';
-    $ENV{'ZLIB_LIBZ'} = '-l';
 }
 
 $ENV{'CXXFLAGS'} = $ENV{'CFLAGS'};
