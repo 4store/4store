@@ -37,7 +37,6 @@ void fs_query_add_row_freeable(fs_query *q, void *ptr)
 
 void fs_query_free_row_freeable(fs_query *q)
 {
-#warning LEAK
     for (GSList *it = q->free_row_list; it; it = it->next) {
         g_free(it->data);
     }

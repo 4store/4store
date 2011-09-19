@@ -75,7 +75,7 @@ automake_args="--add-missing"
 autoconf_args=
 libtoolize_args="$ltdl --force --copy --automake"
 gtkdocize_args="--copy"
-aclocal_args=
+aclocal_args="-I /usr/local/share/aclocal"
 automake_args="--gnu --add-missing --force --copy"
 
 

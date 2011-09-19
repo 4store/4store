@@ -31,9 +31,10 @@
 #include <fcntl.h>
 #include <errno.h>
 
+#include "../common/params.h"
+#include "../common/4store.h"
 #include "import.h"
 #include "../common/error.h"
-#include "../common/params.h"
 #include "../common/4store.h"
 
 static fsp_link *fsplink; /* link to remote server(s) */

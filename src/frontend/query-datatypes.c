@@ -1112,6 +1112,119 @@ printf("\n");
     return c;
 }
 
+/* return a MINUS b */
+
+fs_binding *fs_binding_minus(fs_query *q, fs_binding *a, fs_binding *b)
+{
+    if (a == NULL) {
+        return NULL;
+    }
+    if (b == NULL) {
+        /* a - 0 = a */
+        return fs_binding_copy(a);
+    }
+
+    fs_binding *c = fs_binding_copy(a);
+    int inter = 0;      /* do the tables intersect */
+
+    for (int i=0; a[i].name; i++) {
+	a[i].sort = 0;
+	b[i].sort = 0;
+	c[i].sort = 0;
+        c[i].vals->length = 0;
+    }
+    int bound_a = 0;
+    int bound_b = 0;
+    for (int i=1; a[i].name; i++) {
+        if (a[i].bound) bound_a++;
+        if (b[i].bound) bound_b++;
+
+        if (a[i].bound || b[i].bound) {
+            c[i].bound = 1;
+        }
+
+	if (a[i].bound && b[i].bound) {
+	    inter = 1;
+	    a[i].sort = 1;
+	    b[i].sort = 1;
+#ifdef DEBUG_MERGE
+            printf("joining on %s\n", a[i].name);
+#endif
+	}
+    }
+
+    /* a and b bound variables do not intersect, return c (copy of a) */
+    if (!inter) {
+#ifdef DEBUG_MERGE
+        printf("remove nothing, result:\n");
+        fs_binding_print(c, stdout);
+#endif
+	return c;
+    }
+
+    int length_a = fs_binding_length(a);
+    int length_b = fs_binding_length(b);
+
+    /* sort the two sets of bindings so they can be merged linearly */
+    fs_binding_sort(a);
+    fs_binding_sort(b);
+
+#ifdef DEBUG_MERGE
+    printf("a: %d bindings\n", fs_binding_length(a));
+    fs_binding_print(a, stdout);
+    printf("b: %d bindings\n", fs_binding_length(b));
+    fs_binding_print(b, stdout);
+#endif
+
+    int apos = 0;
+    int bpos = 0;
+    int cmp;
+    while (apos < length_a) {
+	cmp = binding_row_compare(q, a, b, apos, bpos, length_a, length_b);
+        if (cmp == -1 || cmp == -2) {
+            /* A and B aren't compatible, keep A row */
+            for (int col=0; a[col].name; col++) {
+                if (!c[col].need_val) {
+                    continue;
+                } else if (a[col].bound) {
+                    fs_rid_vector_append(c[col].vals, table_value(a, col, apos));
+                } else {
+                    fs_rid_vector_append(c[col].vals, FS_RID_NULL);
+                }
+            }
+            apos++;
+        } else if (cmp == 0) {
+            /* Both rows are equal (cmp == 0), skip A row in result */
+#if DEBUG_MERGE > 1
+printf("[I] Ar=%d, Br=%d", apos, bpos);
+#endif
+            int range_a = apos+1;
+            int range_b = bpos+1;
+            while (binding_row_compare(q, a, a, apos, range_a, length_a, length_a) == 0) range_a++;
+            while (binding_row_compare(q, b, b, bpos, range_b, length_b, length_b) == 0) range_b++;
+            apos = range_a;
+            bpos = range_b;
+	} else if (cmp == +1 || cmp == +2) {
+            /* A and B aren't compatible, B sorts lower, skip B or
+               B row is NULL */
+            bpos++;
+	} else {
+            fs_error(LOG_ERR, "cmp=%d, value out of range", cmp);
+        }
+    }
+
+    /* clear the _ord columns */
+    a[0].vals->length = 0;
+    b[0].vals->length = 0;
+
+#ifdef DEBUG_MERGE
+    printf("result: %d bindings\n", fs_binding_length(c));
+    fs_binding_print(c, stdout);
+#endif
+
+    return c;
+}
+
 fs_binding *fs_binding_apply_filters(fs_query *q, int block, fs_binding *b, raptor_sequence *constr)
 {
     fs_binding *ret = fs_binding_copy(b);
@@ -1176,6 +1289,8 @@ const char *fs_join_type_as_string(fs_join_type t)
         return "=X]";
     case FS_UNION:
         return "UNION";
+    case FS_MINUS:
+        return "MINUS";
     }
 
     return "UNKNOWN";

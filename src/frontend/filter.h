@@ -78,6 +78,9 @@ fs_value fn_strstarts(fs_query *q, fs_value arg1, fs_value arg2);
 fs_value fn_strends(fs_query *q, fs_value arg1, fs_value arg2);
 fs_value fn_contains(fs_query *q, fs_value arg1, fs_value arg2);
 fs_value fn_rand(fs_query *q);
+fs_value fn_md5(fs_query *q, fs_value arg);
+fs_value fn_sha1(fs_query *q, fs_value arg);
+fs_value fn_sha256(fs_query *q, fs_value arg);
 
 /* casts and similar */
 fs_value fn_cast(fs_query *q, fs_value v, fs_value d);
