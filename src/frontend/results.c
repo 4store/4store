@@ -265,7 +265,7 @@ fs_value fs_expression_eval(fs_query *q, int row, int block, rasqal_expression *
     case RASQAL_EXPR_RAND:
         return fn_rand(q);
 #endif
-#if RASQAL_VERSION >= 925
+#if RASQAL_VERSION >= 926
     case RASQAL_EXPR_TZ:
         /* TZ is rather complex, and not amazingly useful, but contribuitions of code welcome! */
         return fs_value_error(FS_ERROR_INVALID_TYPE, "unsupported TZ function");
