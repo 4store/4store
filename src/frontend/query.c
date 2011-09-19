@@ -955,6 +955,17 @@ int fs_query_process_pattern(fs_query *q, rasqal_graph_pattern *pattern, raptor_
                     if (i == 0) q->bt = q->bb[i];
                     fs_binding_free(q->bb[j]);
                     q->bb[j] = NULL;
+                } else if (q->join_type[j] == FS_MINUS) {
+                    /* It's a MINUS, subtract RHS from LHS */
+#ifdef DEBUG_MERGE
+                    printf("block join B%d MINUS B%d\n", i, j);
+#endif
+                    fs_binding *nb = fs_binding_minus(q, q->bb[i], q->bb[j]);
+                    fs_binding_free(q->bb[i]);
+                    q->bb[i] = nb;
+                    if (i == 0) q->bt = q->bb[i];
+                    fs_binding_free(q->bb[j]);
+                    q->bb[j] = NULL;
                 } else {
                     fs_error(LOG_ERR, "unknown join type joining B%d and B%d", i, j);
                 }
@@ -1224,17 +1235,24 @@ static void graph_pattern_walk(fsp_link *link, rasqal_graph_pattern *pattern,
     int union_sub = 0;
 
     int op = rasqal_graph_pattern_get_operator(pattern);
+    int handled = 0;
 
-    if (op == RASQAL_GRAPH_PATTERN_OPERATOR_OPTIONAL) {
+    switch (op) {
+    case RASQAL_GRAPH_PATTERN_OPERATOR_OPTIONAL:
+        handled = 1;
 	(q->block)++;
         q->parent_block[q->block] = parent;
         q->join_type[q->block] = FS_LEFT;
-    } else if (op == RASQAL_GRAPH_PATTERN_OPERATOR_UNION) {
+        break;
+    case RASQAL_GRAPH_PATTERN_OPERATOR_UNION:
+        handled = 1;
         (q->unions)++;
         union_sub = q->unions;
-    } else if (op == RASQAL_GRAPH_PATTERN_OPERATOR_BASIC ||
-               op == RASQAL_GRAPH_PATTERN_OPERATOR_GRAPH ||
-               op == RASQAL_GRAPH_PATTERN_OPERATOR_GROUP) {
+        break;
+    case RASQAL_GRAPH_PATTERN_OPERATOR_BASIC:
+    case RASQAL_GRAPH_PATTERN_OPERATOR_GRAPH:
+    case RASQAL_GRAPH_PATTERN_OPERATOR_GROUP:
+        handled = 1;
         if (op == RASQAL_GRAPH_PATTERN_OPERATOR_GRAPH) {
             model = rasqal_graph_pattern_get_origin(pattern);
             if (!model) {
@@ -1244,7 +1262,9 @@ static void graph_pattern_walk(fsp_link *link, rasqal_graph_pattern *pattern,
         (q->block)++;
         q->parent_block[q->block] = parent;
         q->join_type[q->block] = FS_INNER;
-    } else if (op == RASQAL_GRAPH_PATTERN_OPERATOR_FILTER) {
+        break;
+    case RASQAL_GRAPH_PATTERN_OPERATOR_FILTER:
+        handled = 1;
         rasqal_expression *e =
             rasqal_graph_pattern_get_filter_expression(pattern);
         if (e) {
@@ -1267,7 +1287,15 @@ static void graph_pattern_walk(fsp_link *link, rasqal_graph_pattern *pattern,
 #endif
             raptor_sequence_push(q->constraints[parent], e);
         }
-    } else {
+        break;
+    case RASQAL_GRAPH_PATTERN_OPERATOR_MINUS:
+        handled = 1;
+	(q->block)++;
+        q->parent_block[q->block] = parent;
+        q->join_type[q->block] = FS_MINUS;
+        break;
+    }
+    if (!handled) {
 	fs_error(LOG_ERR, "Unknown GP operator %d not supported", op);
     }
 
