@@ -1,0 +1,316 @@
+--- configure.ac.orig	2011-06-05 18:18:49.000000000 -0500
++++ configure.ac	2011-06-07 23:20:56.000000000 -0500
+@@ -2984,18 +2984,32 @@
+ 	cat >>$outfile <<_______EOF
+ #define G_HAVE_GINT64 1          /* deprecated, always true */
+ 
+-${glib_extension}typedef signed $gint64 gint64;
+-${glib_extension}typedef unsigned $gint64 guint64;
++#ifdef __LP64__
++${glib_extension}typedef signed long gint64;
++${glib_extension}typedef unsigned long guint64;
+ 
+-#define G_GINT64_CONSTANT(val)	$gint64_constant
+-#define G_GUINT64_CONSTANT(val)	$guint64_constant
++#define G_GINT64_CONSTANT(val)	(val##L)
++#define G_GUINT64_CONSTANT(val)	(val##UL)
++#else
++${glib_extension}typedef signed long long gint64;
++${glib_extension}typedef unsigned long long guint64;
++
++#define G_GINT64_CONSTANT(val)	(G_GNUC_EXTENSION (val##LL))
++#define G_GUINT64_CONSTANT(val)	(G_GNUC_EXTENSION (val##ULL))
++#endif
+ _______EOF
+ 
+ 	if test x$gint64_format != x ; then
+ 	  cat >>$outfile <<_______EOF
+-#define G_GINT64_MODIFIER $gint64_modifier
+-#define G_GINT64_FORMAT $gint64_format
+-#define G_GUINT64_FORMAT $guint64_format
++#ifdef __LP64__
++#define G_GINT64_MODIFIER "l"
++#define G_GINT64_FORMAT "li"
++#define G_GUINT64_FORMAT "lu"
++#else
++#define G_GINT64_MODIFIER "ll"
++#define G_GINT64_FORMAT "lli"
++#define G_GUINT64_FORMAT "llu"
++#endif
+ _______EOF
+         else
+ 	  cat >>$outfile <<_______EOF
+@@ -3007,9 +3021,15 @@
+ 
+         cat >>$outfile <<_______EOF
+ 
+-#define GLIB_SIZEOF_VOID_P $glib_void_p
+-#define GLIB_SIZEOF_LONG   $glib_long
+-#define GLIB_SIZEOF_SIZE_T $glib_size_t
++#ifdef __LP64__
++#define GLIB_SIZEOF_VOID_P 8
++#define GLIB_SIZEOF_LONG   8
++#define GLIB_SIZEOF_SIZE_T 8
++#else
++#define GLIB_SIZEOF_VOID_P 4
++#define GLIB_SIZEOF_LONG   4
++#define GLIB_SIZEOF_SIZE_T 4
++#endif
+ 
+ _______EOF
+ 
+@@ -3037,18 +3057,33 @@
+ 	if test -z "$glib_unknown_void_p"; then
+ 	  cat >>$outfile <<_______EOF
+ 
+-#define GPOINTER_TO_INT(p)	((gint)  ${glib_gpi_cast} (p))
+-#define GPOINTER_TO_UINT(p)	((guint) ${glib_gpui_cast} (p))
++#ifdef __LP64__
++#define GPOINTER_TO_INT(p)	((gint)  (glong) (p))
++#define GPOINTER_TO_UINT(p)	((guint) (gulong) (p))
++
++#define GINT_TO_POINTER(i)	((gpointer) (glong) (i))
++#define GUINT_TO_POINTER(u)	((gpointer) (gulong) (u))
++
++typedef signed long gintptr;
++typedef unsigned long guintptr;
++
++#define G_GINTPTR_MODIFIER      "l"
++#define G_GINTPTR_FORMAT        "li"
++#define G_GUINTPTR_FORMAT       "lu"
++#else
++#define GPOINTER_TO_INT(p)	((gint)   (p))
++#define GPOINTER_TO_UINT(p)	((guint)  (p))
+ 
+-#define GINT_TO_POINTER(i)	((gpointer) ${glib_gpi_cast} (i))
+-#define GUINT_TO_POINTER(u)	((gpointer) ${glib_gpui_cast} (u))
++#define GINT_TO_POINTER(i)	((gpointer)  (i))
++#define GUINT_TO_POINTER(u)	((gpointer)  (u))
+ 
+-typedef signed $glib_intptr_type_define gintptr;
+-typedef unsigned $glib_intptr_type_define guintptr;
++typedef signed int gintptr;
++typedef unsigned int guintptr;
+ 
+-#define G_GINTPTR_MODIFIER      $gintptr_modifier
+-#define G_GINTPTR_FORMAT        $gintptr_format
+-#define G_GUINTPTR_FORMAT       $guintptr_format
++#define G_GINTPTR_MODIFIER      ""
++#define G_GINTPTR_FORMAT        "i"
++#define G_GUINTPTR_FORMAT       "u"
++#endif
+ _______EOF
+ 	else
+ 	  echo '#error SIZEOF_VOID_P unknown - This should never happen' >>$outfile
+@@ -3164,13 +3199,29 @@
+ {
+   struct _GMutex *runtime_mutex;
+   union {
+-    char   pad[[$g_mutex_sizeof]];
++#ifdef __LP64__
++    char   pad[[64]];
++#else
++    char   pad[[44]];
++#endif
+     double dummy_double;
+     void  *dummy_pointer;
+     long   dummy_long;
+   } static_mutex;
+ };
+-#define	G_STATIC_MUTEX_INIT	{ NULL, { { $g_mutex_contents} } }
++#ifdef __LP64__
++#ifdef __BIG_ENDIAN__
++#define	G_STATIC_MUTEX_INIT	{ NULL, { { 50,-86,-85,-89,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0} } }
++#else
++#define	G_STATIC_MUTEX_INIT	{ NULL, { { -89,-85,-86,50,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0} } }
++#endif
++#else
++#ifdef __BIG_ENDIAN__
++#define	G_STATIC_MUTEX_INIT	{ NULL, { { 50,-86,-85,-89,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0} } }
++#else
++#define	G_STATIC_MUTEX_INIT	{ NULL, { { -89,-85,-86,50,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0} } }
++#endif
++#endif
+ #define	g_static_mutex_get_mutex(mutex) \\
+   (g_thread_use_default_impl ? ((GMutex*)(gpointer) ((mutex)->static_mutex.pad)) : \\
+    g_static_mutex_get_mutex_impl_shortcut (&((mutex)->runtime_mutex)))
+@@ -3194,7 +3245,11 @@
+ typedef union _GSystemThread GSystemThread;
+ union _GSystemThread
+ {
+-  char   data[[$g_system_thread_sizeof]];
++#ifdef __LP64__
++  char   data[[8]];
++#else
++  char   data[[4]];
++#endif
+   double dummy_double;
+   void  *dummy_pointer;
+   long   dummy_long;
+@@ -3202,34 +3257,61 @@
+ _______EOF
+ 	if test x"$g_memory_barrier_needed" != xno; then
+ 	  echo >>$outfile
++	  echo "#ifdef __BIG_ENDIAN__" >>$outfile
+ 	  echo "#define G_ATOMIC_OP_MEMORY_BARRIER_NEEDED 1" >>$outfile
++	  echo "#endif" >>$outfile
+ 	fi
+ 
+ 	echo >>$outfile
+ 	g_bit_sizes="16 32 64"
+ 	for bits in $g_bit_sizes; do
+ 	  cat >>$outfile <<_______EOF
+-#define GINT${bits}_TO_${g_bs_native}(val)	((gint${bits}) (val))
+-#define GUINT${bits}_TO_${g_bs_native}(val)	((guint${bits}) (val))
+-#define GINT${bits}_TO_${g_bs_alien}(val)	((gint${bits}) GUINT${bits}_SWAP_LE_BE (val))
+-#define GUINT${bits}_TO_${g_bs_alien}(val)	(GUINT${bits}_SWAP_LE_BE (val))
++#ifdef __BIG_ENDIAN__
++#define GINT${bits}_TO_BE(val)	((gint${bits}) (val))
++#define GUINT${bits}_TO_BE(val)	((guint${bits}) (val))
++#define GINT${bits}_TO_LE(val)	((gint${bits}) GUINT${bits}_SWAP_LE_BE (val))
++#define GUINT${bits}_TO_LE(val)	(GUINT${bits}_SWAP_LE_BE (val))
++#else
++#define GINT${bits}_TO_LE(val)	((gint${bits}) (val))
++#define GUINT${bits}_TO_LE(val)	((guint${bits}) (val))
++#define GINT${bits}_TO_BE(val)	((gint${bits}) GUINT${bits}_SWAP_LE_BE (val))
++#define GUINT${bits}_TO_BE(val)	(GUINT${bits}_SWAP_LE_BE (val))
++#endif
+ _______EOF
+ 	done
+ 
+ 	cat >>$outfile <<_______EOF
+-#define GLONG_TO_LE(val)	((glong) GINT${glongbits}_TO_LE (val))
+-#define GULONG_TO_LE(val)	((gulong) GUINT${glongbits}_TO_LE (val))
+-#define GLONG_TO_BE(val)	((glong) GINT${glongbits}_TO_BE (val))
+-#define GULONG_TO_BE(val)	((gulong) GUINT${glongbits}_TO_BE (val))
++#ifdef __LP64__
++#define GLONG_TO_LE(val)	((glong) GINT64_TO_LE (val))
++#define GULONG_TO_LE(val)	((gulong) GUINT64_TO_LE (val))
++#define GLONG_TO_BE(val)	((glong) GINT64_TO_BE (val))
++#define GULONG_TO_BE(val)	((gulong) GUINT64_TO_BE (val))
++#else
++#define GLONG_TO_LE(val)	((glong) GINT32_TO_LE (val))
++#define GULONG_TO_LE(val)	((gulong) GUINT32_TO_LE (val))
++#define GLONG_TO_BE(val)	((glong) GINT32_TO_BE (val))
++#define GULONG_TO_BE(val)	((gulong) GUINT32_TO_BE (val))
++#endif
+ #define GINT_TO_LE(val)		((gint) GINT${gintbits}_TO_LE (val))
+ #define GUINT_TO_LE(val)	((guint) GUINT${gintbits}_TO_LE (val))
+ #define GINT_TO_BE(val)		((gint) GINT${gintbits}_TO_BE (val))
+ #define GUINT_TO_BE(val)	((guint) GUINT${gintbits}_TO_BE (val))
+-#define GSIZE_TO_LE(val)	((gsize) GUINT${gsizebits}_TO_LE (val))
+-#define GSSIZE_TO_LE(val)	((gssize) GINT${gsizebits}_TO_LE (val))
+-#define GSIZE_TO_BE(val)	((gsize) GUINT${gsizebits}_TO_BE (val))
+-#define GSSIZE_TO_BE(val)	((gssize) GINT${gsizebits}_TO_BE (val))
+-#define G_BYTE_ORDER $g_byte_order
++#ifdef __LP64__
++#define GSIZE_TO_LE(val)	((gsize) GUINT64_TO_LE (val))
++#define GSSIZE_TO_LE(val)	((gssize) GINT64_TO_LE (val))
++#define GSIZE_TO_BE(val)	((gsize) GUINT64_TO_BE (val))
++#define GSSIZE_TO_BE(val)	((gssize) GINT64_TO_BE (val))
++#else
++#define GSIZE_TO_LE(val)	((gsize) GUINT32_TO_LE (val))
++#define GSSIZE_TO_LE(val)	((gssize) GINT32_TO_LE (val))
++#define GSIZE_TO_BE(val)	((gsize) GUINT32_TO_BE (val))
++#define GSSIZE_TO_BE(val)	((gssize) GINT32_TO_BE (val))
++#endif
++#ifdef __BIG_ENDIAN__
++#define G_BYTE_ORDER G_BIG_ENDIAN
++#else
++#define G_BYTE_ORDER G_LITTLE_ENDIAN
++#endif
+ 
+ #define GLIB_SYSDEF_POLLIN =$g_pollin
+ #define GLIB_SYSDEF_POLLOUT =$g_pollout
+@@ -3514,10 +3596,10 @@
+ *)			glib_vacopy=''
+ esac
+ 
+-if test x$glib_cv_va_val_copy = xno; then
+   glib_vacopy="\$glib_vacopy
+-#define G_VA_COPY_AS_ARRAY 1"
+-fi
++#ifdef __LP64__
++#define G_VA_COPY_AS_ARRAY 1
++#endif"
+ 
+ if test x$glib_cv_hasinline = xyes; then
+     glib_inline='#define G_HAVE_INLINE 1'
+--- glib/gi18n.h.orig	2008-11-23 23:45:23.000000000 -0600
++++ glib/gi18n.h	2008-11-25 23:59:29.000000000 -0600
+@@ -27,7 +27,9 @@
+ 
+ #define  _(String) gettext (String)
+ #define Q_(String) g_dpgettext (NULL, String, 0)
++#ifndef N_
+ #define N_(String) (String)
++#endif
+ #define C_(Context,String) g_dpgettext (NULL, Context "\004" String, strlen (Context) + 1)
+ #define NC_(Context, String) (String)
+ 
+--- gio/gdbusprivate.c.orig	2011-02-15 19:47:39.000000000 -0600
++++ gio/gdbusprivate.c	2011-02-18 15:12:29.000000000 -0600
+@@ -1760,12 +1760,12 @@
+   gchar *ret;
+   /* TODO: use PACKAGE_LOCALSTATEDIR ? */
+   ret = NULL;
+-  if (!g_file_get_contents ("/var/lib/dbus/machine-id",
++  if (!g_file_get_contents ("@@PREFIX@@/var/lib/dbus/machine-id",
+                             &ret,
+                             NULL,
+                             error))
+     {
+-      g_prefix_error (error, _("Unable to load /var/lib/dbus/machine-id: "));
++      g_prefix_error (error, _("Unable to load @@PREFIX@@/var/lib/dbus/machine-id: "));
+     }
+   else
+     {
+--- gio/xdgmime/xdgmime.c.orig	2009-03-12 22:09:52.000000000 -0600
++++ gio/xdgmime/xdgmime.c	2009-04-09 23:41:01.000000000 -0600
+@@ -257,7 +257,7 @@
+ 
+   xdg_data_dirs = getenv ("XDG_DATA_DIRS");
+   if (xdg_data_dirs == NULL)
+-    xdg_data_dirs = "/usr/local/share/:/usr/share/";
++    xdg_data_dirs = "@@PREFIX@@/share/:/usr/share/";
+ 
+   ptr = xdg_data_dirs;
+ 
+--- glib-2.0.pc.in.orig 2008-07-02 16:13:24.000000000 -0500
++++ glib-2.0.pc.in 2008-07-05 15:57:19.000000000 -0500
+@@ -12,4 +12,4 @@
+ Version: @VERSION@
+ Libs: -L${libdir} -lglib-2.0 @INTLLIBS@
+ Libs.private: @ICONV_LIBS@
+-Cflags: -I${includedir}/glib-2.0 -I${libdir}/glib-2.0/include @GLIB_EXTRA_CFLAGS@
++Cflags: -I${includedir}/glib-2.0 -I${libdir}/glib-2.0/include -I${includedir} @GLIB_EXTRA_CFLAGS@
+--- glib/gconvert.c.orig	2011-06-06 00:18:49.000000000 +0100
++++ glib/gconvert.c	2011-09-18 14:08:27.000000000 +0100
+@@ -58,13 +58,14 @@
+ 
+ #include "glibintl.h"
+ 
++/* This check fails on Mac OS X
+ #if defined(USE_LIBICONV_GNU) && !defined (_LIBICONV_H)
+ #error GNU libiconv in use but included iconv.h not from libiconv
+ #endif
+ #if !defined(USE_LIBICONV_GNU) && defined (_LIBICONV_H)
+ #error GNU libiconv not in use but included iconv.h is from libiconv
+ #endif
+-
++*/
+ 
+ /**
+  * SECTION:conversions
+--- glib/gunicollate.c.orig	2009-03-31 18:04:20.000000000 -0500
++++ glib/gunicollate.c	2010-03-06 17:59:08.000000000 -0600
+@@ -26,6 +26,9 @@
+ #include <wchar.h>
+ #endif
+ 
++/* Carbon is not available on 64-bit */
++#undef HAVE_CARBON
++
+ #ifdef HAVE_CARBON
+ #include <CoreServices/CoreServices.h>
+ #endif
