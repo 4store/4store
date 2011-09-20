@@ -1434,6 +1434,7 @@ fs_value fn_substring(fs_query *q, fs_value str, fs_value start, fs_value length
         return fs_value_error(FS_ERROR_INVALID_TYPE, NULL);
     }
     start = cast_integer(start);
+    if (start.in < 1) start.in = 1;
     /* 2 arg form */
     if (length.rid == FS_RID_NULL) {
         length = fs_value_integer(INT_MAX);
