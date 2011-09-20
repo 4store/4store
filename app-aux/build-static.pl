@@ -28,9 +28,8 @@ my $packages = [
     },
     {
         'url' => 'http://kent.dl.sourceforge.net/project/pcre/pcre/8.12/pcre-8.12.tar.bz2',
-        'config' => "./configure $DEFAULT_CONFIGURE_ARGS --enable-utf8 ".
-                    "--enable-unicode-properties --enable-pcregrep-libz ".
-                    "--enable-pcregrep-libbz2",
+        'config' => "./configure $DEFAULT_CONFIGURE_ARGS ".
+                    "--enable-utf8 --enable-unicode-properties",
         'checkfor' => 'lib/pkgconfig/libpcre.pc'
     },
     {
