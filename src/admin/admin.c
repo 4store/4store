@@ -28,6 +28,7 @@
 #include <errno.h>
 #include <stdarg.h>
 #include <math.h>
+#include <glib.h>
 
 #include "../common/4store.h"
 #include "../common/error.h"
@@ -721,7 +722,8 @@ static int cmd_start_stores(void)
     return start_or_stop_stores(START_STORE);
 }
 
-static int cmd_list_kbs(void)
+/* convenience function to avoid code duplication */
+static fsa_node_addr *get_nodes_from_cmd_line(void)
 {
     fsa_node_addr *nodes = NULL;
 
@@ -736,7 +738,7 @@ static int cmd_list_kbs(void)
         if (args_index != argc) {
             /* shouldn't be any args after this one */
             print_invalid_arg();
-            return 1;
+            return NULL;
         }
 
         /* check whether we have a hostname or a node number */
@@ -747,7 +749,7 @@ static int cmd_list_kbs(void)
             if (nodes == NULL) {
                 fsa_error(LOG_ERR, "Node number '%d' not found in config\n",
                           node_num);
-                return 1;
+                return NULL;
             }
         }
         else {
@@ -757,9 +759,21 @@ static int cmd_list_kbs(void)
                 fsa_error(LOG_ERR,
                           "Node with name '%s' not found in config\n",
                           host_or_nodenum);
-                return 1;
+                return NULL;
             }
         }
+    }
+
+    return nodes;
+}
+
+
+static int cmd_list_stores_verbose(void)
+{
+    fsa_node_addr *nodes = get_nodes_from_cmd_line();
+    if (nodes == NULL) {
+        /* error messages already printed */
+        return 1;
     }
 
     fsa_node_addr *node = nodes;
@@ -890,6 +904,168 @@ static int cmd_list_kbs(void)
     return 0;
 }
 
+static int cmd_list_stores(void)
+{
+    /* verbose listing moved to separate function for clarity */
+    if (verbosity >= V_VERBOSE) {
+        return cmd_list_stores_verbose();
+    }
+
+    fsa_node_addr *nodes = get_nodes_from_cmd_line();
+    if (nodes == NULL) {
+        /* error messages already printed */
+        return 1;
+    }
+
+    GHashTable *kb_hash = g_hash_table_new(g_str_hash, g_str_equal);
+
+    fsa_node_addr *node = nodes;
+    fsa_node_addr *tmp_node = NULL;
+    fsa_kb_info *kis;
+    fsa_kb_info *ki;
+    fsa_kb_info *next_ki;
+    int node_num = 0;
+    int name_len;
+    int max_name_len = 10; /* track lengths of kb names */
+
+    /* connect to each node separately */
+    while (node != NULL) {
+        /* only pass a single node to fetch_kb_info, so break linked list  */
+        tmp_node = node->next;
+        node->next = NULL;
+
+        kis = fsaf_fetch_kb_info(NULL, node);
+
+        /* restore next item in list */
+        node->next = tmp_node;
+
+        if (kis == NULL) {
+            /* check errno to see why we got no data */
+            if (errno == 0) {
+                /* no error, but no kbs on node */
+            }
+            else if (errno == ADM_ERR_CONN_FAILED) {
+                /* do nothing, error already handled */
+            }
+            else {
+                fsa_error(LOG_ERR,
+                          "Connection to node %d (%s:%d) failed: %s\n",
+                          node_num, node->host, node->port, strerror(errno));
+            }
+        }
+        else {
+            /* insert each kb info record into hash table */
+            ki = kis;
+            while (ki != NULL) {
+                /* will be breaking the linked list, so track next */
+                next_ki = ki->next;
+
+                /* will return NULL if key not found */
+                ki->next = g_hash_table_lookup(kb_hash, ki->name);
+                g_hash_table_insert(kb_hash, ki->name, ki);
+
+                /* used to align columns when printing */
+                name_len = strlen((char *)ki->name);
+                if (name_len > max_name_len) {
+                    max_name_len = name_len;
+                }
+
+                ki = next_ki;
+            }
+        }
+
+        node_num += 1;
+        node = node->next;
+    }
+
+    /* sort hash keys, print info for each kb in turn */
+    GList *kb_name_list = g_hash_table_get_keys(kb_hash);
+    kb_name_list = g_list_sort(kb_name_list, (GCompareFunc)strcmp);
+
+    char *kb_name;
+    int n_total, n_running, n_stopped, n_unknown;
+    int comma = 0;
+
+    printf(ANSI_COLOUR_BLUE
+           "%-*s store_status backend_status\n"
+           ANSI_COLOUR_RESET,
+           max_name_len, "store_name");
+
+    while (kb_name_list != NULL) {
+        n_running = n_stopped = n_unknown = 0;
+        kb_name = kb_name_list->data;
+
+        kis = g_hash_table_lookup(kb_hash, kb_name);
+        for (ki = kis; ki != NULL; ki = ki->next) {
+            switch (ki->status) {
+                case KB_STATUS_RUNNING:
+                    n_running += 1;
+                    break;
+                case KB_STATUS_STOPPED:
+                    n_stopped += 1;
+                    break;
+                case KB_STATUS_UNKNOWN:
+                    n_unknown += 1;
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        n_total = n_running + n_stopped + n_unknown;
+
+        /* output info for this kb */
+        printf("%-*s ", max_name_len, kb_name);
+
+        if (n_running == n_total) {
+            printf(ANSI_COLOUR_GREEN "available    " ANSI_COLOUR_RESET);
+        }
+        else {
+            printf(ANSI_COLOUR_RED "unavailable  " ANSI_COLOUR_RESET);
+        }
+
+        comma = 0;
+        if (n_running > 0) {
+            printf("%d/%d " ANSI_COLOUR_GREEN "running"
+                   ANSI_COLOUR_RESET, n_running, n_total);
+            comma = 1;
+        }
+
+        if (n_stopped > 0) {
+            if (comma) {
+                printf(", ");
+            }
+            printf("%d/%d " ANSI_COLOUR_RED "stopped"
+                   ANSI_COLOUR_RESET, n_stopped, n_total);
+            comma = 1;
+        }
+
+        if (n_unknown > 0) {
+            if (comma) {
+                printf(", ");
+            }
+            printf("%d/%d " ANSI_COLOUR_YELLOW "unknown"
+                   ANSI_COLOUR_RESET, n_unknown, n_total);
+        }
+
+        printf("\n");
+
+
+        /* done with data in hash entry now */
+        fsa_kb_info_free(kis);
+
+        kb_name_list = g_list_next(kb_name_list);
+    }
+
+    kb_name_list = g_list_first(kb_name_list);
+    g_list_free(kb_name_list);
+
+    fsa_node_addr_free(nodes);
+    g_hash_table_destroy(kb_hash);
+
+    return 0;
+}
+
 /* Check whether admin daemon on all nodes is reachable */
 static int cmd_list_nodes(void)
 {
@@ -1013,7 +1189,7 @@ static int handle_command(void)
         return cmd_list_nodes();
     }
     else if (strcmp(argv[cmd_index], "list-stores") == 0) {
-        return cmd_list_kbs();
+        return cmd_list_stores();
     }
     else if (strcmp(argv[cmd_index], "stop-stores") == 0) {
         return cmd_stop_stores();
