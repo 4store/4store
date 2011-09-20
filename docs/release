@@ -1,16 +1,16 @@
 To make a release:
 
-Make sure your git tree is in sync.
-$ git tag -a 'vx.y.z' -m "Version x.y.z"
-$ git push --tags
-$ sh autogen.sh
-$ ./configure
-$ make dist
+1) Make sure your git tree is in sync with master
+2) $ git tag -a 'vx.y.z' -m "Version x.y.z"
+3) $ git push --tags
+4) $ sh autogen.sh
+5) $ ./configure
+6) $ make dist
 
 Copy tarball to 4store.org:/var/www/html/4store/download/
 
 make macdmg
 
-Copy dmg file to http-a
+Copy dmg file to 4store.org:/var/www/html/4store/download/macosx/
 
-Mail 4store-support@googlegroups.com with release annoucememnt.
+Mail 4store-support@googlegroups.com with release annoucememnt and changelog.

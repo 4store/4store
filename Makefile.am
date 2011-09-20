@@ -7,6 +7,7 @@ test: all
 	(cd tests && $(MAKE) -w $@)
 
 macapp: all
+	app-aux/build-static.pl
 	app-aux/build-app.sh
 
 macdmg: macapp

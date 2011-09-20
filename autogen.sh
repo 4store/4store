@@ -46,9 +46,6 @@ CONFIG_DIR=${CONFIG_DIR-../config}
 #
 programs="automake aclocal autoconf autoheader libtoolize"
 confs=`find . -name configure.ac -print`
-if grep "^GTK_DOC_CHECK" $confs >/dev/null; then
-  programs="$programs gtkdocize"
-fi
 if grep "^AC_CHECK_PROGS.SWIG" $confs >/dev/null; then
   programs="$programs swig"
 fi
@@ -67,15 +64,16 @@ aclocal_min_vers=$automake_min_vers
 autoconf_min_vers=025400
 autoheader_min_vers=$autoconf_min_vers
 libtoolize_min_vers=010400
-gtkdocize_min_vers=010300
 swig_min_vers=010324
 
 # Default program arguments
 automake_args="--add-missing"
 autoconf_args=
 libtoolize_args="$ltdl --force --copy --automake"
-gtkdocize_args="--copy"
 aclocal_args=""
+if test -d /usr/local/share/aclocal; then
+  aclocal_args="-I /usr/local/share/aclocal"
+fi
 automake_args="--gnu --add-missing --force --copy"
 
 
@@ -303,13 +301,6 @@ do
       echo "$program: Running $libtoolize $libtoolize_args"
       $DRYRUN rm -f ltmain.sh libtool
       eval $DRYRUN $libtoolize $libtoolize_args
-
-      if grep "^GTK_DOC_CHECK" configure.ac >/dev/null; then
-        # gtkdocize junk
-        $DRYRUN rm -rf gtk-doc.make
-        echo "$program: Running $gtkdocize $gtkdocize_args"
-        $DRYRUN $gtkdocize $gtkdocize_args
-      fi
 
       echo "$program: Running $aclocal $aclocal_args"
       $DRYRUN $aclocal $aclocal_args
