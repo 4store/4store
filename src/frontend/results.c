@@ -151,6 +151,62 @@ printf("resolving %016llx\n", rid);
     return 0;
 }
 
+static fs_row* fs_row_copy(fs_row *r,int cols) {
+    fs_row *res = malloc(cols * sizeof(fs_row));
+    for (int i = 0; i < cols; i++) {
+        res[i].name = g_strdup(r[i].name);
+        res[i].rid = r[i].rid;
+        res[i].type = r[i].type;
+        res[i].lex = g_strdup(r[i].lex);
+        res[i].dt = g_strdup(r[i].dt);
+        res[i].lang = g_strdup(r[i].lang);
+        res[i].stop = r[i].stop;
+    }
+    return res;
+}
+
+static void fs_free_agg_values(GPtrArray *agg,int vars) {
+    for(int i=0;i<agg->len;i++) {
+        fs_value **p = g_ptr_array_index(agg,i);
+        for (int j=0; j<vars; j++) {
+            free(p[j]);
+        }
+        free(p);
+    }
+    g_ptr_array_free(agg,1);
+}
+
+static void fs_free_agg_rows(GPtrArray *agg,int vars) {
+    for(int i=0;i<agg->len;i++) {
+        fs_row *p = g_ptr_array_index(agg,i);
+        for (int j=0; j<vars; j++) {
+            g_free((gpointer)p[j].name);
+            g_free((gpointer)p[j].lex);
+            g_free((gpointer)p[j].dt);
+            g_free((gpointer)p[j].lang);
+        }
+        free(p);
+    }
+    g_ptr_array_free(agg,1);
+}
+
+static fs_value literal_to_value_in_aggs(fs_query *q, int row, int block, rasqal_literal *l) {
+    rasqal_variable *var =   rasqal_literal_as_variable(l);
+    int i=0;
+    fs_binding *b=q->bt;
+    for (i=0; b[i].name; i++) {
+        if (!strcmp(b[i].name, (const char *) var->name )) {
+            break;
+        }
+    }
+    i--;
+    if (i < q->num_vars) {
+        fs_value **values = (fs_value **) g_ptr_array_index(q->agg_values,row);
+        return *(values[i]);
+    }
+    return fs_value_error(FS_ERROR,"Order in group by with nonexistent variable");
+}
+
 static fs_value literal_to_value(fs_query *q, int row, int block, rasqal_literal *l)
 {
     fs_value v;
@@ -780,8 +836,10 @@ fs_value fs_expression_eval(fs_query *q, int row, int block, rasqal_expression *
         break;
     }
 
-    if (e->literal) {
-	return literal_to_value(q, row, block, e->literal);
+    if (e->literal && q->aggregate_order_sorted == 1) {
+        return literal_to_value_in_aggs(q, row, block, e->literal);
+    } else if (e->literal) {
+        return literal_to_value(q, row, block, e->literal);
     }
 
     return fs_value_error(FS_ERROR_INVALID_TYPE, "unhandled operator");
@@ -2386,6 +2444,21 @@ nextrow: ;
             }
             return q->resrow;
         } else if (q->row >= q->length) {
+         if (q->aggregate_order) {
+                if (q->agg_index >= q->agg_rows->len) {
+                    fs_free_agg_rows(q->agg_rows,q->num_vars);
+                    fs_free_agg_values(q->agg_values,q->num_vars);
+                    return NULL;
+                }
+                if (!q->aggregate_order_sorted) {
+                    q->aggregate_order_sorted = 1;
+                    fs_values_order(q);
+                    q->aggregate_order_sorted = 2;
+                 }
+                 int order_agg = q->ordering[q->agg_index++];
+                 fs_row *xx = (fs_row *) g_ptr_array_index(q->agg_rows,order_agg);
+                 return xx;
+            }
             return NULL;
         }
         fs_rid_vector *groups = fs_binding_get_vals(q->bt, "_group", NULL);
@@ -2456,6 +2529,13 @@ nextrow: ;
     if (q->aggregate) {
         /* set row number to first row in group */
         row = q->group_rows[0];
+        if (q->ordering) {
+            if (!q->agg_rows) {
+                q->agg_rows =  g_ptr_array_new();
+                q->agg_values = g_ptr_array_new();
+            }
+            q->aggregate_order = 1;
+        }
     } else if (q->ordering) {
         row = q->ordering[q->row];
     }
@@ -2485,6 +2565,9 @@ nextrow: ;
 
     int repeat_row = 1;
     for (int i=0; i<q->num_vars; i++) {
+        fs_value **values;
+        if (q->agg_values && i == 0)
+            values = malloc(q->num_vars * sizeof(fs_value *));
         fs_rid last_rid = q->resrow[i].rid;
         q->resrow[i].rid = q->bt[i+1].bound && row < q->bt[i+1].vals->length ?
                            q->bt[i+1].vals->data[row] : FS_RID_NULL;
@@ -2513,6 +2596,17 @@ nextrow: ;
                 }
             }
             fs_value_to_row(q, val, q->resrow+i);
+            if (q->agg_values) {
+                fs_value *cpy = malloc(sizeof(fs_value));
+                if (val.lex)
+                    cpy->lex = g_strdup(val.lex);
+                memcpy(cpy,&val,sizeof(fs_value));
+                values[i] = cpy;
+            }
+            if (q->group_by && q->ordering && q->num_vars == i+1) {
+                g_ptr_array_add(q->agg_values,values);
+                q->row = next_row;
+            }
         } else {
             fs_resource r;
             resolve(q, q->resrow[i].rid, &r);
@@ -2537,6 +2631,14 @@ nextrow: ;
                     }
                 }
             }
+            if (q->agg_values) {
+                values[i] =  malloc(sizeof(fs_value));
+                values[i]->lex = g_strdup(r.lex);
+                values[i]->rid = r.rid;
+                values[i]->attr = r.attr;
+            }
+            if (q->group_by && q->ordering && q->num_vars == i+1)
+                g_ptr_array_add(q->agg_values,values);
         }
     }
 
@@ -2558,6 +2660,11 @@ nextrow: ;
             fs_bit_array_destroy(q->apply_constraints);
     }
 
+    if (q->aggregate_order) {
+        fs_row *copy = fs_row_copy(q->resrow, q->num_vars);
+        g_ptr_array_add(q->agg_rows,copy);
+        goto nextrow; 
+    }
     return q->resrow;
 }
 
