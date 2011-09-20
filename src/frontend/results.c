@@ -169,6 +169,8 @@ static void fs_free_agg_values(GPtrArray *agg,int vars) {
     for(int i=0;i<agg->len;i++) {
         fs_value **p = g_ptr_array_index(agg,i);
         for (int j=0; j<vars; j++) {
+            if (p[j]->lex)
+                g_free(p[j]->lex);
             free(p[j]);
         }
         free(p);
@@ -2598,9 +2600,9 @@ nextrow: ;
             fs_value_to_row(q, val, q->resrow+i);
             if (q->agg_values) {
                 fs_value *cpy = malloc(sizeof(fs_value));
+                memcpy(cpy,&val,sizeof(fs_value));
                 if (val.lex)
                     cpy->lex = g_strdup(val.lex);
-                memcpy(cpy,&val,sizeof(fs_value));
                 values[i] = cpy;
             }
             if (q->group_by && q->ordering && q->num_vars == i+1) {
