@@ -31,6 +31,8 @@
 #include "../common/4s-hash.h"
 #include "../common/error.h"
 
+gboolean fs_time_from_iso8601(const char *iso_date, time_t *time_);
+
 fs_value fs_value_blank()
 {
     fs_value v;
@@ -233,9 +235,9 @@ fs_value fs_value_datetime_from_string(const char *s)
 
     memset(&td, 0, sizeof(struct tm));
 
-    GTimeVal gtime;
-    if (g_time_val_from_iso8601(s, &gtime)) {
-        v.in = gtime.tv_sec;
+    time_t utc;
+    if (fs_time_from_iso8601(s, &utc)) {
+        v.in = utc;
         v.valid = fs_valid_bit(FS_V_IN);
         v.lex = (char *)s;
 
@@ -548,5 +550,72 @@ fs_value fs_value_fill_rid(fs_query *q, fs_value a)
 
     return a;
 }
+
+/* N.B. this code is taken from glib 2.12.13 */
+gboolean fs_time_from_iso8601(const char *iso_date, time_t *time_)
+{
+  struct tm tm = { 0 };
+  long val;
+
+  g_return_val_if_fail (iso_date != NULL, FALSE);
+  g_return_val_if_fail (time_ != NULL, FALSE);
+
+  val = strtoul(iso_date, (char **)&iso_date, 10);
+  if (*iso_date == '-') {
+      /* YYYY-MM-DD */
+      tm.tm_year = val - 1900;
+      iso_date++;
+      tm.tm_mon = strtoul (iso_date, (char **)&iso_date, 10) - 1;
+      
+      if (*iso_date++ != '-')
+       	return FALSE;
+      
+      tm.tm_mday = strtoul (iso_date, (char **)&iso_date, 10);
+  } else {
+      /* YYYYMMDD */
+      tm.tm_mday = val % 100;
+      tm.tm_mon = (val % 10000) / 100 - 1;
+      tm.tm_year = val / 10000 - 1900;
+  }
+
+  if (*iso_date++ != 'T') return FALSE;
+  
+  val = strtoul(iso_date, (char **)&iso_date, 10);
+  if (*iso_date == ':') {
+      /* hh:mm:ss */
+      tm.tm_hour = val;
+      iso_date++;
+      tm.tm_min = strtoul (iso_date, (char **)&iso_date, 10);
+      
+      if (*iso_date++ != ':')
+        return FALSE;
+      
+      tm.tm_sec = strtoul (iso_date, (char **)&iso_date, 10);
+  } else {
+      /* hhmmss */
+      tm.tm_sec = val % 100;
+      tm.tm_min = (val % 10000) / 100;
+      tm.tm_hour = val / 10000;
+  }
+
+  *time_ = timegm(&tm);
+  
+  if (*iso_date == '+' || *iso_date == '-') {
+      gint sign = (*iso_date == '+') ? -1 : 1;
+      
+      val = 60 * strtoul (iso_date + 1, (char **)&iso_date, 10);
+      
+      if (*iso_date == ':') {
+	  val = 60 * val + strtoul (iso_date + 1, NULL, 10);
+      } else {
+          val = 60 * (val / 100) + (val % 100);
+      }
+
+      *time_ += (time_t) (val * sign);
+  }
+
+  return TRUE;
+}
+
 
 /* vi:set expandtab sts=4 sw=4: */
