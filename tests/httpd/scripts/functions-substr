@@ -13,4 +13,4 @@ sparql "$EPR" 'SELECT ?o (SUBSTR(?o, 10, 3) AS ?ss) WHERE { <test:data> <test:bc
 sparql "$EPR" 'SELECT ?o (SUBSTR(?o, 15, 100) AS ?ss) WHERE { <test:data> <test:bcd> ?o } ORDER BY ?o'
 sparql "$EPR" 'SELECT ?o (SUBSTR(?o, 15.4, 2.3) AS ?ss) WHERE { <test:data> <test:bcd> ?o } ORDER BY ?o'
 
-delete "$EPR" 'http://example.com/numbers.ttl'
+delete "$EPR" 'http://example.com/nasty.ttl'
