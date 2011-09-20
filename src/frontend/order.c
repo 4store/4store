@@ -149,6 +149,48 @@ static void reverse_array(int *a, int length)
     }
 }
 
+void fs_values_order(fs_query *q) {
+    int conditions;
+    for (conditions = 0; rasqal_query_get_order_condition(q->rq, conditions);
+            conditions++); 
+    int length = q->agg_values->len;
+    fs_value *ordervals = malloc(length * conditions * sizeof(fs_value));
+    struct order_row *orows = malloc(sizeof(struct order_row) * length);
+    for (int i=0; i<length; i++) {
+	for (int j=0; j<conditions; j++) {
+	    ordervals[i * conditions + j] = fs_expression_eval(q, i, 0,
+				rasqal_query_get_order_condition(q->rq, j));
+
+#ifdef DEBUG_ORDER
+printf("@@_ ORDER VAL (%d, %d) = ", i, j);
+fs_value_print(ordervals[i * conditions + j]);
+printf("\n");
+#endif
+	}
+        orows[i].row = i;
+        orows[i].width = conditions;
+        orows[i].vals = ordervals + (i * conditions);
+    }
+
+    qsort(orows, length, sizeof(struct order_row), orow_compare);
+
+    int *ordering = malloc(sizeof(int) * length);
+    for (int i=0; i<length; i++) {
+        ordering[i] = orows[i].row;
+    }
+#ifdef DEBUG_ORDER
+printf("Output order:\n");
+for (int i=0; i<length; i++) {
+    printf("output row %d row %d\n", i, ordering[i]);
+}
+#endif
+
+    q->ordering = ordering;
+    free(ordervals);
+    free(orows);
+}
+
+
 void fs_query_order(fs_query *q)
 {
     int conditions;
