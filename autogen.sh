@@ -70,7 +70,10 @@ swig_min_vers=010324
 automake_args="--add-missing"
 autoconf_args=
 libtoolize_args="$ltdl --force --copy --automake"
-aclocal_args="-I /usr/local/share/aclocal"
+aclocal_args=""
+if test -d /usr/local/share/aclocal; then
+  aclocal_args="-I /usr/local/share/aclocal"
+fi
 automake_args="--gnu --add-missing --force --copy"
 
 
