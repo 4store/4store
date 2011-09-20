@@ -103,6 +103,12 @@ $ENV{'PATH'} = "${ROOT_DIR}/bin:/usr/bin:/bin";
 $ENV{'PKG_CONFIG_PATH'} = "${ROOT_DIR}/lib/pkgconfig";
 $ENV{'CLASSPATH'} = '';
 
+# Check tools required are available
+my @TOOLS_REQUIRED = ('cmake', 'curl', 'ed', 'make', 'patch', 'tar');
+foreach my $cmd (@TOOLS_REQUIRED) {
+  system("which $cmd > /dev/null") && die "Error: $cmd is not available on this system.";
+}
+
 # Add extra CFLAGS if this is Mac OS X
 if (`uname` =~ /^Darwin/) {
     die "Mac OS X Developer Tools are not available." unless (-e '/Developer/');
