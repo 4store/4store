@@ -1,0 +1,35 @@
+#!
+
+$TESTPATH/frontend/4s-query $1 '
+PREFIX foaf: <http://xmlns.com/foaf/0.1/>
+SELECT DISTINCT ?x 
+WHERE {
+  ?x <http://xmlns.com/foaf/0.1/mbox_sha1sum> ?s .
+  MINUS {
+    ?x <http://xmlns.com/foaf/0.1/mbox_sha1sum>
+		"828414515d398b42268a6c2ed879dc505369223a",
+		"4829af19130151de1c4def299d73d33f33dee0fb"
+  }
+} ORDER BY ?x'
+
+$TESTPATH/frontend/4s-query $1 '
+PREFIX foaf: <http://xmlns.com/foaf/0.1/>
+SELECT DISTINCT ?x ?s
+WHERE {
+  ?x <http://xmlns.com/foaf/0.1/mbox_sha1sum> ?s .
+  MINUS {
+    ?x <http://xmlns.com/foaf/0.1/mbox_sha1sum> "44bc4fed584a2d1ac8fc55206db67656165d67fd"
+  }
+  MINUS {
+    ?x <http://xmlns.com/foaf/0.1/mbox_sha1sum> "0f585a7b90a5f2d3cceac58f5fd998ebd99b6e71"
+  }
+  MINUS {
+    ?x <http://xmlns.com/foaf/0.1/mbox_sha1sum> "289d4d44325d0b0218edc856c8c3904fa3fd2875"
+  }
+  MINUS {
+    ?x <http://xmlns.com/foaf/0.1/mbox_sha1sum> "828414515d398b42268a6c2ed879dc505369223a"
+  }
+  MINUS {
+    ?x <http://xmlns.com/foaf/0.1/mbox_sha1sum> "nosuch hash"
+  }
+} ORDER BY ?x'

@@ -66,7 +66,7 @@ my $packages = [
         'url' => 'http://github.com/lloyd/yajl/tarball/1.0.12',
         'dirname' => 'lloyd-yajl-17b1790',
         'tarname' => 'yajl-1.0.12.tar.gz',
-        'config' => "mkdir build && cd build && cmake ..",
+        'config' => "mkdir build && cd build && /usr/local/bin/cmake ..",
         'make' => "cd build && make yajl_s",
         'install' => "cd build/yajl-1.0.12 && ".
                      "cp -Rfv include/yajl ${ROOT_DIR}/include/ && ".
@@ -109,16 +109,24 @@ if (`uname` =~ /^Darwin/) {
     die "Mac OS X Developer Tools are not available." unless (-e '/Developer/');
 
     # Build x86_64 only binary against 10.5+
-    my $SDK = '/Developer/SDKs/MacOSX10.5.sdk';
+    my $SDK;
+    my $SDKver;
+    for my $ver ('10.5', '10.6') {
+	if (-d "/Developer/SDKs/MacOSX${ver}.sdk") {
+	    $SDKver = $ver;
+            $SDK = "/Developer/SDKs/MacOSX${ver}.sdk";
+	    last;
+	}
+    }
+    die "Mac OS X SDK is not available." unless ($SDK);
     my $ARCHES = '-arch x86_64';
-    my $MINVER = '-mmacosx-version-min=10.5';
-    die "Mac OS X SDK is not available." unless (-e $SDK);
+    my $MINVER = "-mmacosx-version-min=$SDKver";
 
     $ENV{'CFLAGS'} .= " -isysroot $SDK $ARCHES $MINVER";
     $ENV{'LDFLAGS'} .= " -Wl,-syslibroot,$SDK $ARCHES $MINVER";
     $ENV{'CFLAGS'} .= " -force_cpusubtype_ALL";
     $ENV{'LDFLAGS'} .= " -Wl,-headerpad_max_install_names";
-    $ENV{'MACOSX_DEPLOYMENT_TARGET'} = '10.5';
+    $ENV{'MACOSX_DEPLOYMENT_TARGET'} = $SDKver;
     $ENV{'CMAKE_OSX_ARCHITECTURES'} = 'x86_64';
 
     my $GCC_VER = '4.2';

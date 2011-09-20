@@ -1,17 +1,28 @@
-#!/bin/sh
+#!/bin/bash
 
-if [ "$1" = '--help' ] ; then
-  echo "Usage: $0"
-  echo "       $0 <kbname>"
+function usage {
+  echo "Usage: $0";
+  echo "       $0 <kbname>";
+}
+
+if [ "x$1" = 'x--help' ] ; then
+  usage
   exit
-elif [ "$1" = '--version' ] ; then
+fi
+if [ "x$1" = 'x--version' ] ; then
   4s-backend --version | sed 's/4s-backend/'`basename $0`'/'
   exit
 fi
 
 if (($# == 1)) ; then
  4s-ssh-all-parallel 4s-backend-info "$1"
-else 
+else
+ if [ ! -e /etc/4s-cluster ]; then
+   usage
+   echo
+   echo "Cannot find /etc/4s-cluster line"
+   exit
+ fi
  echo "Usage: $0 <kbname>"
  echo
  echo "Available KBs on this cluster are:"
