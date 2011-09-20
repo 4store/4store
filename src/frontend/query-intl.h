@@ -62,6 +62,11 @@ struct _fs_query {
     int lastrow;			/* last row that was resolved */
     int rows_output;			/* number of rows returned */
     int errors;				/* number of parse/execution errors */
+    int aggregate_order; /* 4 fields for group by + sort and/or filters */
+    int aggregate_order_sorted;
+    GPtrArray *agg_rows;
+    GPtrArray *agg_values;
+    int agg_index;
     fs_row *resrow;
     fs_p_vector blocks[FS_MAX_BLOCKS];
     fs_join_type join_type[FS_MAX_BLOCKS];
