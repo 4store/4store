@@ -8,7 +8,7 @@ sparql "$EPR" "\
 SELECT ?o ?v \
 WHERE { GRAPH <http://example.com/dates.ttl> \
 { ?o <test:date> ?v }} \
-ORDER BY ?o"
+ORDER BY ?v"
 
 sparql "$EPR" 'BASE <http://example.com/> SELECT * WHERE { GRAPH <http://example.com/dates.ttl> { <a> <test:date> ?date1 . <h> <test:date> ?date2 .  FILTER ( ?date1 < ?date2 ) }}'
 sparql "$EPR" 'BASE <http://example.com/> ASK WHERE { GRAPH <http://example.com/dates.ttl> { <g> <test:date> ?date1.  <h> <test:date> ?date2.  FILTER ( ?date1 = ?date2 ) .}}'

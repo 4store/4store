@@ -1434,6 +1434,7 @@ fs_value fn_substring(fs_query *q, fs_value str, fs_value start, fs_value length
         return fs_value_error(FS_ERROR_INVALID_TYPE, NULL);
     }
     start = cast_integer(start);
+    if (start.in < 1) start.in = 1;
     /* 2 arg form */
     if (length.rid == FS_RID_NULL) {
         length = fs_value_integer(INT_MAX);
@@ -1677,9 +1678,9 @@ fs_value fn_rand(fs_query *q)
     return v;
 }
 
+#if GLIB_MAJOR_VERSION >= 2 && GLIB_MINOR_VERSION >= 16
 fs_value fn_hash_intl(fs_query *q, fs_value arg, GChecksumType type)
 {
-#if GLIB_MAJOR_VERSION >= 2 && GLIB_MINOR_VERSION >= 16
     if (!fs_is_plain_or_string(arg)) {
         return fs_value_error(FS_ERROR_INVALID_TYPE, NULL);
     }
@@ -1692,24 +1693,34 @@ fs_value fn_hash_intl(fs_query *q, fs_value arg, GChecksumType type)
     fs_query_add_freeable(q, str);
 
     return fs_value_plain(str);
+}
+#endif
+
+fs_value fn_md5(fs_query *q, fs_value arg)
+{
+#if GLIB_MAJOR_VERSION >= 2 && GLIB_MINOR_VERSION >= 16
+    return fn_hash_intl(q, arg, G_CHECKSUM_MD5);
 #else
     return fs_value_error(FS_ERROR_INVALID_TYPE, "glib version does not support hash functions, at least 2.16.0 required");
 #endif
 }
 
-fs_value fn_md5(fs_query *q, fs_value arg)
-{
-    return fn_hash_intl(q, arg, G_CHECKSUM_MD5);
-}
-
 fs_value fn_sha1(fs_query *q, fs_value arg)
 {
+#if GLIB_MAJOR_VERSION >= 2 && GLIB_MINOR_VERSION >= 16
     return fn_hash_intl(q, arg, G_CHECKSUM_SHA1);
+#else
+    return fs_value_error(FS_ERROR_INVALID_TYPE, "glib version does not support hash functions, at least 2.16.0 required");
+#endif
 }
 
 fs_value fn_sha256(fs_query *q, fs_value arg)
 {
+#if GLIB_MAJOR_VERSION >= 2 && GLIB_MINOR_VERSION >= 16
     return fn_hash_intl(q, arg, G_CHECKSUM_SHA256);
+#else
+    return fs_value_error(FS_ERROR_INVALID_TYPE, "glib version does not support hash functions, at least 2.16.0 required");
+#endif
 }
 
 /* vi:set expandtab sts=4 sw=4: */

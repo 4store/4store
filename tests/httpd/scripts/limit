@@ -3,6 +3,8 @@
 # This tests a deeply strange bug where bad double casts were setting errno,
 # and tripping up some other code which was testing errno when it shouldn't
 
+pkg-config rasqal --atleast-version=0.9.25 || exit 3
+
 source sparql.sh
 
 put "$EPR" ../../data/numbers.ttl 'text/turtle' 'http://example.com/numbers.ttl'
