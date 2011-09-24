@@ -135,10 +135,10 @@ echo
 echo "Configuration status:"
 
 if test "X$have_avahi" = Xno -a "X$have_dns_sd" = Xno; then
-	AC_MSG_WARN("No mDNS libraries are available, cluster support available through 4s-boss")
-	AC_MSG_WARN("Install Avahi (-glib and -client) to get mDNS support on Linux")
+	echo "   Cluster support available through 4s-boss"
+	echo "   Install Avahi (-glib and -client) to get mDNS support on Linux"
 else
-	echo "   Found mDNS libraries, cluster suport enabled"
+	echo "   Cluster support available through mDNS or 4s-boss"
 fi
 echo "   Using Raptor version $raptor_version"
 echo "   Using Rasqal version $rasqal_version"
