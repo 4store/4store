@@ -122,7 +122,7 @@ int fsab_kb_info_init(fsa_kb_info *ki, const unsigned char *kb_name)
     md = fs_metadata_open((char *)kb_name);
     if (md != NULL) {
         ki->num_segments =
-            atoi(fs_metadata_get_string(md, FS_MD_SEGMENTS, "-1"));
+            atoi(fs_metadata_get_string(md, FS_MD_SEGMENTS, "0"));
 
         fs_rid_vector *vec = fs_metadata_get_int_vector(md, FS_MD_SEGMENT_P);
         fs_rid_vector_sort(vec);
