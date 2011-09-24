@@ -663,6 +663,9 @@ static int start_or_stop_stores(int action)
                         case ADM_ERR_KB_STATUS_STOPPED:
                             printf(ANSI_COLOUR_GREEN "stopped");
                             break;
+                        case ADM_ERR_KB_GET_INFO:
+                            printf(ANSI_COLOUR_RED "store_not_found");
+                            break;
                         default:
                             printf(ANSI_COLOUR_RED "unknown");
                             break;
@@ -679,6 +682,9 @@ static int start_or_stop_stores(int action)
                             break;
                         case ADM_ERR_KB_STATUS_STOPPED:
                             printf(ANSI_COLOUR_YELLOW "stopped");
+                            break;
+                        case ADM_ERR_KB_GET_INFO:
+                            printf(ANSI_COLOUR_RED "store_not_found");
                             break;
                         default:
                             printf(ANSI_COLOUR_RED "unknown");

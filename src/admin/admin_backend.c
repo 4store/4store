@@ -217,7 +217,7 @@ int fsab_stop_local_kb(const unsigned char *kb_name, int *err)
     fs_error(LOG_DEBUG, "stopping kb '%s'", kb_name);
 
     fsa_kb_info *ki = fsab_get_local_kb_info(kb_name);
-    if (ki == NULL) {
+    if (ki == NULL || ki->num_segments == 0 || ki->p_segments_len == 0) {
         *err = ADM_ERR_KB_GET_INFO;
         return -1;
     }
@@ -276,7 +276,8 @@ int fsab_start_local_kb(const unsigned char *kb_name, int *exit_val,
     *output = NULL;
 
     fsa_kb_info *ki = fsab_get_local_kb_info(kb_name);
-    if (ki == NULL) {
+    if (ki == NULL || ki->num_segments == 0 || ki->p_segments_len == 0) {
+        /* failed to read metadata.nt, therefore kb doesn't exist */
         *err = ADM_ERR_KB_GET_INFO;
         return -1;
     }
