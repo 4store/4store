@@ -16,8 +16,6 @@
 #define ADM_H_CMD_LEN 1
 #define ADM_H_DL_LEN 2
 #define ADM_HEADER_LEN ADM_H_LEN+ADM_H_VERS_LEN+ADM_H_CMD_LEN+ADM_H_DL_LEN
-#define ADM_MAX_DATA_LEN 5000
-#define ADM_PKT_BUF_LEN ADM_HEADER_LEN+ADM_MAX_DATA_LEN
 
 /* Protocol commands and responses */
 #define ADM_CMD_GET_KB_PORT     1
@@ -36,6 +34,8 @@
 #define ADM_CMD_START_KB_ALL   14
 #define ADM_RSP_STOP_KB_ALL    15
 #define ADM_RSP_START_KB_ALL   16
+#define ADM_CMD_DELETE_KB      17
+#define ADM_RSP_DELETE_KB      18
 #define ADM_RSP_EXPECT_N      253
 #define ADM_RSP_ABORT_EXPECT  254
 #define ADM_RSP_ERROR         255
