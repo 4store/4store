@@ -573,7 +573,7 @@ static void handle_cmd_get_kb_info_all(int client_fd)
 /* get all information about a specific kb on this host, send to client */
 static void handle_cmd_get_kb_info(int client_fd, uint16_t datasize)
 {
-    int rv, len;
+    int rv, len, err;
     fsa_kb_info *ki;
     unsigned char *response;
     unsigned char *kb_name;
@@ -584,9 +584,9 @@ static void handle_cmd_get_kb_info(int client_fd, uint16_t datasize)
         return;
     }
 
-    ki = fsab_get_local_kb_info(kb_name);
+    ki = fsab_get_local_kb_info(kb_name, &err);
     free(kb_name); /* done with kb_name */
-    if (ki == NULL) {
+    if (ki == NULL || err == ADM_ERR_KB_NOT_EXISTS) {
         send_error_message(client_fd, "failed to get local kb info");
         return;
     }
@@ -598,6 +598,44 @@ static void handle_cmd_get_kb_info(int client_fd, uint16_t datasize)
         send_error_message(client_fd, "failed to encode kb info");
         return;
     }
+
+    fsa_error(LOG_DEBUG, "response size is %d bytes", len);
+
+    /* send entire response back to client */
+    rv = fsa_sendall(client_fd, response, &len);
+    free(response); /* done with response buffer */
+    if (rv == -1) {
+        fsa_error(LOG_ERR, "failed to send response to client: %s",
+                  strerror(errno));
+        return;
+    }
+
+    fsa_error(LOG_DEBUG, "%d bytes sent to client", len);
+}
+
+/* start or stop a running kb */
+static void handle_cmd_delete_kb(int client_fd, uint16_t datasize)
+{
+    int rv, err;
+    unsigned char *msg = NULL;
+    int exit_val; /* exit value from 4s-backend-delete */
+
+    /* datasize = num chars in kb name */
+    unsigned char *kb_name = get_string_from_client(client_fd, datasize);
+    if (kb_name == NULL) {
+        /* errors already logged/handled */
+        return;
+    }
+
+    rv = fsab_delete_local_kb(kb_name, &exit_val, &msg, &err);
+
+    /* encode message for client */
+    int len;
+    unsigned char *response =
+        fsap_encode_rsp_delete_kb(err, kb_name, msg, &len);
+
+    free(msg);
+    free(kb_name);
 
     fsa_error(LOG_DEBUG, "response size is %d bytes", len);
 
@@ -815,6 +853,9 @@ static void handle_client_data(int client_fd)
             break;
         case ADM_CMD_START_KB_ALL:
             handle_cmd_start_kb_all(client_fd);
+            break;
+        case ADM_CMD_DELETE_KB:
+            handle_cmd_delete_kb(client_fd, datasize);
             break;
         default:
             fsa_error(LOG_ERR, "unknown client request");

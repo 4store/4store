@@ -51,6 +51,8 @@
 #define ADM_ERR_KB_STATUS_STOPPED 8
 #define ADM_ERR_KB_STATUS_UNKNOWN 9
 #define ADM_ERR_NETWORK          10 
+#define ADM_ERR_KB_NOT_EXISTS    11 
+#define ADM_ERR_KILL_FAILED      12
 #define ADM_ERR_SEE_ERRNO       254
 #define ADM_ERR_GENERIC         255
 

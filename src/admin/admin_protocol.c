@@ -469,3 +469,29 @@ unsigned char *fsap_encode_rsp_get_kb_info_all(const fsa_kb_info *ki, int *len)
     *len = data_len + ADM_HEADER_LEN;
     return buf;
 }
+
+unsigned char *fsap_encode_cmd_delete_kb(const unsigned char *kb_name,
+                                         int *len)
+{
+    int data_len = strlen((char *)kb_name);
+    unsigned char *buf = init_packet(ADM_CMD_DELETE_KB, data_len);
+    unsigned char *p = buf;
+    p += ADM_HEADER_LEN; /* move to start of data section */
+
+    memcpy(p, kb_name, data_len);
+    *len = data_len + ADM_HEADER_LEN;
+    return buf;
+}
+
+unsigned char *fsap_encode_rsp_delete_kb(int retval,
+                                         const unsigned char *kb_name,
+                                         const unsigned char *msg,
+                                         int *len)
+{
+    return encode_kb_response(ADM_RSP_DELETE_KB, retval, kb_name, msg, len);
+}
+
+fsa_kb_response *fsap_decode_rsp_delete_kb(const unsigned char *buf)
+{
+    return decode_kb_response(buf);
+}

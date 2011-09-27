@@ -276,10 +276,11 @@ static void print_help(void)
 "    --debug   Output full debugging information\n"
 "\n"
 "Common commands (use `%s help <command>' for more info)\n"
-"  list-nodes   List hostname:port and status of all known storage nodes\n"
-"  list-stores  List stores, along with the nodes they're hosted on\n"
-"  stop-stores  Stop a store backend process on all nodes\n"
-"  start-stores Start a store backend process on all nodes\n"
+"  list-nodes    List hostname:port and status of all known storage nodes\n"
+"  list-stores   List stores, along with the nodes they're hosted on\n"
+"  stop-stores   Stop a store backend process on all nodes\n"
+"  start-stores  Start a store backend process on all nodes\n"
+"  delete-stores Delete a store on all nodes\n"
 "\n",
             program_invocation_short_name
         );
@@ -329,6 +330,14 @@ static void print_help(void)
 "cluster.  Either pass in a space separated list of store names, or use\n"
 "the '-a' argument to start all stores.\n",
                 program_invocation_short_name, argv[i],
+                program_invocation_short_name, argv[i]
+            );
+        }
+        else if (strcmp(argv[i], "delete-stores") == 0) {
+            printf(
+"Usage: %s %s <store_names>...\n"
+"Delete store(s) on all nodes of a cluster.  Pass in a space separated \n"
+"list of store names to delete.\n",
                 program_invocation_short_name, argv[i]
             );
         }
@@ -663,7 +672,7 @@ static int start_or_stop_stores(int action)
                         case ADM_ERR_KB_STATUS_STOPPED:
                             printf(ANSI_COLOUR_GREEN "stopped");
                             break;
-                        case ADM_ERR_KB_GET_INFO:
+                        case ADM_ERR_KB_NOT_EXISTS:
                             printf(ANSI_COLOUR_RED "store_not_found");
                             break;
                         default:
@@ -683,7 +692,7 @@ static int start_or_stop_stores(int action)
                         case ADM_ERR_KB_STATUS_STOPPED:
                             printf(ANSI_COLOUR_YELLOW "stopped");
                             break;
-                        case ADM_ERR_KB_GET_INFO:
+                        case ADM_ERR_KB_NOT_EXISTS:
                             printf(ANSI_COLOUR_RED "store_not_found");
                             break;
                         default:
@@ -726,6 +735,215 @@ static int cmd_stop_stores(void)
 static int cmd_start_stores(void)
 {
     return start_or_stop_stores(START_STORE);
+}
+
+/* convenience func to create int array of socket fds */
+static int *init_sock_fds(int n)
+{
+    int *sock_fds = (int *)malloc(n * sizeof(int));
+    for (int i = 0; i < n; i++) {
+        sock_fds[i] = -1;
+    }
+    return sock_fds;
+}
+
+static void cleanup_sock_fds(int *sock_fds, int n)
+{
+    for (int i = 0; i < n; i++) {
+        if (sock_fds[i] != -1) {
+            close(sock_fds[i]);
+        }
+    }
+    free(sock_fds);
+}
+
+static int cmd_delete_stores(void)
+{
+    if (args_index < 0) {
+        /* no argument given, display help text */
+        fsa_error(
+            LOG_ERR,
+            "No store name(s) given. Use `%s help %s' for details",
+            program_invocation_short_name, argv[cmd_index]
+        );
+        return 1;
+    }
+
+    /* check for invalid store names */
+    for (int i = args_index; i < argc; i++) {
+        if (!fsa_is_valid_kb_name(argv[i])) {
+            fsa_error(LOG_ERR, "'%s' is not a valid store name", argv[i]);
+            return 1;
+        }
+    }
+    
+    /* get list of all storage nodes */
+    fsa_node_addr *node;
+    fsa_node_addr *nodes = get_storage_nodes();
+    int n_nodes = 0;
+    for (node = nodes; node != NULL; node = node->next) {
+        n_nodes += 1;
+    }
+
+    /* connections to each node */
+    int *sock_fds = init_sock_fds(n_nodes);
+
+    /* Setup hints information */
+    struct addrinfo hints;
+    memset(&hints, 0, sizeof(hints));
+    hints.ai_family = AF_UNSPEC;
+    hints.ai_socktype = SOCK_STREAM;
+
+    char ipaddr[INET6_ADDRSTRLEN];
+    int cur_node = 0;
+
+    printf("Connecting to all nodes:\n");
+
+    for (fsa_node_addr *n = nodes; n != NULL; n = n->next) {
+        sock_fds[cur_node] =
+            fsaf_connect_to_admind(n->host, n->port, &hints, ipaddr);
+
+        printf("%d %s ", cur_node, n->host);
+
+        if (sock_fds[cur_node] == -1) {
+            printf(ANSI_COLOUR_RED "unreachable" ANSI_COLOUR_RESET "\n");
+        }
+        else {
+            printf(ANSI_COLOUR_GREEN "ok" ANSI_COLOUR_RESET "\n");
+        }
+
+        cur_node += 1;
+    }
+
+    /* check that we've got a connection to all nodes */
+    for (int i = 0; i < n_nodes; i++) {
+        if (sock_fds[i] == -1) {
+            cleanup_sock_fds(sock_fds, n_nodes);
+            printf("Failed to connect to all nodes, aborting.\n");
+            return 1;
+        }
+    }
+
+    int response, bufsize, err, len;
+    int n_errors = 0;
+    int n_deleted;
+    unsigned char *cmd;
+    unsigned char *buf;
+
+    /* delete one kb at a time across all nodes */
+    for (int i = args_index; i < argc; i++) {
+        cur_node = 0;
+        n_deleted = 0;
+        cmd = fsap_encode_cmd_delete_kb((unsigned char *)argv[i], &len);
+        if (cmd == NULL) {
+            fsa_error(LOG_CRIT, "failed to encode %s command",
+                      argv[cmd_index]);
+            n_errors += 1;
+            break;
+        }
+
+        for (node = nodes; node != NULL; node = node->next) {
+            fsa_error(LOG_DEBUG, "sending %s '%s' command to %s:%d",
+                      argv[cmd_index], argv[i], node->host, node->port);
+
+            buf = fsaf_send_recv_cmd(node, sock_fds[cur_node], cmd, len,
+                                     &response, &bufsize, &err);
+
+            /* usually a network error */
+            if (buf == NULL) {
+                /* error already handled */
+                n_errors += 1;
+                break;
+            }
+
+            if (response == ADM_RSP_DELETE_KB) {
+                fsa_kb_response *kbr = fsap_decode_rsp_delete_kb(buf);
+
+                switch (kbr->return_val) {
+                    case ADM_ERR_OK:
+                        fsa_error(
+                            LOG_DEBUG,
+                            "kb '%s' deleted on node %s",
+                            kbr->kb_name, node->host
+                        );
+                        n_deleted += 1;
+                        break;
+                    case ADM_ERR_KB_NOT_EXISTS:
+                        fsa_error(
+                            LOG_DEBUG,
+                            "kb '%s' does not exist on node %s",
+                            kbr->kb_name, node->host
+                        );
+                        break;
+                    case ADM_ERR_KB_GET_INFO:
+                        fsa_error(
+                            LOG_ERR,
+                            "failed to get info for kb '%s' on node %s",
+                            kbr->kb_name, node->host
+                        );
+                        n_errors += 1;
+                        break;
+                    case ADM_ERR_GENERIC:
+                    default:
+                        fsa_error(
+                            LOG_ERR,
+                            "failed to delete kb '%s' on node %s",
+                            kbr->kb_name, node->host
+                        );
+                        n_errors += 1;
+                        break;
+                }
+
+                fsa_kb_response_free(kbr);
+            }
+            else if (response == ADM_RSP_ERROR) {
+                unsigned char *errmsg = fsap_decode_rsp_error(buf, bufsize);
+                fsa_error(LOG_ERR, "server error: %s", errmsg);
+                free(errmsg);
+                free(buf);
+                n_errors += 1;
+                break;
+            }
+            else {
+                fsa_error(LOG_CRIT, "unknown response from server");
+                free(buf);
+                n_errors += 1;
+                break;
+            }
+
+            free(buf);
+
+            if (n_errors > 0) {
+                break;
+            }
+            cur_node += 1;
+        }
+
+        free(cmd);
+
+        if (n_errors > 0) {
+            break;
+        }
+
+        /* else kb deleted on all nodes */
+        if (n_deleted == 0) {
+            printf("%s store_not_found\n", argv[i]);
+        }
+        else {
+            printf("%s deleted\n", argv[i]);
+        }
+    }
+
+    /* cleanup */
+    cleanup_sock_fds(sock_fds, n_nodes);
+
+    if (n_errors > 0) {
+        printf(
+          "An error occurred while deleting stores, check status manually\n"
+        );
+        return 1;
+    }
+    return 0;
 }
 
 /* convenience function to avoid code duplication */
@@ -1095,7 +1313,6 @@ static int cmd_list_nodes(void)
     int len;
     int node_num = 0;
     int n_nodes = 0;
-    char *buf = NULL;
 
     /* Setup hints information */
     memset(&hints, 0, sizeof(hints));
@@ -1130,14 +1347,13 @@ static int cmd_list_nodes(void)
 
     /* loop through once to get lengths of various fields */
     for (p = nodes; p != NULL; p = p->next) {
-        len = strlen(p->host) + 1 + int_len(p->port);
+        len = strlen(p->host) + 1;
         if (len > hostlen) {
             hostlen = len;
         }
 
         n_nodes += 1;
     }
-    buf = (char *)malloc(hostlen + 1);
 
     int n_nodes_len = int_len(n_nodes);
     if (n_nodes_len < 11) {
@@ -1146,9 +1362,9 @@ static int cmd_list_nodes(void)
 
     /* print column headers */
     printf(ANSI_COLOUR_BLUE
-           "%-*s %-*s status      ip_address\n"
+           "%-*s %-*s port  status      ip_address\n"
            ANSI_COLOUR_RESET,
-           n_nodes_len, "node_number", hostlen, "hostname:port");
+           n_nodes_len, "node_number", hostlen, "hostname");
 
     /* loop through all nodes and attempt to connect admin daemon on each */
     for (p = nodes; p != NULL; p = p->next) {
@@ -1159,8 +1375,8 @@ static int cmd_list_nodes(void)
         sock_fd = fsaf_connect_to_admind(p->host, p->port, &hints, ipaddr);
 
         /* print result of attempted connection */
-        sprintf(buf, "%s:%d", p->host, p->port);
-        printf("%-*d %-*s ", n_nodes_len, node_num, hostlen, buf);
+        printf("%-*d %-*s %-5d ",
+               n_nodes_len, node_num, hostlen, p->host, p->port);
         if (sock_fd == -1) {
             printf(ANSI_COLOUR_RED "unreachable");
             all_nodes_ok = 2;
@@ -1175,7 +1391,6 @@ static int cmd_list_nodes(void)
         node_num += 1;
     }
 
-    free(buf);
     fsa_node_addr_free(nodes);
     fsa_config_free(config);
 
@@ -1202,6 +1417,9 @@ static int handle_command(void)
     }
     else if (strcmp(argv[cmd_index], "start-stores") == 0) {
         return cmd_start_stores();
+    }
+    else if (strcmp(argv[cmd_index], "delete-stores") == 0) {
+        return cmd_delete_stores();
     }
     else {
         fsa_error(LOG_ERR, "unrecognized command '%s'", argv[cmd_index]);

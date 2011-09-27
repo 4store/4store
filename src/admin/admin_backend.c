@@ -27,6 +27,8 @@
 #include <stdio.h>
 #include <dirent.h>
 #include <signal.h>
+#include <time.h>
+#include <sys/stat.h>
 
 #include "../common/params.h"
 #include "../common/error.h"
@@ -38,27 +40,76 @@
 
 /* Read runtime.info and metadata.nt to fill in info for a kb.
  * Leave ipaddr unset, caller can set if needed.
+ *
+ * Returns 0 on normal operation, -1 on error
+ *
+ * err is set to one of:
+ *   ADM_ERR_SEE_ERRNO - check errno to find error
+ *   ADM_ERR_GENERIC - usually std lib error where errno not set
+ *   ADM_ERR_KB_NOT_EXISTS - KB requested does not exist
+ *   ADM_ERR_KB_GET_INFO - KB exists, but runtime/metadata unreadable
+ *   ADM_ERR_OK - no errors
  */
-int fsab_kb_info_init(fsa_kb_info *ki, const unsigned char *kb_name)
+int fsab_kb_info_init(fsa_kb_info *ki, const unsigned char *kb_name, int *err)
 {
+    fsa_error(LOG_DEBUG, "init kb info for '%s'", kb_name);
+
     FILE *ri_file;
     int len, rv;
     char *path;
     fs_metadata *md;
+    struct stat info;
 
     ki->name = (unsigned char *)strdup((char *)kb_name);
+
+    /* check if kb exists */
+    len = (strlen(FS_KB_DIR)-2) + strlen((char *)kb_name) + 1;
+    path = (char *)malloc(len * sizeof(char));
+    if (path == NULL) {
+        errno = ENOMEM;
+        *err = ADM_ERR_SEE_ERRNO;
+        return -1;
+    }
+
+    /* generate full path to kb dir */
+    rv = sprintf(path, FS_KB_DIR, kb_name);
+    if (rv < 0) {
+        *err = ADM_ERR_GENERIC;
+        fsa_error(LOG_DEBUG, "sprintf failed");
+        free(path);
+        return -1;
+    }
+ 
+    rv = stat(path, &info);
+    free(path);
+    if (rv == -1) {
+        if (errno == ENOENT) {
+            /* not an error, return empty kb info, but let caller know */
+            fsa_error(LOG_DEBUG, "kb '%s' does not exist", kb_name);
+            *err = ADM_ERR_KB_NOT_EXISTS;
+            return 0;
+        }
+        else {
+            fsa_error(LOG_DEBUG,
+                      "stat error for kb '%s': %s", kb_name, strerror(errno));
+            *err = ADM_ERR_SEE_ERRNO;
+            return -1;
+        }
+    }
 
     /* alloc mem for string path to runtime.info */
     len = (strlen(FS_RI_FILE)-2) + strlen((char *)kb_name) + 1;
     path = (char *)malloc(len * sizeof(char));
     if (path == NULL) {
         errno = ENOMEM;
+        *err = ADM_ERR_SEE_ERRNO;
         return -1;
     }
 
     /* generate full path to runtime.info */
     rv = sprintf(path, FS_RI_FILE, kb_name);
     if (rv < 0) {
+        *err = ADM_ERR_GENERIC;
         fsa_error(LOG_DEBUG, "sprintf failed");
         free(path);
         return -1;
@@ -70,6 +121,7 @@ int fsab_kb_info_init(fsa_kb_info *ki, const unsigned char *kb_name)
     if (ri_file == NULL) {
         fsa_error(LOG_ERR, "failed to read runtime info file at '%s': %s",
                   path, strerror(errno));
+        *err = ADM_ERR_KB_GET_INFO;
         free(path);
     }
     else {
@@ -88,6 +140,7 @@ int fsab_kb_info_init(fsa_kb_info *ki, const unsigned char *kb_name)
         if (rv == -1) {
             fsa_error(LOG_CRIT, "fnctl locking error: %s", strerror(errno));
             fclose(ri_file);
+            *err = ADM_ERR_KB_GET_INFO;
             return -1;
         }
 
@@ -102,6 +155,7 @@ int fsab_kb_info_init(fsa_kb_info *ki, const unsigned char *kb_name)
                 fsa_error(LOG_CRIT,
                           "bad data in runtime info file, fscanf failed");
                 fclose(ri_file);
+                *err = ADM_ERR_KB_GET_INFO;
                 return -1;
             }
             else {
@@ -140,9 +194,11 @@ int fsab_kb_info_init(fsa_kb_info *ki, const unsigned char *kb_name)
         fs_metadata_close(md);
 
         fsa_error(LOG_DEBUG, "metadata.nt read for kb %s", kb_name);
+        *err = ADM_ERR_OK;
     }
     else {
         fsa_error(LOG_ERR, "unable to read metadata.nt for kb %s", kb_name);
+        *err = ADM_ERR_KB_GET_INFO;
     }
 
     return 0;
@@ -150,20 +206,18 @@ int fsab_kb_info_init(fsa_kb_info *ki, const unsigned char *kb_name)
 
 /* get all local info about a kb. Uses errno to differentiate between
    returning NULL when there are no kbs, and NULL due to a read error */
-fsa_kb_info *fsab_get_local_kb_info(const unsigned char *kb_name)
+fsa_kb_info *fsab_get_local_kb_info(const unsigned char *kb_name, int *err)
 {
     int rv;
     fsa_kb_info *ki = fsa_kb_info_new();
 
-    rv = fsab_kb_info_init(ki, kb_name);
+    rv = fsab_kb_info_init(ki, kb_name, err);
     if (rv == -1) {
         fsa_error(LOG_ERR, "failed to get local kb info for kb %s", kb_name);
-        errno = ADM_ERR_GENERIC; 
         fsa_kb_info_free(ki);
         return NULL;
     }
 
-    errno = 0;
     return ki;
 }
 
@@ -174,7 +228,7 @@ fsa_kb_info *fsab_get_local_kb_info_all(void)
     DIR *dp;
     fsa_kb_info *first_ki = NULL;
     fsa_kb_info *cur_ki = NULL;
-    int rv;
+    int rv, err;
 
     dp = opendir(FS_STORE_ROOT);
     if (dp == NULL) {
@@ -191,7 +245,7 @@ fsa_kb_info *fsab_get_local_kb_info_all(void)
         }
 
         cur_ki = fsa_kb_info_new();
-        rv = fsab_kb_info_init(cur_ki, (unsigned char *)entry->d_name);
+        rv = fsab_kb_info_init(cur_ki, (unsigned char *)entry->d_name, &err);
         if (rv == -1) {
             fsa_error(LOG_ERR, "failed to initialise kb info for %s",
                       entry->d_name);
@@ -216,9 +270,13 @@ int fsab_stop_local_kb(const unsigned char *kb_name, int *err)
 {
     fs_error(LOG_DEBUG, "stopping kb '%s'", kb_name);
 
-    fsa_kb_info *ki = fsab_get_local_kb_info(kb_name);
-    if (ki == NULL || ki->num_segments == 0 || ki->p_segments_len == 0) {
-        *err = ADM_ERR_KB_GET_INFO;
+    fsa_kb_info *ki = fsab_get_local_kb_info(kb_name, err);
+    if (ki == NULL) {
+        return -1;
+    }
+    
+    if (*err == ADM_ERR_KB_NOT_EXISTS) {
+        fsa_kb_info_free(ki);
         return -1;
     }
 
@@ -243,66 +301,95 @@ int fsab_stop_local_kb(const unsigned char *kb_name, int *err)
         return -1;
     }
 
+    /* only need pid from here on */
+    int pid = ki->pid;
+    fsa_kb_info_free(ki);
+
     /* check that we've got a sensible pid of the running store */
-    if (ki->pid == 0) {
+    if (pid == 0) {
         fs_error(LOG_ERR, "cannot stop %s, no pid found", kb_name);
         *err = ADM_ERR_GENERIC;
-        fsa_kb_info_free(ki);
         return -1;
     }
 
     /* send sigterm to 4s-backend process, returns 0 or -1, sets errno  */
-    int rv = kill(ki->pid, SIGTERM);
+    int rv = kill(pid, SIGTERM);
     if (rv != 0) {
         *err = ADM_ERR_SEE_ERRNO;
         return -1;
-        fsa_kb_info_free(ki);
     }
 
-    fsa_kb_info_free(ki);
-    return 0;
+    /* poll for few seconds until process is dead */
+    long int nanosecs = 50000000L; /* 0.05s */
+    int n_tries = 200; /* 10s total */
+    struct timespec req = {0, nanosecs};
+    while (n_tries > 0) {
+        rv = kill(pid, 0);
+        if (rv == -1 && errno == ESRCH) {
+            /* process with pid not found, kill successful */
+            return 0;
+        }
+
+        /* ignore errors */
+        nanosleep(&req, NULL);
+
+        n_tries -= 1;
+    }
+
+    *err = ADM_ERR_KILL_FAILED;
+    return -1;
 }
 
-/* Returns -1 on error, 0 on success. Sets exit_val to exit value of
-   4-backend, sets output to the output from running the command, and sets
-   err to the reason for error. */
-int fsab_start_local_kb(const unsigned char *kb_name, int *exit_val,
-                        unsigned char **output, int *err)
+/* Execute a 4s-* command and return results
+ *
+ * Returns 0 on normal operation, -1 on error. Arguments should be sanitised
+ * first.
+ *
+ * cmd - one of 4s-backend/4s-backend-destroy/4s-backend-setup
+ * n_args - number of cmdline args
+ * args - array of cmdline args
+ * exit_val - set to return value of 4s-* cmd
+ * output - set to output of the command, needs freeing
+ * err - reason for any error, or ADM_ERR_OK on success
+ */
+static int exec_fs_cmd(const char *cmdname, int n_args, char **args,
+                           int *exit_val, unsigned char **output, int *err)
 {
-    fsa_error(LOG_DEBUG, "starting kb '%s'", kb_name);
+    /* base command without arguments */
+    char *cmdfmt = FS_BIN_DIR "/%s";
 
-    /* set defaults to indicate no output or retval yet */
-    *exit_val = -1;
-    *output = NULL;
+    /* length of base command, excluding \0 */
+    int base_cmdlen = strlen(cmdfmt) - 2 + strlen(cmdname);
+    int cmdlen = base_cmdlen;
 
-    fsa_kb_info *ki = fsab_get_local_kb_info(kb_name);
-    if (ki == NULL || ki->num_segments == 0 || ki->p_segments_len == 0) {
-        /* failed to read metadata.nt, therefore kb doesn't exist */
-        *err = ADM_ERR_KB_GET_INFO;
-        return -1;
+    /* work out total length including arguments */
+    for (int i = 0; i < n_args; i++) {
+        /* whitespacespace + length of arg */
+        cmdlen += 1 + strlen(args[i]);
     }
 
-    /* check whether kb is running */
-    if (ki->status == KB_STATUS_RUNNING) {
-        fs_error(LOG_INFO, "cannot start %s, already started", kb_name);
-        *err = ADM_ERR_KB_STATUS_RUNNING;
-        fsa_kb_info_free(ki);
-        return -1;
+    char *cmd = (char *)malloc((cmdlen+1) * sizeof(char));
+    char *p = cmd;
+    int n_bytes;
+
+    /* write path and command */
+    sprintf(p, cmdfmt, cmdname);
+    p += base_cmdlen;
+
+    /* write arguments */
+    for (int i = 0; i < n_args; i++) {
+        n_bytes = sprintf(p, " %s", args[i]);
+        p += n_bytes;
     }
-    fsa_kb_info_free(ki);
 
-    /* TODO check 4s-backend found in path */
-    char *cmdname = FS_BIN_DIR "/4s-backend";
-    int malloc_size = strlen(cmdname) + 1 + strlen((char *)kb_name) + 1;
-    char *cmd = (char *)malloc(malloc_size);
-    sprintf(cmd, "%s %s", cmdname, kb_name);
-
+    /* will have been null terminated by sprintf */
+    
     fsa_error(LOG_DEBUG, "running '%s'", cmd);
 
-    FILE *backend = popen(cmd, "r");
+    FILE *process = popen(cmd, "r");
     free(cmd);
 
-    if (backend == NULL) {
+    if (process == NULL) {
         fsa_error(LOG_ERR, "popen failed: %s", strerror(errno));
         *err = ADM_ERR_SEE_ERRNO;
         return -1;
@@ -311,7 +398,7 @@ int fsab_start_local_kb(const unsigned char *kb_name, int *exit_val,
     /* capture output */
     char line[500];
     int size = 0;
-    while (fgets(line, 500, backend) != NULL) {
+    while (fgets(line, 500, process) != NULL) {
         if (*output == NULL) {
             size = strlen(line) + 1;
             *output = (unsigned char *)malloc(size);
@@ -326,7 +413,7 @@ int fsab_start_local_kb(const unsigned char *kb_name, int *exit_val,
 
     fsa_error(LOG_DEBUG, "output from command is: %s", *output);
 
-    int rv = pclose(backend);
+    int rv = pclose(process);
     if (rv == -1) {
         fsa_error(LOG_ERR, "pclose failed: %s", strerror(errno));
         free(*output);
@@ -344,4 +431,75 @@ int fsab_start_local_kb(const unsigned char *kb_name, int *exit_val,
     else {
         return -1;
     }
+}
+
+/* Returns -1 on error, 0 on success. Sets exit_val to exit value of
+   4-backend, sets output to the output from running the command, and sets
+   err to the reason for error. */
+int fsab_start_local_kb(const unsigned char *kb_name, int *exit_val,
+                        unsigned char **output, int *err)
+{
+    fsa_error(LOG_DEBUG, "starting kb '%s'", kb_name);
+
+    /* set defaults to indicate no output or retval yet */
+    *exit_val = -1;
+    *output = NULL;
+
+    fsa_kb_info *ki = fsab_get_local_kb_info(kb_name, err);
+    if (ki == NULL) {
+        /* failed to read metadata.nt, therefore kb doesn't exist */
+        *err = ADM_ERR_KB_GET_INFO;
+        return -1;
+    }
+
+    if (*err == ADM_ERR_KB_NOT_EXISTS) {
+        fsa_kb_info_free(ki);
+        return -1;
+    }
+
+    /* check whether kb is running */
+    if (ki->status == KB_STATUS_RUNNING) {
+        fs_error(LOG_INFO, "cannot start %s, already started", kb_name);
+        *err = ADM_ERR_KB_STATUS_RUNNING;
+        fsa_kb_info_free(ki);
+        return -1;
+    }
+    fsa_kb_info_free(ki);
+
+    char *cmdname = "4s-backend";
+    char *args[1] = {(char *)kb_name};
+
+    return exec_fs_cmd(cmdname, 1, args, exit_val, output, err);
+}
+
+/* Return 0 on normal operation, -1 or error */
+int fsab_delete_local_kb(const unsigned char *kb_name, int *exit_val,
+                         unsigned char **output, int *err)
+{
+    fsa_error(LOG_DEBUG, "deleting kb '%s'", kb_name);
+
+    fsa_kb_info *ki = fsab_get_local_kb_info(kb_name, err);
+    if (ki == NULL) {
+        return -1;
+    }
+
+    /* if kb does not exist, nothing to do */
+    if (*err == ADM_ERR_KB_NOT_EXISTS) {
+        fsa_error(LOG_DEBUG,
+                  "kb '%s' does not exist, nothing to delete",kb_name);
+        fsa_kb_info_free(ki);
+        return 0;
+    }
+
+    /* if kb exists, attempt to stop it unless it is definitely stopped */
+    if (ki->status != KB_STATUS_STOPPED) {
+        /* ignore errors, we're deleting store anyway */
+        fsab_stop_local_kb(kb_name, err);
+    }
+
+    /* use 4s-backend-destroy to delete the store */
+    char *cmdname = "4s-backend-destroy";
+    char *args[1] = {(char *)kb_name};
+
+    return exec_fs_cmd(cmdname, 1, args, exit_val, output, err);
 }
