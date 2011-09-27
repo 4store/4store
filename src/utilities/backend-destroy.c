@@ -120,6 +120,8 @@ int main(int argc, char *argv[])
     }
     snprintf(lexf, PATH_MAX, FS_KB_DIR "metadata.nt", name);
     unlinked += delete_it(lexf, &errs);
+    snprintf(lexf, PATH_MAX, FS_KB_DIR "runtime.info", name);
+    unlinked += delete_it(lexf, &errs);
     snprintf(lexf, PATH_MAX, FS_KB_DIR "backup", name);
     unlinked += delete_it(lexf, &errs);
     snprintf(lexf, PATH_MAX, FS_KB_DIR, name);
@@ -127,6 +129,9 @@ int main(int argc, char *argv[])
 
     if (unlinked > 0 && !errs) fs_error(LOG_INFO, "deleted data files for KB %s", name);
 
+    if (errs) {
+        return 1;
+    }
     return 0;
 }
 
