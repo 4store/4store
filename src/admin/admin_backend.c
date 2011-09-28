@@ -486,7 +486,7 @@ int fsab_delete_local_kb(const unsigned char *kb_name, int *exit_val,
     /* if kb does not exist, nothing to do */
     if (*err == ADM_ERR_KB_NOT_EXISTS) {
         fsa_error(LOG_DEBUG,
-                  "kb '%s' does not exist, nothing to delete",kb_name);
+                  "kb '%s' does not exist, nothing to delete", kb_name);
         fsa_kb_info_free(ki);
         return 0;
     }
@@ -496,6 +496,7 @@ int fsab_delete_local_kb(const unsigned char *kb_name, int *exit_val,
         /* ignore errors, we're deleting store anyway */
         fsab_stop_local_kb(kb_name, err);
     }
+    fsa_kb_info_free(ki);
 
     /* use 4s-backend-destroy to delete the store */
     char *cmdname = "4s-backend-destroy";
