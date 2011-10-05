@@ -1,0 +1,137 @@
+.Dd 28 September, 2011
+.Dt 4S-ADMIN 1J 4store
+.Os 4store
+.Sh NAME
+.Nm 4s-admin
+.Nd Administer a 4store cluster
+.Sh SYNOPSIS
+.Nm
+.Op Fl \-verbose
+.Ar command
+.Op Ar args
+.Pp
+.Nm
+list-nodes
+.Nm
+list-stores
+.Nm
+start-stores
+.Op Fl a | Fl \-all
+.Op Ar store_name Li ...
+.Nm
+stop-stores
+.Op Fl a | Fl \-all
+.Op Ar store_name Li ...
+.Nm
+delete-stores
+.Ar store_name Li ...
+.Nm
+.Op Fl \-version
+.Op Fl \-help
+.Sh DESCRIPTION
+The
+.Nm
+utility enables a 4store cluster (or single host) to be managed through a
+number of supported commands.
+Commands available are
+.Sy list-nodes , Sy list-stores , Sy start-stores , Sy stop-stores ,
+.Sy delete-stores .
+Details on individual commands are below:
+.Ss list-nodes
+Prints a list of all nodes in their cluster, and their status.
+Output contains:
+  node_number - starting at 0, the numbered index of a node in a cluster
+  hostname    - name of the cluster node
+  port        - the port that 4s-boss is running on
+  status      - whether 4s-boss on that node is reachable or not
+  ip_address  - IPv4 or IPv6 address of the node
+.Ss list-stores
+Prints a list of all stores found on the cluster, along with their status.
+The output will contain:
+  store_name     - name of the store
+  store_status   - whether the store is usable or not
+  backend_status - status of the 4s-backend processes the store uses
+
+options:
+.Bl -tag -width Ds
+.It Fl \-verbose
+Will show status of each backend on each node separately, rather than by
+store.
+.El
+.Pp
+The store_status will either be 'available' or 'unavailable'.
+If a store is available, then it means that all necessary backend processes
+are running on the cluster, and the store can be used with 4s-httpd, 4s-query,
+and 4s-import.
+If a store is not available, the 'backend_status' will list the reason why.
+.Pp
+If a backend is listed as 'stopped', it means that the 4s-backend process for
+a store is definitely stopped on one or more nodes of a cluster.
+If it is listed as 'unknown', this means that 4s-admin was unable to determine
+the state of the backend process.
+.Ss start-stores, stop-stores
+Starts or stops one or more stores on the cluster.
+
+options:
+.Bl -tag -width Ds
+.It Fl a, \-all
+Starts or stops all stores on the cluster.
+.El
+.Pp
+If the -a or --all option isn't present, then a space separated list of store
+names to start or stop should be given.
+
+Each node is asked in turn to start or stop the 4s-backend process stores
+given.
+
+For each node, this command will print:
+  node_number - starting at 0, the numbered index of a node in a cluster
+  hostname    - name of the cluster node
+
+For each 4s-backend process on the node, it will print:
+  store_name     - name of the store
+  backend_status - whether 4s-backend is now stopped or running
+
+The backend_status will be one of 'stopped', 'running', or 'unknown'.
+
+If start-stores is called for an already running store, or a stop-stores for
+an already stopped store, then each node will take no action, but the status
+of the backend will be printed.
+.Ss command: delete-stores
+Deletes one or more stores from a cluster.
+
+Accepts a space separated list of stores to delete as arguments.
+
+Establishes a connection to all nodes of the cluster, stops a store if it is
+running, then deletes that store.
+.Sh FILES
+.Bl -tag -width Ds
+.It Pa /etc/4store.conf
+Main 4store configuration file, used to determine which hosts are in
+the cluster.
+.El
+.Sh EXIT STATUS
+.Ex -std
+.Sh EXAMPLES
+Stop all stores on the cluster:
+.Pp
+.Dl $ 4s-admin stop-stores --all
+
+Start the stores
+.Qq foo
+and
+.Qq bar :
+.Pp
+.Dl $ 4s-admin start-stores foo bar
+
+Delete stores
+.Qq kb1 ,
+.Qq kb2 ,
+and
+.Qq kb3 :
+.Pp
+.Dl $ 4s-admin delete-stores kb1 kb2 kb3
+.Sh SEE ALSO
+.Xr 4s-boss 1
+.Sh AUTHORS
+.An Dave Challis Aq suicas@gmail.com .
