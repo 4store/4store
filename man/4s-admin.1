@@ -1,9 +1,9 @@
-.Dd 28 September, 2011
+.Dd 11 October, 2011
 .Dt 4S-ADMIN 1J 4store
 .Os 4store
 .Sh NAME
 .Nm 4s-admin
-.Nd Administer a 4store cluster
+.Nd 4store cluster management tool
 .Sh SYNOPSIS
 .Nm
 .Op Fl \-verbose
@@ -37,7 +37,7 @@ Commands available are
 .Sy list-nodes , Sy list-stores , Sy start-stores , Sy stop-stores ,
 .Sy delete-stores .
 Details on individual commands are below:
-.Ss list-nodes
+.Ss Command: list-nodes
 Prints a list of all nodes in their cluster, and their status.
 Output contains:
   node_number - starting at 0, the numbered index of a node in a cluster
@@ -45,13 +45,13 @@ Output contains:
   port        - the port that 4s-boss is running on
   status      - whether 4s-boss on that node is reachable or not
   ip_address  - IPv4 or IPv6 address of the node
-.Ss list-stores
+.Ss Command: list-stores
 Prints a list of all stores found on the cluster, along with their status.
 The output will contain:
   store_name     - name of the store
   store_status   - whether the store is usable or not
   backend_status - status of the 4s-backend processes the store uses
-
+.Pp
 options:
 .Bl -tag -width Ds
 .It Fl \-verbose
@@ -69,9 +69,9 @@ If a backend is listed as 'stopped', it means that the 4s-backend process for
 a store is definitely stopped on one or more nodes of a cluster.
 If it is listed as 'unknown', this means that 4s-admin was unable to determine
 the state of the backend process.
-.Ss start-stores, stop-stores
+.Ss Command: start-stores, stop-stores
 Starts or stops one or more stores on the cluster.
-
+.Pp
 options:
 .Bl -tag -width Ds
 .It Fl a, \-all
@@ -80,30 +80,58 @@ Starts or stops all stores on the cluster.
 .Pp
 If the -a or --all option isn't present, then a space separated list of store
 names to start or stop should be given.
-
+.Pp
 Each node is asked in turn to start or stop the 4s-backend process stores
 given.
-
+.Pp
 For each node, this command will print:
   node_number - starting at 0, the numbered index of a node in a cluster
   hostname    - name of the cluster node
-
+.Pp
 For each 4s-backend process on the node, it will print:
   store_name     - name of the store
   backend_status - whether 4s-backend is now stopped or running
-
+.Pp
 The backend_status will be one of 'stopped', 'running', or 'unknown'.
-
+.Pp
 If start-stores is called for an already running store, or a stop-stores for
 an already stopped store, then each node will take no action, but the status
 of the backend will be printed.
-.Ss command: delete-stores
+.Ss Command: delete-stores
 Deletes one or more stores from a cluster.
-
+.Pp
 Accepts a space separated list of stores to delete as arguments.
-
+.Pp
 Establishes a connection to all nodes of the cluster, stops a store if it is
 running, then deletes that store.
+.Ss Configuration file options
+.Bl -tag -width Ds
+.It Sy nodes = <node_list>
+Semicolon separated list of hosts in the cluster. 
+.El
+.Pp
+Options for
+.Mn
+in
+.Pa /etc/4store.conf
+should all be within the
+[4s-boss] section, or will be ignored.
+.Pp
+See
+.Xr 4store.conf 5
+for details on how to specify a cluster.
+.Ss General Usage
+When any
+.Nm
+command is called, it first reads
+.Pa /etc/4store.conf
+to determine the hostnames of nodes in the cluster.
+It will then attempt to communicate with the
+.Xr 4s-boss 8
+daemon running on that node (running on port 6733 by default).
+.Pp
+Running the list-nodes command is the simplest way of checking that all nodes
+are reachable over the network, and the 4s-boss on each is responding.
 .Sh FILES
 .Bl -tag -width Ds
 .It Pa /etc/4store.conf
@@ -116,14 +144,14 @@ the cluster.
 Stop all stores on the cluster:
 .Pp
 .Dl $ 4s-admin stop-stores --all
-
+.Pp
 Start the stores
 .Qq foo
 and
 .Qq bar :
 .Pp
 .Dl $ 4s-admin start-stores foo bar
-
+.Pp
 Delete stores
 .Qq kb1 ,
 .Qq kb2 ,
@@ -132,6 +160,15 @@ and
 .Pp
 .Dl $ 4s-admin delete-stores kb1 kb2 kb3
 .Sh SEE ALSO
-.Xr 4s-boss 1
+.Xr 4store.conf 5 ,
+.Xr 4s-boss 8
 .Sh AUTHORS
 .An Dave Challis Aq suicas@gmail.com .
+.Sh SECURITY CONSIDERATIONS
+.Nm
+should not be run as root, use a non-privileged account instead.
+.Pp
+Since it can request that any nodes of a cluster start/stop/delete stores, 
+only trusted users should be able to run
+.Nm ,
+or send packets to 4s-boss on cluster nodes.
