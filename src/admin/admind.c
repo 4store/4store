@@ -166,21 +166,21 @@ static int init_server_port(void)
                 fprintf(
                     stderr,
                     "%s: non-numeric port specified in %s",
-                    program_invocation_short_name, FS_CONFIG_FILE
+                    program_invocation_short_name, fs_get_config_file()
                 );
             }
             else if (errno == ERANGE) {
                 fprintf(
                     stderr,
                     "%s: port number out of range 0-65535 in %s",
-                    program_invocation_short_name, FS_CONFIG_FILE
+                    program_invocation_short_name, fs_get_config_file()
                 );
             }
             else {
                 fprintf(
                     stderr,
                     "%s: unknown error reading port from config file at %s\n",
-                    program_invocation_short_name, FS_CONFIG_FILE
+                    program_invocation_short_name, fs_get_config_file()
                 );
             }
             return -1;

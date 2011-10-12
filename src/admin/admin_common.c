@@ -46,7 +46,7 @@ GKeyFile *fsa_get_config(void)
 {
     GKeyFile *config_file = g_key_file_new();
     GError *err = NULL;
-    const char *filename = FS_CONFIG_FILE;
+    const char *filename = fs_get_config_file();
     int rv;
     int flags = G_KEY_FILE_NONE;
 

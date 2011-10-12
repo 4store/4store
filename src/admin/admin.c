@@ -107,7 +107,7 @@ static fsa_node_addr *get_storage_nodes(void)
     if (config == NULL) {
         fsa_error(LOG_WARNING,
                   "Unable to read config file at '%s', assuming localhost\n",
-                  FS_CONFIG_FILE); 
+                  fs_get_config_file()); 
         nodes = fsa_node_addr_new("localhost");
         nodes->port = default_port;
         return nodes;
@@ -122,7 +122,7 @@ static fsa_node_addr *get_storage_nodes(void)
     if (nodes == NULL) {
         fsa_error(LOG_WARNING,
                   "No nodes found in '%s', assuming localhost\n",
-                  FS_CONFIG_FILE); 
+                  fs_get_config_file()); 
         nodes = fsa_node_addr_new("localhost");
         nodes->port = default_port;
         return nodes;
@@ -1326,14 +1326,14 @@ static int cmd_list_nodes(void)
         /* assume localhost if no config file found */
         fsa_error(LOG_WARNING,
                   "Unable to read config file at '%s', assuming localhost\n",
-                  FS_CONFIG_FILE); 
+                  fs_get_config_file()); 
     }
     else {
         nodes = fsa_get_node_list(config);
         if (nodes == NULL) {
             fsa_error(LOG_WARNING,
                       "No nodes found in '%s', assuming localhost\n",
-                      FS_CONFIG_FILE); 
+                      fs_get_config_file()); 
             default_port = fsa_get_admind_port(config);
         }
     }
