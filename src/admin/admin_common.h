@@ -147,6 +147,8 @@ int fsa_fetch_header(int sock_fd, unsigned char *buf);
 int fsa_is_int(const char *str);
 fsa_kb_info *fsa_kb_info_sort(fsa_kb_info *ki, int sort_type);
 int fsa_is_valid_kb_name(const char *kb_name);
+const char *fsa_get_bin_dir();
+void fsa_set_bin_dir(const char *path);
 /*const char *fsa_log_level_to_string(int log_level);*/
 
 #endif

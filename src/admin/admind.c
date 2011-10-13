@@ -107,12 +107,14 @@ static int parse_cmdline_opts(int argc, char **argv)
         {"help",            no_argument,        &help_flag,         1},
         {"no-daemonize",    no_argument,        &daemonize_flag,    0},
         {"port",            required_argument,  NULL,               'p'},
+        {"config-file",     required_argument,  NULL,               'c'},
+        {"bin-dir",         required_argument,  NULL,               'b'},
         {NULL,              0,                  NULL,               0}
     };
 
     while(1) {
         opt_index = 0;
-        c = getopt_long(argc, argv, "Dp:", long_opts, &opt_index);
+        c = getopt_long(argc, argv, "Dp:c:b:", long_opts, &opt_index);
 
         /* end of options */
         if (c == -1) {
@@ -128,6 +130,12 @@ static int parse_cmdline_opts(int argc, char **argv)
                 break;
             case 'p':
                 cport = optarg;
+                break;
+            case 'c':
+                fs_set_config_file(optarg);
+                break;
+            case 'b':
+                fsa_set_bin_dir(optarg);
                 break;
             case '?':
                 /* getopt_long has already printed err msg */
@@ -146,6 +154,25 @@ static int parse_cmdline_opts(int argc, char **argv)
         }
     }
     */
+    return 0;
+}
+
+/* Fail early if this is not readable */
+static int check_bin_dir(void)
+{
+    DIR *dir;
+    const char *bin_dir = fsa_get_bin_dir();
+
+    dir = opendir(bin_dir);
+    if (dir == NULL) {
+        fsa_error(LOG_ERR,
+                  "failed to read bin dir '%s': %s",
+                  bin_dir, strerror(errno));
+        return -1;
+    }
+    
+    closedir(dir);
+
     return 0;
 }
 
@@ -939,6 +966,12 @@ int main(int argc, char **argv)
     rv = init_server_port();
     if (rv == -1) {
         return EXIT_FAILURE;
+    }
+
+    /* check that bin dir exists and is readable */
+    rv = check_bin_dir();
+    if (rv == -1) {
+        return EXIT_FAILURE;        
     }
 
     /* daemonize if needed */

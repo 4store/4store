@@ -41,6 +41,9 @@ char *program_invocation_short_name = NULL;
 int fsa_log_to = ADM_LOG_TO_FS_ERROR;
 int fsa_log_level = ADM_LOG_LEVEL;
 
+/* Path to 4store executables, use FS_BIN_DIR if NULL */
+static const char *bin_dir = NULL;
+
 /* Get /etc/4store.conf as GKeyFile */
 GKeyFile *fsa_get_config(void)
 {
@@ -588,6 +591,21 @@ int fsa_is_valid_kb_name(const char *kb_name)
     }
 
     return 1;
+}
+
+const char *fsa_get_bin_dir(void)
+{
+    if (bin_dir != NULL) {
+        return bin_dir;
+    }
+    else {
+        return FS_BIN_DIR;
+    }
+}
+
+void fsa_set_bin_dir(const char *path)
+{
+    bin_dir = path;
 }
 
 
