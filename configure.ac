@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ([2.50])
-AC_INIT([4store], m4_esyscmd([test -f version.sh && sh version.sh || sh version.sh.in]), [http://4store.org/support/], [4store])
+AC_INIT([4store], m4_esyscmd([./version.sh .version]), [http://4store.org/support/], [4store])
 AC_CONFIG_SRCDIR([src/backend/backend-intl.h])
 AM_INIT_AUTOMAKE([1.7 std-options -Wall])
 AM_CONFIG_HEADER(4store-config.h)
@@ -84,7 +84,7 @@ fi
 AC_SUBST(MDNS_CFLAGS)
 AC_SUBST(MDNS_LIBS)
 
-GIT_REV='"\"$(shell sh $(top_srcdir)/version.sh)\""'
+GIT_REV='"\"$(shell sh $(top_srcdir)/version.sh $(top_srcdir)/.version)\""'
 AC_SUBST(GIT_REV)
 
 # Checks for header files.
@@ -109,8 +109,7 @@ LIBS="$GLIB_LIBS"
 AC_CHECK_FUNCS([g_uri_escape_string])
 LIBS=$oLIBS
 
-AC_CONFIG_FILES([version.sh
-                 Makefile
+AC_CONFIG_FILES([Makefile
                  man/Makefile
                  tests/Makefile
                  src/Makefile
