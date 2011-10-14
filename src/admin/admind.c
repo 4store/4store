@@ -82,6 +82,8 @@ static void print_help(void)
     printf(
 "  -p, --port=PORT       specify port to listen on (default: %d)\n"
 "  -D, --no-daemonize    do not daemonise\n"
+"  -c, --config-file     path and filename of configuration file to use\n"
+"  -b, --bin-dir         path to directory containing 4store executables\n"
 "      --help            display this message and exit\n"
 "      --verbose         display more detailed output\n"
 "      --debug           display full debugging output\n"
