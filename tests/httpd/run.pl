@@ -63,7 +63,7 @@ if ($pid = fork()) {
 		close STDERR;
 		print(join(" ", @cmd)."\n");
 		exec(@cmd);
-		die "failed to exec HTTP sever: $!";
+		die "failed to exec HTTP server: $!";
 	}
 	print("4s-httpd running on PID $httppid\n");
 	sleep(1);
