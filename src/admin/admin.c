@@ -64,6 +64,9 @@ static int verbosity = 0;
 static int cmd_index = -1;
 static int args_index = -1;
 
+/* Enable/disable colour output using ansi escapes */
+static int colour_flag = 1;
+
 /* argc and argv used in most functions, so global for convenience */
 static int argc;
 static char **argv;
@@ -94,6 +97,16 @@ static int int_len(int n)
     }
 
     return 1;
+}
+
+static void print_colour(const char *txt, const char *colour)
+{
+    if (colour_flag) {
+        printf("%s%s%s", colour, txt, ANSI_COLOUR_RESET);
+    }
+    else {
+        printf("%s", txt);
+    }
 }
 
 /* convenience function to return all nodes, or default node if none found */
@@ -270,12 +283,12 @@ static void print_help(void)
         print_usage(0);
 
         printf(
-"    --help    Display this message and exit\n"
-"    --version Display version information and exit\n"
-"    --verbose Increase amount of information returned\n"
-"    --debug   Output full debugging information\n"
+"    --help             Display this message and exit\n"
+"    --version          Display version information and exit\n"
+"    --verbose          Increase amount of information returned\n"
+"    -c, --config-file  path and filename of configuration file to use\n"
 "\n"
-"Common commands (use `%s help <command>' for more info)\n"
+"Commands (see `man %s' for more info)\n"
 "  list-nodes    List hostname:port and status of all known storage nodes\n"
 "  list-stores   List stores, along with the nodes they're hosted on\n"
 "  stop-stores   Stop a store backend process on all nodes\n"
@@ -368,16 +381,17 @@ static int parse_cmdline_opts(int argc)
     int debug_flag = 0;
 
     struct option long_opts[] = {
-         {"help",       no_argument,    &help_flag,     1},
-         {"quiet",      no_argument,    &quiet_flag,    1},
-         {"verbose",    no_argument,    &verbose_flag,  1},
-         {"debug",      no_argument,    &debug_flag,    1},
-         {"version",    no_argument,    &version_flag,  1},
-         {NULL,         0,              NULL,           0}
+        {"help",        no_argument,        &help_flag,     1},
+        {"quiet",       no_argument,        &quiet_flag,    1},
+        {"verbose",     no_argument,        &verbose_flag,  1},
+        {"debug",       no_argument,        &debug_flag,    1},
+        {"version",     no_argument,        &version_flag,  1},
+        {"config-file", required_argument,  NULL,           'c'},
+        {NULL,          0,                  NULL,           0}
     };
 
     while(1) {
-        c = getopt_long(argc, argv, "+", long_opts, &opt_index);
+        c = getopt_long(argc, argv, "c:+", long_opts, &opt_index);
 
         /* end of options */
         if (c == -1) {
@@ -392,6 +406,9 @@ static int parse_cmdline_opts(int argc)
                 /* getopt_long has already printed err msg */
                 print_usage(1);
                 return 1;
+            case 'c':
+                fs_set_config_file(optarg);
+                break;
             default:
                 abort();
         }
@@ -494,7 +511,7 @@ static int start_or_stop_stores(int action)
         node_num += 1;
 
         if (sock_fd == -1) {
-            printf(ANSI_COLOUR_RED "unreachable\n" ANSI_COLOUR_RESET);
+            print_colour("unreachable\n", ANSI_COLOUR_RED);
             continue;
         }
         printf("\n");
@@ -583,10 +600,10 @@ static int start_or_stop_stores(int action)
                         switch (kbr->return_val) {
                             case ADM_ERR_OK:
                             case ADM_ERR_KB_STATUS_STOPPED:
-                                printf(ANSI_COLOUR_GREEN "stopped");
+                                print_colour("stopped", ANSI_COLOUR_GREEN);
                                 break;
                             default:
-                                printf(ANSI_COLOUR_RED "unknown");
+                                print_colour("unknown", ANSI_COLOUR_RED);
                                 break;
                         }
                     }
@@ -596,17 +613,16 @@ static int start_or_stop_stores(int action)
                         switch (kbr->return_val) {
                             case ADM_ERR_OK:
                             case ADM_ERR_KB_STATUS_RUNNING:
-                                printf(ANSI_COLOUR_GREEN "running");
+                                print_colour("running", ANSI_COLOUR_GREEN);
                                 break;
                             case ADM_ERR_KB_STATUS_STOPPED:
-                                printf(ANSI_COLOUR_YELLOW "stopped");
+                                print_colour("stopped", ANSI_COLOUR_YELLOW);
                                 break;
                             default:
-                                printf(ANSI_COLOUR_RED "unknown");
+                                print_colour("unknown", ANSI_COLOUR_RED);
                                 break;
                         }
                     }
-                    printf(ANSI_COLOUR_RESET "\n");
 
                     free(buf);
                     buf = NULL;
@@ -670,16 +686,15 @@ static int start_or_stop_stores(int action)
                     switch (kbr->return_val) {
                         case ADM_ERR_OK:
                         case ADM_ERR_KB_STATUS_STOPPED:
-                            printf(ANSI_COLOUR_GREEN "stopped");
+                            print_colour("stopped", ANSI_COLOUR_GREEN);
                             break;
                         case ADM_ERR_KB_NOT_EXISTS:
-                            printf(ANSI_COLOUR_RED "store_not_found");
+                            print_colour("store_not_found", ANSI_COLOUR_RED);
                             break;
                         default:
-                            printf(ANSI_COLOUR_RED "unknown");
+                            print_colour("unknown", ANSI_COLOUR_RED);
                             break;
                     }
-                    printf(ANSI_COLOUR_RESET "\n");
                     fsa_kb_response_free(kbr);
                 }
                 else if (response == ADM_RSP_START_KB) {
@@ -687,19 +702,18 @@ static int start_or_stop_stores(int action)
                     switch (kbr->return_val) {
                         case ADM_ERR_OK:
                         case ADM_ERR_KB_STATUS_RUNNING:
-                            printf(ANSI_COLOUR_GREEN "running");
+                            print_colour("running", ANSI_COLOUR_GREEN);
                             break;
                         case ADM_ERR_KB_STATUS_STOPPED:
-                            printf(ANSI_COLOUR_YELLOW "stopped");
+                            print_colour("stopped", ANSI_COLOUR_YELLOW);
                             break;
                         case ADM_ERR_KB_NOT_EXISTS:
-                            printf(ANSI_COLOUR_RED "store_not_found");
+                            print_colour("store_not_found", ANSI_COLOUR_RED);
                             break;
                         default:
-                            printf(ANSI_COLOUR_RED "unknown");
+                            print_colour("unknown", ANSI_COLOUR_RED);
                             break;
                     }
-                    printf(ANSI_COLOUR_RESET "\n");
                     fsa_kb_response_free(kbr);
                 }
                 else if (response == ADM_RSP_ERROR) {
@@ -806,10 +820,10 @@ static int cmd_delete_stores(void)
         printf("%d %s ", cur_node, n->host);
 
         if (sock_fds[cur_node] == -1) {
-            printf(ANSI_COLOUR_RED "unreachable" ANSI_COLOUR_RESET "\n");
+            print_colour("unreachable\n", ANSI_COLOUR_RED);
         }
         else {
-            printf(ANSI_COLOUR_GREEN "ok" ANSI_COLOUR_RESET "\n");
+            print_colour("ok\n", ANSI_COLOUR_GREEN);
         }
 
         cur_node += 1;
@@ -1011,9 +1025,7 @@ static int cmd_list_stores_verbose(void)
     /* connect to each node separately */
     while (node != NULL) {
         if (!node_header_printed) {
-            printf(ANSI_COLOUR_BLUE
-                  "node_number\thostname:port\n"
-                  ANSI_COLOUR_RESET);
+            print_colour("node_number\thostname:port\n", ANSI_COLOUR_BLUE);
             node_header_printed = 1;
         }
         else {
@@ -1065,10 +1077,17 @@ static int cmd_list_stores_verbose(void)
 
             /* print header */
             if (!info_header_printed) {
-                printf(ANSI_COLOUR_BLUE
-                       "  %-*s\tstatus\tport\tnumber_of_segments\n"
-                       ANSI_COLOUR_RESET,
+                if (colour_flag) {
+                    printf(ANSI_COLOUR_BLUE);
+                }
+
+                printf("  %-*s\tstatus\tport\tnumber_of_segments\n",
                        max_name, "store_name");
+
+                if (colour_flag) {
+                    printf(ANSI_COLOUR_RESET);
+                }
+
                 info_header_printed = 1;
             }
 
@@ -1076,17 +1095,17 @@ static int cmd_list_stores_verbose(void)
             for (ki = kis; ki != NULL; ki = ki->next) {
                 printf("  %-*s\t", max_name, ki->name);
 
+                const char *kistat = fsa_kb_info_status_to_string(ki->status);
+
                 if (ki->status == KB_STATUS_RUNNING) {
-                    printf(ANSI_COLOUR_GREEN);
+                    print_colour(kistat, ANSI_COLOUR_GREEN);
                 }
                 else if (ki->status == KB_STATUS_STOPPED) {
-                    printf(ANSI_COLOUR_RED);
+                    print_colour(kistat, ANSI_COLOUR_RED);
                 }
                 else {
-                    printf(ANSI_COLOUR_YELLOW);
+                    print_colour(kistat, ANSI_COLOUR_YELLOW);
                 }
-                printf("%s", fsa_kb_info_status_to_string(ki->status));
-                printf(ANSI_COLOUR_RESET);
                 printf("\t");
 
                 if (ki->port > 0) {
@@ -1210,10 +1229,15 @@ static int cmd_list_stores(void)
     int n_total, n_running, n_stopped, n_unknown;
     int comma = 0;
 
-    printf(ANSI_COLOUR_BLUE
-           "%-*s store_status backend_status\n"
-           ANSI_COLOUR_RESET,
-           max_name_len, "store_name");
+    if (colour_flag) {
+        printf(ANSI_COLOUR_BLUE);
+    }
+
+    printf("%-*s store_status backend_status\n", max_name_len, "store_name");
+
+    if (colour_flag) {
+        printf(ANSI_COLOUR_RESET);
+    }
 
     while (kb_name_list != NULL) {
         n_running = n_stopped = n_unknown = 0;
@@ -1242,16 +1266,16 @@ static int cmd_list_stores(void)
         printf("%-*s ", max_name_len, kb_name);
 
         if (n_running == n_total) {
-            printf(ANSI_COLOUR_GREEN "available    " ANSI_COLOUR_RESET);
+            print_colour("available    ", ANSI_COLOUR_GREEN);
         }
         else {
-            printf(ANSI_COLOUR_RED "unavailable  " ANSI_COLOUR_RESET);
+            print_colour("unavailable  ", ANSI_COLOUR_RED);
         }
 
         comma = 0;
         if (n_running > 0) {
-            printf("%d/%d " ANSI_COLOUR_GREEN "running"
-                   ANSI_COLOUR_RESET, n_running, n_total);
+            printf("%d/%d ", n_running, n_total);
+            print_colour("running", ANSI_COLOUR_GREEN);
             comma = 1;
         }
 
@@ -1259,8 +1283,8 @@ static int cmd_list_stores(void)
             if (comma) {
                 printf(", ");
             }
-            printf("%d/%d " ANSI_COLOUR_RED "stopped"
-                   ANSI_COLOUR_RESET, n_stopped, n_total);
+            printf("%d/%d ", n_stopped, n_total);
+            print_colour("stopped", ANSI_COLOUR_RED);
             comma = 1;
         }
 
@@ -1268,8 +1292,8 @@ static int cmd_list_stores(void)
             if (comma) {
                 printf(", ");
             }
-            printf("%d/%d " ANSI_COLOUR_YELLOW "unknown"
-                   ANSI_COLOUR_RESET, n_unknown, n_total);
+            printf("%d/%d ", n_unknown, n_total);
+            print_colour("unknown", ANSI_COLOUR_YELLOW);
         }
 
         printf("\n");
@@ -1361,10 +1385,16 @@ static int cmd_list_nodes(void)
     }
 
     /* print column headers */
-    printf(ANSI_COLOUR_BLUE
-           "%-*s %-*s port  status      ip_address\n"
-           ANSI_COLOUR_RESET,
+    if (colour_flag) {
+        printf(ANSI_COLOUR_BLUE);
+    }
+
+    printf("%-*s %-*s port  status      ip_address\n",
            n_nodes_len, "node_number", hostlen, "hostname");
+
+    if (colour_flag) {
+        printf(ANSI_COLOUR_RESET);
+    }
 
     /* loop through all nodes and attempt to connect admin daemon on each */
     for (p = nodes; p != NULL; p = p->next) {
@@ -1378,14 +1408,13 @@ static int cmd_list_nodes(void)
         printf("%-*d %-*s %-5d ",
                n_nodes_len, node_num, hostlen, p->host, p->port);
         if (sock_fd == -1) {
-            printf(ANSI_COLOUR_RED "unreachable");
+            print_colour("unreachable", ANSI_COLOUR_RED);
             all_nodes_ok = 2;
         }
         else {
-            printf(ANSI_COLOUR_GREEN "ok         ");
+            print_colour("ok         ", ANSI_COLOUR_GREEN);
             close(sock_fd);
         }
-        printf(ANSI_COLOUR_RESET);
         printf(" %s\n", ipaddr);
 
         node_num += 1;
@@ -1443,6 +1472,11 @@ int main(int local_argc, char **local_argv)
     /* Set logging to stderr and log level globals */
     fsa_log_to = ADM_LOG_TO_STDERR;
     fsa_log_level = ADM_LOG_LEVEL;
+
+    /* Disable colour output if no tty */
+    if (!isatty(STDOUT_FILENO)) {
+        colour_flag = 0;
+    }
 
     /* Parse command line options and arguments into global vars  */
     rv = parse_cmdline_opts(argc);
