@@ -1,0 +1,3 @@
+../../src/admin/4s-admin --config-file admin_tests.conf list-stores
+store_name       store_status backend_status
+4s_admin_test_kb available    1/1 running
