@@ -75,6 +75,7 @@ if ($backend_pid = fork()) {
                         '--log-file=valgrind.txt');
             }
             #close STDERR;
+            open STDERR, '/dev/null';
             print join(' ', @cmd) . "\n";
             exec(@cmd);
             die "failed to exec 4s-boss server: $!";

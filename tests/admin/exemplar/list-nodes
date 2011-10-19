@@ -1,3 +1,2 @@
-../../src/admin/4s-admin --config-file admin_tests.conf list-nodes
 node_number hostname      port  status      ip_address
 0           localhost     13580 ok          

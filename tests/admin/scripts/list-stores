@@ -2,8 +2,15 @@
 
 source vars.sh
 
+$FS_BACKEND_SETUP 4s_admin_test_kb2
+$FS_BACKEND_SETUP 4s_admin_test_kb3
+$FS_BACKEND -D 4s_admin_test_kb2 &
+sleep 1
+PID=$!
+kill -15 $PID
+wait $PID
+
 CMD="$FS_ADMIN --config-file $FS_CONF list-stores"
-echo "$CMD"
 
 OUTPUT=`$CMD | sed -e '/^\(4s_admin_test_kb\|store_name \)/!d'`
 
