@@ -391,7 +391,7 @@ static int parse_cmdline_opts(int argc)
     };
 
     while(1) {
-        c = getopt_long(argc, argv, "c:+", long_opts, &opt_index);
+        c = getopt_long(argc, argv, "+c:", long_opts, &opt_index);
 
         /* end of options */
         if (c == -1) {
@@ -596,7 +596,7 @@ static int start_or_stop_stores(int action)
 
                     if (rspval == ADM_RSP_STOP_KB) {
                         kbr = fsap_decode_rsp_stop_kb(buf);
-                        printf("  %-10s ", kbr->kb_name);
+                        printf("  %-11s ", kbr->kb_name);
                         switch (kbr->return_val) {
                             case ADM_ERR_OK:
                             case ADM_ERR_KB_STATUS_STOPPED:
@@ -609,7 +609,7 @@ static int start_or_stop_stores(int action)
                     }
                     else if (rspval == ADM_RSP_START_KB) {
                         kbr = fsap_decode_rsp_start_kb(buf);
-                        printf("  %-10s ", kbr->kb_name);
+                        printf("  %-11s ", kbr->kb_name);
                         switch (kbr->return_val) {
                             case ADM_ERR_OK:
                             case ADM_ERR_KB_STATUS_RUNNING:
@@ -623,6 +623,7 @@ static int start_or_stop_stores(int action)
                                 break;
                         }
                     }
+                    printf("\n");
 
                     free(buf);
                     buf = NULL;
@@ -677,7 +678,7 @@ static int start_or_stop_stores(int action)
                     break;
                 }
 
-                printf("  %-10s", argv[i]);
+                printf("  %-11s ", argv[i]);
 
                 fsa_kb_response *kbr = NULL;
 
@@ -695,6 +696,7 @@ static int start_or_stop_stores(int action)
                             print_colour("unknown", ANSI_COLOUR_RED);
                             break;
                     }
+                    printf("\n");
                     fsa_kb_response_free(kbr);
                 }
                 else if (response == ADM_RSP_START_KB) {
@@ -714,6 +716,7 @@ static int start_or_stop_stores(int action)
                             print_colour("unknown", ANSI_COLOUR_RED);
                             break;
                     }
+                    printf("\n");
                     fsa_kb_response_free(kbr);
                 }
                 else if (response == ADM_RSP_ERROR) {
