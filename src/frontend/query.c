@@ -523,7 +523,7 @@ fs_query *fs_query_execute(fs_query_state *qs, fsp_link *link, raptor_uri *bu, c
         q->aggregate = 1;
     }
 #if 0
-// This nees to be be refined so it only applies ot queries without FILTERs etc.
+// This needs to be be refined so it only applies to queries without FILTERs etc.
  else {
         if (!rasqal_query_get_distinct(rq) && q->limit) {
             q->soft_limit = q->limit * 100;
@@ -1164,9 +1164,8 @@ static void filter_optimise_disjunct_equality(fs_query *q,
         if (val == FS_RID_NULL) return;
         /* if it's a value that can have multiple lexical forms for one
            conceptual value, then we need to check it with a real FILTER */
-        if (attr == fs_c.xsd_integer || attr == fs_c.xsd_double ||
-            attr == fs_c.xsd_float || attr == fs_c.xsd_decimal ||
-            attr == fs_c.xsd_string || attr == fs_c.xsd_datetime) {
+        /* Things that are OK are simple literals, URIs, and plain literals */
+        if (attr != FS_RID_NULL && attr != fs_c.empty && !FS_IS_LITERAL(attr)) {
             fs_rid_vector_truncate(res, 0);
 
             return;
@@ -1193,12 +1192,18 @@ static void filter_optimise_disjunct_equality(fs_query *q,
         
     if (e->arg1) {
         filter_optimise_disjunct_equality(q, e->arg1, block, var, res);
+
+        if (res->length == 0) return;
     }
     if (e->arg2) {
         filter_optimise_disjunct_equality(q, e->arg2, block, var, res);
+
+        if (res->length == 0) return;
     }
     if (e->arg3) {
         filter_optimise_disjunct_equality(q, e->arg3, block, var, res);
+
+        if (res->length == 0) return;
     }
 }
 
@@ -1268,8 +1273,8 @@ static void graph_pattern_walk(fsp_link *link, rasqal_graph_pattern *pattern,
         rasqal_expression *e =
             rasqal_graph_pattern_get_filter_expression(pattern);
         if (e) {
-            /* we need to flag if it's a UNION FILTER so we don't
-             * unneccesarily set the selected flag on the variables */
+            /* we need to flag if it's a UNION FILTER (FILTER disjunction) so
+             * we don't unneccesarily set the selected flag on the variables */
             check_variables(q, e, uni);
             if (filter_optimise(q, e, q->block)) {
                 /* stop us from trying to evaluate this expression later */
@@ -1910,6 +1915,8 @@ static fs_rid const_literal_to_rid(fs_query *q, rasqal_literal *l, fs_rid *attr)
     switch (l->type) {
 	case RASQAL_LITERAL_URI: {
             char *uri = (char *)raptor_uri_as_string(l->value.uri);
+            *attr = FS_RID_NULL;
+
             return fs_hash_uri(uri);
         }
         case RASQAL_LITERAL_XSD_STRING:
@@ -1923,29 +1930,37 @@ static fs_rid const_literal_to_rid(fs_query *q, rasqal_literal *l, fs_rid *attr)
             } else if (l->datatype) {
                 *attr = fs_hash_uri((char *)raptor_uri_as_string(l->datatype));
             }
+
 	    return fs_hash_literal((char *)l->string, *attr);
         }
 	case RASQAL_LITERAL_BOOLEAN:
             *attr = fs_c.xsd_boolean;
+
 	    return fs_hash_literal(l->value.integer ?
 			"true" : "false", *attr);
 	case RASQAL_LITERAL_INTEGER:
-        *attr = fs_c.xsd_integer;
+            *attr = fs_c.xsd_integer;
+
 	    return fs_hash_literal((char *)l->string, *attr);
 	case RASQAL_LITERAL_INTEGER_SUBTYPE:
             *attr = fs_c.xsd_int;
+
 	    return fs_hash_literal((char *)l->string, *attr);
 	case RASQAL_LITERAL_DOUBLE:
             *attr = fs_c.xsd_double;
+
 	    return fs_hash_literal((char *)l->string, *attr);
 	case RASQAL_LITERAL_FLOAT:
             *attr = fs_c.xsd_float;
+
 	    return fs_hash_literal((char *)l->string, *attr);
 	case RASQAL_LITERAL_DECIMAL:
             *attr = fs_c.xsd_decimal;
+
 	    return fs_hash_literal((char *)l->string, *attr);
 	case RASQAL_LITERAL_DATETIME:
             *attr = fs_c.xsd_datetime;
+
 	    return fs_hash_literal((char *)l->string, *attr);
 	case RASQAL_LITERAL_VARIABLE:
             /* not const, don't handle here */
