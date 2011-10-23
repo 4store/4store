@@ -15,6 +15,6 @@ CMD="$FS_ADMIN --config-file $FS_CONF list-stores"
 OUTPUT=`$CMD | sed -e '/^\(4s_admin_test_kb\|store_name \)/!d'`
 EXITSTATUS=${PIPESTATUS[0]}
 
-echo "Exit status: $EXITSTATUS"
 echo "$OUTPUT"
+echo "Exit status: $EXITSTATUS"
 

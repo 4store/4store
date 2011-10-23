@@ -1,5 +1,5 @@
-Exit status: 0
 store_name        store_status backend_status
 4s_admin_test_kb  available    1/1 running
 4s_admin_test_kb2 unavailable  1/1 stopped
 4s_admin_test_kb3 unavailable  1/1 unknown
+Exit status: 0

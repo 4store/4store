@@ -8,6 +8,6 @@ CMD="$FS_ADMIN --config-file $FS_CONF list-nodes"
 OUTPUT=`$CMD | sed -e '2,$s/[^ ]\+$//g'`
 EXITSTATUS=${PIPESTATUS[0]}
 
-echo "Exit status: $EXITSTATUS"
 echo "$OUTPUT"
+echo "Exit status: $EXITSTATUS"
 
