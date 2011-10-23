@@ -1,2 +1,3 @@
+Exit status: 0
 node_number hostname      port  status      ip_address
 0           localhost     13580 ok          
