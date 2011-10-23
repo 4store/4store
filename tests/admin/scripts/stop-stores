@@ -1,0 +1,38 @@
+#!/bin/bash
+
+source vars.sh
+
+$FS_BACKEND_SETUP 4s_admin_test_kb2
+$FS_BACKEND_SETUP 4s_admin_test_kb3
+$FS_BACKEND -D 4s_admin_test_kb2 &
+sleep 1
+PID=$!
+kill -15 $PID
+wait $PID
+
+# Test correct command line args
+CMD="$FS_ADMIN --config-file $FS_CONF stop-stores 4s_admin_test_kb2 4s_admin_test_kb3"
+OUTPUT=`$CMD | sed -e '/^\(\s\+4s_admin_test_kb\|node_number \|0 \|  store_name \)/!d'`
+EXITSTATUS=${PIPESTATUS[0]}
+
+echo "$OUTPUT"
+echo "Exit status: $EXITSTATUS"
+
+# Test invalid command line args
+CMD="$FS_ADMIN --config-file $FS_CONF stop-stores invalid-store-name"
+OUTPUT=`$CMD`
+EXITSTATUS=$?
+
+echo
+echo "Invalid args test"
+echo "$OUTPUT"
+echo "Exit status: $EXITSTATUS"
+echo
+
+CMD="$FS_ADMIN --config-file $FS_CONF stop-stores 4s_admin_test_kb2 non_existent_store"
+OUTPUT=`$CMD | sed -e '/^\(\s\+4s_admin_test_kb\|\s\+non_existent_store\|node_number \|0 \|  store_name \)/!d'`
+EXITSTATUS=${PIPESTATUS[0]}
+
+echo "$OUTPUT"
+echo "Exit status: $EXITSTATUS"
+
