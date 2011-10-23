@@ -109,6 +109,41 @@ static void print_colour(const char *txt, const char *colour)
     }
 }
 
+static void print_node_line(int node_num, const char *host, int print_header)
+{
+    if (print_header) {
+        print_colour("node_number hostname\n", ANSI_COLOUR_BLUE);
+    }
+
+    printf("%-11d %s\n", node_num, host);
+}
+
+static void print_node_status_line(int node_num, const char *host,
+                                   int node_status, int host_len,
+                                   int print_header)
+{
+    if (print_header) {
+        if (colour_flag) {
+            printf(ANSI_COLOUR_BLUE);
+        }
+
+        printf("node_number %-*s status\n", host_len, "hostname");
+
+        if (colour_flag) {
+            printf(ANSI_COLOUR_RESET);
+        }
+    }
+
+    printf("%-11d %-*s ", node_num, host_len, host);
+
+    if (node_status == 0) {
+        print_colour("ok\n", ANSI_COLOUR_GREEN);
+    }
+    else {
+        print_colour("unreachable\n", ANSI_COLOUR_RED);
+    }
+}
+
 /* convenience function to return all nodes, or default node if none found */
 static fsa_node_addr *get_storage_nodes(void)
 {
@@ -459,6 +494,7 @@ static void print_invalid_arg(void)
 static int start_or_stop_stores(int action)
 {
     int all = 0; /* if -a flag, then start/stop all, instead of kb name */
+    int kb_name_len = 11;
 
     if (args_index < 0) {
         /* no argument given, display help text */
@@ -480,6 +516,11 @@ static int start_or_stop_stores(int action)
             if (!fsa_is_valid_kb_name(argv[i])) {
                 fsa_error(LOG_ERR, "'%s' is not a valid store name", argv[i]);
                 return 1;
+            }
+
+            int len = strlen(argv[i]);
+            if (len > kb_name_len) {
+                kb_name_len = len;
             }
         }
     }
@@ -504,17 +545,21 @@ static int start_or_stop_stores(int action)
     /* to be set by fsa_send_recv_cmd */
     int response, bufsize, err;
 
+    int print_node_header = 1;
+    int print_store_header = 1;
+
     for (fsa_node_addr *n = nodes; n != NULL; n = n->next) {
         sock_fd = fsaf_connect_to_admind(n->host, n->port, &hints, ipaddr);
 
-        printf("%d %s ", node_num, n->host);
+        print_node_line(node_num, n->host, print_node_header);
+        print_node_header = 0;
+
         node_num += 1;
 
         if (sock_fd == -1) {
             print_colour("unreachable\n", ANSI_COLOUR_RED);
             continue;
         }
-        printf("\n");
         
         if (all) {
             /* start/stop all kbs */
@@ -547,18 +592,33 @@ static int start_or_stop_stores(int action)
             }
 
             /* should get this if all went well */
-            if (response == ADM_RSP_EXPECT_N) {
+            if (response == ADM_RSP_EXPECT_N_KB) {
                 int rv;
                 uint8_t rspval;
                 uint16_t datasize;
                 unsigned char header_buf[ADM_HEADER_LEN];
                 fsa_kb_response *kbr = NULL;
 
-                int expected_responses = fsap_decode_rsp_expect_n(buf);
+                int max_kb_len;
+                int expected_responses =
+                    fsap_decode_rsp_expect_n_kb(buf, &max_kb_len);
                 free(buf);
 
                 fsa_error(LOG_DEBUG, "expecting %d responses from server",
                           expected_responses);
+
+                /* print header */
+                if (print_store_header) {
+                    if (colour_flag) {
+                        printf(ANSI_COLOUR_BLUE);
+                    }
+
+                    printf("  %-*s status\n", max_kb_len, "store_name");
+
+                    if (colour_flag) {
+                        printf(ANSI_COLOUR_RESET);
+                    }
+                }
 
                 /* get packet from server for each kb started/stopped */
                 for (int i = 0; i < expected_responses; i++) {
@@ -596,7 +656,7 @@ static int start_or_stop_stores(int action)
 
                     if (rspval == ADM_RSP_STOP_KB) {
                         kbr = fsap_decode_rsp_stop_kb(buf);
-                        printf("  %-11s ", kbr->kb_name);
+                        printf("  %-*s ", max_kb_len, kbr->kb_name);
                         switch (kbr->return_val) {
                             case ADM_ERR_OK:
                             case ADM_ERR_KB_STATUS_STOPPED:
@@ -609,7 +669,7 @@ static int start_or_stop_stores(int action)
                     }
                     else if (rspval == ADM_RSP_START_KB) {
                         kbr = fsap_decode_rsp_start_kb(buf);
-                        printf("  %-11s ", kbr->kb_name);
+                        printf("  %-*s ", max_kb_len, kbr->kb_name);
                         switch (kbr->return_val) {
                             case ADM_ERR_OK:
                             case ADM_ERR_KB_STATUS_RUNNING:
@@ -644,6 +704,19 @@ static int start_or_stop_stores(int action)
             }
         }
         else {
+            /* print header */
+            if (print_store_header) {
+                if (colour_flag) {
+                    printf(ANSI_COLOUR_BLUE);
+                }
+
+                printf("  %-*s status\n", kb_name_len, "store_name");
+
+                if (colour_flag) {
+                    printf(ANSI_COLOUR_RESET);
+                }
+            }
+
             /* stop kbs given on command line */
             for (int i = args_index; i < argc; i++) {
                 /* send start/stop command for each kb */
@@ -678,7 +751,7 @@ static int start_or_stop_stores(int action)
                     break;
                 }
 
-                printf("  %-11s ", argv[i]);
+                printf("  %-*s ", kb_name_len, argv[i]);
 
                 fsa_kb_response *kbr = NULL;
 
@@ -787,10 +860,16 @@ static int cmd_delete_stores(void)
     }
 
     /* check for invalid store names */
+    int store_name_len = 11;
     for (int i = args_index; i < argc; i++) {
         if (!fsa_is_valid_kb_name(argv[i])) {
             fsa_error(LOG_ERR, "'%s' is not a valid store name", argv[i]);
             return 1;
+        }
+
+        int len = strlen(argv[i]);
+        if (len > store_name_len) {
+            store_name_len = len;
         }
     }
     
@@ -798,7 +877,13 @@ static int cmd_delete_stores(void)
     fsa_node_addr *node;
     fsa_node_addr *nodes = get_storage_nodes();
     int n_nodes = 0;
+    int node_name_len = 9;
     for (node = nodes; node != NULL; node = node->next) {
+        int len = strlen(node->host);
+        if (len > node_name_len) {
+            node_name_len = len;
+        }
+        
         n_nodes += 1;
     }
 
@@ -813,21 +898,25 @@ static int cmd_delete_stores(void)
 
     char ipaddr[INET6_ADDRSTRLEN];
     int cur_node = 0;
+    int print_node_header = 1;
+    int node_status;
 
-    printf("Connecting to all nodes:\n");
+    printf("Checking cluster status:\n");
 
     for (fsa_node_addr *n = nodes; n != NULL; n = n->next) {
         sock_fds[cur_node] =
             fsaf_connect_to_admind(n->host, n->port, &hints, ipaddr);
 
-        printf("%d %s ", cur_node, n->host);
-
         if (sock_fds[cur_node] == -1) {
-            print_colour("unreachable\n", ANSI_COLOUR_RED);
+            node_status = -1;
         }
         else {
-            print_colour("ok\n", ANSI_COLOUR_GREEN);
+            node_status = 0;
         }
+
+        print_node_status_line(cur_node, n->host, node_status,
+                               node_name_len, print_node_header);
+        print_node_header = 0;
 
         cur_node += 1;
     }
@@ -840,12 +929,14 @@ static int cmd_delete_stores(void)
             return 1;
         }
     }
+    printf("\n");
 
     int response, bufsize, err, len;
     int n_errors = 0;
     int n_deleted;
     unsigned char *cmd;
     unsigned char *buf;
+    int print_store_header = 1;
 
     /* delete one kb at a time across all nodes */
     for (int i = args_index; i < argc; i++) {
@@ -881,6 +972,16 @@ static int cmd_delete_stores(void)
                         fsa_error(
                             LOG_DEBUG,
                             "kb '%s' deleted on node %s",
+                            kbr->kb_name, node->host
+                        );
+                        n_deleted += 1;
+                        break;
+                    case ADM_ERR_KB_STATUS_UNKNOWN:
+                        /* kb deleted, but runtime status not confirmed */
+                        fsa_error(
+                            LOG_DEBUG,
+                            "kb '%s' deleted on node %s, but runtime status "
+                            "not confirmed",
                             kbr->kb_name, node->host
                         );
                         n_deleted += 1;
@@ -942,12 +1043,28 @@ static int cmd_delete_stores(void)
             break;
         }
 
+        if (print_store_header) {
+            if (colour_flag) {
+                printf(ANSI_COLOUR_BLUE);
+            }
+
+            printf("%-*s store_status\n", store_name_len, "store_name");
+
+            if (colour_flag) {
+                printf(ANSI_COLOUR_RESET);
+            }
+
+            print_store_header = 0;
+        }
+
+        printf("%-*s ", store_name_len, argv[i]);
+
         /* else kb deleted on all nodes */
         if (n_deleted == 0) {
-            printf("%s store_not_found\n", argv[i]);
+            print_colour("store_not_found\n", ANSI_COLOUR_YELLOW);
         }
         else {
-            printf("%s deleted\n", argv[i]);
+            print_colour("deleted\n", ANSI_COLOUR_GREEN);
         }
     }
 
@@ -1022,19 +1139,13 @@ static int cmd_list_stores_verbose(void)
     fsa_kb_info *ki;
     fsa_kb_info *kis;
     int node_num = 0;
-    int node_header_printed = 0;
     int info_header_printed = 0;
+    int print_node_header = 1;
 
     /* connect to each node separately */
     while (node != NULL) {
-        if (!node_header_printed) {
-            print_colour("node_number\thostname:port\n", ANSI_COLOUR_BLUE);
-            node_header_printed = 1;
-        }
-        else {
-            printf("\n");
-        }
-        printf("%-11d\t%s:%d\n", node_num, node->host, node->port);
+        print_node_line(node_num, node->host, print_node_header);
+        print_node_header = 0;
 
         /* only pass a single node to fetch_kb_info, so break linked list  */
         tmp_node = node->next;
@@ -1045,22 +1156,9 @@ static int cmd_list_stores_verbose(void)
         /* restore next item in list */
         node->next = tmp_node;
 
-        if (kis == NULL) {
-            /* check errno to see why we got no data */
-            if (errno == 0) {
-                /* no error, but no kbs on node */
-                printf("no kbs on node\n");
-            }
-            else if (errno == ADM_ERR_CONN_FAILED) {
-                /* do nothing, error already handled */
-            }
-            else {
-                fsa_error(LOG_ERR,
-                          "Connection to node %d (%s:%d) failed: %s\n",
-                          node_num, node->host, node->port, strerror(errno));
-            }
-        }
-        else {
+        /* TODO: better error handling, differentiate between err and no
+         * stores */
+        if (kis != NULL) {
             /* get column widths */
             int max_name = 10;
             int max_segs = 10;
@@ -1084,7 +1182,7 @@ static int cmd_list_stores_verbose(void)
                     printf(ANSI_COLOUR_BLUE);
                 }
 
-                printf("  %-*s\tstatus\tport\tnumber_of_segments\n",
+                printf("  %-*s status  port  number_of_segments\n",
                        max_name, "store_name");
 
                 if (colour_flag) {
@@ -1096,7 +1194,7 @@ static int cmd_list_stores_verbose(void)
 
             /* print kb info */
             for (ki = kis; ki != NULL; ki = ki->next) {
-                printf("  %-*s\t", max_name, ki->name);
+                printf("  %-*s ", max_name, ki->name);
 
                 const char *kistat = fsa_kb_info_status_to_string(ki->status);
 
@@ -1109,13 +1207,13 @@ static int cmd_list_stores_verbose(void)
                 else {
                     print_colour(kistat, ANSI_COLOUR_YELLOW);
                 }
-                printf("\t");
+                printf(" ");
 
                 if (ki->port > 0) {
-                    printf("%d\t", ki->port);
+                    printf("%5d ", ki->port);
                 }
                 else {
-                    printf("\t");
+                    printf("      ");
                 }
 
                 if (ki->p_segments_len > 0) {
@@ -1185,21 +1283,7 @@ static int cmd_list_stores(void)
         /* restore next item in list */
         node->next = tmp_node;
 
-        if (kis == NULL) {
-            /* check errno to see why we got no data */
-            if (errno == 0) {
-                /* no error, but no kbs on node */
-            }
-            else if (errno == ADM_ERR_CONN_FAILED) {
-                /* do nothing, error already handled */
-            }
-            else {
-                fsa_error(LOG_ERR,
-                          "Connection to node %d (%s:%d) failed: %s\n",
-                          node_num, node->host, node->port, strerror(errno));
-            }
-        }
-        else {
+        if (kis != NULL) {
             /* insert each kb info record into hash table */
             ki = kis;
             while (ki != NULL) {
@@ -1231,18 +1315,27 @@ static int cmd_list_stores(void)
     char *kb_name;
     int n_total, n_running, n_stopped, n_unknown;
     int comma = 0;
+    int print_store_header = 1;
 
-    if (colour_flag) {
-        printf(ANSI_COLOUR_BLUE);
-    }
-
-    printf("%-*s store_status backend_status\n", max_name_len, "store_name");
-
-    if (colour_flag) {
-        printf(ANSI_COLOUR_RESET);
+    if (kb_name_list == NULL) {
+        printf("No stores found\n");
     }
 
     while (kb_name_list != NULL) {
+        if (print_store_header) {
+            if (colour_flag) {
+                printf(ANSI_COLOUR_BLUE);
+            }
+
+            printf("%-*s store_status backend_status\n",
+                   max_name_len, "store_name");
+
+            if (colour_flag) {
+                printf(ANSI_COLOUR_RESET);
+            }
+            print_store_header = 0;
+        }
+
         n_running = n_stopped = n_unknown = 0;
         kb_name = kb_name_list->data;
 

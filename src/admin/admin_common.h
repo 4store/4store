@@ -36,6 +36,7 @@
 #define ADM_RSP_START_KB_ALL   16
 #define ADM_CMD_DELETE_KB      17
 #define ADM_RSP_DELETE_KB      18
+#define ADM_RSP_EXPECT_N_KB   252
 #define ADM_RSP_EXPECT_N      253
 #define ADM_RSP_ABORT_EXPECT  254
 #define ADM_RSP_ERROR         255

@@ -5,8 +5,12 @@
 
 /* generic encoders/decoders */
 int fsap_decode_header(const unsigned char *buf, uint8_t *cmd, uint16_t *size);
+
 unsigned char *fsap_encode_rsp_expect_n(int n, int *len);
 int fsap_decode_rsp_expect_n(const unsigned char *buf);
+unsigned char *fsap_encode_rsp_expect_n_kb(int n, int kb_len, int *len);
+int fsap_decode_rsp_expect_n_kb(const unsigned char *buf, int *kb_name_len);
+
 unsigned char *fsap_encode_rsp_error(const unsigned char *msg, int *len);
 unsigned char *fsap_decode_rsp_error(const unsigned char *buf, int len);
 

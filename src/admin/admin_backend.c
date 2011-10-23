@@ -222,19 +222,19 @@ fsa_kb_info *fsab_get_local_kb_info(const unsigned char *kb_name, int *err)
 }
 
 /* get info on all kbs on this host */
-fsa_kb_info *fsab_get_local_kb_info_all(void)
+fsa_kb_info *fsab_get_local_kb_info_all(int *err)
 {
     struct dirent *entry;
     DIR *dp;
     fsa_kb_info *first_ki = NULL;
     fsa_kb_info *cur_ki = NULL;
-    int rv, err;
+    int rv;
 
     dp = opendir(FS_STORE_ROOT);
     if (dp == NULL) {
         fsa_error(LOG_ERR, "failed to open directory '%s': %s",
                   FS_STORE_ROOT, strerror(errno));
-        errno = ADM_ERR_GENERIC;
+        *err = ADM_ERR_GENERIC;
         return NULL;
     }
 
@@ -245,7 +245,7 @@ fsa_kb_info *fsab_get_local_kb_info_all(void)
         }
 
         cur_ki = fsa_kb_info_new();
-        rv = fsab_kb_info_init(cur_ki, (unsigned char *)entry->d_name, &err);
+        rv = fsab_kb_info_init(cur_ki, (unsigned char *)entry->d_name, err);
         if (rv == -1) {
             fsa_error(LOG_ERR, "failed to initialise kb info for %s",
                       entry->d_name);
@@ -261,7 +261,7 @@ fsa_kb_info *fsab_get_local_kb_info_all(void)
     closedir(dp);
 
     /* set errno to differentiate between no kbs, and error */
-    errno = 0;
+    *err = 0;
     return first_ki;
 }
 

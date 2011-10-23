@@ -233,6 +233,42 @@ int fsap_decode_rsp_expect_n(const unsigned char *buf)
     return (int)n_messages;
 }
 
+/* expect n more KB messages, give max kb name length */
+unsigned char *fsap_encode_rsp_expect_n_kb(int n, int kb_len, int *len)
+{
+    uint16_t n_messages = (uint16_t)n;
+    uint8_t max_kb_name_len = (uint8_t)kb_len;
+    int data_len = sizeof(uint16_t) + sizeof(uint8_t);
+    unsigned char *buf = init_packet(ADM_RSP_EXPECT_N_KB, data_len);
+    unsigned char *p = buf;
+    p += ADM_HEADER_LEN;
+
+    memcpy(p, &n_messages, sizeof(uint16_t));
+    p += sizeof(uint16_t);
+
+    memcpy(p, &max_kb_name_len, sizeof(uint8_t));
+
+    *len = data_len + ADM_HEADER_LEN;
+    return buf;
+}
+
+int fsap_decode_rsp_expect_n_kb(const unsigned char *buf, int *kb_name_len)
+{
+    uint16_t n_messages;
+    uint8_t kb_len;
+
+    const unsigned char *p = buf;
+
+    memcpy(&n_messages, p, sizeof(uint16_t));
+    p += sizeof(uint16_t);
+
+    memcpy(&kb_len, p, sizeof(uint8_t));
+
+    *kb_name_len = (int)kb_len;
+
+    return (int)n_messages;
+}
+
 unsigned char *fsap_encode_cmd_stop_kb_all(int *len)
 {
     *len = ADM_HEADER_LEN;

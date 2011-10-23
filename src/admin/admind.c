@@ -539,6 +539,31 @@ static int send_expect_n(int sock_fd, int n)
     return rv;
 }
 
+/* tell client to expect n more kb messages */
+static int send_expect_n_kb(int sock_fd, int n, int max_kb_len)
+{
+    fsa_error(LOG_DEBUG, "telling client to expect %d more kb messages", n);
+
+    int len, rv;
+    unsigned char *msg = fsap_encode_rsp_expect_n_kb(n, max_kb_len, &len);
+    if (msg == NULL) {
+        fsa_error(LOG_CRIT, "failed to encode expect n kb message");
+        return -1;
+    }
+
+    rv = fsa_sendall(sock_fd, msg, &len);
+    free(msg); /* done with msg buffer */
+
+    if (rv == -1) {
+        fsa_error(LOG_CRIT, "failed to send response to client: %s",
+                  strerror(errno));
+    }
+    else {
+        fsa_error(LOG_DEBUG, "expect_n_kb sent %d bytes", len);
+    }
+
+    return rv;
+}
 
 /* accept new client connection, and add to master read fd set */
 static void handle_new_connection(int l_index)
@@ -571,7 +596,8 @@ static void handle_cmd_get_kb_info_all(int client_fd)
     unsigned char *response;
 
     /* get info on all running/stopped kbs on this host */
-    ki = fsab_get_local_kb_info_all();
+    int err;
+    ki = fsab_get_local_kb_info_all(&err);
     if (ki == NULL) {
         send_error_message(client_fd, "failed to get local kb info");
         return;
@@ -663,6 +689,9 @@ static void handle_cmd_delete_kb(int client_fd, uint16_t datasize)
     unsigned char *response =
         fsap_encode_rsp_delete_kb(err, kb_name, msg, &len);
 
+    fsa_error(LOG_DEBUG, "sending err: %d, kb_name: %s, msg: %s",
+              err, kb_name, msg);
+
     free(msg);
     free(kb_name);
 
@@ -684,21 +713,32 @@ static void start_or_stop_kb_all(int client_fd, int action)
 {
     int rv, err;
     int n_kbs = 0;
+    int max_kb_len = 0;
 
     /* get all local kbs */
-    fsa_kb_info *ki = fsab_get_local_kb_info_all();
+    fsa_kb_info *ki = fsab_get_local_kb_info_all(&err);
     if (ki == NULL) {
-        send_error_message(client_fd, "unable to find any stores");
+        if (err == 0) {
+            /* no kbs on this host */
+            send_expect_n_kb(client_fd, 0, 0);
+        }
+        else {
+            send_error_message(client_fd, "failed to read store information");
+        }
         return;
     }
 
     /* count number of kbs */
     for (fsa_kb_info *p = ki; p != NULL; p = p->next) {
+        int kb_len = strlen((char *)ki->name);
+        if (kb_len > max_kb_len) {
+            max_kb_len = kb_len;
+        }
         n_kbs += 1;
     }
 
     /* tell client to expect a message for each */
-    rv = send_expect_n(client_fd, n_kbs);
+    rv = send_expect_n_kb(client_fd, n_kbs, max_kb_len);
     if (rv == -1) {
         /* failed to send message to client, so give up */
         fsa_kb_info_free(ki);
