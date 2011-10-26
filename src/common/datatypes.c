@@ -44,7 +44,7 @@ struct _fs_rid_set {
 fs_rid_vector *fs_rid_vector_new_logged(int length, char *file, int line)
 {
     fs_rid_vector *t = calloc(1, sizeof(fs_rid_vector));
-printf("@@ RV %s:%d %p 0NEW\n", file, line, t);
+    printf("@@ RV %s:%d %p 0NEW\n", file, line, t);
     t->file = file;
     t->line = line;
     t->length = length;

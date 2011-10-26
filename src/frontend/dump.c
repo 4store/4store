@@ -230,7 +230,7 @@ void dump_trix(fsp_link *link, xmlTextWriterPtr xml)
     dump_model(link, model, xml);
     xmlTextWriterEndElement(xml);
     xmlTextWriterWriteString(xml, (xmlChar *) "\n");
-printf("%5d/%ld: %4.5f %4.5f %4.5f %4.5f\n", k + 1, length, time_resolving, time_bind_first, time_bind_next, time_write_out);
+    printf("%5d/%ld: %4.5f %4.5f %4.5f %4.5f\n", k + 1, length, time_resolving, time_bind_first, time_bind_next, time_write_out);
   }
 }
 

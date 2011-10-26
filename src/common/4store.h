@@ -71,6 +71,8 @@
 
 #define FS_DELETE_QUADS 0x32
 
+#define FS_GET_UUID 0x33
+
 /* message header  = 16 bytes */
 #define FS_HEADER 16
 
@@ -219,5 +221,10 @@ void fsp_hit_limits_reset(fsp_link *link);
 void fsp_hit_limits_add(fsp_link *link, int delta);
 
 fsp_hash_enum fsp_hash_type(fsp_link *link);
+
+char *fsp_link_uuid(fsp_link *link);
+
+extern char *fs_global_skolem_prefix;
+extern int fs_global_skolem_prefix_len;
 
 #endif

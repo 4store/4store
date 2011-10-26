@@ -1,6 +1,6 @@
 201 imported successfully
 This is a 4store SPARQL server [VERSION]
-Query: SELECT ?o ?v WHERE { GRAPH <http://example.com/dates.ttl> { ?o <test:date> ?v }} ORDER BY ?o
+Query: SELECT ?o ?v WHERE { GRAPH <http://example.com/dates.ttl> { ?o <test:date> ?v }} ORDER BY ?v
 ?o	?v
 <http://example.com/a>	"2010-03-09"^^<http://www.w3.org/2001/XMLSchema#dateTime>
 <http://example.com/b>	"2010-03-09T22:30:00Z"^^<http://www.w3.org/2001/XMLSchema#dateTime>
@@ -8,14 +8,14 @@ Query: SELECT ?o ?v WHERE { GRAPH <http://example.com/dates.ttl> { ?o <test:date
 <http://example.com/d>	"2010-03-09T22:31:00Z"^^<http://www.w3.org/2001/XMLSchema#dateTime>
 <http://example.com/e>	"2010-03-09T23:30:00Z"^^<http://www.w3.org/2001/XMLSchema#dateTime>
 <http://example.com/f>	"2010-03-09T23:59:59Z"^^<http://www.w3.org/2001/XMLSchema#dateTime>
-<http://example.com/g>	"2010-03-10T00:00:00Z"^^<http://www.w3.org/2001/XMLSchema#dateTime>
 <http://example.com/h>	"2010-03-10"^^<http://www.w3.org/2001/XMLSchema#dateTime>
+<http://example.com/g>	"2010-03-10T00:00:01Z"^^<http://www.w3.org/2001/XMLSchema#dateTime>
 <http://example.com/i>	"2010-03-11"^^<http://www.w3.org/2001/XMLSchema#dateTime>
 Query: BASE <http://example.com/> SELECT * WHERE { GRAPH <http://example.com/dates.ttl> { <a> <test:date> ?date1 . <h> <test:date> ?date2 .  FILTER ( ?date1 < ?date2 ) }}
 ?date1	?date2
 "2010-03-09"^^<http://www.w3.org/2001/XMLSchema#dateTime>	"2010-03-10"^^<http://www.w3.org/2001/XMLSchema#dateTime>
 Query: BASE <http://example.com/> ASK WHERE { GRAPH <http://example.com/dates.ttl> { <g> <test:date> ?date1.  <h> <test:date> ?date2.  FILTER ( ?date1 = ?date2 ) .}}
-true
+false
 Query: BASE <http://example.com/> PREFIX xsd: <http://www.w3.org/2001/XMLSchema#> ASK WHERE { GRAPH <http://example.com/dates.ttl> { <a> <test:date> ?date1.  <h> <test:date> ?date2.  FILTER ( ?date1 <= ?date2 ) .}}
 true
 Query: BASE <http://example.com/> PREFIX xsd: <http://www.w3.org/2001/XMLSchema#dateTime> SELECT * WHERE { GRAPH <http://example.com/dates.ttl> { <a> <test:date> ?date1 . FILTER (?date1 < "2010-03-09T00:00:01Z"^^xsd:dateTime) } }

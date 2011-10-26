@@ -37,6 +37,9 @@
 
 #include <glib.h>
 
+char *fs_global_skolem_prefix = NULL;
+int fs_global_skolem_prefix_len = 0;
+
 static const char *invalid_response(unsigned char *msg)
 {
   if (!msg) {
@@ -543,6 +546,22 @@ static unsigned char *message_recv_replica(fsp_link *link, fs_segment segment, u
   }
 }
 
+void get_uuid(fsp_link *link)
+{
+  unsigned char *out = message_new(FS_GET_UUID, 0, 0);
+  int sock = fsp_write(link, out, 0);
+  free(out);
+
+  unsigned int length;
+  fs_segment segment;
+  unsigned char *in = message_recv(sock, &segment, &length);
+  g_static_mutex_unlock(&link->mutex[segment]);
+  link->uuid = g_strdup((char *)in + FS_HEADER);
+  free(in);
+  fs_global_skolem_prefix = g_strdup_printf("%s/%s/", FS_SKOLEM_PREFIX, link->uuid);
+  fs_global_skolem_prefix_len = strlen(fs_global_skolem_prefix);
+}
+
 fsp_link* fsp_open_link (const char *name, char *password, int readonly)
 {
   if (!name) {
@@ -589,10 +608,18 @@ fsp_link* fsp_open_link (const char *name, char *password, int readonly)
     link = NULL;
   }
 
+  if (link) {
+    get_uuid(link);
+    if (!link->uuid) {
+      fs_error(LOG_ERR, "could not get UUID from backend, using dummy");
+      link->uuid = g_strdup("00000000-0000-0000-0000-000000000000");
+    }
+  }
+
   return link;
 }
 
-void fsp_close_link (fsp_link *link)
+void fsp_close_link(fsp_link *link)
 {
   fsp_mdns_cleanup_frontend(link);
 
@@ -623,6 +650,11 @@ const char *fsp_link_features (fsp_link *link)
 long long *fsp_profile_write(fsp_link* link)
 {
    return link->tics;
+}
+
+char *fsp_link_uuid(fsp_link *link)
+{
+   return link->uuid;
 }
 
 static int check_message_replica(fsp_link *link, fs_segment segment, const char *message)

@@ -486,18 +486,18 @@ fs_value fn_numeric_round(fs_query *q, fs_value a)
 fs_value fn_numeric_add(fs_query *q, fs_value a, fs_value b)
 {
 #if 0
-fs_value_print(a);
-printf(" + ");
-fs_value_print(b);
-printf("\n");
+    fs_value_print(a);
+    printf(" + ");
+    fs_value_print(b);
+    printf("\n");
 #endif
     a = fs_value_promote(q, a, b);
     b = fs_value_promote(q, b, a);
 #if 0
-fs_value_print(a);
-printf(" P+ ");
-fs_value_print(b);
-printf("\n");
+    fs_value_print(a);
+    printf(" P+ ");
+    fs_value_print(b);
+    printf("\n");
 #endif
 
     if (a.attr == b.attr && a.attr != FS_RID_NULL && a.attr != fs_c.empty) {
@@ -592,10 +592,10 @@ fs_value fn_numeric_divide(fs_query *q, fs_value a, fs_value b)
 fs_value fn_equal(fs_query *q, fs_value a, fs_value b)
 {
 #if 0
-fs_value_print(a);
-printf(" = ");
-fs_value_print(b);
-printf("\n");
+    fs_value_print(a);
+    printf(" = ");
+    fs_value_print(b);
+    printf("\n");
 #endif
     if (a.valid & fs_valid_bit(FS_V_TYPE_ERROR)) {
 	return a;
@@ -626,10 +626,10 @@ printf("\n");
 fs_value fn_not_equal(fs_query *q, fs_value a, fs_value b)
 {
 #if 0
-fs_value_print(a);
-printf(" != ");
-fs_value_print(b);
-printf("\n");
+    fs_value_print(a);
+    printf(" != ");
+    fs_value_print(b);
+    printf("\n");
 #endif
     if (a.valid & fs_valid_bit(FS_V_TYPE_ERROR)) {
 	return a;
@@ -699,10 +699,10 @@ fs_value fn_less_than(fs_query *q, fs_value a, fs_value b)
 	return b;
     }
 #if 0
-fs_value_print(a);
-printf(" < ");
-fs_value_print(b);
-printf("\n");
+    fs_value_print(a);
+    printf(" < ");
+    fs_value_print(b);
+    printf("\n");
 #endif
 
     if (a.attr == fs_c.xsd_datetime && b.attr == fs_c.xsd_datetime) return fn_datetime_less_than(q, a, b);
@@ -751,10 +751,10 @@ fs_value fn_greater_than_equal(fs_query *q, fs_value a, fs_value b)
 fs_value fn_less_than_equal(fs_query *q, fs_value a, fs_value b)
 {
 #if 0
-fs_value_print(a);
-printf(" <= ");
-fs_value_print(b);
-printf("\n");
+    fs_value_print(a);
+    printf(" <= ");
+    fs_value_print(b);
+    printf("\n");
 #endif
     if (a.valid & fs_valid_bit(FS_V_TYPE_ERROR)) {
 	return a;
@@ -786,10 +786,10 @@ printf("\n");
 fs_value fn_numeric_equal(fs_query *q, fs_value a, fs_value b)
 {
 #if 0
-fs_value_print(a);
-printf(" ");
-fs_value_print(b);
-printf("\n");
+    fs_value_print(a);
+    printf(" ");
+    fs_value_print(b);
+    printf("\n");
 #endif
     a = fs_value_promote(q, a, b);
     b = fs_value_promote(q, b, a);
@@ -817,10 +817,10 @@ fs_value fn_numeric_less_than(fs_query *q, fs_value a, fs_value b)
     a = fs_value_promote(q, a, b);
     b = fs_value_promote(q, b, a);
 #if 0
-fs_value_print(a);
-printf(" < ");
-fs_value_print(b);
-printf("\n");
+    fs_value_print(a);
+    printf(" < ");
+    fs_value_print(b);
+    printf("\n");
 #endif
 
     if (a.attr == b.attr && a.attr != FS_RID_NULL && a.attr != fs_c.empty) {
@@ -912,10 +912,10 @@ fs_value fn_datetime_equal(fs_query *q, fs_value a, fs_value b)
 fs_value fn_datetime_less_than(fs_query *q, fs_value a, fs_value b)
 {
 #if 0
-fs_value_print(a);
-printf(" < ");
-fs_value_print(b);
-printf(" [dT]\n");
+    fs_value_print(a);
+    printf(" < ");
+    fs_value_print(b);
+    printf(" [dT]\n");
 #endif
     if (a.attr == fs_c.xsd_datetime && b.attr == fs_c.xsd_datetime &&
         (a.in != -1 || b.in != -1))
@@ -951,10 +951,10 @@ fs_value fn_compare(fs_query *q, fs_value a, fs_value b)
     }
 
 #if 0
-fs_value_print(a);
-printf(" <=> ");
-fs_value_print(b);
-printf("\n");
+    fs_value_print(a);
+    printf(" <=> ");
+    fs_value_print(b);
+    printf("\n");
 #endif
     if ((FS_IS_LITERAL(a.attr) && FS_IS_LITERAL(b.attr)) ||
 	(a.attr == fs_c.empty && b.attr == fs_c.empty)) {
@@ -1027,9 +1027,9 @@ fs_value fn_logical_or(fs_query *q, fs_value a, fs_value b)
 fs_value fn_not(fs_query *q, fs_value a)
 {
 #if 0
-printf("! ");
-fs_value_print(a);
-printf("\n");
+    printf("! ");
+    fs_value_print(a);
+    printf("\n");
 #endif
     if (fs_is_error(a)) {
 	return a;
@@ -1238,9 +1238,9 @@ fs_value fn_lang(fs_query *q, fs_value a)
 fs_value fn_datatype(fs_query *q, fs_value a)
 {
 #if 0
-printf("datatype(");
-fs_value_print(a);
-printf(")\n");
+    printf("datatype(");
+    fs_value_print(a);
+    printf(")\n");
 #endif
     if (a.valid & fs_valid_bit(FS_V_TYPE_ERROR)) {
 	return a;
@@ -1309,13 +1309,13 @@ fs_value fn_matches(fs_query *q, fs_value str, fs_value pat, fs_value flags)
 	return fs_value_error(FS_ERROR_INVALID_TYPE, NULL);
     }
 #if 0
-printf("REGEX ");
-fs_value_print(str);
-printf(", ");
-fs_value_print(pat);
-printf(", ");
-fs_value_print(flags);
-printf("\n");
+    printf("REGEX ");
+    fs_value_print(str);
+    printf(", ");
+    fs_value_print(pat);
+    printf(", ");
+    fs_value_print(flags);
+    printf("\n");
 #endif
 
     int reflags = PCRE_UTF8;
@@ -1383,11 +1383,11 @@ fs_value fn_cast_intl(fs_query *q, fs_value v, fs_rid dt)
 fs_value fn_cast(fs_query *q, fs_value v, fs_value d)
 {
 #if 0
-printf("CAST ");
-fs_value_print(v);
-printf(" -> ");
-fs_value_print(d);
-printf("\n");
+    printf("CAST ");
+    fs_value_print(v);
+    printf(" -> ");
+    fs_value_print(d);
+    printf("\n");
 #endif
     if (FS_IS_URI(d.rid) && FS_IS_LITERAL(v.rid)) {
 	return fn_cast_intl(q, v, d.rid);

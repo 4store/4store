@@ -190,12 +190,6 @@ int main(int argc, char *argv[])
 	exit(3);
     }
 
-#if 0
-printf("press enter\n");
-char foo;
-read(0, &foo, 1);
-#endif
-
     fs_rid_vector *mvec = fs_rid_vector_new(0);
 
     for (int f= 0; f < files; ++f) {

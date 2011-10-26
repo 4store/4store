@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ([2.50])
-AC_INIT([4store], m4_esyscmd([test -f version.sh && sh version.sh || sh version.sh.in]), [http://4store.org/support/], [4store])
+AC_INIT([4store], m4_esyscmd([./version.sh .version]), [http://4store.org/support/], [4store])
 AC_CONFIG_SRCDIR([src/backend/backend-intl.h])
 AM_INIT_AUTOMAKE([1.7 std-options -Wall])
 AM_CONFIG_HEADER(4store-config.h)
@@ -27,6 +27,21 @@ AC_ARG_WITH([storage_path],
 	[with_storage_path=/var/lib/4store])
 FS_STORE_ROOT="$with_storage_path"
 AC_SUBST(FS_STORE_ROOT)
+
+AC_ARG_WITH([skolem_prefix],
+	[AS_HELP_STRING([--with-skolem-prefix=URI],
+	                [set skolemisation prefix, default=http://4store.org/.well-known/genid])],
+	[],
+	[with_skolem_prefix=http://4store.org/.well-known/genid])
+FS_SKOLEM_PREFIX="$with_skolem_prefix"
+AC_SUBST(FS_SKOLEM_PREFIX)
+
+FS_SKOLEMIZE=0
+AC_ARG_ENABLE([skolemization],
+	[AS_HELP_STRING([--enable-skolemization],
+                        [skolemise bNodes when emitted from store])],
+	[FS_SKOLEMIZE=1])
+AC_SUBST(FS_SKOLEMIZE)
 
 FS_INSERT_DEDUP=0
 AC_ARG_ENABLE([dedup-insert],
@@ -76,11 +91,12 @@ fi
 AC_SUBST(MDNS_CFLAGS)
 AC_SUBST(MDNS_LIBS)
 
-GIT_REV='"\"$(shell sh $(top_srcdir)/version.sh)\""'
+GIT_REV='"\"$(shell sh $(top_srcdir)/version.sh $(top_srcdir)/.version)\""'
 AC_SUBST(GIT_REV)
 
 # Checks for header files.
 AC_FUNC_ALLOCA
+AC_CHECK_HEADER(uuid/uuid.h,,AC_MSG_ERROR([cannot find UUID header]))
 AC_CHECK_HEADERS([fcntl.h limits.h locale.h netdb.h stddef.h stdint.h stdlib.h string.h sys/file.h sys/mount.h sys/param.h sys/socket.h sys/time.h sys/vfs.h syslog.h unistd.h])
 
 # Checks for typedefs, structures, and compiler characteristics.
@@ -101,8 +117,7 @@ LIBS="$GLIB_LIBS"
 AC_CHECK_FUNCS([g_uri_escape_string])
 LIBS=$oLIBS
 
-AC_CONFIG_FILES([version.sh
-                 Makefile
+AC_CONFIG_FILES([Makefile
                  man/Makefile
                  tests/Makefile
                  src/Makefile

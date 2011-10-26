@@ -189,6 +189,13 @@ fs_rid fs_hash_uri(const char *str)
 	}
 
 	return FS_NUM_BNODE(bnode_id);
+    } else if (fs_global_skolem_prefix_len && strncmp(str, fs_global_skolem_prefix, fs_global_skolem_prefix_len) == 0) {
+	fs_rid bnode_id = strtoll(str + fs_global_skolem_prefix_len, NULL, 16);
+	if (!bnode_id) {
+	    return FS_RID_GONE;
+	}
+
+	return FS_NUM_BNODE(bnode_id);
     } else if (!isalpha(str[0])) {
         return FS_RID_GONE;
     }

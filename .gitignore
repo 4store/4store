@@ -22,7 +22,6 @@ ltmain.sh
 depcomp
 install-sh
 config.status
-version.sh
 src/common/.libs
 src/common/lib4store.la
 compile

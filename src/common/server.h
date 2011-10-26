@@ -57,6 +57,8 @@ typedef struct {
   fsp_backend_fn auth;
   fsp_backend_fn choose_segment;
 
+  fsp_backend_fn get_uuid;
+
   fs_backend * (* open) (const char *kb_name, int flags);
   void (* close) (fs_backend *backend);
   int (* segment_count) (fs_backend *backend);
