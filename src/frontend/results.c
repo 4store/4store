@@ -126,7 +126,7 @@ static int resolve(fs_query *q, fs_rid rid, fs_resource *res)
     fs_rid_vector *r = fs_rid_vector_new(1);
     r->data[0] = rid;
 #ifdef DEBUG_FILTER
-printf("resolving %016llx\n", rid);
+    printf("resolving %016llx\n", rid);
 #endif
     g_static_mutex_lock(&cache_mutex);
     if (g_hash_table_lookup(res_l1_cache, &rid) == NULL) {
@@ -2622,7 +2622,6 @@ nextrow: ;
                     q->resrow[i].type = FS_TYPE_URI;
                     q->resrow[i].lex = g_strdup_printf("%s%llx", fs_global_skolem_prefix, FS_BNODE_NUM(r.rid));
                     fs_query_add_freeable(q, (char *)q->resrow[i].lex);
-printf("@@ %s\n", fs_global_skolem_prefix);
                 } else {
                     q->resrow[i].type = FS_TYPE_BNODE;
                 }
