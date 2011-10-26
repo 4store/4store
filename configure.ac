@@ -96,6 +96,7 @@ AC_SUBST(GIT_REV)
 
 # Checks for header files.
 AC_FUNC_ALLOCA
+AC_CHECK_HEADER(uuid/uuid.h,,AC_MSG_ERROR([cannot find UUID header]))
 AC_CHECK_HEADERS([fcntl.h limits.h locale.h netdb.h stddef.h stdint.h stdlib.h string.h sys/file.h sys/mount.h sys/param.h sys/socket.h sys/time.h sys/vfs.h syslog.h unistd.h])
 
 # Checks for typedefs, structures, and compiler characteristics.
