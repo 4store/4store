@@ -48,9 +48,9 @@ static int orow_compare_sub(const struct order_row *a,
             mod = 1;
         }
 #ifdef DEBUG_ORDER
-fs_value_print(va);
-printf(" <=> ");
-fs_value_print(vb);
+    fs_value_print(va);
+    printf(" <=> ");
+    fs_value_print(vb);
 #endif
         int order = fs_order_by_cmp(va, vb);
         if (order == 0) {
@@ -162,9 +162,9 @@ void fs_values_order(fs_query *q) {
 				rasqal_query_get_order_condition(q->rq, j));
 
 #ifdef DEBUG_ORDER
-printf("@@_ ORDER VAL (%d, %d) = ", i, j);
-fs_value_print(ordervals[i * conditions + j]);
-printf("\n");
+    printf("@@_ ORDER VAL (%d, %d) = ", i, j);
+    fs_value_print(ordervals[i * conditions + j]);
+    printf("\n");
 #endif
 	}
         orows[i].row = i;
@@ -179,10 +179,10 @@ printf("\n");
         ordering[i] = orows[i].row;
     }
 #ifdef DEBUG_ORDER
-printf("Output order:\n");
-for (int i=0; i<length; i++) {
-    printf("output row %d row %d\n", i, ordering[i]);
-}
+    printf("Output order:\n");
+    for (int i=0; i<length; i++) {
+        printf("output row %d row %d\n", i, ordering[i]);
+    }
 #endif
 
     q->ordering = ordering;
@@ -199,7 +199,7 @@ void fs_query_order(fs_query *q)
             conditions++);
     const int length = q->length;
 #ifdef DEBUG_ORDER
-printf("@@ ORDER (%d x %d)\n", conditions, length);
+    printf("@@ ORDER (%d x %d)\n", conditions, length);
 #endif
 
     /* trap trivial cases */
@@ -240,9 +240,9 @@ printf("@@ ORDER (%d x %d)\n", conditions, length);
 				rasqal_query_get_order_condition(q->rq, j));
 
 #ifdef DEBUG_ORDER
-printf("@@ ORDER VAL (%d, %d) = ", i, j);
-fs_value_print(ordervals[i * conditions + j]);
-printf("\n");
+    printf("@@ ORDER VAL (%d, %d) = ", i, j);
+    fs_value_print(ordervals[i * conditions + j]);
+    printf("\n");
 #endif
 	}
         orows[i].row = i;
@@ -257,10 +257,10 @@ printf("\n");
         ordering[i] = orows[i].row;
     }
 #ifdef DEBUG_ORDER
-printf("Output order:\n");
-for (int i=0; i<length; i++) {
-    printf("output row %d row %d\n", i, ordering[i]);
-}
+    printf("Output order:\n");
+    for (int i=0; i<length; i++) {
+        printf("output row %d row %d\n", i, ordering[i]);
+    }
 #endif
 
     q->ordering = ordering;

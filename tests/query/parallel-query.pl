@@ -58,4 +58,4 @@ for $i (0..$its-1) {
 close(QPROC);
 $now = time();
 
-printf("%f queries/sec\n", $its*$qpb/($now-$then));
+ printf("%f queries/sec\n", $its*$qpb/($now-$then));

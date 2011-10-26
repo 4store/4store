@@ -107,8 +107,8 @@ return 0;
     if (++count % 10000 == 0) { printf("quad %d\r", count); fflush(stdout); }
         }
     }
-printf("quad %d\n", count);
-printf("syncing\n");
+    printf("quad %d\n", count);
+    printf("syncing\n");
     fs_chain_sync(bc);
     double now = fs_time();
     printf("indexed %d quads at %d triples/sec\n", iters, (int)((double)iters/(now-then)));
