@@ -2618,7 +2618,14 @@ nextrow: ;
             if (q->resrow[i].rid == FS_RID_NULL) {
                 q->resrow[i].type = FS_TYPE_NONE;
             } else if (FS_IS_BNODE(q->resrow[i].rid)) {
-                q->resrow[i].type = FS_TYPE_BNODE;
+                if (FS_SKOLEMIZE) {
+                    q->resrow[i].type = FS_TYPE_URI;
+                    q->resrow[i].lex = g_strdup_printf("%s%llx", fs_global_skolem_prefix, FS_BNODE_NUM(r.rid));
+                    fs_query_add_freeable(q, (char *)q->resrow[i].lex);
+printf("@@ %s\n", fs_global_skolem_prefix);
+                } else {
+                    q->resrow[i].type = FS_TYPE_BNODE;
+                }
             } else if (FS_IS_URI(q->resrow[i].rid)) {
                 q->resrow[i].type = FS_TYPE_URI;
             } else  {
@@ -2778,8 +2785,14 @@ void fs_value_to_row(fs_query *q, fs_value v, fs_row *r)
             r->rid = v.rid;
             r->dt = NULL;
             r->lang = NULL;
-            r->type = FS_TYPE_BNODE;
-            r->lex = g_strdup_printf("_:b%llx", FS_BNODE_NUM(v.rid));
+            if (FS_SKOLEMIZE) {
+                r->type = FS_TYPE_URI;
+                r->lex = g_strdup_printf("%s%llx", fs_global_skolem_prefix, FS_BNODE_NUM(v.rid));
+            } else {
+                r->type = FS_TYPE_BNODE;
+                r->lex = g_strdup_printf("_:b%llx", FS_BNODE_NUM(v.rid));
+            }
+            fs_query_add_freeable(q, (char *)r->lex);
         } else if (FS_IS_URI(v.rid)) {
             r->rid = 1;
             r->dt = NULL;

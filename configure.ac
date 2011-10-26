@@ -28,6 +28,21 @@ AC_ARG_WITH([storage_path],
 FS_STORE_ROOT="$with_storage_path"
 AC_SUBST(FS_STORE_ROOT)
 
+AC_ARG_WITH([skolem_prefix],
+	[AS_HELP_STRING([--with-skolem-prefix=URI],
+	                [set skolemisation prefix, default=http://4store.org/.well-known/genid])],
+	[],
+	[with_skolem_prefix=http://4store.org/.well-known/genid])
+FS_SKOLEM_PREFIX="$with_skolem_prefix"
+AC_SUBST(FS_SKOLEM_PREFIX)
+
+FS_SKOLEMIZE=0
+AC_ARG_ENABLE([skolemization],
+	[AS_HELP_STRING([--enable-skolemization],
+                        [skolemise bNodes when emitted from store])],
+	[FS_SKOLEMIZE=1])
+AC_SUBST(FS_SKOLEMIZE)
+
 FS_INSERT_DEDUP=0
 AC_ARG_ENABLE([dedup-insert],
 	[AS_HELP_STRING([--enable-dedup-insert],

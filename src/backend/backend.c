@@ -27,6 +27,7 @@
 #include <sys/time.h>
 #include <errno.h>
 #include <signal.h>
+#include <uuid/uuid.h>
 
 #include "../common/error.h"
 #include "../common/params.h"
@@ -130,6 +131,31 @@ fs_backend *fs_backend_init(const char *db_name, int flags)
 	fs_error(LOG_ERR, "wrong table metadata version in KB %s", db_name);
 
 	return NULL;
+    }
+
+    /* If this metadata covers segment 0 it should have a UUID in there */
+    int has_seg_0 = 0;
+    fs_rid_vector *segs = fs_metadata_get_int_vector(ret->md, FS_MD_SEGMENT_P);
+    for (int i=0; i<segs->length; i++) {
+	if (segs->data[i] == 0) {
+	    has_seg_0 = 1;
+	    break;
+	}
+    }
+    fs_rid_vector_free(segs);
+    if (has_seg_0) {
+	/* Read store UUID for skolemisation, if not there, generate a new
+	 * one */
+	ret->store_uuid = (char *)fs_metadata_get_string(ret->md, FS_MD_UUID, NULL);
+	if (!ret->store_uuid) {
+	    uuid_t uu;
+	    uuid_string_t uus;
+	    uuid_generate(uu);
+	    uuid_unparse(uu, uus);
+	    ret->store_uuid = g_strdup(uus);
+	    fs_metadata_add(ret->md, FS_MD_UUID, uus);
+	    fs_metadata_flush(ret->md);
+	}
     }
 
     ret->salt = fs_metadata_get_int(ret->md, FS_MD_SALT, 0);

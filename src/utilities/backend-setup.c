@@ -32,6 +32,7 @@
 #include <fcntl.h>
 #include <sys/types.h>
 #include <sys/stat.h>
+#include <uuid/uuid.h>
 
 #include "../common/4store.h"
 #include "../common/error.h"
@@ -269,6 +270,13 @@ void setup_metadata(kbconfig *config)
         if (mirror_segment(config, seg))
 	    fs_metadata_add_int(md, FS_MD_SEGMENT_M, seg);
     }
+
+    /* Generate store UUID for skolemisation */
+    uuid_t uu;
+    uuid_string_t uus;
+    uuid_generate(uu);
+    uuid_unparse(uu, uus);
+    fs_metadata_add(md, FS_MD_UUID, uus);
 
     unsigned char stage1[20], stage2[16];
     char hash[33] = "none";

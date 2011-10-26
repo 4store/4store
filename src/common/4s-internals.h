@@ -51,6 +51,7 @@ struct fsp_link_struct {
 #elif defined(USE_DNS_SD)
   int try_dns_again;
 #endif
+  char *uuid;
 };
 
 /* common functions */
