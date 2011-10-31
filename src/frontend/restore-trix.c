@@ -91,7 +91,7 @@ static fs_rid insert_bnode(xmlctxt *ctxt)
   while (ctxt->bnodemax < bnode) {
     fs_rid bnodenext;
     fsp_bnode_alloc(ctxt->link, 1000000, &bnodenext, &(ctxt->bnodemax));
-printf("(allocated bNode %lld to %lld)\n", bnodenext, ctxt->bnodemax);
+    // printf("(allocated bNode %lld to %lld)\n", bnodenext, ctxt->bnodemax);
   }
 
   return bnode | 0x8000000000000000LL;

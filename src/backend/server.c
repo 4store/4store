@@ -361,6 +361,26 @@ static unsigned char * handle_delete_quads (fs_backend *be, fs_segment segment,
   return message_new(FS_DONE_OK, 0, 0);
 }
 
+static unsigned char * handle_get_uuid (fs_backend *be, fs_segment segment,
+                                             unsigned int length,
+                                             unsigned char *content)
+{
+  if (segment != 0) {
+    fs_error(LOG_ERR, "invalid segment number: %d", segment);
+    return fsp_error_new(segment, "invalid segment number");
+  }
+
+  if (length > 0) {
+    fs_error(LOG_ERR, "get_uuid extraneous content");
+    return fsp_error_new(segment, "extraneous content");
+  }
+
+  unsigned char *reply =  message_new(FS_GET_UUID, segment, strlen(be->store_uuid)+1);
+
+  strcpy((char *)reply + FS_HEADER, (char *)be->store_uuid);
+  return reply;
+}
+
 static unsigned char * handle_get_size_reverse (fs_backend *be, fs_segment segment,
                                              unsigned int length,
                                              unsigned char *content)
@@ -1089,6 +1109,7 @@ fsp_backend native_backend = {
   .get_size_reverse = handle_get_size_reverse,
   .get_quad_freq = handle_get_quad_freq,
   .choose_segment = handle_choose_segment,
+  .get_uuid = handle_get_uuid,
 };
 
 

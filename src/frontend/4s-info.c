@@ -37,12 +37,12 @@
 
 int main(int argc, char *argv[])
 {
-    fs_gnu_options(argc, argv, "<kbname> <noop|freq>\n");
+    fs_gnu_options(argc, argv, "<kbname> <noop|freq|uuid>\n");
 
     char *password = fsp_argv_password(&argc, argv);
 
     if (argc != 3) {
-        fprintf(stderr, "Usage: %s <kbname> <noop|freq>\n", basename(argv[0]));
+        fprintf(stderr, "Usage: %s <kbname> <noop|freq|uuid>\n", basename(argv[0]));
         return 1;
     }
 
@@ -69,6 +69,8 @@ int main(int argc, char *argv[])
     } else if (!strcmp(argv[2], "freq")) {
         fs_query_state *qs = fs_query_init(link, NULL, NULL);
         fs_optimiser_freq_print(qs);
+    } else if (!strcmp(argv[2], "uuid")) {
+        printf("%s\n", fsp_link_uuid(link));
     }
 
     fsp_close_link(link);

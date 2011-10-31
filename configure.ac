@@ -36,6 +36,21 @@ AC_ARG_WITH([config_file],
 FS_CONFIG_FILE="$with_config_file"
 AC_SUBST(FS_CONFIG_FILE)
 
+AC_ARG_WITH([skolem_prefix],
+	[AS_HELP_STRING([--with-skolem-prefix=URI],
+	                [set skolemisation prefix, default=http://4store.org/.well-known/genid])],
+	[],
+	[with_skolem_prefix=http://4store.org/.well-known/genid])
+FS_SKOLEM_PREFIX="$with_skolem_prefix"
+AC_SUBST(FS_SKOLEM_PREFIX)
+
+FS_SKOLEMIZE=0
+AC_ARG_ENABLE([skolemization],
+	[AS_HELP_STRING([--enable-skolemization],
+                        [skolemise bNodes when emitted from store])],
+	[FS_SKOLEMIZE=1])
+AC_SUBST(FS_SKOLEMIZE)
+
 FS_INSERT_DEDUP=0
 AC_ARG_ENABLE([dedup-insert],
 	[AS_HELP_STRING([--enable-dedup-insert],
@@ -89,6 +104,7 @@ AC_SUBST(GIT_REV)
 
 # Checks for header files.
 AC_FUNC_ALLOCA
+AC_CHECK_HEADER(uuid/uuid.h,,AC_MSG_ERROR([cannot find UUID header]))
 AC_CHECK_HEADERS([fcntl.h limits.h locale.h netdb.h stddef.h stdint.h stdlib.h string.h sys/file.h sys/mount.h sys/param.h sys/socket.h sys/time.h sys/vfs.h syslog.h unistd.h])
 
 # Checks for typedefs, structures, and compiler characteristics.

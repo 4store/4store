@@ -1020,7 +1020,7 @@ fs_binding *fs_binding_join(fs_query *q, fs_binding *a, fs_binding *b, fs_join_t
         if (cmp == -1) {
             /* A and B aren't compatible, A sorts lower, skip A or left join */
 #if DEBUG_MERGE > 1
-printf("[L] Ar=%d, Br=%d", apos, bpos);
+            printf("[L] Ar=%d, Br=%d", apos, bpos);
 #endif
             if (join == FS_LEFT) {
                 for (int col=0; a[col].name; col++) {
@@ -1028,12 +1028,12 @@ printf("[L] Ar=%d, Br=%d", apos, bpos);
                         continue;
                     } else if (a[col].bound) {
 #if DEBUG_MERGE > 1
-printf(" %s=%016llx", c[col].name, table_value(a, col, apos));
+                        printf(" %s=%016llx", c[col].name, table_value(a, col, apos));
 #endif
                         fs_rid_vector_append(c[col].vals, table_value(a, col, apos));
                     } else {
 #if DEBUG_MERGE > 1
-printf(" %s=null", c[col].name);
+                        printf(" %s=null", c[col].name);
 #endif
                         fs_rid_vector_append(c[col].vals, FS_RID_NULL);
                     }
@@ -1044,7 +1044,7 @@ printf(" %s=null", c[col].name);
         /* Both rows are equal (cmp == 0), or one row is null (cmp == -2, 2) */
 	    /* Both rows match, find out what combinations bind and produce them */
 #if DEBUG_MERGE > 1
-printf("[I] Ar=%d, Br=%d", apos, bpos);
+            printf("[I] Ar=%d, Br=%d", apos, bpos);
 #endif
             int range_a = apos+1;
             int range_b = bpos+1;
@@ -1096,7 +1096,7 @@ printf("[I] Ar=%d, Br=%d", apos, bpos);
             fs_error(LOG_ERR, "cmp=%d, value out of range", cmp);
         }
 #if DEBUG_MERGE > 1
-printf("\n");
+        printf("\n");
 #endif
     }
 
@@ -1196,7 +1196,7 @@ fs_binding *fs_binding_minus(fs_query *q, fs_binding *a, fs_binding *b)
         } else if (cmp == 0) {
             /* Both rows are equal (cmp == 0), skip A row in result */
 #if DEBUG_MERGE > 1
-printf("[I] Ar=%d, Br=%d", apos, bpos);
+            printf("[I] Ar=%d, Br=%d", apos, bpos);
 #endif
             int range_a = apos+1;
             int range_b = bpos+1;
