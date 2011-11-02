@@ -117,6 +117,21 @@ LIBS="$GLIB_LIBS"
 AC_CHECK_FUNCS([g_uri_escape_string])
 LIBS=$oLIBS
 
+AC_TRY_COMPILE(
+    [#include <uuid/uuid.h>],
+    [uuid_t uu; uuid_string_t uus; uuid_generate(uu); uuid_unparse(uu, uus);],
+    have_uuid_string_t=yes,
+    have_uuid_string_t=no
+)
+
+UUID_LIBS=""
+if test "$have_uuid_string_t" = yes; then
+    AC_DEFINE(HAVE_UUID_STRING_T, 1, [define to 1 if uuid_string_t used])
+else
+    UUID_LIBS="-luuid"
+fi
+AC_SUBST(UUID_LIBS)
+
 AC_CONFIG_FILES([Makefile
                  man/Makefile
                  tests/Makefile
