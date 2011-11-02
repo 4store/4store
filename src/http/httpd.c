@@ -798,7 +798,7 @@ static void http_service_description(client_ctxt *ctxt)
 {
   http_send(ctxt, "HTTP/1.0 200 OK\r\n"
   "Server: 4s-httpd/" GIT_REV "\r\n"
-  "Content-Type: application/x-turtle\r\n"
+  "Content-Type: text/turtle; charset=utf-8\r\n"
   "\r\n"
   "@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .\n"
   "@prefix sd: <http://darq.sf.net/dose/0.1#> .\n"

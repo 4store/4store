@@ -1866,7 +1866,7 @@ static void output_text(fs_query *q, int flags, FILE *out)
 
     if (flags & FS_RESULT_FLAG_HEADERS) {
 	if (q->construct) {
-	    fprintf(out, "Content-Type: text/rdf+n3; charset=utf-8\r\n\r\n");
+	    fprintf(out, "Content-Type: text/turtle; charset=utf-8\r\n\r\n");
 	} else {
 	    fprintf(out, "Content-Type: text/tab-separated-values; charset=utf-8\r\n\r\n");
 	}
@@ -1993,7 +1993,7 @@ static void output_csv(fs_query *q, int flags, FILE *out)
 
     if (flags & FS_RESULT_FLAG_HEADERS) {
 	if (q->construct) {
-	    fprintf(out, "Content-Type: text/rdf+n3; charset=utf-8\r\n\r\n");
+	    fprintf(out, "Content-Type: text/turtle; charset=utf-8\r\n\r\n");
 	} else {
 	    fprintf(out, "Content-Type: text/csv; charset=utf-8; header=present\r\n\r\n");
 	}
@@ -2098,7 +2098,7 @@ static void output_json(fs_query *q, int flags, FILE *out)
 
     if (flags & FS_RESULT_FLAG_HEADERS) {
 	if (q->construct) {
-	    fprintf(out, "Content-Type: text/turtle\r\n\r\n");
+	    fprintf(out, "Content-Type: text/turtle; charset=utf-8\r\n\r\n");
 	} else {
 	    fprintf(out, "Content-Type: application/sparql-results+json\r\n\r\n");
 	}
@@ -2255,7 +2255,7 @@ static void output_testcase(fs_query *q, int flags, FILE *out)
     }
 
     if (flags & FS_RESULT_FLAG_HEADERS) {
-	fprintf(out, "Content-Type: application/x-turtle\r\n\r\n");
+	fprintf(out, "Content-Type: text/turtle; charset=utf-8\r\n\r\n");
     }
     fprintf(out, "@prefix rs: <http://www.w3.org/2001/sw/DataAccess/tests/result-set#> .\n");
     fprintf(out, "@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .\n");
