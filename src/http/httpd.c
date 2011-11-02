@@ -381,11 +381,11 @@ static void http_query_worker(gpointer data, gpointer user_data)
 
     if (ctxt->output) {
       type = ctxt->output;
-    } else if (ctxt->qr->construct && accept && strstr(accept, "text/turtle")) {
+    } else if ((ctxt->qr->construct || ctxt->qr->describe) && accept && strstr(accept, "text/turtle")) {
       type = "text";
       fprintf(fp, "Content-Type: text/turtle\r\n\r\n");
       flags = 0;
-    } else if (ctxt->qr->construct && accept && strstr(accept, "application/rdf+xml")) {
+    } else if ((ctxt->qr->construct || ctxt->qr->describe) && accept && strstr(accept, "application/rdf+xml")) {
       type = "sparql";
     } else if (accept && strstr(accept, "application/sparql-results+xml")) {
       type = "sparql";
