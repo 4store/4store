@@ -557,7 +557,7 @@ fs_value fs_expression_eval(fs_query *q, int row, int block, rasqal_expression *
     case RASQAL_EXPR_IN: {
         fs_value comp = fs_expression_eval(q, row, block, e->arg1);
         for (int i=0; i < raptor_sequence_size(e->args); i++) {
-            fs_value v = fs_expression_eval(q, q->group_rows[row], block, raptor_sequence_get_at(e->args, i));
+            fs_value v = fs_expression_eval(q, row, block, raptor_sequence_get_at(e->args, i));
             if (fs_value_equal(comp, v)) {
                 return fs_value_boolean(e->op == RASQAL_EXPR_IN ? 1 : 0);
             }
