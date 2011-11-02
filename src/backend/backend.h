@@ -19,6 +19,11 @@
 #define FS_OPEN_MHASH   0x20
 #define FS_OPEN_ALL     0xff
 
+#ifndef HAVE_UUID_STRING_T
+#define HAVE_UUID_STRING_T 1
+typedef char uuid_string_t[37];
+#endif
+
 struct _fs_backend;
 typedef struct _fs_backend fs_backend;
 
