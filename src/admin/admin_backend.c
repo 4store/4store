@@ -356,10 +356,10 @@ static int exec_fs_cmd(const char *cmdname, int n_args, char **args,
                            int *exit_val, unsigned char **output, int *err)
 {
     /* base command without arguments */
-    char *cmdfmt = FS_BIN_DIR "/%s";
+    const char *bin_dir = fsa_get_bin_dir();
 
     /* length of base command, excluding \0 */
-    int base_cmdlen = strlen(cmdfmt) - 2 + strlen(cmdname);
+    int base_cmdlen = strlen(bin_dir) + 1 + strlen(cmdname);
     int cmdlen = base_cmdlen;
 
     /* work out total length including arguments */
@@ -373,7 +373,7 @@ static int exec_fs_cmd(const char *cmdname, int n_args, char **args,
     int n_bytes;
 
     /* write path and command */
-    sprintf(p, cmdfmt, cmdname);
+    sprintf(p, "%s/%s", bin_dir, cmdname);
     p += base_cmdlen;
 
     /* write arguments */

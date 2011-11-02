@@ -66,7 +66,8 @@ if ($backend_pid = fork()) {
         }
         else {
             my @cmd = ("../../src/admin/4s-boss", "-D", "-p", "13580",
-                       '--config-file=admin_tests.conf');
+                       '--config-file=admin_tests.conf',
+                       '--bin-dir=../../src/utilities');
             if ($valgrind) {
                 print "Running 4s-boss under valgrind, output in "
                     . "valgrind.txt\n"
