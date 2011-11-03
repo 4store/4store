@@ -10,7 +10,7 @@
 */
 
 /* Protocol headers */
-#define ADM_PROTO_VERS 0x1
+#define ADM_PROTO_VERS 0x2
 #define ADM_H_LEN 2
 #define ADM_H_VERS_LEN 1
 #define ADM_H_CMD_LEN 1
@@ -97,9 +97,9 @@ typedef struct _fsa_kb_info {
     uint32_t pid;
     uint16_t port;
     uint8_t status;
-    uint8_t num_segments;
-    uint8_t p_segments_len;
-    uint8_t *p_segments_data;
+    uint16_t num_segments;
+    uint16_t p_segments_len;
+    uint16_t *p_segments_data;
 
     struct _fsa_kb_info *next;
 } fsa_kb_info;

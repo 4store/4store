@@ -662,7 +662,15 @@ static int start_or_stop_stores(int action)
                             case ADM_ERR_KB_STATUS_STOPPED:
                                 print_colour("stopped", ANSI_COLOUR_GREEN);
                                 break;
+                            case ADM_ERR_KB_STATUS_UNKNOWN:
+                                print_colour("unknown", ANSI_COLOUR_RED);
+                                break;
                             default:
+                                fsa_error(
+                                    LOG_CRIT,
+                                    "Unknown server response: %d",
+                                    kbr->return_val
+                                );
                                 print_colour("unknown", ANSI_COLOUR_RED);
                                 break;
                         }
@@ -678,7 +686,15 @@ static int start_or_stop_stores(int action)
                             case ADM_ERR_KB_STATUS_STOPPED:
                                 print_colour("stopped", ANSI_COLOUR_YELLOW);
                                 break;
+                            case ADM_ERR_KB_STATUS_UNKNOWN:
+                                print_colour("unknown", ANSI_COLOUR_RED);
+                                break;
                             default:
+                                fsa_error(
+                                    LOG_CRIT,
+                                    "Unknown server response: %d",
+                                    kbr->return_val
+                                );
                                 print_colour("unknown", ANSI_COLOUR_RED);
                                 break;
                         }

@@ -176,18 +176,19 @@ int fsab_kb_info_init(fsa_kb_info *ki, const unsigned char *kb_name, int *err)
     md = fs_metadata_open((char *)kb_name);
     if (md != NULL) {
         ki->num_segments =
-            atoi(fs_metadata_get_string(md, FS_MD_SEGMENTS, "0"));
+            (uint16_t)atoi(fs_metadata_get_string(md, FS_MD_SEGMENTS, "0"));
 
         fs_rid_vector *vec = fs_metadata_get_int_vector(md, FS_MD_SEGMENT_P);
         fs_rid_vector_sort(vec);
 
-        /* segment ID and max segments should be 256 */
-        ki->p_segments_len = (uint8_t)vec->length;
+        /* segment ID and max segments should be 256, but allow 65536
+           to allow for value to be upped in #define */
+        ki->p_segments_len = (uint16_t)vec->length;
         ki->p_segments_data =
-            (uint8_t *)malloc(ki->p_segments_len * sizeof(uint8_t));
+            (uint16_t *)malloc(ki->p_segments_len * sizeof(uint16_t));
 
         for (int i = 0; i < vec->length; i++) {
-            ki->p_segments_data[i] = (uint8_t)vec->data[i];
+            ki->p_segments_data[i] = (uint16_t)vec->data[i];
         }
 
         fs_rid_vector_free(vec);

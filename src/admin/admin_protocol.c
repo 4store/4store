@@ -390,15 +390,16 @@ fsa_kb_info *fsap_decode_rsp_get_kb_info_all(const unsigned char *buf)
         memcpy(&(ki->status), p, 1);
         p += 1;
 
-        memcpy(&(ki->num_segments), p, 1);
-        p += 1;
+        memcpy(&(ki->num_segments), p, sizeof(uint16_t));
+        p += sizeof(uint16_t);
 
-        memcpy(&(ki->p_segments_len), p, 1);
-        p += 1;
+        memcpy(&(ki->p_segments_len), p, sizeof(uint16_t));
+        p += sizeof(uint16_t);
 
-        ki->p_segments_data = (uint8_t *)malloc(ki->p_segments_len);
-        memcpy(ki->p_segments_data, p, ki->p_segments_len);
-        p += ki->p_segments_len;
+        ki->p_segments_data =
+            (uint16_t *)malloc(ki->p_segments_len * sizeof(uint16_t));
+        memcpy(ki->p_segments_data, p, ki->p_segments_len * sizeof(uint16_t));
+        p += (ki->p_segments_len * sizeof(uint16_t));
 
         ki->next = first_ki;
         first_ki = ki;
@@ -455,15 +456,15 @@ unsigned char *fsap_encode_rsp_get_kb_info_all(const fsa_kb_info *ki, int *len)
     uint8_t name_len;
 
     /* name_len name pid port status num_segments p_segments_len segments 
-     * 1        *    4   2    1      1            1              *       */
-    int base_entry_size = 10;
+     * 1        *    4   2    1      2            2              *       */
+    int base_entry_size = 12;
     
     /* loop through once to find size and number of entries */
     for (cur_ki = ki; cur_ki != NULL; cur_ki = cur_ki->next) {
         n_entries += 1;
         data_len += base_entry_size;
         data_len += strlen((char *)cur_ki->name);
-        data_len += cur_ki->p_segments_len * sizeof(uint8_t);
+        data_len += cur_ki->p_segments_len * sizeof(uint16_t);
     }
 
     /* create and fill buffer */
@@ -492,14 +493,18 @@ unsigned char *fsap_encode_rsp_get_kb_info_all(const fsa_kb_info *ki, int *len)
         memcpy(p, &(cur_ki->status), 1);
         p += 1;
 
-        memcpy(p, &(cur_ki->num_segments), 1);
-        p += 1;
+        memcpy(p, &(cur_ki->num_segments), sizeof(uint16_t));
+        p += sizeof(uint16_t);
 
-        memcpy(p, &(cur_ki->p_segments_len), 1);
-        p += 1;
+        memcpy(p, &(cur_ki->p_segments_len), sizeof(uint16_t));
+        p += sizeof(uint16_t);
 
-        memcpy(p, cur_ki->p_segments_data, cur_ki->p_segments_len);
-        p += cur_ki->p_segments_len;
+        memcpy(
+            p,
+            cur_ki->p_segments_data,
+            cur_ki->p_segments_len * sizeof(uint16_t)
+        );
+        p += (cur_ki->p_segments_len * sizeof(uint16_t));
     }
 
     *len = data_len + ADM_HEADER_LEN;
