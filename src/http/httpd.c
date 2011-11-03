@@ -381,11 +381,11 @@ static void http_query_worker(gpointer data, gpointer user_data)
 
     if (ctxt->output) {
       type = ctxt->output;
-    } else if (ctxt->qr->construct && accept && strstr(accept, "text/turtle")) {
+    } else if ((ctxt->qr->construct || ctxt->qr->describe) && accept && strstr(accept, "text/turtle")) {
       type = "text";
       fprintf(fp, "Content-Type: text/turtle\r\n\r\n");
       flags = 0;
-    } else if (ctxt->qr->construct && accept && strstr(accept, "application/rdf+xml")) {
+    } else if ((ctxt->qr->construct || ctxt->qr->describe) && accept && strstr(accept, "application/rdf+xml")) {
       type = "sparql";
     } else if (accept && strstr(accept, "application/sparql-results+xml")) {
       type = "sparql";
@@ -798,7 +798,7 @@ static void http_service_description(client_ctxt *ctxt)
 {
   http_send(ctxt, "HTTP/1.0 200 OK\r\n"
   "Server: 4s-httpd/" GIT_REV "\r\n"
-  "Content-Type: application/x-turtle\r\n"
+  "Content-Type: text/turtle; charset=utf-8\r\n"
   "\r\n"
   "@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .\n"
   "@prefix sd: <http://darq.sf.net/dose/0.1#> .\n"
