@@ -20,6 +20,9 @@ my $valgrind = 0;
 $SIG{USR2} = 'IGNORE';
 $SIG{TERM} = 'IGNORE';
 
+# hacky way to deal with bins being in different dirs before install
+symlink("../../src/backend/4s-backend", "../../src/utilities/4s-backend");
+
 if ($ARGV[0]) {
     if ($ARGV[0] eq "--exemplar") {
         $outdir = "exemplar";
@@ -174,6 +177,7 @@ if ($backend_pid = fork()) {
         if ($fails) {
             exit(1);
         }
+        unlink("../../src/utilities/4s-backend");
         exit(0);
     }
     else {
@@ -197,3 +201,4 @@ else {
         die "failed to exec sever: $!";
     }
 }
+
