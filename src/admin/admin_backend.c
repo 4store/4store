@@ -418,7 +418,8 @@ static int exec_fs_cmd(const char *cmdname, int n_args, char **args,
         fsa_error(LOG_ERR, "pclose failed: %s", strerror(errno));
         free(*output);
         *output = NULL;
-        return ADM_ERR_SEE_ERRNO;
+        *err = ADM_ERR_SEE_ERRNO;
+        return -1;
     }
     else {
         *exit_val = WEXITSTATUS(rv);
@@ -426,9 +427,11 @@ static int exec_fs_cmd(const char *cmdname, int n_args, char **args,
     }
 
     if (*exit_val == 0) {
+        *err = ADM_ERR_OK;
         return 0;
     }
     else {
+        *err = ADM_ERR_POPEN;
         return -1;
     }
 }

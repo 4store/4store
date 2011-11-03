@@ -1001,6 +1001,7 @@ static int cmd_delete_stores(void)
                         );
                         n_errors += 1;
                         break;
+                    case ADM_ERR_POPEN:
                     case ADM_ERR_GENERIC:
                     default:
                         fsa_error(
