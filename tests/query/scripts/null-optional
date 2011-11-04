@@ -2,5 +2,5 @@
 
 # several OPTIONAL clauses after the main body of the query fails
 
-$TESTPATH/frontend/4s-query $1 'PREFIX vocab: <http://www.census.gov/tiger/2002/vocab#> PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> SELECT ?polygon ?line ?start ?end ?type WHERE { <http://www.census.gov/tiger/2002/landmark/6001/821> vocab:area ?polygon .  ?polygon <this:doesNotExist> ?line OPTIONAL { ?line vocab:start ?start } .  OPTIONAL { ?line vocab:end ?end } .  OPTIONAL { ?line rdf:type ?type } }'
+$TESTPATH/frontend/4s-query $CONF $1 'PREFIX vocab: <http://www.census.gov/tiger/2002/vocab#> PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> SELECT ?polygon ?line ?start ?end ?type WHERE { <http://www.census.gov/tiger/2002/landmark/6001/821> vocab:area ?polygon .  ?polygon <this:doesNotExist> ?line OPTIONAL { ?line vocab:start ?start } .  OPTIONAL { ?line vocab:end ?end } .  OPTIONAL { ?line rdf:type ?type } }'
 

@@ -2,7 +2,7 @@
 
 # tests DISTINCT, Jo has two mbox_sha1sums
 
-$TESTPATH/frontend/4s-query $1 -ftext "
+$TESTPATH/frontend/4s-query $CONF $1 -ftext "
 SELECT DISTINCT ?s ?o WHERE { GRAPH <http://example.com/swh.xrdf> {
     ?s <http://xmlns.com/foaf/0.1/name> ?o .
     FILTER ( ?o IN ('Steve Harris', 'Nick Gibbins'))
@@ -12,7 +12,7 @@ SELECT DISTINCT ?s ?o WHERE { GRAPH <http://example.com/swh.xrdf> {
 
 
 
-$TESTPATH/frontend/4s-query $1 -ftext "
+$TESTPATH/frontend/4s-query $CONF $1 -ftext "
 SELECT DISTINCT ?s ?o WHERE { GRAPH <http://example.com/swh.xrdf> {
     ?s <http://xmlns.com/foaf/0.1/name> ?o .
     FILTER ( ?o NOT IN ('Steve Harris', 'Nick Gibbins'))

@@ -39,8 +39,17 @@ int main(int argc, char *argv[])
     fs_gnu_options(argc, argv, "<kbname>\n");
 
     char *password = fsp_argv_password(&argc, argv);
+    int start_arg = 1;
 
-    if (argc != 2) {
+    if (argc == 4) {
+        if (strcmp(argv[1], "-c") == 0
+            || strcmp(argv[1], "--config-file") == 0) {
+            fs_set_config_file(argv[2]);
+            start_arg += 2;
+        }
+    }
+
+    if (argc != 2 && start_arg != 3) {
       fprintf(stderr, "%s revision %s\n", argv[0], FS_FRONTEND_VER);
       fprintf(stderr, "Usage: %s <kbname>\n", argv[0]);
       return 1;
@@ -48,11 +57,11 @@ int main(int argc, char *argv[])
 
     fsp_syslog_enable();
 
-    fsp_link *link = fsp_open_link(argv[1], password, FS_OPEN_HINT_RO);
+    fsp_link *link = fsp_open_link(argv[start_arg], password, FS_OPEN_HINT_RO);
 
     if (!link) {
 
-      fs_error(LOG_ERR, "couldn't connect to “%s”", argv[1]);
+      fs_error(LOG_ERR, "couldn't connect to “%s”", argv[start_arg]);
       return 2;
     }
 

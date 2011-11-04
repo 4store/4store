@@ -33,6 +33,7 @@
 int main(int argc, char *argv[])
 {
     char *password = fsp_argv_password(&argc, argv);
+    int start_arg = 1;
 
     fs_gnu_options(argc, argv, "<kbname> <--all|model-uri ...>\n");
     if (argc < 3) {
@@ -42,12 +43,27 @@ int main(int argc, char *argv[])
       return 1;
     }
 
+    /* check for -c or --config-file option */
+    if (strcmp(argv[1], "-c") == 0 || strcmp(argv[1], "--config-file") == 0) {
+        if (argc < 5) {
+            fprintf(stderr, "%s revision %s\n", argv[0], FS_FRONTEND_VER);
+            fprintf(stderr, "Usage: %s <kbname> <--all|model-uri ...>\n",
+                    argv[0]);
+
+            return 1;
+        }
+
+        fs_set_config_file(argv[2]);
+        start_arg += 2;
+    }
+
+
     fsp_syslog_enable();
 
-    fsp_link *link = fsp_open_link(argv[1], password, FS_OPEN_HINT_RW);
+    fsp_link *link = fsp_open_link(argv[start_arg], password, FS_OPEN_HINT_RW);
 
     if (!link) {
-      fs_error(LOG_ERR, "couldn't connect to “%s”", argv[1]);
+      fs_error(LOG_ERR, "couldn't connect to “%s”", argv[start_arg]);
 
       return 2;
     }
@@ -63,15 +79,15 @@ int main(int argc, char *argv[])
     fs_rid model;
     fs_rid_vector *mvec = fs_rid_vector_new(0);
 
-    for (int i=2; i<argc; i++) {
-	if (i == 2 && !strcmp(argv[i], "--all")) {
-	    //printf("deleting all models\n");
-	    fs_rid_vector_append(mvec, FS_RID_NULL);
-	    break;
-	} else {
-	    model = fs_hash_uri(argv[i]);
-	    fs_rid_vector_append(mvec, model);
-	}
+    for (int i=start_arg+1; i<argc; i++) {
+        if (i == start_arg+1 && !strcmp(argv[i], "--all")) {
+            //printf("deleting all models\n");
+            fs_rid_vector_append(mvec, FS_RID_NULL);
+            break;
+        } else {
+            model = fs_hash_uri(argv[i]);
+            fs_rid_vector_append(mvec, model);
+        }
     }
     fsp_delete_model_all(link, mvec);
 

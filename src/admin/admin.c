@@ -321,7 +321,7 @@ static void print_help(void)
 "    --help             Display this message and exit\n"
 "    --version          Display version information and exit\n"
 "    --verbose          Increase amount of information returned\n"
-"    -c, --config-file  path and filename of configuration file to use\n"
+"    -c, --config-file  Path and filename of configuration file to use\n"
 "\n"
 "Commands (see `man %s' for more info)\n"
 "  list-nodes    List hostname:port and status of all known storage nodes\n"

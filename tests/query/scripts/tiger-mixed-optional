@@ -2,7 +2,7 @@
 
 # tests that OPTIONAL blocks can be safely mixed with the basic graph pattern
 
-$TESTPATH/frontend/4s-query $1 '
+$TESTPATH/frontend/4s-query $CONF $1 '
 PREFIX vocab: <http://www.census.gov/tiger/2002/vocab#>
 PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 SELECT DISTINCT ?endlabel ?next

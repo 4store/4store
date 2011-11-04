@@ -1,6 +1,6 @@
 #!
 
-$TESTPATH/frontend/4s-query $1 '
+$TESTPATH/frontend/4s-query $CONF $1 '
 PREFIX foaf: <http://xmlns.com/foaf/0.1/>
 SELECT DISTINCT ?x 
 WHERE {
@@ -12,7 +12,7 @@ WHERE {
   }
 } ORDER BY ?x'
 
-$TESTPATH/frontend/4s-query $1 '
+$TESTPATH/frontend/4s-query $CONF $1 '
 PREFIX foaf: <http://xmlns.com/foaf/0.1/>
 SELECT DISTINCT ?x ?s
 WHERE {

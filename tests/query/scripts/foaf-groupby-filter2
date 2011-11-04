@@ -2,7 +2,7 @@
 
 # tests GROUP BY, COUNT and FILTER
 
-$TESTPATH/frontend/4s-query $1 '
+$TESTPATH/frontend/4s-query $CONF $1 '
 SELECT ?property, (count(?o) as ?count) WHERE {
 ?s ?property ?o .
 ?s a <http://xmlns.com/foaf/0.1/Person> .
