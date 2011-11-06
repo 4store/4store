@@ -12,7 +12,8 @@ wait $PID
 
 CMD="$FS_ADMIN --config-file $FS_CONF list-stores"
 
-OUTPUT=`$CMD | sed -e '/^\(4s_admin_test_kb\|store_name \)/!d'`
+#OUTPUT=`$CMD | sed -e '/^\(4s_admin_test_kb\|store_name \)/!d'`
+OUTPUT=`$CMD | perl -ne 'next unless /^(?:4s_admin_test_kb|store_name )/;print'`
 EXITSTATUS=${PIPESTATUS[0]}
 
 echo "$OUTPUT"
