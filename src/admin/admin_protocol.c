@@ -423,7 +423,7 @@ unsigned char *fsap_encode_rsp_error(const unsigned char *msg, int *len)
 
 unsigned char *fsap_decode_rsp_error(const unsigned char *buf, int len)
 {
-    unsigned char *msg = (char *)malloc(len + 1);
+    unsigned char *msg = (unsigned char *)malloc(len + 1);
     memcpy(msg, buf, len);
     msg[len] = '\0';
 
@@ -448,7 +448,7 @@ unsigned char *fsap_encode_rsp_get_kb_info(const fsa_kb_info *ki, int *len)
 
 unsigned char *fsap_encode_rsp_get_kb_info_all(const fsa_kb_info *ki, int *len)
 {
-    int data_len = 1; /* number of kb entries, 0-255 */
+    int data_len = sizeof(uint16_t); /* number of kb entries, 0-65535 */
     const fsa_kb_info *cur_ki;
     uint16_t n_entries = 0;
     unsigned char *buf, *p;
