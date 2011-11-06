@@ -639,6 +639,14 @@ static void handle_cmd_get_kb_info(int client_fd, uint16_t datasize)
         return;
     }
 
+    /* should already have been checked by client */
+    if (!fsa_is_valid_kb_name(kb_name)) {
+        fsa_error(LOG_CRIT, "Invalid kb name received from client");
+        send_error_message(client_fd, "kb name invalid");
+        free(kb_name);
+        return;
+    }
+
     ki = fsab_get_local_kb_info(kb_name, &err);
     free(kb_name); /* done with kb_name */
     if (ki == NULL || err == ADM_ERR_KB_NOT_EXISTS) {
@@ -679,6 +687,14 @@ static void handle_cmd_delete_kb(int client_fd, uint16_t datasize)
     unsigned char *kb_name = get_string_from_client(client_fd, datasize);
     if (kb_name == NULL) {
         /* errors already logged/handled */
+        return;
+    }
+
+    /* should already have been checked by client */
+    if (!fsa_is_valid_kb_name(kb_name)) {
+        fsa_error(LOG_CRIT, "Invalid kb name received from client");
+        send_error_message(client_fd, "kb name invalid");
+        free(kb_name);
         return;
     }
 
