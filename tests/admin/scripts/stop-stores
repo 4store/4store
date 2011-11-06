@@ -12,7 +12,7 @@ wait $PID
 
 # Test correct command line args
 CMD="$FS_ADMIN --config-file $FS_CONF stop-stores 4s_admin_test_kb2 4s_admin_test_kb3"
-OUTPUT=`$CMD | sed -e '/^\(\s\+4s_admin_test_kb\|node_number \|0 \|  store_name \)/!d'`
+OUTPUT=`$CMD | perl -ne 'next unless /^(?:\s+4s_admin_test_kb|node_number |0 |  store_name )/;print'`
 EXITSTATUS=${PIPESTATUS[0]}
 
 echo "$OUTPUT"
@@ -30,7 +30,7 @@ echo "Exit status: $EXITSTATUS"
 echo
 
 CMD="$FS_ADMIN --config-file $FS_CONF stop-stores 4s_admin_test_kb2 non_existent_store"
-OUTPUT=`$CMD | sed -e '/^\(\s\+4s_admin_test_kb\|\s\+non_existent_store\|node_number \|0 \|  store_name \)/!d'`
+OUTPUT=`$CMD | perl -ne 'next unless /^(?:\s+4s_admin_test_kb|\s+non_existent_store|node_number |0 |  store_name)/;print'`
 EXITSTATUS=${PIPESTATUS[0]}
 
 echo "$OUTPUT"
