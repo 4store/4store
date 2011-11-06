@@ -359,15 +359,15 @@ unsigned char *fsap_encode_cmd_get_kb_info_all(int *len)
 fsa_kb_info *fsap_decode_rsp_get_kb_info_all(const unsigned char *buf)
 {
     const unsigned char *p;
-    uint8_t n_entries;
+    uint16_t n_entries;
     uint8_t name_len;
     fsa_kb_info *first_ki = NULL;
     fsa_kb_info *ki;
 
     p = buf;
 
-    memcpy(&n_entries, p, 1);
-    p += 1;
+    memcpy(&n_entries, p, sizeof(uint16_t));
+    p += sizeof(uint16_t);
 
     for (int i = 0; i < n_entries; i++) {
         /* create new kb_info obj, unpack fields into it */
@@ -450,7 +450,7 @@ unsigned char *fsap_encode_rsp_get_kb_info_all(const fsa_kb_info *ki, int *len)
 {
     int data_len = 1; /* number of kb entries, 0-255 */
     const fsa_kb_info *cur_ki;
-    uint8_t n_entries = 0;
+    uint16_t n_entries = 0;
     unsigned char *buf, *p;
 
     uint8_t name_len;
@@ -472,8 +472,8 @@ unsigned char *fsap_encode_rsp_get_kb_info_all(const fsa_kb_info *ki, int *len)
     p = buf;
     p += ADM_HEADER_LEN; /* move to start of data section */
 
-    memcpy(p, &n_entries, 1);
-    p += 1;
+    memcpy(p, &n_entries, sizeof(uint16_t));
+    p += sizeof(uint16_t);
 
     for (cur_ki = ki; cur_ki != NULL; cur_ki = cur_ki->next) {
         name_len = (uint8_t)strlen((char *)cur_ki->name); 
