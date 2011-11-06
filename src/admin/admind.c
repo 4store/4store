@@ -730,7 +730,7 @@ static void start_or_stop_kb_all(int client_fd, int action)
 
     /* count number of kbs */
     for (fsa_kb_info *p = ki; p != NULL; p = p->next) {
-        int kb_len = strlen((char *)ki->name);
+        int kb_len = strlen((char *)p->name);
         if (kb_len > max_kb_len) {
             max_kb_len = kb_len;
         }
