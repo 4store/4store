@@ -1227,7 +1227,7 @@ static int cmd_list_stores_verbose(void)
                 printf(" ");
 
                 if (ki->port > 0) {
-                    printf("%5d ", ki->port);
+                    printf("%-5d ", ki->port);
                 }
                 else {
                     printf("      ");
