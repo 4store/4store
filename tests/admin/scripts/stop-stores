@@ -5,8 +5,8 @@ source vars.sh
 $FS_BACKEND_SETUP 4s_admin_test_kb2
 $FS_BACKEND_SETUP 4s_admin_test_kb3
 $FS_BACKEND -D 4s_admin_test_kb2 &
-sleep 1
 PID=$!
+sleep 1
 kill -15 $PID
 wait $PID
 
