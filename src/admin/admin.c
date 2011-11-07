@@ -731,6 +731,8 @@ static int start_or_stop_stores(int action)
                 if (colour_flag) {
                     printf(ANSI_COLOUR_RESET);
                 }
+
+                print_store_header = 0;
             }
 
             /* stop kbs given on command line */
