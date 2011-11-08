@@ -460,7 +460,9 @@ fs_query *fs_query_execute(fs_query_state *qs, fsp_link *link, raptor_uri *bu, c
             q->default_graphs->length = 0;
         }
         char *uri = (char *)raptor_uri_as_string(dg->uri);
-        char *name_uri = (char *)raptor_uri_as_string(dg->name_uri);
+        char *name_uri = NULL;
+        if (dg->name_uri)
+            name_uri = (char *)raptor_uri_as_string(dg->name_uri);
         if (name_uri) {
             q->warnings = g_slist_prepend(q->warnings, "FROM NAMED is not currently supported");
         } else {
