@@ -2,12 +2,12 @@
 
 # tests clearing the binding table becasue theres a 0-length match
 
-$TESTPATH/frontend/4s-query $1 '
+$TESTPATH/frontend/4s-query $CONF $1 '
 PREFIX foaf: <http://xmlns.com/foaf/0.1/>
 SELECT DISTINCT ?p ?name
 WHERE { ?p ?pred ?name . ?p a foaf:Womble . FILTER(?pred = foaf:name) }'
 
-$TESTPATH/frontend/4s-query $1 '
+$TESTPATH/frontend/4s-query $CONF $1 '
 PREFIX foaf: <http://xmlns.com/foaf/0.1/>
 SELECT DISTINCT ?nick
 WHERE { ?nick foaf:name "Nick Gibbins" . ?nick a foaf:Womble }'

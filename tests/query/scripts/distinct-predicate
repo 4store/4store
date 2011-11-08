@@ -3,4 +3,4 @@
 # tests use of DISTINCT keyword on the predicate slot
 # also tests the internal sorting, results should be in RID order
 
-$TESTPATH/frontend/4s-query $1 'SELECT DISTINCT ?p WHERE { ?s ?p ?o }' | sort
+$TESTPATH/frontend/4s-query $CONF $1 'SELECT DISTINCT ?p WHERE { ?s ?p ?o }' | sort

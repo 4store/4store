@@ -1,6 +1,6 @@
 #!
 
-$TESTPATH/frontend/4s-query $1 '
+$TESTPATH/frontend/4s-query $CONF $1 '
 PREFIX foaf: <http://xmlns.com/foaf/0.1/>
 CONSTRUCT { ?p foaf:name ?name . ?p foaf:knows ?x }
 WHERE { ?x <http://xmlns.com/foaf/0.1/knows> ?p . ?p foaf:name ?name }' | sort

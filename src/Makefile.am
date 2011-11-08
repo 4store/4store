@@ -1,1 +1,1 @@
-SUBDIRS = libs common backend frontend http utilities
+SUBDIRS = libs common backend frontend http admin utilities

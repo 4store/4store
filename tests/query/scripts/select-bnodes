@@ -1,6 +1,6 @@
 #!
 
 echo "# explicit"
-$TESTPATH/frontend/4s-query $1 'SELECT ?y ?z WHERE { <bnode:b1eed0100000000f8> ?y ?z } ORDER BY ?y'
+$TESTPATH/frontend/4s-query $CONF $1 'SELECT ?y ?z WHERE { <bnode:b1eed0100000000f8> ?y ?z } ORDER BY ?y'
 echo "# filter"
-$TESTPATH/frontend/4s-query $1 'SELECT ?y ?z WHERE { ?x ?y ?z . FILTER(?x = <bnode:b1eed0100000000f8>) } ORDER BY ?y'
+$TESTPATH/frontend/4s-query $CONF $1 'SELECT ?y ?z WHERE { ?x ?y ?z . FILTER(?x = <bnode:b1eed0100000000f8>) } ORDER BY ?y'

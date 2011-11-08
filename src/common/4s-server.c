@@ -40,6 +40,7 @@
 
 static char *global_kb_name = NULL;
 static float global_disk_limit = 0.0f;
+static FILE *global_ri_file = NULL;
 
 #define kb_error(s, f...) (fs_error_intl(s, __FILE__, __LINE__, global_kb_name, f))
 
@@ -355,6 +356,123 @@ gboolean accept_fn (GIOChannel *source, GIOCondition condition, gpointer data)
   return TRUE;
 }
 
+/* Store runtime information (pid+port) in locked file */
+static int init_runtime_info(const char *kb_name, const char *cport)
+{
+    char *path;
+    int len, fd, rv;
+    struct flock ri_lock;
+
+    /* alloc mem for string path to runtime.info */
+    len = (strlen(FS_RI_FILE)-2) + strlen(kb_name) + 1;
+    path = (char *)malloc(len * sizeof(char));
+    if (path == NULL) {
+        kb_error(LOG_CRIT, "failed to malloc %d bytes", len);
+        return -1;
+    }
+
+    /* generate full path to runtime.info */
+    rv = sprintf(path, FS_RI_FILE, kb_name);
+    if (rv < 0) {
+        kb_error(LOG_ERR, "sprintf failed to write %d bytes", len);
+        free(path);
+        return -1;
+    }
+
+    /* Open runtime.info with mode 0644.
+     * Use global so that file is locked for the lifetime of this process. */
+    umask(022);
+    global_ri_file = fopen(path, "w");
+    if (global_ri_file == NULL) {
+        kb_error(LOG_ERR, "failed to open '%s' for writing: %s",
+                 path, strerror(errno));
+        free(path);
+        return -1;
+    }
+
+    /* Get integer file descriptor for use by fcntl */
+    fd = fileno(global_ri_file);
+    if (fd == -1) {
+        kb_error(LOG_ERR, "failed to get file descriptor: %s", strerror(errno));
+        free(path);
+        return -1;
+    }
+
+    /* We want to get a write lock on the entire file */
+    ri_lock.l_type = F_WRLCK;    /* write lock */
+    ri_lock.l_whence = SEEK_SET; /* l_start begins at start of file */
+    ri_lock.l_start = 0;         /* offset from whence */
+    ri_lock.l_len = 0;           /* until EOF */
+
+    /* Check whether file is currently locked.
+     * This *should* be impossible, locks on metadata.nt mean that we should
+     * never get here if a kb backend is running, but can't hurt to check. */
+    rv = fcntl(fd, F_GETLK, &ri_lock);
+    if (rv == -1) {
+        kb_error(LOG_ERR, "failed to get lock information on '%s'", path);
+        fclose(global_ri_file);
+        free(path);
+        return -1;
+    }
+
+    if (ri_lock.l_type == F_UNLCK) {
+        /* file is unlocked, should always be the case */
+        ri_lock.l_type = F_WRLCK;
+        ri_lock.l_whence = SEEK_SET;
+        ri_lock.l_start = 0;
+        ri_lock.l_len = 0;
+
+        /* get non-blocking write lock */
+        rv = fcntl(fd, F_SETLK, &ri_lock);
+        if (rv == -1) {
+            kb_error(LOG_ERR, "failed to get lock on '%s'", path);
+            fclose(global_ri_file);
+            free(path);
+            return -1;
+        }
+    }
+    else {
+        /* should never get here */
+        kb_error(LOG_ERR, "file '%s' already locked with %d by pid %d",
+                 path, ri_lock.l_type, ri_lock.l_pid);
+        fclose(global_ri_file);
+        free(path);
+        return -1;
+    }
+
+    /* write port/pid to file: "%s %s",pid,port */
+    rv = fprintf(global_ri_file, "%d %s", getpid(), cport);
+    if (rv < 0) {
+        kb_error(LOG_ERR, "failed to write to file '%s'", path);
+        ri_lock.l_type = F_UNLCK;
+        ri_lock.l_whence = SEEK_SET;
+        ri_lock.l_start = 0;
+        ri_lock.l_len = 0;
+        fcntl(fd, F_SETLK, &ri_lock); /* clear lock */
+        fclose(global_ri_file);
+        free(path);
+        return -1;
+    }
+
+    rv = fflush(global_ri_file);
+    if (rv == EOF) {
+        kb_error(LOG_ERR, "failed to flush file '%s'", path);
+        ri_lock.l_type = F_UNLCK;
+        ri_lock.l_whence = SEEK_SET;
+        ri_lock.l_start = 0;
+        ri_lock.l_len = 0;
+        fcntl(fd, F_SETLK, &ri_lock); /* clear lock */
+        fclose(global_ri_file);
+        free(path);
+        return -1;
+    }
+
+    kb_error(LOG_INFO, "runtime information file created");
+
+    free(path);
+    return 0;
+}
+
 void fsp_serve (const char *kb_name, fsp_backend *backend, int daemon, float disk_limit)
 {
   struct addrinfo hints, *info;
@@ -443,6 +561,14 @@ void fsp_serve (const char *kb_name, fsp_backend *backend, int daemon, float dis
   if (daemon) {
     daemonize();
   }
+
+  /* set up pid/port lockfile */
+  err = init_runtime_info(kb_name, cport);
+  if (err < 0) {
+      /* error already logged so just return */
+      return;
+  }
+                      
 
   signal_actions();
   fs_error(LOG_INFO, "4store backend %s for kb %s on port %s", FS_BACKEND_VER, kb_name, cport);

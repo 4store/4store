@@ -3,7 +3,7 @@
 # tests that DISTINCT works when OPTIONAL blocks fail part way through
 # we should get only one row with NULLs
 
-$TESTPATH/frontend/4s-query $1 '
+$TESTPATH/frontend/4s-query $CONF $1 '
 PREFIX vocab: <http://www.census.gov/tiger/2002/vocab#>
 PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
 PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>

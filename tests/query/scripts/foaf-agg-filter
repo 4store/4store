@@ -2,7 +2,7 @@
 
 # AGGs + Filter. Not great only one solution to aggregate.
 
-$TESTPATH/frontend/4s-query $1 '
+$TESTPATH/frontend/4s-query $CONF $1 '
 PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
 SELECT (count(?s) as ?count) 
 (sum(xsd:decimal(?o)) as ?sum) 
