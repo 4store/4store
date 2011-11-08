@@ -640,7 +640,7 @@ static void handle_cmd_get_kb_info(int client_fd, uint16_t datasize)
     }
 
     /* should already have been checked by client */
-    if (!fsa_is_valid_kb_name(kb_name)) {
+    if (!fsa_is_valid_kb_name((const char *)kb_name)) {
         fsa_error(LOG_CRIT, "Invalid kb name received from client");
         send_error_message(client_fd, "kb name invalid");
         free(kb_name);
@@ -691,7 +691,7 @@ static void handle_cmd_delete_kb(int client_fd, uint16_t datasize)
     }
 
     /* should already have been checked by client */
-    if (!fsa_is_valid_kb_name(kb_name)) {
+    if (!fsa_is_valid_kb_name((const char *)kb_name)) {
         fsa_error(LOG_CRIT, "Invalid kb name received from client");
         send_error_message(client_fd, "kb name invalid");
         free(kb_name);
