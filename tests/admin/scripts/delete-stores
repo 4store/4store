@@ -1,0 +1,34 @@
+#!/bin/bash
+
+source vars.sh
+
+$FS_BACKEND_SETUP 4s_admin_test_kb2
+$FS_BACKEND_SETUP 4s_admin_test_kb3
+$FS_BACKEND -D 4s_admin_test_kb2 &
+PID=$!
+sleep 1
+kill -15 $PID
+wait $PID
+
+CMD="$FS_ADMIN --config-file $FS_CONF delete-stores 4s_admin_test_kb2 4s_admin_test_kb3"
+OUTPUT=`$CMD`
+EXITSTATUS=$?
+echo "$OUTPUT"
+echo "Exit status: $EXITSTATUS"
+echo
+
+OUTPUT=`$CMD`
+EXITSTATUS=$?
+echo "$OUTPUT"
+echo "Exit status: $EXITSTATUS"
+echo
+
+CMD="$FS_ADMIN --config-file $FS_CONF delete-stores 4s_admin_test_kb2 invalid-store-name"
+OUTPUT=`$CMD`
+EXITSTATUS=$?
+
+echo
+echo "Invalid args test"
+echo "$OUTPUT"
+echo "Exit status: $EXITSTATUS"
+

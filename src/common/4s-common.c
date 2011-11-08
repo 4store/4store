@@ -31,6 +31,7 @@
 
 static int fsp_syslog_active = 0;
 static unsigned char fsp_vermagic[4] = { 'I', 'D', FS_PROTO_VER_MINOR, 0x0 };
+static char *fs_config_file = NULL;
 
 void fsp_syslog_enable(void)
 {
@@ -222,4 +223,19 @@ void fsp_hit_limits_add(fsp_link *link, int delta)
 fsp_hash_enum fsp_hash_type(fsp_link *link)
 {
   return link->hash_type;
+}
+
+const char *fs_get_config_file(void)
+{
+    if (fs_config_file != NULL) {
+        return fs_config_file;
+    }
+    else {
+        return FS_CONFIG_FILE;
+    }
+}
+
+void fs_set_config_file(const char *config_file)
+{
+    fs_config_file = config_file;
 }

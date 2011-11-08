@@ -1,0 +1,13 @@
+#!/bin/bash
+
+source vars.sh
+
+CMD="$FS_ADMIN --config-file $FS_CONF list-nodes"
+
+# remove IP address, since this won't be consistent
+OUTPUT=`$CMD | perl -pe 's/\s+[^ ]+$/\n/ if $. > 1;'`
+EXITSTATUS=${PIPESTATUS[0]}
+
+echo "$OUTPUT"
+echo "Exit status: $EXITSTATUS"
+

@@ -1,0 +1,160 @@
+.Dd 8 October, 2011
+.Dt 4S-ADMIN 5J 4store
+.Os 4store
+.Sh NAME
+.Nm 4store.conf
+.Nd 4store configuration file
+.Sh DESCRIPTION
+The file
+.Pa /etc/4store.conf
+contains settings used by
+.Xr 4s-admin 1 ,
+.Xr 4s-boss 8 ,
+.Xr 4s-httpd ,
+.Xr 4s-import 1
+and
+.Xr 4s-query 1 .
+.Ss File format
+The config file uses GLib's key file format, which contains key-value pairs
+organised into groups.
+The syntax of the file is as follows:
+.Pp
+Blank lines or beginning with a hash character are considered comments:
+.D1 # this is a comment
+.Pp
+Groups are defined by enclosing a group name within square
+brackets:
+.D1 [first group]
+.D1 [group2]
+.Pp
+Each key-value pair must be placed on a new line, and will
+belong to the group above it.
+.Pp
+A key-value pair is specified using 'key=values', where values
+can be a semicolon separated list of strings:
+.D1 [group1]
+.D1 ids=1;2;3
+.D1 people=Alice;Bob
+.D1 [group2]
+.D1 disable_foo=false
+.Ss Store options
+These are options which will affect the running of 4s-backend
+and 4s-httpd.
+.Pp
+To set them for all stores, place them in an option group 
+named
+.Sy [default] .
+.Pp
+To set them on a single store, place them in an option group
+with the same name as the store, e.g.\&
+.Sy [store1] .
+.Pp
+Options:
+.Bl -tag -width Ds
+.It Sy unsafe = true|false
+Enable unsafe operations (such as LOAD).
+Default is false.
+.It Sy cors = true|false
+Enables CORS.
+Default is false.
+.It Sy port = <port_number>
+Port to run HTTP SPARQL daemon (4s-httpd) on.
+Default is 8080.
+.It Sy default-graph = true|false
+Set the default graph to be a union of named graphs.
+Default is false.
+.It Sy soft-limit = <limit>
+Sets the soft limit, or set to 0 to disable.
+Default is 2000.
+.It Sy opt-level = <level>
+Set the optimisation level, from 0 to 3.
+Default is 3 (all optimisations enabled).
+.It Sy listen = <hostname>|<ip_address>
+The hostname or IP address that 4s-httpd should listen on.
+Default is localhost.
+.El
+.Ss 4s-boss options
+These options are used to configure
+.Xr 4s-boss 8 ,
+and set how and if it should be used for store discovery.
+.Pp
+These options should all be in a group named
+.Sy [4s-boss] .
+.Pp
+Options:
+.Bl -tag -width Ds
+.It Sy port = <port_number>
+Set port to run 4s-boss daemon on.
+Default is 6733.
+.It Sy discovery = none|sole|default
+Determines how 4s-boss is used for store discovery.
+Default is none.
+.It Sy nodes = <hostname_or_ip>[:<port>];...
+List of nodes in the cluster which run 4s-boss.
+Default is localhost.
+.El
+.Pp
+Set
+.Sy discovery
+to
+.Sy none
+to use Avahi/DNS-SD for discovery instead of 4s-boss.
+Set to
+.Sy sole
+to use 4s-boss as the only discovery mechanism.
+Set to
+.Sy default
+to use use 4s-boss for discovery, but fall back to Avahi/DNS-SD.
+.Pp
+The
+.Sy nodes
+option sets the hosts and ports of storage nodes in a 4store
+cluster that uses 4s-boss.
+Hosts can be specified either as hostnames or IPv4/IPv6
+addresses, optionally followed by a colon character and port
+number (assumes default port of 6733 if no port is specified).
+.Pp
+To specify a port number with an IPv6 address, enclose the
+address in square brackets, e.g.:
+.D1 [2001:db8::1]:6733
+.Sh FILES
+.Bl -tag -width Ds
+.It Pa /etc/4store.conf
+.El
+.Sh EXAMPLES
+.Bd -unfilled
+# Global settings
+[default]
+    unsafe = true
+    cors = true
+
+# Options for store 'kb1'
+[kb1]
+    port = 8888
+    default-graph = false
+    soft-limit = 0
+    opt-level = 3
+
+# Options for store 'store2'
+[store2]
+    soft-limit = 20000
+    port = 8090
+
+# Enable discovery using 4s-boss, and define a 4 node cluster on:
+#   HOST                PORT
+#   host.example.org    6733 (default)
+#   192.0.2.1           6734
+#   ::1                 6733 (default)
+#   2001:db8::1         6735
+[4s-boss]
+    port = 6733
+    discovery = sole
+    nodes = host.example.org;192.0.2.1:6734;::1;[2001:db8::1]:6735
+.Ed
+.Sh SEE ALSO
+.Xr 4s-admin 1 ,
+.Xr 4s-boss 8 ,
+.Xr 4s-import 1 ,
+.Xr 4s-query 1
+.Pp
+.Lk http://developer.gnome.org/glib/2.28/glib-Key-value-file-parser.html#glib-Key-value-file-parser.description "GLib key file description"

@@ -55,7 +55,7 @@ if ($pid = fork()) {
 			sleep(1);
 		}
 	} else {
-		my @cmd = ("../../src/http/4s-httpd", "-X", "-D", "-p", "13579", $kb_name);
+		my @cmd = ("../../src/http/4s-httpd", "-c", "../tests_4store.conf", "-X", "-D", "-p", "13579", $kb_name);
 		if ($valgrind) {
 			print("Running httpd under valgrind, output in valgrind.txt\n");
 			unshift(@cmd, 'valgrind', '-v', '--trace-children=yes', '--log-file=valgrind.txt');
@@ -63,7 +63,7 @@ if ($pid = fork()) {
 		close STDERR;
 		print(join(" ", @cmd)."\n");
 		exec(@cmd);
-		die "failed to exec HTTP sever: $!";
+		die "failed to exec HTTP server: $!";
 	}
 	print("4s-httpd running on PID $httppid\n");
 	sleep(1);

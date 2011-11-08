@@ -1,0 +1,95 @@
+.Dd 11 October, 2011
+.Dt 4S-ADMIN 8J 4store
+.Os 4store
+.Sh NAME
+.Nm 4s-boss
+.Nd An administration and store discovery daemon for 4store
+.Sh SYNOPSIS
+.Nm
+.Op Fl D | \-no-daemonize
+.Op Fl p Ar port | Fl \-port Ar port
+.Nm
+.Op Fl \-help
+.Op Fl \-version
+.Pp
+.Sh DESCRIPTION
+.Nm
+can be run on 4store storage nodes to provide a store discovery mechanism 
+for a 4store cluster (as an alternative to Avahi/DNS-SD).
+.Pp
+It also provides a backend to enable store admin operations to be performed
+through the the
+.Xr 4s-admin 1
+utility.
+.Pp
+It should be started on all storage nodes of a cluster, and will run as a
+daemon listening on port 6733 by default.
+.Pp
+Error and informational output is sent to
+.Pa /var/log/syslog
+when run as a daemon, and to
+.Pa stderr
+when run in the foreground.
+.Pp
+.Ss Command line options
+.Bl -tag -width Ds
+.It Fl D , Fl \-no-daemonize
+Do not daemonize, send output to stdout/stderr instead of syslog.
+.It Fl p Ar port, Fl \-port Ar port
+Port number to listen on.
+.El
+.Pp
+.Ss Configuration file options
+.Bl -tag -width Ds
+.It Sy port = <port_number>
+Port number to listen on.
+.El
+.Pp
+Options for
+.Mn
+in
+.Pa /etc/4store.conf
+should all be within the
+[4s-boss] section, or will be ignored.
+.Pp
+Other options in the [4s-boss] section of the configuration file are used to
+set the nodes of a cluster, and to set how
+.Nm
+is used for store discovery.
+See
+.Xr 4store.conf 5
+for details.
+.Pp
+.El
+.Sh FILES
+.Bl -tag -width Ds
+.It Pa /etc/4store.conf
+.El
+.Sh EXIT STATUS
+.Ex -std
+.Sh EXAMPLES
+Start 4s-boss in the foreground on port 9000
+.Pp
+.Dl $ 4s-boss --no-daemonize --port 9000
+.Pp
+Start 4s-boss as a daemon on the default port (6733)
+.Pp
+.Dl $ 4s-boss
+.Sh SEE ALSO
+.Xr 4s-admin 1 ,
+.Xr 4store.conf 5 
+.Sh AUTHORS
+.An Dave Challis Aq suicas@gmail.com .
+.Sh SECURITY CONSIDERATIONS
+.Nm
+should never be run as root.
+It should be started as any user that has read access to
+.Pa /var/lib/4store ,
+and ideally the same user that would run any 4s-backend processes.
+.Pp
+The port
+.Nm
+runs on should only be accessible from trusted hosts, and appropriate firewall
+restrictions put in place.
+This is to prevent untrusted users/hosts from sending store
+deletion/stop/start requests .
