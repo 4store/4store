@@ -1290,6 +1290,7 @@ static int cmd_list_stores(void)
     int node_num = 0;
     int name_len;
     int max_name_len = 10; /* track lengths of kb names */
+    GList *kb_name_list = NULL; /* track hash keys */
 
     /* connect to each node separately */
     while (node != NULL) {
@@ -1311,6 +1312,10 @@ static int cmd_list_stores(void)
 
                 /* will return NULL if key not found */
                 ki->next = g_hash_table_lookup(kb_hash, ki->name);
+                if (ki->next == NULL) {
+                    /* add each name to list exactly once */
+                    kb_name_list = g_list_append(kb_name_list, ki->name);
+                }
                 g_hash_table_insert(kb_hash, ki->name, ki);
 
                 /* used to align columns when printing */
@@ -1328,7 +1333,6 @@ static int cmd_list_stores(void)
     }
 
     /* sort hash keys, print info for each kb in turn */
-    GList *kb_name_list = g_hash_table_get_keys(kb_hash);
     kb_name_list = g_list_sort(kb_name_list, (GCompareFunc)strcmp);
 
     char *kb_name;
