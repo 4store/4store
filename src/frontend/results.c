@@ -2566,8 +2566,8 @@ nextrow: ;
     }
 
     int repeat_row = 1;
+    fs_value **values = NULL;
     for (int i=0; i<q->num_vars; i++) {
-        fs_value **values = NULL;
         if (q->agg_values && i == 0)
             values = malloc(q->num_vars * sizeof(fs_value *));
         fs_rid last_rid = q->resrow[i].rid;
