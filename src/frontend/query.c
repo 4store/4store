@@ -1015,6 +1015,12 @@ void fs_query_free(fs_query *q)
 
         if (q->default_graphs) fs_rid_vector_free(q->default_graphs);
 
+    for(int i=0;i<FS_MAX_BLOCKS;i++) {
+        if (q->constraints[i]) {
+            raptor_free_sequence(q->constraints[i]);
+        }
+    }
+
         memset(q, 0, sizeof(fs_query));
 	free(q);
     }
