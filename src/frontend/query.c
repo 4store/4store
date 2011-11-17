@@ -1651,6 +1651,7 @@ static int process_results(fs_query *q, int block, fs_binding *oldb,
                 fs_binding *bv = fs_binding_get(b, vars[col]);
                 if (!bv) {
                     fs_error(LOG_CRIT, "unmatched variable name '%s'", vars[col]->name);
+                    fs_rid_vector_free(results[col]);
                     continue;
                 }
                 /* if the varaible is repeated in one triple pattern then it
@@ -1664,7 +1665,10 @@ static int process_results(fs_query *q, int block, fs_binding *oldb,
                             break;
                         }
                     }
-                    if (repeat) continue;
+                    if (repeat) {
+                        fs_rid_vector_free(results[col]);
+                        continue;
+                    }
                 }
 		fs_binding_add_vector(b, vars[col], results[col]);
                 ret += results[col] ? results[col]->length : 0;
