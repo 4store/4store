@@ -1,0 +1,22 @@
+Checking cluster status:
+node_number hostname  status
+0           localhost ok
+
+store_name        store_status
+4s_admin_test_kb2 deleted
+4s_admin_test_kb3 deleted
+Exit status: 0
+
+Checking cluster status:
+node_number hostname  status
+0           localhost ok
+
+store_name        store_status
+4s_admin_test_kb2 store_not_found
+4s_admin_test_kb3 store_not_found
+Exit status: 0
+
+
+Invalid args test
+
+Exit status: 1

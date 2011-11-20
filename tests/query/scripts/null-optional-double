@@ -2,5 +2,5 @@
 
 # none of this query does anything except exercise a rare codepath
 
-$TESTPATH/frontend/4s-query $1 'PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> SELECT DISTINCT ?three WHERE { <http://example.com/thing/1> <this:doesNotExist> ?one . ?one <this:doesNotExist> ?two . OPTIONAL { <http://example.com/thing/2> <this:doesNotExist> ?three } }'
+$TESTPATH/frontend/4s-query $CONF $1 'PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> SELECT DISTINCT ?three WHERE { <http://example.com/thing/1> <this:doesNotExist> ?one . ?one <this:doesNotExist> ?two . OPTIONAL { <http://example.com/thing/2> <this:doesNotExist> ?three } }'
 

@@ -381,11 +381,11 @@ static void http_query_worker(gpointer data, gpointer user_data)
 
     if (ctxt->output) {
       type = ctxt->output;
-    } else if (ctxt->qr->construct && accept && strstr(accept, "text/turtle")) {
+    } else if ((ctxt->qr->construct || ctxt->qr->describe) && accept && strstr(accept, "text/turtle")) {
       type = "text";
       fprintf(fp, "Content-Type: text/turtle\r\n\r\n");
       flags = 0;
-    } else if (ctxt->qr->construct && accept && strstr(accept, "application/rdf+xml")) {
+    } else if ((ctxt->qr->construct || ctxt->qr->describe) && accept && strstr(accept, "application/rdf+xml")) {
       type = "sparql";
     } else if (accept && strstr(accept, "application/sparql-results+xml")) {
       type = "sparql";
@@ -798,7 +798,7 @@ static void http_service_description(client_ctxt *ctxt)
 {
   http_send(ctxt, "HTTP/1.0 200 OK\r\n"
   "Server: 4s-httpd/" GIT_REV "\r\n"
-  "Content-Type: application/x-turtle\r\n"
+  "Content-Type: text/turtle; charset=utf-8\r\n"
   "\r\n"
   "@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .\n"
   "@prefix sd: <http://darq.sf.net/dose/0.1#> .\n"
@@ -1721,7 +1721,7 @@ int main(int argc, char *argv[])
 
 
   int o;
-  while (!help && (o = getopt(argc, argv, "DH:p:Uds:O:X")) != -1) {
+  while (!help && (o = getopt(argc, argv, "DH:p:Uds:O:Xc:")) != -1) {
     switch (o) {
       case 'D':
         daemonize = 0;
@@ -1733,32 +1733,35 @@ int main(int argc, char *argv[])
         port = optarg;
         break;
       case 'U':
-	unsafe = 1;
-	break;
+        unsafe = 1;
+        break;
       case 'd':
-	default_graph = 1;
-	break;
+        default_graph = 1;
+        break;
       case 's':
-	soft_limit = atoi(optarg);
-	if (soft_limit == 0) {
-	  /* -1 means off */
-	  soft_limit = -1;
-	}
-	break;
+        soft_limit = atoi(optarg);
+        if (soft_limit == 0) {
+          /* -1 means off */
+          soft_limit = -1;
+        }
+        break;
       case 'O':
-	opt_level = atoi(optarg);
-	break;
+        opt_level = atoi(optarg);
+        break;
       case 'X':
-	cors_support = 1;
-	break;
+        cors_support = 1;
+        break;
+      case 'c':
+        fs_set_config_file(optarg);
+        break;
       default:
-	help = 1;
-	break;
+        help = 1;
+        break;
     }
   }
 
   if (help || optind >= argc || optind < argc - 1) {
-    fprintf(stdout, "Usage: %s [-D] [-H host] [-p port] [-U] [-s limit] <kbname>\n", basename(argv[0]));
+    fprintf(stdout, "Usage: %s [-D] [-H host] [-p port] [-U] [-s limit] [-c path] <kbname>\n", basename(argv[0]));
     fprintf(stdout, "       -H   specify host to listen on\n");
     fprintf(stdout, "       -p   specify port to listen on\n");
     fprintf(stdout, "       -D   do not daemonise\n");
@@ -1767,6 +1770,7 @@ int main(int argc, char *argv[])
     fprintf(stdout, "       -s   default soft limit (-1 to disable)\n");
     fprintf(stdout, "       -O   set query optimiser level (0-3, default is 3)\n");
     fprintf(stdout, "       -X   enable public cross-origin resource sharing (CORS) support\n");
+    fprintf(stdout, "       -c   path to config file\n");
     fprintf(stdout, "Options can also be set permenantly in /etc/4store.conf\n");
     fprintf(stdout, "see http://4store.org/trac/wiki/SparqlServer for details\n");
 
@@ -1780,7 +1784,7 @@ int main(int argc, char *argv[])
 
   GKeyFile *keyfile = g_key_file_new();
   GError *err = NULL;
-  const char *keyfile_filename = FS_CONFIG_FILE;
+  const char *keyfile_filename = fs_get_config_file();
   if (!g_key_file_load_from_file(keyfile, keyfile_filename, G_KEY_FILE_KEEP_COMMENTS, &err)) {
     if (err->code != G_FILE_ERROR_NOENT &&
         err->code != G_FILE_ERROR_EXIST &&

@@ -460,7 +460,9 @@ fs_query *fs_query_execute(fs_query_state *qs, fsp_link *link, raptor_uri *bu, c
             q->default_graphs->length = 0;
         }
         char *uri = (char *)raptor_uri_as_string(dg->uri);
-        char *name_uri = (char *)raptor_uri_as_string(dg->name_uri);
+        char *name_uri = NULL;
+        if (dg->name_uri)
+            name_uri = (char *)raptor_uri_as_string(dg->name_uri);
         if (name_uri) {
             q->warnings = g_slist_prepend(q->warnings, "FROM NAMED is not currently supported");
         } else {
@@ -1012,6 +1014,12 @@ void fs_query_free(fs_query *q)
         fs_query_free_row_freeable(q);
 
         if (q->default_graphs) fs_rid_vector_free(q->default_graphs);
+
+    for(int i=0;i<FS_MAX_BLOCKS;i++) {
+        if (q->constraints[i]) {
+            raptor_free_sequence(q->constraints[i]);
+        }
+    }
 
         memset(q, 0, sizeof(fs_query));
 	free(q);
@@ -1643,6 +1651,7 @@ static int process_results(fs_query *q, int block, fs_binding *oldb,
                 fs_binding *bv = fs_binding_get(b, vars[col]);
                 if (!bv) {
                     fs_error(LOG_CRIT, "unmatched variable name '%s'", vars[col]->name);
+                    fs_rid_vector_free(results[col]);
                     continue;
                 }
                 /* if the varaible is repeated in one triple pattern then it
@@ -1656,7 +1665,10 @@ static int process_results(fs_query *q, int block, fs_binding *oldb,
                             break;
                         }
                     }
-                    if (repeat) continue;
+                    if (repeat) {
+                        fs_rid_vector_free(results[col]);
+                        continue;
+                    }
                 }
 		fs_binding_add_vector(b, vars[col], results[col]);
                 ret += results[col] ? results[col]->length : 0;

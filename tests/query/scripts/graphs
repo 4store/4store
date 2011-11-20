@@ -1,6 +1,6 @@
 #!
 
-$TESTPATH/frontend/4s-query $1 '
+$TESTPATH/frontend/4s-query $CONF $1 '
 SELECT DISTINCT ?graph
 WHERE {
    GRAPH ?graph { ?x ?y ?z }

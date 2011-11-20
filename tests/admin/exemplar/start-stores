@@ -1,0 +1,17 @@
+node_number hostname
+0           localhost
+  store_name        status
+  4s_admin_test_kb2 running
+  4s_admin_test_kb3 running
+Exit status: 0
+
+Invalid args test
+
+Exit status: 1
+
+node_number hostname
+0           localhost
+  store_name         status
+  4s_admin_test_kb2  running
+  non_existent_store store_not_found
+Exit status: 0

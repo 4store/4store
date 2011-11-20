@@ -28,6 +28,14 @@ AC_ARG_WITH([storage_path],
 FS_STORE_ROOT="$with_storage_path"
 AC_SUBST(FS_STORE_ROOT)
 
+AC_ARG_WITH([config_file],
+	[AS_HELP_STRING([--with-config-file=PATH],
+	                [set path and filename of runtime configuration file default=/etc/4store.conf])],
+	[],
+	[with_config_file=/etc/4store.conf])
+FS_CONFIG_FILE="$with_config_file"
+AC_SUBST(FS_CONFIG_FILE)
+
 AC_ARG_WITH([skolem_prefix],
 	[AS_HELP_STRING([--with-skolem-prefix=URI],
 	                [set skolemisation prefix, default=http://4store.org/.well-known/genid])],
@@ -78,7 +86,7 @@ PKG_CHECK_MODULES([AVAHI], avahi-glib, have_avahi=yes, have_avahi=no)
 if test $have_avahi = no; then
 	AC_CHECK_FUNC([DNSServiceRegister], [have_dns_sd=yes], [have_dns_sd=no])
 	if test $have_dns_sd = no; then
-		AC_MSG_WARN([No mDNS library found (avahi or dns-sd), cluster support disabled])
+		AC_MSG_WARN([No mDNS library found (avahi or dns-sd), cluster support available through 4s-boss])
 	else
 		AC_DEFINE([USE_DNS_SD], [], [Defined if the dns-sd library is available])
 	fi
@@ -117,12 +125,28 @@ LIBS="$GLIB_LIBS"
 AC_CHECK_FUNCS([g_uri_escape_string])
 LIBS=$oLIBS
 
+AC_TRY_COMPILE(
+    [#include <uuid/uuid.h>],
+    [uuid_t uu; uuid_string_t uus; uuid_generate(uu); uuid_unparse(uu, uus);],
+    have_uuid_string_t=yes,
+    have_uuid_string_t=no
+)
+
+UUID_LIBS=""
+if test "$have_uuid_string_t" = yes; then
+    AC_DEFINE(HAVE_UUID_STRING_T, 1, [define to 1 if uuid_string_t used])
+else
+    UUID_LIBS="-luuid"
+fi
+AC_SUBST(UUID_LIBS)
+
 AC_CONFIG_FILES([Makefile
                  man/Makefile
                  tests/Makefile
                  src/Makefile
                  src/backend/Makefile
                  src/common/Makefile
+                 src/admin/Makefile
                  src/frontend/Makefile
                  src/http/Makefile
                  src/libs/Makefile
@@ -141,10 +165,10 @@ echo
 echo "Configuration status:"
 
 if test "X$have_avahi" = Xno -a "X$have_dns_sd" = Xno; then
-	AC_MSG_WARN("No mDNS libraries are available, you will only be able to run one store per machine")
-	AC_MSG_WARN("Install Avahi (-glib and -client) to get mDNS support on Linux")
+	echo "   Cluster support available through 4s-boss"
+	echo "   Install Avahi (-glib and -client) to get mDNS support on Linux"
 else
-	echo "   Found mDNS libraries, cluster suport enabled"
+	echo "   Cluster support available through mDNS or 4s-boss"
 fi
 echo "   Using Raptor version $raptor_version"
 echo "   Using Rasqal version $rasqal_version"

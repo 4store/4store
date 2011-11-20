@@ -2,7 +2,7 @@
 
 # AGGs + Filter. Corner case when 0 solutions, filter doesn't match any.
 
-$TESTPATH/frontend/4s-query $1 '
+$TESTPATH/frontend/4s-query $CONF $1 '
 PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
 SELECT (count(?s) as ?count) 
 (sum(xsd:decimal(?o)) as ?sum) 

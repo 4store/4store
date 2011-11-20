@@ -1,7 +1,7 @@
 #!
 
 echo "distinct";
-$TESTPATH/frontend/4s-query $1 '
+$TESTPATH/frontend/4s-query $CONF $1 '
 PREFIX foaf: <http://xmlns.com/foaf/0.1/>
 SELECT DISTINCT ?x 
 WHERE {
@@ -10,7 +10,7 @@ WHERE {
           ?s = "4829af19130151de1c4def299d73d33f33dee0fb") }
 ' | sort
 echo "!distinct";
-$TESTPATH/frontend/4s-query $1 '
+$TESTPATH/frontend/4s-query $CONF $1 '
 PREFIX foaf: <http://xmlns.com/foaf/0.1/>
 SELECT ?x 
 WHERE {

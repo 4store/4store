@@ -45,6 +45,7 @@
 #define FS_STORE_ROOT "@FS_STORE_ROOT@"
 #define FS_KB_DIR     FS_STORE_ROOT "/%s/"
 #define FS_MD_FILE    FS_STORE_ROOT "/%s/metadata.nt"
+#define FS_RI_FILE    FS_STORE_ROOT "/%s/runtime.info"
 #define FS_SEG_DIR    FS_STORE_ROOT "/%s/%04x/"
 #define FS_FILE_LOCK  FS_STORE_ROOT "/%s/%04x/%s.lock"
 #define FS_LEX        FS_STORE_ROOT "/%s/%04x/lex.dat"
@@ -63,10 +64,11 @@
 #define FS_PTABLE     FS_STORE_ROOT "/%s/%04x/%s.ptable"
 #define FS_TBCHAIN    FS_STORE_ROOT "/%s/%04x/%s.tbchain"
 
+
+#define FS_CONFIG_FILE              "@FS_CONFIG_FILE@"
+
 #define FS_SKOLEM_PREFIX "@FS_SKOLEM_PREFIX@"
 #define FS_SKOLEMIZE     @FS_SKOLEMIZE@
-
-#define FS_CONFIG_FILE              "/etc/4store.conf"
 
 #define FS_LEGAL_KB_CHARS "abcdefghijklmnopqrstuvwxyz" \
                           "ABCDEFGHIJKLMNOPQRSTUVWXYZ" \

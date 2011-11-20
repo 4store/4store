@@ -222,6 +222,9 @@ void fsp_hit_limits_add(fsp_link *link, int delta);
 
 fsp_hash_enum fsp_hash_type(fsp_link *link);
 
+const char *fs_get_config_file(void);
+void fs_set_config_file(const char *config_file);
+
 char *fsp_link_uuid(fsp_link *link);
 
 extern char *fs_global_skolem_prefix;

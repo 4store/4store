@@ -20,6 +20,8 @@
 
 #include "4s-internals.h"
 #include "error.h"
+#include "../admin/admin_common.h"
+#include "../admin/admin_frontend.h"
 
 #include <stdlib.h>
 #include <string.h>
@@ -27,6 +29,31 @@
 #include <glib.h>
 
 #define SERVICE_TYPE "_4store._tcp"
+
+/* Attempt to add backends by looking them up using 4s-boss.
+   Called manually by the various mdns functions below */
+static int setup_frontend_from_admind(fsp_link *link)
+{
+    fsa_kb_info *ki = fsaf_fetch_kb_info((unsigned char *)link->kb_name,
+                                         NULL);
+    if (ki == NULL) {
+        return -1;
+    }
+
+    fsa_kb_info *p;
+    int n_backends = 0;
+    int rv;
+    for (p = ki; p != NULL; p = p->next) {
+        rv = fsp_add_backend(link, (char *)p->ipaddr, p->port, p->num_segments);
+        if (rv > 0) {
+            n_backends += 1;
+        }
+    }
+
+    fsa_kb_info_free(ki);
+    return n_backends;
+}
+
 
 #if defined(USE_AVAHI)
 
@@ -161,38 +188,65 @@ static void browse_callback (AvahiServiceBrowser *browser,
 
 void fsp_mdns_setup_frontend (fsp_link *link)
 {
-  int avahi_error;
+    int rv;
+    int usage = fsaf_get_admind_usage();
 
-  spoll = avahi_simple_poll_new();
-  const AvahiPoll *poll_api = avahi_simple_poll_get(spoll);
-  AvahiClient *avahi_client = avahi_client_new(poll_api, AVAHI_CLIENT_NO_FAIL,
-                                               client_callback_frontend, NULL,
-                                               &avahi_error);
-  if (!avahi_client) {
-    link_error(LOG_WARNING, "while creating Avahi client: %s",
-               avahi_strerror(avahi_error));
-    return;
-  }
+    /* only use 4s-boss for lookups, don't even setup avahi */
+    if (usage == ADMIND_USAGE_SOLE) {
+        setup_frontend_from_admind(link);
+        return;
+    }
 
-  AvahiServiceBrowser *avahi_browser = 
+    /* try 4s-boss, set up avahi if this fails */
+    if (usage == ADMIND_USAGE_DEFAULT) {
+        rv = setup_frontend_from_admind(link);
+        if (rv > 0) {
+            return;
+        }
+    }
+
+    /* usage should == FALLBACK/NONE/error, so try avahi next */
+
+    int avahi_error;
+
+    spoll = avahi_simple_poll_new();
+    const AvahiPoll *poll_api = avahi_simple_poll_get(spoll);
+    AvahiClient *avahi_client = avahi_client_new(poll_api, AVAHI_CLIENT_NO_FAIL,
+                                                 client_callback_frontend, NULL,
+                                                 &avahi_error);
+    if (!avahi_client) {
+        link_error(LOG_WARNING, "while creating Avahi client: %s",
+                   avahi_strerror(avahi_error));
+        if (usage == ADMIND_USAGE_FALLBACK) {
+            /* avahi failed, so try 4s-boss lookup */
+            setup_frontend_from_admind(link);
+        }
+        return;
+    }
+
+    AvahiServiceBrowser *avahi_browser = 
         avahi_service_browser_new(avahi_client, AVAHI_IF_UNSPEC,
                                   AVAHI_PROTO_UNSPEC, SERVICE_TYPE, NULL, 0,
                                   browse_callback, (void *) link);
-  if (!avahi_browser) {
-    link_error(LOG_WARNING, "while creating Avahi browser: %s",
-               avahi_strerror(avahi_client_errno(avahi_client)));
-    return;
-  }
+    if (!avahi_browser) {
+        link_error(LOG_WARNING, "while creating Avahi browser: %s",
+                   avahi_strerror(avahi_client_errno(avahi_client)));
+        if (usage == ADMIND_USAGE_FALLBACK) {
+            /* avahi failed, so try 4s-boss lookup */
+            setup_frontend_from_admind(link);
+        }
+        return;
+    }
 
-  all_for_now = 0; found = 0;
-  int done = 0;
-  do {
-    avahi_simple_poll_iterate(spoll, -1);
-    done = (link->segments && found >= link->segments);
-  } while (unresolved > 0 || (!done && !all_for_now));
+    all_for_now = 0; found = 0;
+    int done = 0;
+    do {
+        avahi_simple_poll_iterate(spoll, -1);
+        done = (link->segments && found >= link->segments);
+    } while (unresolved > 0 || (!done && !all_for_now));
 
-  link->avahi_browser = avahi_browser;
-  link->avahi_client = avahi_client;
+    link->avahi_browser = avahi_browser;
+    link->avahi_client = avahi_client;
 }
 
 int fsp_mdns_retry_frontend (fsp_link *link, int msecs)
@@ -217,13 +271,20 @@ int fsp_mdns_retry_frontend (fsp_link *link, int msecs)
 
 void fsp_mdns_cleanup_frontend (fsp_link *link)
 {
-   avahi_service_browser_free((AvahiServiceBrowser *) link->avahi_browser);
-   link->avahi_browser = NULL;
-   avahi_client_free((AvahiClient *) link->avahi_client);
-   link->avahi_client = NULL;
+    if (link->avahi_browser != NULL) {
+        avahi_service_browser_free((AvahiServiceBrowser *) link->avahi_browser);
+        link->avahi_browser = NULL;
+    }
 
-   avahi_simple_poll_free(spoll);
-   spoll = NULL;
+    if (link->avahi_client != NULL) {
+        avahi_client_free((AvahiClient *) link->avahi_client);
+        link->avahi_client = NULL;
+    }
+
+    if (spoll != NULL) {
+        avahi_simple_poll_free(spoll);
+        spoll = NULL;
+    }
 }
 
 static void create_services (AvahiClient *client, fsp_mdns_state *ms)
@@ -286,6 +347,12 @@ static void client_callback_backend (AvahiClient *client,
 void fsp_mdns_setup_backend (uint16_t port, const char *kb_name,
                                int segments)
 {
+    int usage = fsaf_get_admind_usage();
+    if (usage == ADMIND_USAGE_SOLE) {
+        /* backend does not need to register */
+        return;
+    }
+
   int avahi_error;
   char host_name[HOST_NAME_MAX + 1];
   gethostname(host_name, HOST_NAME_MAX);
@@ -442,45 +509,83 @@ static void browse_reply
 
 void fsp_mdns_setup_frontend(fsp_link *link)
 {
-  DNSServiceRef ref;
+    int rv;
+    int usage = fsaf_get_admind_usage();
 
-  if (DNSServiceBrowse(&ref, 0, 0, SERVICE_TYPE, NULL, browse_reply, link) !=
-      kDNSServiceErr_NoError) {
-    fs_error(LOG_ERR, "failed to browse for "SERVICE_TYPE": %s",
-	     strerror(errno));
+    /* only use 4s-boss for lookups, don't even setup mdns */
+    if (usage == ADMIND_USAGE_SOLE) {
+        setup_frontend_from_admind(link);
+        return;
+    }
+
+    /* try 4s-boss, set up mdns if this fails */
+    if (usage == ADMIND_USAGE_DEFAULT) {
+        rv = setup_frontend_from_admind(link);
+        if (rv > 0) {
+            return;
+        }
+    }
+
+    /* usage should == FALLBACK/NONE/error, so try mdns next */
+
+    DNSServiceRef ref;
+
+    if (DNSServiceBrowse(&ref, 0, 0, SERVICE_TYPE, NULL, browse_reply, link) !=
+        kDNSServiceErr_NoError) {
+      fs_error(LOG_ERR, "failed to browse for "SERVICE_TYPE": %s",
+               strerror(errno));
+      return;
+    }
+
+    const int bfd = DNSServiceRefSockFD(ref);
+//printf("@@ bfd=%d\n", bfd);
+    fd_set browse_fds;
+    do {
+        FD_ZERO(&browse_fds);
+        FD_SET(bfd, &browse_fds);
+        struct timeval timeout = { .tv_sec = 2, .tv_usec = 0 };
+//printf("@@ select\n");
+        int sel = select(bfd+1, &browse_fds, NULL, NULL, &timeout);
+//printf("@@ done select\n");
+
+        /* if select fails and fallback set, try 4s-boss instead */
+        if (usage == ADMIND_USAGE_FALLBACK && sel != 1) {
+            rv = setup_frontend_from_admind(link);
+            if (rv > 0) {
+                /* success, so cleanup and return */
+                DNSServiceRefDeallocate(ref);
+                return;
+            }
+        }
+
+        if (sel == 1) {
+//printf("@@ got response\n");
+            if (DNSServiceProcessResult(ref) != kDNSServiceErr_NoError) {
+                /* if lookup fails and fallback set, try 4s-boss instead */
+                if (usage == ADMIND_USAGE_FALLBACK) {
+                    rv = setup_frontend_from_admind(link);
+                    if (rv > 0) {
+                        /* success, so cleanup and return */
+                        return;
+                    }
+                }
+                
+                fs_error(LOG_ERR, "failed to process result for "SERVICE_TYPE": %s",
+                strerror(errno));
+                return;
+            }
+//printf("@@ handled response\n");
+        } else if (sel == -1) {
+            fs_error(LOG_ERR, "select failed: %s", strerror(errno));
+        } else if (sel == 0) {
+            fs_error(LOG_INFO, "timed out waiting for mDNS response");
+        } else {
+            fs_error(LOG_ERR, "mDNS fallthrough case, sel = %d", sel);
+        }
+    } while (link->segments == 0 || found < link->segments);
+    DNSServiceRefDeallocate(ref);
 
     return;
-  }
-
-  const int bfd = DNSServiceRefSockFD(ref);
-//printf("@@ bfd=%d\n", bfd);
-  fd_set browse_fds;
-  do {
-    FD_ZERO(&browse_fds);
-    FD_SET(bfd, &browse_fds);
-    struct timeval timeout = { .tv_sec = 2, .tv_usec = 0 };
-//printf("@@ select\n");
-    int sel = select(bfd+1, &browse_fds, NULL, NULL, &timeout);
-//printf("@@ done select\n");
-    if (sel == 1) {
-//printf("@@ got response\n");
-      if (DNSServiceProcessResult(ref) != kDNSServiceErr_NoError) {
-        fs_error(LOG_ERR, "failed to process result for "SERVICE_TYPE": %s",
-             strerror(errno));
-        return;
-      }
-//printf("@@ handled response\n");
-    } else if (sel == -1) {
-      fs_error(LOG_ERR, "select failed: %s", strerror(errno));
-    } else if (sel == 0) {
-      fs_error(LOG_INFO, "timed out waiting for mDNS response");
-    } else {
-      fs_error(LOG_ERR, "mDNS fallthrough case, sel = %d", sel);
-    }
-  } while (link->segments == 0 || found < link->segments);
-  DNSServiceRefDeallocate(ref);
-
-  return;
 }
 
 int fsp_mdns_retry_frontend (fsp_link *link, int msecs)
@@ -495,6 +600,12 @@ void fsp_mdns_cleanup_frontend (fsp_link *link)
 
 void fsp_mdns_setup_backend(uint16_t port, const char *kb_name, int segments)
 {
+    int usage = fsaf_get_admind_usage();
+    if (usage == ADMIND_USAGE_SOLE) {
+        /* backend does not need to register */
+        return;
+    }
+
   char host_name[HOST_NAME_MAX + 1];
   gethostname(host_name, HOST_NAME_MAX);
 
@@ -516,34 +627,57 @@ void fsp_mdns_setup_backend(uint16_t port, const char *kb_name, int segments)
 
 #else
 
-/* fallback if there's no MDNS library */
 
-void fsp_mdns_setup_frontend (fsp_link *link)
+/* Use lookup functionality provided by 4s-admind */
+void fsp_mdns_setup_frontend(fsp_link *link)
 {
-  fsp_add_backend(link, "127.0.0.1", FS_DEFAULT_PORT, 0); /* try loopback */
-  return;
+    int rv;
+    int usage = fsaf_get_admind_usage();
+
+    switch (usage) {
+        /* use only 4s-boss */
+        case ADMIND_USAGE_SOLE:
+            setup_frontend_from_admind(link);
+            break;
+        /* try 4s-boss, fall back to localhost */
+        case ADMIND_USAGE_DEFAULT:
+            rv = setup_frontend_from_admind(link);
+            if (rv < 1)  {
+                fsp_add_backend(link, "127.0.0.1", FS_DEFAULT_PORT, 0);
+            }
+            break;
+        /* try localhost, fall back to 4s-boss (will localhost ever fail?) */
+        case ADMIND_USAGE_FALLBACK:
+            rv = fsp_add_backend(link, "127.0.0.1", FS_DEFAULT_PORT, 0);
+            if (rv < 1) {
+                setup_frontend_from_admind(link);
+            }
+            break;
+        /* just use localhost (was previous default in 4store <= 1.1.3) */
+        case ADMIND_USAGE_NONE:
+        case ADM_ERR_BAD_CONFIG:
+        default:
+            fsp_add_backend(link, "127.0.0.1", FS_DEFAULT_PORT, 0);
+    }
 }
 
-int fsp_mdns_retry_frontend (fsp_link *link, int msecs)
+int fsp_mdns_retry_frontend(fsp_link *link, int msecs)
 {
-  /* this version used when USE_AVAHI is not defined */
-
-  return 1;
+    /* TODO: implement something sensible here! */
+    return 1;
 }
 
-void fsp_mdns_cleanup_frontend (fsp_link *link)
+void fsp_mdns_cleanup_frontend(fsp_link *link)
 {
-  /* this version used when USE_AVAHI is not defined */
-
-  return;
+    /* cleanup not needed */
+    return;
 }
 
 
-void fsp_mdns_setup_backend (uint16_t port, const char *kb_name, int segments)
+void fsp_mdns_setup_backend(uint16_t port, const char *kb_name, int segments)
 {
-  /* this version used when USE_AVAHI is not defined */
-
-  return;
+    /* nothing needed, 4s-boss queries backend status through pid file */
+    return;
 }
 
 #endif

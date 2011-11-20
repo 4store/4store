@@ -48,7 +48,7 @@ int main(int argc, char *argv[])
     char *password = NULL;
     char *format = "auto";
     FILE *msg = stderr;
-    char *optstring = "am:M:vnf:";
+    char *optstring = "ac:m:M:vnf:";
     int c, opt_index = 0, help = 0;
     int files = 0, adding = 0;
     char *kb_name = NULL;
@@ -59,6 +59,7 @@ int main(int argc, char *argv[])
 
     static struct option long_options[] = {
         { "add", 0, 0, 'a' },
+        { "config-file", 1, 0, 'c' },
         { "model", 1, 0, 'm' },
         { "model-default", 1, 0, 'M' },
         { "verbose", 0, 0, 'v' },
@@ -79,29 +80,31 @@ int main(int argc, char *argv[])
 
     while ((c = getopt_long (argc, argv, optstring, long_options, &opt_index)) != -1) {
         if (c == 'm') {
-	    model[files++] = optarg;
+            model[files++] = optarg;
         } else if (c == 'M') {
             model_default = optarg;
         } else if (c == 'v') {
-	    verbosity++;
+            verbosity++;
         } else if (c == 'a') {
-	    adding = 1;
+            adding = 1;
+        } else if (c == 'c') {
+            fs_set_config_file(optarg); 
         } else if (c == 'n') {
-	    dryrun |= FS_DRYRUN_DELETE | FS_DRYRUN_RESOURCES | FS_DRYRUN_QUADS;
-	} else if (c == 'R') {
-	    dryrun |= FS_DRYRUN_RESOURCES;
-	} else if (c == 'Q') {
-	    dryrun |= FS_DRYRUN_QUADS;
+            dryrun |= FS_DRYRUN_DELETE | FS_DRYRUN_RESOURCES | FS_DRYRUN_QUADS;
+        } else if (c == 'R') {
+            dryrun |= FS_DRYRUN_RESOURCES;
+        } else if (c == 'Q') {
+            dryrun |= FS_DRYRUN_QUADS;
         } else if (c == 'f') {
             format = optarg;
         } else if (c == 'h') {
-	    help = 1;
+            help = 1;
             help_return = 0;
         } else if (c == 'V') {
             printf("%s, built for 4store %s\n", argv[0], GIT_REV);
             exit(0);
         } else {
-	    help = 1;
+            help = 1;
         }
     }
 

@@ -72,7 +72,7 @@ if ($pid = fork()) {
 			$errout = "";
 		}
 		print("[....] $t\r");
-		my $ret = system("FORMAT=ascii LANG=C LC_ALL=C TESTPATH=../../src scripts/$t $kb_name > $outdir/$t $errout");
+		my $ret = system("FORMAT=ascii LANG=C LC_ALL=C TESTPATH=../../src CONF='--config-file ../tests_4store.conf' scripts/$t $kb_name > $outdir/$t $errout");
 		if ($ret == 2) {
 			exit(2);
 		}

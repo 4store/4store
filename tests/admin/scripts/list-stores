@@ -1,0 +1,20 @@
+#!/bin/bash
+
+source vars.sh
+
+$FS_BACKEND_SETUP 4s_admin_test_kb2
+$FS_BACKEND_SETUP 4s_admin_test_kb3
+$FS_BACKEND -D 4s_admin_test_kb2 &
+PID=$!
+sleep 1
+kill -15 $PID
+wait $PID
+
+CMD="$FS_ADMIN --config-file $FS_CONF list-stores"
+
+OUTPUT=`$CMD | perl -ne 'next unless /^(?:4s_admin_test_kb|store_name)/;@a=split(/\s+/, $_, 2);printf("%-17s %s", $a[0], $a[1])'`
+EXITSTATUS=${PIPESTATUS[0]}
+
+echo "$OUTPUT"
+echo "Exit status: $EXITSTATUS"
+

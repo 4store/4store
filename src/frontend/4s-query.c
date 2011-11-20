@@ -58,7 +58,7 @@ int main(int argc, char *argv[])
 {
     char *password = fsp_argv_password(&argc, argv);
 
-    static char *optstring = "hevf:PO:Ib:rs:d";
+    static char *optstring = "hevf:PO:Ib:rs:dc:";
     char *format = getenv("FORMAT");
     char *kb_name = NULL, *query = NULL;
     int programatic = 0, help = 0;
@@ -86,6 +86,7 @@ int main(int argc, char *argv[])
         { "soft-limit", 1, 0, 's' },
         { "default-graph", 0, 0, 'd' },
         { "base", 1, 0, 'b' },
+        { "config-file", 1, 0, 'c' },
         { 0, 0, 0, 0 }
     };
 
@@ -110,6 +111,8 @@ int main(int argc, char *argv[])
             default_graph = 1;
         } else if (c == 'b') {
             base_uri = optarg;
+        } else if (c == 'c') {
+            fs_set_config_file(optarg);
         } else if (c == 'h') {
             help = 1;
             help_return = 0;
@@ -150,6 +153,7 @@ int main(int argc, char *argv[])
       fprintf(stdout, " -s, --soft-limit  Override default soft limit on search breadth\n");
       fprintf(stdout, " -d, --default-graph  Enable SPARQL default graph support\n");
       fprintf(stdout, " -b, --base      Set base URI for query\n");
+      fprintf(stdout, " -c, --config-file  Path and filename of configuration file to use\n");
       fprintf(stdout, " -e, --explain   Show explain results for execution plan\n");
 
       exit(help_return);

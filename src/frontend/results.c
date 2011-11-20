@@ -557,7 +557,7 @@ fs_value fs_expression_eval(fs_query *q, int row, int block, rasqal_expression *
     case RASQAL_EXPR_IN: {
         fs_value comp = fs_expression_eval(q, row, block, e->arg1);
         for (int i=0; i < raptor_sequence_size(e->args); i++) {
-            fs_value v = fs_expression_eval(q, q->group_rows[row], block, raptor_sequence_get_at(e->args, i));
+            fs_value v = fs_expression_eval(q, row, block, raptor_sequence_get_at(e->args, i));
             if (fs_value_equal(comp, v)) {
                 return fs_value_boolean(e->op == RASQAL_EXPR_IN ? 1 : 0);
             }
@@ -1866,7 +1866,7 @@ static void output_text(fs_query *q, int flags, FILE *out)
 
     if (flags & FS_RESULT_FLAG_HEADERS) {
 	if (q->construct) {
-	    fprintf(out, "Content-Type: text/rdf+n3; charset=utf-8\r\n\r\n");
+	    fprintf(out, "Content-Type: text/turtle; charset=utf-8\r\n\r\n");
 	} else {
 	    fprintf(out, "Content-Type: text/tab-separated-values; charset=utf-8\r\n\r\n");
 	}
@@ -1993,7 +1993,7 @@ static void output_csv(fs_query *q, int flags, FILE *out)
 
     if (flags & FS_RESULT_FLAG_HEADERS) {
 	if (q->construct) {
-	    fprintf(out, "Content-Type: text/rdf+n3; charset=utf-8\r\n\r\n");
+	    fprintf(out, "Content-Type: text/turtle; charset=utf-8\r\n\r\n");
 	} else {
 	    fprintf(out, "Content-Type: text/csv; charset=utf-8; header=present\r\n\r\n");
 	}
@@ -2098,7 +2098,7 @@ static void output_json(fs_query *q, int flags, FILE *out)
 
     if (flags & FS_RESULT_FLAG_HEADERS) {
 	if (q->construct) {
-	    fprintf(out, "Content-Type: text/turtle\r\n\r\n");
+	    fprintf(out, "Content-Type: text/turtle; charset=utf-8\r\n\r\n");
 	} else {
 	    fprintf(out, "Content-Type: application/sparql-results+json\r\n\r\n");
 	}
@@ -2255,7 +2255,7 @@ static void output_testcase(fs_query *q, int flags, FILE *out)
     }
 
     if (flags & FS_RESULT_FLAG_HEADERS) {
-	fprintf(out, "Content-Type: application/x-turtle\r\n\r\n");
+	fprintf(out, "Content-Type: text/turtle; charset=utf-8\r\n\r\n");
     }
     fprintf(out, "@prefix rs: <http://www.w3.org/2001/sw/DataAccess/tests/result-set#> .\n");
     fprintf(out, "@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .\n");
@@ -2566,8 +2566,8 @@ nextrow: ;
     }
 
     int repeat_row = 1;
+    fs_value **values = NULL;
     for (int i=0; i<q->num_vars; i++) {
-        fs_value **values;
         if (q->agg_values && i == 0)
             values = malloc(q->num_vars * sizeof(fs_value *));
         fs_rid last_rid = q->resrow[i].rid;
