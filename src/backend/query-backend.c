@@ -181,15 +181,18 @@ fs_rid_vector **fs_bind(fs_backend *be, fs_segment segment, unsigned int tobind,
 	}
     }
 
+    if (!(tobind & FS_BIND_BY_SUBJECT && fs_rid_vector_length(pv) > 1 && fs_rid_vector_length(sv) > 0 &&
+        (!(fs_rid_vector_length(pv) > 1) || (fs_rid_vector_length(sv) == fs_rid_vector_length(pv))))) {
+        fs_rid_vector_sort(sv);
+        fs_rid_vector_uniq(sv, 0);
+        fs_rid_vector_sort(pv);
+        fs_rid_vector_uniq(pv, 0);
+    }
     fs_rid_vector_sort(mv);
     fs_rid_vector_uniq(mv, 0);
-    fs_rid_vector_sort(sv);
-    fs_rid_vector_uniq(sv, 0);
-    fs_rid_vector_sort(pv);
-    fs_rid_vector_uniq(pv, 0);
     fs_rid_vector_sort(ov);
     fs_rid_vector_uniq(ov, 0);
-    
+
     fs_rid_vector **ret;
     if (cols == 0) {
 	ret = calloc(1, sizeof(fs_rid_vector *));
@@ -368,7 +371,8 @@ fs_error(LOG_INFO, "bind() branch");
 	    }
 	}
     /* query like (_ s p _) */
-    } else if (tobind & FS_BIND_BY_SUBJECT && fs_rid_vector_length(pv) > 0 && fs_rid_vector_length(sv) > 0) {
+    } else if (tobind & FS_BIND_BY_SUBJECT && fs_rid_vector_length(pv) > 0 && fs_rid_vector_length(sv) > 0 
+               && (!(fs_rid_vector_length(pv) > 1) || (fs_rid_vector_length(sv) == fs_rid_vector_length(pv)))) {
 	if (fs_rid_vector_length(pv) == 1) {
 #ifdef DEBUG_BRANCH
 fs_error(LOG_INFO, "bind() branch");
