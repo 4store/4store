@@ -1551,13 +1551,8 @@ int fsp_bind_limit_many (fsp_link *link,
         content += srids->length * 8;
         memcpy(content, prids->data, prids->length * 8);
         content += prids->length * 8;
-
-        for (int k = 0; k < orids->length; ++k) {
-          if (FS_RID_SEGMENT(orids->data[k], link->segments) == segment) {
-            memcpy(content, orids->data + k, 8);
-            content += 8;
-          }
-        }
+        memcpy(content, orids->data, orids->length * 8);
+        content += orids->length * 8;
 
         sock[segment] = fsp_write(link, out, length);
         free(out);
