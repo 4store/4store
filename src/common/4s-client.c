@@ -1508,27 +1508,17 @@ int fsp_bind_limit_many (fsp_link *link,
     }
   case FS_BIND_BY_OBJECT:
     {
-      unsigned int shared = mrids->length + srids->length + prids->length;
+      unsigned int shared = mrids->length + srids->length + prids->length + orids->length;
       unsigned int objects[link->segments];
 
       if (orids->length == 0) {
         link_error(LOG_WARNING, "bind_many passed BIND_BY_OBJECT with no objects");
       }
-      for (segment = 0; segment < link->segments; ++segment) {
-        objects[segment] = 0;
-      }
-      for (int k = 0; k < orids->length; ++k) {
-        objects[FS_RID_SEGMENT(orids->data[k], link->segments)]++;
-      }
 
       for (segment = 0; segment < link->segments; ++segment) {
-        unsigned int value, length = 32 + (objects[segment] + shared) * 8;
+        unsigned int value, length = 32 + (shared * 8);
         unsigned char *content, *out;
 
-        if (objects[segment] == 0) {
-          sock[segment] = -1;
-          continue;
-        }
         out = message_new(FS_BIND_LIMIT, segment, length);
         content = out + FS_HEADER;
 
