@@ -6,7 +6,7 @@ noinst_HEADERS = debug.h decimal.h filter-datatypes.h filter.h import.h optimise
 
 # PROFILE = -pg
 AM_CFLAGS = -std=gnu99 -fno-strict-aliasing -Wall $(PROFILE) -g -O2 -I./ -I../ -DGIT_REV=@GIT_REV@ @GLIB_CFLAGS@ @RAPTOR_CFLAGS@ @RASQAL_CFLAGS@ @LIBXML_CFLAGS@ `pcre-config --cflags`
-LIBS = $(PROFILE) -lreadline @GLIB_LIBS@ `pcre-config --libs`
+LIBS = $(PROFILE) -lncurses -lreadline @GLIB_LIBS@ `pcre-config --libs`
 
 test: all filter-test
 	@echo 'FILTER tests'
