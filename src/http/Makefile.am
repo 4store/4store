@@ -6,7 +6,7 @@ FRONTEND = ../frontend/query-cache.o ../frontend/query-datatypes.o ../frontend/q
 
 # PROFILE = -pg
 AM_CFLAGS = -std=gnu99 -Wall $(PROFILE) -g -O2 -I./ -I../ -DGIT_REV=@GIT_REV@ @RASQAL_CFLAGS@ @RAPTOR_CFLAGS@ @GLIB_CFLAGS@ @LIBXML_CFLAGS@ @GTHREAD_CFLAGS@ @MDNS_CFLAGS@ `pcre-config --cflags`
-AM_LDFLAGS = $(PROFILE) @RASQAL_LIBS@ @RAPTOR_LIBS@ @GLIB_LIBS@ @LIBXML_LIBS@ @GTHREAD_LIBS@ @MDNS_LIBS@ `pcre-config --libs`
+LIBS = $(PROFILE) @RASQAL_LIBS@ @RAPTOR_LIBS@ @GLIB_LIBS@ @LIBXML_LIBS@ @GTHREAD_LIBS@ @MDNS_LIBS@ `pcre-config --libs`
 
 4s_httpd_SOURCES = httpd.c ../common/gnu-options.c
 4s_httpd_LDADD = ../common/lib4sintl.a $(FRONTEND) ../common/libsort.a ../libs/stemmer/libstemmer.a ../libs/double-metaphone/libdouble_metaphone.a ../libs/mt19937-64/libmt64.a
