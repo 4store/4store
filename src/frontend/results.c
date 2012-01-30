@@ -1600,18 +1600,23 @@ static void handle_describe(fs_query *q, const char *type, FILE *output)
     }
 
     fs_row *row;
+    fs_rid_set *described_uris = fs_rid_set_new();
     while ((row = fs_query_fetch_row(q))) {
         for (int i=0; i<vars->length; i++) {
-            raptor_term *dterm = slot_fill(q, vars->data[i], row);
-            /* can only describe URIs or bNodes */
-            if (dterm->type == RAPTOR_TERM_TYPE_URI) {
-                describe_uri(q, row[i].rid, dterm->value.uri);
-            } else if (dterm->type == RAPTOR_TERM_TYPE_BLANK) {
-                describe_uri(q, row[i].rid, NULL);
+            if (!fs_rid_set_contains(described_uris, row[i].rid)) {
+                raptor_term *dterm = slot_fill(q, vars->data[i], row);
+                /* can only describe URIs or bNodes */
+                if (dterm->type == RAPTOR_TERM_TYPE_URI) {
+                    describe_uri(q, row[i].rid, dterm->value.uri);
+                } else if (dterm->type == RAPTOR_TERM_TYPE_BLANK) {
+                    describe_uri(q, row[i].rid, NULL);
+                }
+                fs_rid_set_add(described_uris, row[i].rid);
+                raptor_free_term(dterm);
             }
-            raptor_free_term(dterm);
         }
     }
+    fs_rid_set_free(described_uris);
     raptor_serializer_serialize_end(q->ser);
     raptor_free_serializer(q->ser);
     g_static_mutex_unlock(&rasqal_mutex);
