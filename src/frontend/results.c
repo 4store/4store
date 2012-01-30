@@ -1453,6 +1453,19 @@ static char *json_escape(const char *str, int length)
     return to;
 }
 
+static int is_xml_restricted(int c) {
+    /* RestrictedSet from http://www.w3.org/TR/xml11/#charsets */
+    if ((c >= 0x01 && c <= 0x08) ||
+        (c >= 0x0b && c <= 0x0c) ||
+        (c >= 0x0e && c <= 0x1f) ||
+        (c >= 0x7f && c <= 0x84) ||
+        (c >= 0x86 && c <= 0x9f)) {
+        return 1;
+    }
+
+    return 0;
+}
+
 static int xml_needs_escape(const char *str, int *escaped_length)
 {
     int esc_len = 0;
@@ -1461,22 +1474,19 @@ static int xml_needs_escape(const char *str, int *escaped_length)
     if (!str) return 0;
 
     for (const char *c = str; *c; c++) {
-	switch (*c) {
-	    case '<':
-		esc_len += 4;
-		escape = 1;
-		break;
-	    case '>':
-		esc_len += 4;
-		escape = 1;
-		break;
-	    case '&':
-		esc_len += 5;
-		escape = 1;
-		break;
-	    default:
-		esc_len++;
-		break;
+	if (*c == '<') {
+            esc_len += 4;
+            escape = 1;
+        } else if (*c == '>') {
+            esc_len += 4;
+            escape = 1;
+        } else if (*c == '&') {
+            esc_len += 5;
+            escape = 1;
+        } else if (is_xml_restricted(*c)) {
+            escape = 1;
+        } else {
+            esc_len++;
 	}
     }
 
@@ -1491,22 +1501,19 @@ static char *xml_escape(const char *from, int len)
     char *outp = to;
 
     for (const char *inp = from; *inp; inp++) {
-	switch (*inp) {
-	    case '<':
-		strcpy(outp, "&lt;");
-		outp += 4;
-		break;
-	    case '>':
-		strcpy(outp, "&gt;");
-		outp += 4;
-		break;
-	    case '&':
-		strcpy(outp, "&amp;");
-		outp += 5;
-		break;
-	    default:
-		*outp++ = *inp;
-		break;
+	if (*inp == '<') {
+            strcpy(outp, "&lt;");
+            outp += 4;
+        } else if (*inp == '>') {
+            strcpy(outp, "&gt;");
+            outp += 4;
+        } else if (*inp == '&') {
+            strcpy(outp, "&amp;");
+            outp += 5;
+        } else if (is_xml_restricted(*inp)) {
+            /* skip, these aren't legal in XML */
+        } else {
+            *outp++ = *inp;
 	}
     }
 

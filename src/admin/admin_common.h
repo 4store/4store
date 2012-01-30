@@ -122,8 +122,6 @@ typedef struct _fsa_kb_response {
 /* KB info creation + debugging functions */
 fsa_kb_info *fsa_kb_info_new();
 void fsa_kb_info_free(fsa_kb_info *ki);
-void fsa_kb_info_print(const fsa_kb_info *ki);
-void fsa_kb_info_print_all(const fsa_kb_info *ki);
 char *fsa_kb_info_status_to_string(int status);
 
 /* Storage node info  */
