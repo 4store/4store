@@ -336,55 +336,6 @@ char *fsa_kb_info_status_to_string(int status)
     }
 }
 
-/* used for debugging only */
-void fsa_kb_info_print(const fsa_kb_info *ki)
-{
-    if (ki == NULL) {
-        printf("kb_info is null\n");
-        return;
-    }
-
-    printf("name: %s\n", ki->name);
-    printf("status: %s\n", fsa_kb_info_status_to_string(ki->status));
-    if (ki->ipaddr != NULL) {
-        printf("ipaddr: %s\n", ki->ipaddr);
-    }
-    else {
-        printf("host: unknown\n");
-    }
-
-    if (ki->status == KB_STATUS_RUNNING) {
-        printf("pid: %d\n", ki->pid);
-        printf("port: %d\n", ki->port);
-    }
-
-    if (ki->num_segments > -1) {
-        printf("num_segments: %d\n", ki->num_segments);
-    }
-    else {
-        printf("num_segments: unknown\n");
-    }
-
-    if (ki->p_segments_len > 0) {
-        printf("segments:");
-        for (int i = 0; i < ki->p_segments_len; i++) {
-            printf(" %d", ki->p_segments_data[i]);
-        }
-        printf("\n");
-    }
-}
-
-/* used for debugging only */
-void fsa_kb_info_print_all(const fsa_kb_info *ki)
-{
-    const fsa_kb_info *cur = ki;
-    while (cur != NULL) {
-        fsa_kb_info_print(cur);
-        printf("\n");
-        cur = cur->next;
-    }
-}
-
 /* fetch header packet from client/server socket */
 int fsa_fetch_header(int sock_fd, unsigned char *buf)
 {
