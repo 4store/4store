@@ -476,14 +476,10 @@ fs_rid fs_hash_rasqal_literal(struct update_context *uc, rasqal_literal *l, int 
 
     rasqal_literal_type type = rasqal_literal_get_rdf_term_type(l);
     switch (type) {
-    case RASQAL_LITERAL_UNKNOWN:
-        fs_error(LOG_ERR, "unknown literal type received");
-
-        return FS_RID_NULL;
-
     case RASQAL_LITERAL_URI:
-	return fs_hash_uri((char *)raptor_uri_as_string(l->value.uri));
-
+        return fs_hash_uri((char *)raptor_uri_as_string(l->value.uri));
+    
+    case RASQAL_LITERAL_UNKNOWN:
     case RASQAL_LITERAL_STRING:
     case RASQAL_LITERAL_XSD_STRING: {
         fs_rid attr = 0;
