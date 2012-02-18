@@ -145,7 +145,6 @@ echo "$OUTPUT"
 echo "Exit status: $EXITSTATUS"
 echo
 
-# TODO: test other options
 ARGS="delete-stores 4s_admin_test_kb2 4s_admin_test_kb3 4s_admin_test_kb4"
 CMD="$FS_ADMIN --config-file $FS_CONF $ARGS"
 OUTPUT=`$CMD`
