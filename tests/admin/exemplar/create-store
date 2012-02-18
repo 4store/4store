@@ -47,7 +47,7 @@ node_number store_status
 0           created
 Exit status: 0
 
-args: create-store --force 4s_admin_test_kb4 --segments=16
+args: create-store --force --segments=16 4s_admin_test_kb4
 Checking cluster status:
 node_number hostname    status
 0           localhost   ok
@@ -56,23 +56,23 @@ node_number store_status
 0           created
 Exit status: 0
 
-args: create-store --force 4s_admin_test_kb4 --segments=1
+args: create-store --force --segments=1 4s_admin_test_kb4
 
 Exit status: 1
 
-args: create-store --force 4s_admin_test_kb4 --segments=20000
+args: create-store --force --segments=20000 4s_admin_test_kb4
 
 Exit status: 1
 
-args: create-store --force 4s_admin_test_kb4 --segments=13
+args: create-store --force --segments=13 4s_admin_test_kb4
 
 Exit status: 1
 
-args: create-store --force 4s_admin_test_kb4 --segments=bob
+args: create-store --force --segments=bob 4s_admin_test_kb4
 
 Exit status: 1
 
-args: create-store --force 4s_admin_test_kb4 --model-files --mirror --password=foobar
+args: create-store --force --model-files --mirror --password=foobar 4s_admin_test_kb4
 Checking cluster status:
 node_number hostname    status
 0           localhost   ok
@@ -81,7 +81,7 @@ node_number store_status
 0           created
 Exit status: 0
 
-args: create-store --force 4s_admin_test_kb4 --nodes=0
+args: create-store --force --nodes=0 4s_admin_test_kb4
 Checking cluster status:
 node_number hostname    status
 0           localhost   ok
@@ -90,13 +90,18 @@ node_number store_status
 0           created
 Exit status: 0
 
-args: create-store --force 4s_admin_test_kb4 --nodes=0,1,2,3,4,5,6,7,8
+args: create-store --force --nodes=0,1,2,3,4,5,6,7,8 4s_admin_test_kb4
 
 Exit status: 1
 
-args: create-store --force 4s_admin_test_kb4 --nodes=bob
+args: create-store --force --nodes=bob 4s_admin_test_kb4
+Checking cluster status:
+node_number hostname    status
+0           localhost   ok
 
-Exit status: 1
+node_number store_status
+0           created
+Exit status: 0
 
 args: delete-stores 4s_admin_test_kb2 4s_admin_test_kb3 4s_admin_test_kb4
 Checking cluster status:
