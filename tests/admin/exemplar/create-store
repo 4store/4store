@@ -1,0 +1,111 @@
+args: create-store 4s_admin_test_kb4
+Checking cluster status:
+node_number hostname    status
+0           localhost   ok
+
+node_number store_status
+0           created
+Exit status: 0
+
+args: create-store 4s_admin_test_kb4
+Checking cluster status:
+node_number hostname    status
+0           localhost   ok
+
+node_number store_status
+Store creation aborted.
+Exit status: 1
+
+args: create-store 4s_admin_test_kb2
+Checking cluster status:
+node_number hostname    status
+0           localhost   ok
+
+node_number store_status
+Store creation aborted.
+Exit status: 1
+
+args: create-store 4s_admin_test_kb3
+Checking cluster status:
+node_number hostname    status
+0           localhost   ok
+
+node_number store_status
+Store creation aborted.
+Exit status: 1
+
+args: create-store invalid-store
+
+Exit status: 1
+
+args: create-store --force 4s_admin_test_kb4
+Checking cluster status:
+node_number hostname    status
+0           localhost   ok
+
+node_number store_status
+0           created
+Exit status: 0
+
+args: create-store --force 4s_admin_test_kb4 --segments=16
+Checking cluster status:
+node_number hostname    status
+0           localhost   ok
+
+node_number store_status
+0           created
+Exit status: 0
+
+args: create-store --force 4s_admin_test_kb4 --segments=1
+
+Exit status: 1
+
+args: create-store --force 4s_admin_test_kb4 --segments=20000
+
+Exit status: 1
+
+args: create-store --force 4s_admin_test_kb4 --segments=13
+
+Exit status: 1
+
+args: create-store --force 4s_admin_test_kb4 --segments=bob
+
+Exit status: 1
+
+args: create-store --force 4s_admin_test_kb4 --model-files --mirror --password=foobar
+Checking cluster status:
+node_number hostname    status
+0           localhost   ok
+
+node_number store_status
+0           created
+Exit status: 0
+
+args: create-store --force 4s_admin_test_kb4 --nodes=0
+Checking cluster status:
+node_number hostname    status
+0           localhost   ok
+
+node_number store_status
+0           created
+Exit status: 0
+
+args: create-store --force 4s_admin_test_kb4 --nodes=0,1,2,3,4,5,6,7,8
+
+Exit status: 1
+
+args: create-store --force 4s_admin_test_kb4 --nodes=bob
+
+Exit status: 1
+
+args: delete-stores 4s_admin_test_kb2 4s_admin_test_kb3 4s_admin_test_kb4
+Checking cluster status:
+node_number hostname  status
+0           localhost ok
+
+store_name        store_status
+4s_admin_test_kb2 deleted
+4s_admin_test_kb3 deleted
+4s_admin_test_kb4 deleted
+Exit status: 0
+
