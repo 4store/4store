@@ -25,6 +25,10 @@
 
 #include "admin_protocol.h"
 
+#define FSAP_KSA_MIRROR             1<<0
+#define FSAP_KSA_MODEL_FILES        1<<1
+#define FSAP_KSA_DELETE_EXISTING    1<<2
+
 /* returns empty packet with headers set */
 static unsigned char *init_packet(int cmd, int len)
 {
@@ -533,6 +537,172 @@ unsigned char *fsap_encode_rsp_delete_kb(int retval,
 }
 
 fsa_kb_response *fsap_decode_rsp_delete_kb(const unsigned char *buf)
+{
+    return decode_kb_response(buf);
+}
+
+unsigned char *fsap_encode_cmd_create_kb(const fsa_kb_setup_args *ksargs,
+                                         int *len)
+{
+    /* caller responsible for ensuring that this never happens */
+    if (ksargs->name == NULL) {
+        return NULL;
+    }
+
+    /* node cluster_sz n_segs flags name_len name passwd_len passwd
+     * 1    1          2      1     1        *    1          *
+     */
+    int data_len = (5 * sizeof(uint8_t)) + sizeof(uint16_t);
+    uint8_t name_len, password_len, flags;
+    uint16_t num_segments;
+    int tmplen;
+
+    /* encode name length into 1 byte */
+    tmplen = strlen((char *)ksargs->name);
+    if (tmplen > 255) {
+        /* too long to encode */
+        return NULL;
+    }
+    name_len = (uint8_t)tmplen;
+
+    /* encode password length into 1 byte */
+    if (ksargs->password == NULL) {
+        password_len = 0;
+    }
+    else {
+        tmplen = strlen((char *)ksargs->password);
+        if (tmplen > 255) {
+            /* too long to encode */
+            return NULL;
+        }
+        password_len = (uint8_t)tmplen;
+    }
+
+    /* variable parts of length are all known by here */
+    data_len += name_len + password_len;
+
+    /* encode mirror segments and model-files options into flags byte */
+    flags = 0;
+    if (ksargs->mirror_segments) {
+        flags |= FSAP_KSA_MIRROR;
+    }
+
+    if (ksargs->model_files) {
+        flags |= FSAP_KSA_MODEL_FILES;
+    }
+
+    if (ksargs->delete_existing) {
+        flags |= FSAP_KSA_DELETE_EXISTING;
+    }
+
+    /* create and populate packet */
+    unsigned char *buf = init_packet(ADM_CMD_CREATE_KB, data_len);
+    unsigned char *p = buf;
+    p += ADM_HEADER_LEN;
+
+    memcpy(p, &(ksargs->node_id), sizeof(uint8_t));
+    p += sizeof(uint8_t);
+
+    memcpy(p, &(ksargs->cluster_size), sizeof(uint8_t));
+    p += sizeof(uint8_t);
+
+    memcpy(p, &(ksargs->num_segments), sizeof(uint16_t));
+    p += sizeof(uint16_t);
+
+    memcpy(p, &flags, sizeof(uint8_t));
+    p += sizeof(uint8_t);
+
+    memcpy(p, &name_len, sizeof(uint8_t));
+    p += sizeof(uint8_t);
+
+    memcpy(p, ksargs->name, name_len);
+    p += name_len;
+
+    memcpy(p, &password_len, sizeof(uint8_t));
+    p += sizeof(uint8_t);
+
+    if (password_len > 0) {
+        memcpy(p, ksargs->password, password_len);
+        p += password_len;
+    }
+
+    *len = ADM_HEADER_LEN + data_len;
+    return buf;
+}
+
+fsa_kb_setup_args *fsap_decode_cmd_create_kb(const unsigned char *buf)
+{
+    fsa_kb_setup_args *ksargs = fsa_kb_setup_args_new();
+    unsigned char *p = buf;
+
+    memcpy(&(ksargs->node_id), p, sizeof(uint8_t));
+    p += sizeof(uint8_t);
+
+    memcpy(&(ksargs->cluster_size), p, sizeof(uint8_t));
+    p += sizeof(uint8_t);
+
+    memcpy(&(ksargs->num_segments), p, sizeof(uint16_t));
+    p += sizeof(uint16_t);
+
+    uint8_t flags;
+    memcpy(&flags, p, sizeof(uint8_t));
+    p += sizeof(uint8_t);
+
+    if (flags & FSAP_KSA_MIRROR) {
+        ksargs->mirror_segments = 1;
+    }
+    else {
+        ksargs->mirror_segments = 0;
+    }
+
+    if (flags & FSAP_KSA_MODEL_FILES) {
+        ksargs->model_files = 1;
+    }
+    else {
+        ksargs->model_files = 0;
+    }
+
+    if (flags & FSAP_KSA_DELETE_EXISTING) {
+        ksargs->delete_existing = 1;
+    }
+    else {
+        ksargs->delete_existing = 0;
+    }
+
+    uint8_t name_len;
+    memcpy(&name_len, p, sizeof(uint8_t));
+    p += sizeof(uint8_t);
+
+    if (name_len > 0) {
+        ksargs->name = (unsigned char *)malloc(name_len + 1);
+        memcpy(ksargs->name, p, name_len);
+        ksargs->name[name_len] = '\0';
+        p += name_len;
+    }
+
+    uint8_t password_len;
+    memcpy(&password_len, p, sizeof(uint8_t));
+    p += sizeof(uint8_t);
+
+    if (password_len > 0) {
+        ksargs->password = (unsigned char *)malloc(password_len + 1);
+        memcpy(ksargs->password, p, password_len);
+        ksargs->password[password_len] = '\0';
+        p += password_len;
+    }
+
+    return ksargs;
+}
+
+unsigned char *fsap_encode_rsp_create_kb(int retval,
+                                         const unsigned char *kb_name,
+                                         const unsigned char *msg,
+                                         int *len)
+{
+    return encode_kb_response(ADM_RSP_CREATE_KB, retval, kb_name, msg, len);
+}
+
+fsa_kb_response *fsap_decode_rsp_create_kb(const unsigned char *buf)
 {
     return decode_kb_response(buf);
 }

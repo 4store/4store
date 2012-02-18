@@ -54,4 +54,14 @@ unsigned char *fsap_encode_rsp_delete_kb(int retval,
                                          int *len);
 fsa_kb_response *fsap_decode_rsp_delete_kb(const unsigned char *buf);
 
+/* create kb */
+unsigned char *fsap_encode_cmd_create_kb(const fsa_kb_setup_args *ksargs,
+                                         int *len);
+fsa_kb_setup_args *fsap_decode_cmd_create_kb(const unsigned char *buf);
+unsigned char *fsap_encode_rsp_create_kb(int retval,
+                                         const unsigned char *kb_name,
+                                         const unsigned char *msg,
+                                         int *len);
+fsa_kb_response *fsap_decode_rsp_create_kb(const unsigned char *buf);
+
 #endif

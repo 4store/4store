@@ -10,5 +10,7 @@ int fsab_start_local_kb(const unsigned char *kb_name, int *exit_val,
                         unsigned char **output, int *err);
 int fsab_delete_local_kb(const unsigned char *kb_name, int *exit_val,
                          unsigned char **output, int *err);
+int fsab_create_local_kb(const fsa_kb_setup_args *ksargs, int *exit_val,
+                         unsigned char **output, int *err);
 
 #endif
