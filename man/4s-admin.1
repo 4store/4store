@@ -26,6 +26,10 @@ stop-stores
 delete-stores
 .Ar store_name Li ...
 .Nm
+create-store
+.Op Ar create_options Li ...
+.Ar store_name
+.Nm
 .Op Fl \-version
 .Op Fl \-help
 .Sh DESCRIPTION
@@ -104,10 +108,45 @@ Accepts a space separated list of stores to delete as arguments.
 .Pp
 Establishes a connection to all nodes of the cluster, stops a store if it is
 running, then deletes that store.
+.Ss Command: create-store
+Creates a new store on one or more cluster nodes.
+.Pp
+options:
+.Bl -tag -width Ds
+.It Fl \-nodes Ar node_id_list
+Comma separated list of numerical node numbers to create the store on.
+Default is all nodes.
+Use
+.Nm
+.Sy list-nodes
+for a list of available nodes.
+.It Fl \-segments Ar num_segments
+Total number of segments to be split across all nodes, must be a power of 2.
+Default is 2 per node (rounded to nearest power of 2).
+.It Fl m, \-mirror
+Enable mirroring of segments.
+.It Fl \-password Ar password
+Set a password for authentication.
+.It Fl \-model-files
+Use a file per model, useful for large models.
+.It Fl \-force
+If a store with the same name already exists, delete it and recreate.
+.El
+.Pp
+All of the above are optional, and the only required argument is the name of
+the store to create.
+.Pp
+Each node is asked in turn to create the store.
+If any of the nodes fail to create a store, store creation is aborted, and
+any segments already created will be deleted.
+.Pp
+.Pp
+Existing stores won't be deleted unless the Fl \-force option is given.
+
 .Ss Configuration file options
 .Bl -tag -width Ds
 .It Sy nodes = <node_list>
-Semicolon separated list of hosts in the cluster. 
+Semicolon separated list of hosts in the cluster.
 .El
 .Pp
 Options for
@@ -159,6 +198,10 @@ and
 .Qq kb3 :
 .Pp
 .Dl $ 4s-admin delete-stores kb1 kb2 kb3
+.Pp
+Create store with 32 segments on 1st and 3rd nodes of cluster:
+.Pp
+.Dl $ 4s-admin create-store --nodes=0,2 --segments=32 kb1
 .Sh SEE ALSO
 .Xr 4store.conf 5 ,
 .Xr 4s-boss 8
