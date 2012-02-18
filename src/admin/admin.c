@@ -507,6 +507,7 @@ static int handle_create_store_opts(fsa_kb_setup_args *ksargs,
         char *cur = nodes_arg; /* point to start of string */
 
         while (cur != NULL && cur != '\0') {
+            errno = 0;
             int node_num = (int)strtol(cur, (char **)NULL, 10);
             if (node_num == 0 && errno != 0) {
                 fsa_error(LOG_ERR, "Invalid node number: %s\n", cur);
