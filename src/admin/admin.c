@@ -510,7 +510,7 @@ static int handle_create_store_opts(fsa_kb_setup_args *ksargs,
         for (int i = 0; i < strlen(nodes_arg); i++) {
             if (nodes_arg[i] != ','
                 && (nodes_arg[i] < '0' || nodes_arg[i] > '9')) {
-                fsa_error(LOG_ERR, "Invalid node number: %s\n", cur);
+                fsa_error(LOG_ERR, "Invalid nodes argument: %s\n", nodes_arg);
                 return 1;
             }
         }
