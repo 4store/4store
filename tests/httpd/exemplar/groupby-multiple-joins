@@ -1,0 +1,21 @@
+201 imported successfully
+This is a 4store SPARQL server [VERSION]
+Query: 
+PREFIX owl: <http://www.w3.org/2002/07/owl#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+SELECT DISTINCT ?child (COUNT(?sub_child) as ?c)
+FROM <http://example.com/group-by.ttl>
+WHERE { 
+       ?child a owl:Class .
+       ?child rdfs:subClassOf <http://foaf.qdos.com/0> .
+       OPTIONAL { ?sub_child rdfs:subClassOf ?child . }
+} GROUP BY ?child ORDER BY ASC(xsd:integer(?c))
+
+?child	?c
+<http://foaf.qdos.com/3>	0
+<http://foaf.qdos.com/2>	1
+<http://foaf.qdos.com/1>	3
+200 deleted successfully
+This is a 4store SPARQL server [VERSION]
