@@ -2489,6 +2489,11 @@ nextrow: ;
         }
         fs_rid_vector *groups = fs_binding_get_vals(q->bt, "_group", NULL);
         fs_rid_vector *ord = q->bt[0].vals;
+        if (q->aggregate && q->length > 0 && fs_rid_vector_length(ord) == 0) {
+            /* fallback position: ord should contain values, but in some cases it does not */
+            fs_binding_sort(q->bt);
+            ord = q->bt[0].vals;
+        }
         if (groups) {
             nextgroup: ;
             q->group_by = 1;
