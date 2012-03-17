@@ -1,11 +1,11 @@
 #!/bin/bash
 
-if [ $1 == '--help' ] ; then
+if [ "$1" = '--help' ] ; then
   echo "Usage: $0 <kbname> [--password password]"
   exit
 fi
 
-if [ $1 == '--version' ] ; then
+if [ "$1" = '--version' ] ; then
   4s-backend --version | sed 's/4s-backend/'`basename $0`'/'
   exit
 fi

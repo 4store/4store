@@ -1,16 +1,16 @@
 #!/bin/bash
 
-if [ $1 == '--help' ] ; then
+if [ "$1" = '--help' ] ; then
   echo "Usage: $0 <remote command>"
   exit
 fi
 
-if [ $1 == '--version' ] ; then
+if [ "$1" = '--version' ] ; then
   4s-backend --version | sed 's/4s-backend/'`basename $0`'/'
   exit
 fi
 
-if [ $# == 0 ] ; then
+if (($# == 0)) ; then
   echo "Usage: 4s-ssh-all-parallel <remote command>"
   echo "remember to quote shell metacharacters"
   exit;
