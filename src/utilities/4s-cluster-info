@@ -5,11 +5,11 @@ function usage {
   echo "       $0 <kbname>";
 }
 
-if [ "x$1" = 'x--help' ] ; then
+if [ "$1" = '--help' ] ; then
   usage
   exit
 fi
-if [ "x$1" = 'x--version' ] ; then
+if [ "$1" = '--version' ] ; then
   4s-backend --version | sed 's/4s-backend/'`basename $0`'/'
   exit
 fi
