@@ -523,6 +523,11 @@ fs_query *fs_query_execute(fs_query_state *qs, fsp_link *link, raptor_uri *bu, c
     if (rasqal_query_get_group_condition(rq, 0) ||
         rasqal_query_get_having_condition(rq, 0)) {
         q->aggregate = 1;
+        /* if aggregate then offset must be evaluated in the result generation */
+        if (q->aggregate) {
+            q->offset_aggregate = q->offset;
+            q->offset = 0;
+        }
     }
 #if 0
 // This needs to be be refined so it only applies to queries without FILTERs etc.

@@ -2456,9 +2456,20 @@ nextrow: ;
                fs_value val = fs_expression_eval(q, 0, 0, q->bt[i+1].expression);
                fs_value_to_row(q, val, q->resrow+i);
             }
+
             return q->resrow;
         } else if (q->row >= q->length) {
-         if (q->aggregate_order) {
+           if (q->aggregate_order) {
+                while (q->offset_aggregate > 0) {
+                    q->offset_aggregate--;
+                    q->agg_index++;
+                }
+                if (q->limit >= 0 && q->rows_output >= q->limit) {
+                    if (grows) fs_rid_vector_free(grows);
+                    return NULL;
+                }
+                q->rows_output++;
+
                 if (q->agg_index >= q->agg_rows->len) {
                     fs_free_agg_rows(q->agg_rows,q->num_vars);
                     fs_free_agg_values(q->agg_values,q->num_vars);
@@ -2472,12 +2483,13 @@ nextrow: ;
                  int order_agg = q->ordering[q->agg_index++];
                  fs_row *xx = (fs_row *) g_ptr_array_index(q->agg_rows,order_agg);
                  return xx;
-            }
-            return NULL;
+             }
+             return NULL;
         }
         fs_rid_vector *groups = fs_binding_get_vals(q->bt, "_group", NULL);
         fs_rid_vector *ord = q->bt[0].vals;
         if (groups) {
+            nextgroup: ;
             q->group_by = 1;
 
             next_row--;
@@ -2500,6 +2512,11 @@ nextrow: ;
                         fs_rid_vector_append(grows, ord->data[next_row]);
                     next_row++;
                 }
+                if (q->offset_aggregate > 0 && !q->order) { 
+                    q->offset_aggregate--;
+                    next_row++;
+                    goto nextgroup;
+                }
             } else
                 return NULL;
         } else {
@@ -2515,7 +2532,7 @@ nextrow: ;
     }
 
     const int rows = q->length;
-    if (q->limit >= 0 && q->rows_output >= q->limit) {
+    if (!q->aggregate_order && q->limit >= 0 && q->rows_output >= q->limit) {
         if (grows) fs_rid_vector_free(grows);
         return NULL;
     }
@@ -2549,6 +2566,7 @@ nextrow: ;
                 q->agg_values = g_ptr_array_new();
             }
             q->aggregate_order = 1;
+            q->rows_output = 0;
         }
     } else if (q->ordering) {
         row = q->ordering[q->row];
@@ -2671,7 +2689,8 @@ nextrow: ;
     }
 
     q->row = next_row;
-    q->rows_output++;
+    if (!q->aggregate_order)
+        q->rows_output++;
     if (grows) fs_rid_vector_free(grows);
 
     if (!q->group_by && q->aggregate) {

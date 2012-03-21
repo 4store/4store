@@ -88,6 +88,7 @@ struct _fs_query {
     fs_rid_vector *default_graphs;
     int console;			/* true if the query is being used from a console app */
     int aggregate;			/* true if the query uses aggregates */
+    int offset_aggregate;   /* offset to be evaluated in result generation */
     long group_length;			/* number of rows in the current group */
     uint64_t *group_rows;		/* row numbers of the rows in the current group */
     unsigned char *apply_constraints; /* bit array initialized to 1s, 
