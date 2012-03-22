@@ -1,0 +1,21 @@
+#!/bin/bash
+
+source sparql.sh
+
+put "$EPR" ../../data/group-by.ttl 'text/turtle' 'http://example.com/group-by.ttl'
+
+sparql "$EPR" '
+PREFIX owl: <http://www.w3.org/2002/07/owl#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+SELECT DISTINCT ?child (COUNT(?sub_child) as ?c)
+FROM <http://example.com/group-by.ttl>
+WHERE { 
+       ?child a owl:Class .
+       ?child rdfs:subClassOf <http://foaf.qdos.com/0> .
+       OPTIONAL { ?sub_child rdfs:subClassOf ?child . }
+} GROUP BY ?child ORDER BY DESC(xsd:integer(?c)) LIMIT 2
+'
+
+delete "$EPR" 'http://example.com/group-by.ttl'
