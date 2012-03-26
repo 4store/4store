@@ -2459,6 +2459,7 @@ nextrow: ;
 
             return q->resrow;
         } else if (q->row >= q->length) {
+           returng: ;
            if (q->aggregate_order) {
                 while (q->offset_aggregate > 0) {
                     q->offset_aggregate--;
@@ -2505,7 +2506,6 @@ nextrow: ;
                 }
                 next_row++;
             } while (next_row < q->length && !constrain_group);
-
             if (constrain_group) {
                 while (next_row < q->length && groups->data[ord->data[next_row]] == group) {
                     if (apply_constraints(q,ord->data[next_row]))
@@ -2517,8 +2517,10 @@ nextrow: ;
                     next_row++;
                     goto nextgroup;
                 }
-            } else
-                return NULL;
+            } else {
+                goto returng;
+                //return NULL;
+            }
         } else {
             long len = fs_binding_length(q->bt);
             grows = fs_rid_vector_new(len);
