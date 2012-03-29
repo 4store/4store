@@ -36,7 +36,7 @@
 
 #define TMP_SIZE 512
 
-#define DEBUG_BRANCH 1
+//#define DEBUG_BRANCH 1
 
 static int slot_bits[4] = {
     FS_BIND_MODEL,
