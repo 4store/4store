@@ -1536,9 +1536,13 @@ static void describe_uri(fs_query *q, fs_rid rid, raptor_uri *uri)
     st.graph = NULL;
     fs_rid_vector *es = fs_rid_vector_new(0);
     fs_rid_vector *ss = fs_rid_vector_new_from_args(1, rid);
+    fs_rid_vector *gs = es;
+    if (q->default_graphs) {
+        gs = q->default_graphs;
+    }
     fs_rid_vector **result = NULL;
     fsp_bind_limit(q->link, FS_RID_SEGMENT(rid, q->segments),
-        FS_BIND_BY_SUBJECT | FS_BIND_PREDICATE | FS_BIND_OBJECT, es, ss,
+        FS_BIND_BY_SUBJECT | FS_BIND_PREDICATE | FS_BIND_OBJECT, gs, ss,
         es, es, &result, 0, q->soft_limit);
     fs_rid_vector_free(es);
     fs_rid_vector_free(ss);
