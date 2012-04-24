@@ -554,7 +554,6 @@ unsigned char *fsap_encode_cmd_create_kb(const fsa_kb_setup_args *ksargs,
      */
     int data_len = (5 * sizeof(uint8_t)) + sizeof(uint16_t);
     uint8_t name_len, password_len, flags;
-    uint16_t num_segments;
     int tmplen;
 
     /* encode name length into 1 byte */
@@ -633,7 +632,7 @@ unsigned char *fsap_encode_cmd_create_kb(const fsa_kb_setup_args *ksargs,
 fsa_kb_setup_args *fsap_decode_cmd_create_kb(const unsigned char *buf)
 {
     fsa_kb_setup_args *ksargs = fsa_kb_setup_args_new();
-    unsigned char *p = buf;
+    const unsigned char *p = buf;
 
     memcpy(&(ksargs->node_id), p, sizeof(uint8_t));
     p += sizeof(uint8_t);
