@@ -2,7 +2,7 @@
 
 source sparql.sh
 
-file=`mktemp`;
+file=`mktemp || mktemp /tmp/test-XXXXXX`;
 for i in 0 1 2 3 4 5 6 7 8 9; do
 	for j in a b c d e f g h i j k l m n o p q r s t u v w x y z; do
 		echo "<http://example.com/> <http://example.com/p> \"${i}${j}0\", \"${i}${j}1\", \"${i}${j}2\", \"${i}${j}3\", \"${i}${j}4\", \"${i}${j}5\", \"${i}${j}6\", \"${i}${j}7\", \"${i}${j}8\", \"${i}${j}9\" ." >> $file;
