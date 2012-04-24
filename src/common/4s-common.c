@@ -237,5 +237,5 @@ const char *fs_get_config_file(void)
 
 void fs_set_config_file(const char *config_file)
 {
-    fs_config_file = config_file;
+    fs_config_file = (char *)config_file;
 }
