@@ -338,6 +338,14 @@ fs_value fs_expression_eval(fs_query *q, int row, int block, rasqal_expression *
     case RASQAL_EXPR_SHA512:
         return fs_value_error(FS_ERROR_INVALID_TYPE, "unsupported hash function");
 #endif
+#if RASQAL_VERSION >= 928
+    case RASQAL_EXPR_STRBEFORE:
+        return fn_strbefore(q, fs_expression_eval(q, row, block, e->arg1),
+                               fs_expression_eval(q, row, block, e->arg2));
+    case RASQAL_EXPR_STRAFTER:
+        return fn_strbefore(q, fs_expression_eval(q, row, block, e->arg1),
+                               fs_expression_eval(q, row, block, e->arg2));
+#endif
     case RASQAL_EXPR_AND:
         return fn_logical_and(q, fs_expression_eval(q, row, block, e->arg1),
                                  fs_expression_eval(q, row, block, e->arg2));

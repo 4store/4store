@@ -12,5 +12,9 @@ sparql "$EPR" 'SELECT ?o (SUBSTR(?o, 10, 2) AS ?ss) WHERE { <test:data> <test:bc
 sparql "$EPR" 'SELECT ?o (SUBSTR(?o, 10, 3) AS ?ss) WHERE { <test:data> <test:bcd> ?o } ORDER BY ?o'
 sparql "$EPR" 'SELECT ?o (SUBSTR(?o, 15, 100) AS ?ss) WHERE { <test:data> <test:bcd> ?o } ORDER BY ?o'
 sparql "$EPR" 'SELECT ?o (SUBSTR(?o, 15.4, 2.3) AS ?ss) WHERE { <test:data> <test:bcd> ?o } ORDER BY ?o'
+sparql "$EPR" 'SELECT (STRBEFORE(?s, "789") AS ?be) WHERE { <test:data> <test:bcd> ?s } ORDER BY ?s'
+sparql "$EPR" 'SELECT (STRBEFORE(STRLANG(?s, "en-GB"), "89") AS ?be) WHERE { <test:data> <test:bcd> ?s } ORDER BY ?s'
+sparql "$EPR" 'SELECT (STRAFTER(?s, "789") AS ?be) WHERE { <test:data> <test:bcd> ?s } ORDER BY ?s'
+sparql "$EPR" 'SELECT (STRAFTER(STRLANG(?s, "en-GB"), "89") AS ?be) WHERE { <test:data> <test:bcd> ?s } ORDER BY ?s'
 
 delete "$EPR" 'http://example.com/nasty.ttl'

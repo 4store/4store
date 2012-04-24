@@ -1625,7 +1625,7 @@ fs_value fn_timezone(fs_query *q, fs_value v)
 
 fs_value fn_strstarts(fs_query *q, fs_value arg1, fs_value arg2)
 {
-    if (!fs_is_plain_or_string(arg1) || !fs_is_plain_or_string(arg2)) {
+    if (!fs_arg_compatible(arg1, arg2)) {
         return fs_value_error(FS_ERROR_INVALID_TYPE, NULL);
     }
     arg1 = fs_value_fill_lexical(q, arg1);
@@ -1636,7 +1636,7 @@ fs_value fn_strstarts(fs_query *q, fs_value arg1, fs_value arg2)
 
 fs_value fn_strends(fs_query *q, fs_value arg1, fs_value arg2)
 {
-    if (!fs_is_plain_or_string(arg1) || !fs_is_plain_or_string(arg2)) {
+    if (!fs_arg_compatible(arg1, arg2)) {
         return fs_value_error(FS_ERROR_INVALID_TYPE, NULL);
     }
     arg1 = fs_value_fill_lexical(q, arg1);
@@ -1654,13 +1654,65 @@ fs_value fn_strends(fs_query *q, fs_value arg1, fs_value arg2)
 
 fs_value fn_contains(fs_query *q, fs_value arg1, fs_value arg2)
 {
-    if (!fs_is_plain_or_string(arg1) || !fs_is_plain_or_string(arg2)) {
+    if (!fs_arg_compatible(arg1, arg2)) {
         return fs_value_error(FS_ERROR_INVALID_TYPE, NULL);
     }
     arg1 = fs_value_fill_lexical(q, arg1);
     arg2 = fs_value_fill_lexical(q, arg2);
 
     return fs_value_boolean(strstr(arg1.lex, arg2.lex) != NULL);
+}
+
+fs_value fn_strbefore(fs_query *q, fs_value arg1, fs_value arg2)
+{
+    if (!fs_arg_compatible(arg1, arg2)) {
+        return fs_value_error(FS_ERROR_INVALID_TYPE, NULL);
+    }
+
+    arg1 = fs_value_fill_lexical(q, arg1);
+    arg2 = fs_value_fill_lexical(q, arg2);
+
+    char *pos = strstr(arg1.lex, arg2.lex);
+    if (!pos) {
+        fs_value ret = fs_value_plain("");
+        ret.attr = arg1.attr;
+
+        return ret;
+    }
+
+    char *new = g_strndup(arg1.lex, pos-arg1.lex);
+    fs_query_add_freeable(q, new);
+
+    fs_value ret = fs_value_plain(new);
+    ret.attr = arg1.attr;
+
+    return ret;
+}
+
+fs_value fn_strafter(fs_query *q, fs_value arg1, fs_value arg2)
+{
+    if (!fs_arg_compatible(arg1, arg2)) {
+        return fs_value_error(FS_ERROR_INVALID_TYPE, NULL);
+    }
+
+    arg1 = fs_value_fill_lexical(q, arg1);
+    arg2 = fs_value_fill_lexical(q, arg2);
+
+    char *pos = strstr(arg1.lex, arg2.lex);
+    if (!pos) {
+        fs_value ret = fs_value_plain("");
+        ret.attr = arg1.attr;
+
+        return ret;
+    }
+
+    char *new = g_strdup(pos + strlen(arg2.lex));
+    fs_query_add_freeable(q, new);
+
+    fs_value ret = fs_value_plain(new);
+    ret.attr = arg1.attr;
+
+    return ret;
 }
 
 fs_value fn_rand(fs_query *q)

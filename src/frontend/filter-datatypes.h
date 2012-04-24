@@ -85,6 +85,7 @@ int fs_is_error(fs_value a);
 int fs_is_plain_or_string(fs_value v);
 int fs_value_is_true(fs_value a);
 int fs_value_equal(fs_value a, fs_value b);
+int fs_arg_compatible(fs_value arg1, fs_value arg2);
 
 void fs_value_print(fs_value v);
 

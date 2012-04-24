@@ -382,6 +382,29 @@ int fs_is_plain_or_string(fs_value v)
     return 1;
 }
 
+/* return true if arg1 and arg2 are compatible, as per
+ * http://www.w3.org/TR/sparql11-query/#func-arg-compatibility */
+int fs_arg_compatible(fs_value arg1, fs_value arg2)
+{
+    /* The arguments are simple literals or literals typed as xsd:string */
+    if (fs_is_plain_or_string(arg1) && fs_is_plain_or_string(arg2)) {
+        return 1;
+    }
+
+    /* The arguments are plain literals with identical language tags */
+    if (arg1.attr == arg2.attr && FS_IS_LITERAL(arg1.attr)) {
+        return 1;
+    }
+
+    /* The first argument is a plain literal with language tag and the second
+     * argument is a simple literal or literal typed as xsd:string */
+    if (FS_IS_LITERAL(arg1.attr) && fs_is_plain_or_string(arg2)) {
+        return 1;
+    }
+
+    return 0;
+}
+
 int fs_value_is_true(fs_value a)
 {
     if (a.attr == fs_c.xsd_boolean) {
