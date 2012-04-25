@@ -11,4 +11,6 @@ sparql "$EPR" 'SELECT DISTINCT * WHERE { GRAPH ?G { ?s ?p ?o } } ORDER BY ?s ?p 
 update "$EPR" 'DELETE DATA { <x> <y> <z> }'
 sparql "$EPR" 'SELECT DISTINCT * WHERE { ?s ?p ?o } ORDER BY ?s ?p ?o'
 sparql "$EPR" 'SELECT DISTINCT * WHERE { GRAPH ?G { ?s ?p ?o } } ORDER BY ?s ?p ?o'
+update "$EPR" 'INSERT { GRAPH <c> { ?ns <p> ?s } } WHERE { ?s <b> <c> . ?s <b> ?ns }'
+sparql "$EPR" 'SELECT DISTINCT * WHERE { GRAPH ?G { ?s ?p ?o } } ORDER BY ?s ?p ?o'
 update "$EPR" 'DELETE { ?x ?y ?z } WHERE { ?x ?y ?z }'

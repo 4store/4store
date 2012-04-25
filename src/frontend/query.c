@@ -42,8 +42,6 @@
 #include "../common/error.h"
 #include "../common/rdf-constants.h"
 
-//#define DEBUG_BIND
-
 #define DESC_SIZE 1024
 
 #define DEBUG_SIZE(n, thing) printf("@@ %d * sizeof(%s) = %zd\n", n, #thing, n * sizeof(thing))
@@ -784,7 +782,7 @@ int fs_query_process_pattern(fs_query *q, rasqal_graph_pattern *pattern, raptor_
 	    /* execute triple pattern query */
 	    if (explain) {
                 FILE *msg = tmpfile();
-		fprintf(msg, "execute: ");
+		fprintf(msg, "execute %d/%d: ", j, q->blocks[i].length);
 		if (!q->blocks[i].data[j]) {
 		    fprintf(msg, "NULL");
 		} else {

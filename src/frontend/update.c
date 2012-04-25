@@ -20,6 +20,7 @@
 #include <pcre.h>
 #include <rasqal.h>
 
+#include "debug.h"
 #include "update.h"
 #include "import.h"
 #include "query.h"
@@ -264,6 +265,10 @@ static int update_op(struct update_context *uc)
         q->qs = uc->qs;
         q->rq = uc->rq;
         q->flags = FS_BIND_DISTINCT;
+#ifdef DEBUG_MERGE
+        q->flags |= FS_QUERY_CONSOLE_OUTPUT;
+#endif
+        q->boolean = 1;
         q->opt_level = 3;
         q->soft_limit = -1;
         q->segments = fsp_link_segments(uc->link);
@@ -305,12 +310,7 @@ static int update_op(struct update_context *uc)
 
         for (int i=0; i < q->num_vars; i++) {
             rasqal_variable *v = raptor_sequence_get_at(vars, i);
-            fs_binding *b = fs_binding_get(q->bb[0], v);
-            if (b) {
-                b->need_val = 1;
-            } else {
-                fs_binding_add(q->bb[0], v, FS_RID_NULL, 1);
-            }
+            fs_binding_add(q->bb[0], v, FS_RID_NULL, 1);
         }
 
         /* perform the WHERE match */

@@ -35,5 +35,16 @@ Query: SELECT DISTINCT * WHERE { GRAPH ?G { ?s ?p ?o } } ORDER BY ?s ?p ?o
 <default:>	<local:x>	<local:y>	<local:c>
 <default:>	<local:x>	<local:y>	<local:d>
 <default:>	<local:x>	<local:y>	<local:w>
+Update: INSERT { GRAPH <c> { ?ns <p> ?s } } WHERE { ?s <b> <c> . ?s <b> ?ns }
+
+Query: SELECT DISTINCT * WHERE { GRAPH ?G { ?s ?p ?o } } ORDER BY ?s ?p ?o
+?G	?s	?p	?o
+<local:a>	<local:a>	<local:b>	<local:c>
+<local:a>	<local:a>	<local:b>	<local:d>
+<local:c>	<local:c>	<local:p>	<local:a>
+<local:c>	<local:d>	<local:p>	<local:a>
+<default:>	<local:x>	<local:y>	<local:c>
+<default:>	<local:x>	<local:y>	<local:d>
+<default:>	<local:x>	<local:y>	<local:w>
 Update: DELETE { ?x ?y ?z } WHERE { ?x ?y ?z }
 
