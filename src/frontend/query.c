@@ -1312,6 +1312,9 @@ static void graph_pattern_walk(fsp_link *link, rasqal_graph_pattern *pattern,
         q->parent_block[q->block] = parent;
         q->join_type[q->block] = FS_MINUS;
         break;
+    case RASQAL_GRAPH_PATTERN_OPERATOR_SELECT:
+        q->errors++;
+        q->warnings = g_slist_prepend(q->warnings, "SubSELECTs are not implemented");
     }
     if (!handled) {
 	fs_error(LOG_ERR, "Unknown GP operator %d not supported", op);
