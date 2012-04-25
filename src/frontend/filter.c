@@ -1288,6 +1288,35 @@ fs_value fn_datatype(fs_query *q, fs_value a)
     return fs_value_uri("error:unresloved");
 }
 
+static int regex_flags(const char *flags)
+{
+    int reflags = PCRE_UTF8;
+    if (flags) {
+	for (const char *c = flags; *c; c++) {
+	    switch (*c) {
+		case 's':
+		    reflags |= PCRE_DOTALL;
+		    break;
+		case 'm':
+		    reflags |= PCRE_MULTILINE;
+		    break;
+		case 'i':
+		    reflags |= PCRE_CASELESS;
+		    break;
+		case 'x':
+		    reflags |= PCRE_EXTENDED;
+		    break;
+		default:
+		    fs_error(LOG_ERR, "unknown regex flag '%c'", *c);
+
+                    return 0;
+	    }
+	}
+    }
+
+    return reflags;
+}
+
 fs_value fn_matches(fs_query *q, fs_value str, fs_value pat, fs_value flags)
 {
     if (str.valid & fs_valid_bit(FS_V_TYPE_ERROR)) {
@@ -1300,6 +1329,8 @@ fs_value fn_matches(fs_query *q, fs_value str, fs_value pat, fs_value flags)
 	return flags;
     }
 
+    str = fs_value_fill_lexical(q, str);
+    pat = fs_value_fill_lexical(q, pat);
     if (!str.lex || !pat.lex) {
 	return fs_value_error(FS_ERROR_INVALID_TYPE,
                               "argument to fn:matches has no lexical value");
@@ -1318,27 +1349,9 @@ fs_value fn_matches(fs_query *q, fs_value str, fs_value pat, fs_value flags)
     printf("\n");
 #endif
 
-    int reflags = PCRE_UTF8;
-    if (flags.lex) {
-	for (char *c = flags.lex; *c; c++) {
-	    switch (*c) {
-		case 's':
-		    reflags |= PCRE_DOTALL;
-		    break;
-		case 'm':
-		    reflags |= PCRE_MULTILINE;
-		    break;
-		case 'i':
-		    reflags |= PCRE_CASELESS;
-		    break;
-		case 'x':
-		    reflags |= PCRE_EXTENDED;
-		    break;
-		default:
-		    fs_error(LOG_ERR, "unknown regex flag '%c'", *c);
-		    return fs_value_error(FS_ERROR_INVALID_TYPE, "unrecognised flag in fn:matches");
-	    }
-	}
+    int reflags = regex_flags(flags.lex);
+    if (!reflags) {
+        return fs_value_error(FS_ERROR_INVALID_TYPE, "unrecognised flag in fn:matches");
     }
 
     const char *error;
