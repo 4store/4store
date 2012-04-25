@@ -579,23 +579,26 @@ void fs_binding_sort(fs_binding *b)
     for (int row=0; row<length; row++) {
         fs_rid_vector_append(b[0].vals, row);
     }
+
+    if (length > 1) {
 #ifdef DEBUG_MERGE
-    double then = fs_time();
+        double then = fs_time();
 #endif
 
-    /* ctxt could include other stuff for optimisations */
-    struct sort_context ctxt = { b };
-    fs_qsort_r(b[0].vals->data, length, sizeof(fs_rid), qsort_r_cmp, &ctxt);
+        /* ctxt could include other stuff for optimisations */
+        struct sort_context ctxt = { b };
+        fs_qsort_r(b[0].vals->data, length, sizeof(fs_rid), qsort_r_cmp, &ctxt);
 
 #ifdef DEBUG_MERGE
-    double now = fs_time();
-    printf("sort took %f seconds\n", now - then);
+        double now = fs_time();
+        printf("sort took %f seconds\n", now - then);
 #endif
+    }
 }
 
 void fs_binding_uniq(fs_binding *bi)
 {
-    if (fs_binding_length(bi) == 0) {
+    if (fs_binding_length(bi) < 2) {
         /* we don't need to do anything, code below assumes >= 1 row */
         return;
     }
