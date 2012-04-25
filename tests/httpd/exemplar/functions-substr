@@ -104,5 +104,63 @@ Query: SELECT ?o (SUBSTR(?o, 15.4, 2.3) AS ?ss) WHERE { <test:data> <test:bcd> ?
 "0123456789012345678901234567890"	"45"
 "01234567890123456789012345678901"	"45"
 "012345678901234567890123456789012"	"45"
+Query: SELECT (STRBEFORE(?s, "789") AS ?be) WHERE { <test:data> <test:bcd> ?s } ORDER BY ?s
+?be
+"-123456"
+""
+""
+""
+""
+"0123456"
+"0123456"
+"0123456"
+"0123456"
+"0123456"
+"0123456"
+Query: SELECT (STRBEFORE(STRLANG(?s, "en-GB"), "89") AS ?be) WHERE { <test:data> <test:bcd> ?s } ORDER BY ?s
+?be
+""@¡resource e6094293ef47fa not found!
+"-1234567"@¡resource e6094293ef47fa not found!
+"-1234567"@¡resource e6094293ef47fa not found!
+""@¡resource e6094293ef47fa not found!
+""@¡resource e6094293ef47fa not found!
+""@¡resource e6094293ef47fa not found!
+""@¡resource e6094293ef47fa not found!
+"01234567"@¡resource e6094293ef47fa not found!
+"01234567"@¡resource e6094293ef47fa not found!
+"01234567"@¡resource e6094293ef47fa not found!
+"01234567"@¡resource e6094293ef47fa not found!
+"01234567"@¡resource e6094293ef47fa not found!
+"01234567"@¡resource e6094293ef47fa not found!
+""@¡resource e6094293ef47fa not found!
+Query: SELECT (STRAFTER(?s, "789") AS ?be) WHERE { <test:data> <test:bcd> ?s } ORDER BY ?s
+?be
+"-123456"
+""
+""
+""
+""
+"0123456"
+"0123456"
+"0123456"
+"0123456"
+"0123456"
+"0123456"
+Query: SELECT (STRAFTER(STRLANG(?s, "en-GB"), "89") AS ?be) WHERE { <test:data> <test:bcd> ?s } ORDER BY ?s
+?be
+""@¡resource e6094293ef47fa not found!
+"-1234567"@¡resource e6094293ef47fa not found!
+"-1234567"@¡resource e6094293ef47fa not found!
+""@¡resource e6094293ef47fa not found!
+""@¡resource e6094293ef47fa not found!
+""@¡resource e6094293ef47fa not found!
+""@¡resource e6094293ef47fa not found!
+"01234567"@¡resource e6094293ef47fa not found!
+"01234567"@¡resource e6094293ef47fa not found!
+"01234567"@¡resource e6094293ef47fa not found!
+"01234567"@¡resource e6094293ef47fa not found!
+"01234567"@¡resource e6094293ef47fa not found!
+"01234567"@¡resource e6094293ef47fa not found!
+""@¡resource e6094293ef47fa not found!
 200 deleted successfully
 This is a 4store SPARQL server [VERSION]
