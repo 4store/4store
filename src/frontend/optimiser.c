@@ -243,6 +243,31 @@ int fs_optimise_triple_pattern(fs_query_state *qs, fs_query *q, int block, rasqa
 	    pbuf[i] = NULL;
 	}
     }
+
+    /* triples like :s :p ?o, where :p != rdf:type */
+    for (int i=0; i<length; i++) {
+	if (!pbuf[i]) {
+	    continue;
+	}
+
+	if (fs_opt_is_const(q->bb[block], pbuf[i]->subject) && fs_opt_is_const(q->bb[block], pbuf[i]->predicate) && fs_opt_is_bound(q->bb[block], pbuf[i]->object) && !fs_opt_literal_is_rdf_type(pbuf[i]->predicate)) {
+	    patt[append_pos++] = pbuf[i];
+	    pbuf[i] = NULL;
+	}
+    }
+
+    /* triples like :s :p _, where :p != rdf:type */
+    for (int i=0; i<length; i++) {
+	if (!pbuf[i]) {
+	    continue;
+	}
+
+	if (fs_opt_is_const(q->bb[block], pbuf[i]->subject) && fs_opt_is_const(q->bb[block], pbuf[i]->predicate) && !fs_opt_literal_is_rdf_type(pbuf[i]->predicate)) {
+	    patt[append_pos++] = pbuf[i];
+	    pbuf[i] = NULL;
+	}
+    }
+
     /* triples like ?s :p :o, where :p != rdf:type */
     for (int i=0; i<length; i++) {
 	if (!pbuf[i]) {
@@ -254,6 +279,7 @@ int fs_optimise_triple_pattern(fs_query_state *qs, fs_query *q, int block, rasqa
 	    pbuf[i] = NULL;
 	}
     }
+
     /* triples like ?s rdf:type :o */
     for (int i=0; i<length; i++) {
 	if (!pbuf[i]) {
