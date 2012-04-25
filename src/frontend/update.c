@@ -486,7 +486,10 @@ fs_rid fs_hash_rasqal_literal(struct update_context *uc, rasqal_literal *l, int 
         if (l->datatype) {
             attr = fs_hash_uri((char *)raptor_uri_as_string(l->datatype));
         } else if (l->language) {
-            attr = fs_hash_literal((char *)l->language, 0);
+            /* lang tags are normalised to upper case internally */
+            char *lang = g_ascii_strup((char *)l->language, -1);
+            attr = fs_hash_literal(lang, 0);
+            g_free(lang);
         }
 
         return fs_hash_literal((char *)rasqal_literal_as_string(l), attr);
