@@ -1,0 +1,9 @@
+#!/bin/bash
+
+source sparql.sh
+
+put "$EPR" ../../data/nasty.ttl 'text/turtle' 'http://example.com/nasty.ttl'
+
+sparql "$EPR" 'SELECT ?b WHERE { ?x ?y ?z BIND(CONCAT(STR(?z), "!!") AS ?b) } ORDER BY ?b'
+
+delete "$EPR" 'http://example.com/nasty.ttl'

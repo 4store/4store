@@ -633,6 +633,9 @@ void fsp_close_link(fsp_link *link)
   if (link->features) {
     free((char *)link->features);
   }
+  if (link->uuid) {
+    free(link->uuid);
+  }
 
   free(link);
 }
