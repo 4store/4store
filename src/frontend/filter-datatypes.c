@@ -90,6 +90,18 @@ fs_value fs_value_resource(fs_query *q, fs_resource *r)
     return v;
 }
 
+fs_resource *fs_resource_value(fs_query *q, fs_value v)
+{
+    v = fs_value_fill_rid(q, v);
+    v = fs_value_fill_lexical(q, v);
+    fs_resource *res = malloc(sizeof(fs_resource));
+    res->rid = v.rid;
+    res->attr = v.attr;
+    res->lex = strdup(v.lex);
+
+    return res;
+}
+
 fs_value fs_value_uri(const char *s)
 {
     fs_value v = fs_value_blank();
@@ -497,7 +509,7 @@ void fs_value_print(fs_value v)
     }
 
     if (v.valid & fs_valid_bit(FS_V_RID)) {
-	printf(" rid:%llx", v.rid);
+	printf(" rid:%016llx", v.rid);
     }
     if (v.lex) {
 	printf(" l:%s", v.lex);

@@ -36,6 +36,12 @@ struct _fs_query_state {
     double resolve_unique_elapse; /* total sum of elapsed time on resolve(single rid) calls */
 };
 
+struct _fs_bind_expression {
+    rasqal_variable *var;
+    rasqal_expression *expr;
+    struct _fs_bind_expression *next;
+};
+
 struct _fs_query {
     fs_query_state *qs;
     fsp_link *link;
@@ -73,6 +79,7 @@ struct _fs_query {
     int parent_block[FS_MAX_BLOCKS];
     int union_group[FS_MAX_BLOCKS];
     raptor_sequence *constraints[FS_MAX_BLOCKS];
+    fs_bind_expression *binds[FS_MAX_BLOCKS];
     int flags;
     fs_rid_vector **pending;
     rasqal_query *rq;
@@ -94,6 +101,7 @@ struct _fs_query {
     unsigned char *apply_constraints; /* bit array initialized to 1s, 
                                         position x shifts to 0 if no apply cons */
     int group_by;
+    GHashTable *tmp_resources;
 };
 
 #endif

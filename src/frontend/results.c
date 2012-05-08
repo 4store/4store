@@ -86,8 +86,21 @@ static int resolve(fs_query *q, fs_rid rid, fs_resource *res)
 	return 0;
     }
 
+    fs_resource *hit;
+
+    /* doesn't require a mutex as it's not shared by multiple queries */
+
+    if ((hit = g_hash_table_lookup(q->tmp_resources, &rid))) {
+        /* don't need deep copy as the hash grows monotonically until query is
+         * complete */
+        memcpy(res, hit, sizeof(fs_resource));
+
+        return 0;
+    }
+
     q->qs->cache_hits++;
     g_static_mutex_lock(&cache_mutex);
+
     if (res_l2_cache[rid & CACHE_MASK].rid == rid) {
         q->qs->cache_success_l2++;
         /* deep copy resource */
@@ -103,7 +116,6 @@ static int resolve(fs_query *q, fs_rid rid, fs_resource *res)
     if (!res_l1_cache) {
         setup_l1_cache();
     }
-    fs_resource *hit;
     if ((hit = g_hash_table_lookup(res_l1_cache, &rid))) {
         q->qs->cache_success_l1++;
         /* deep copy */
@@ -117,6 +129,7 @@ static int resolve(fs_query *q, fs_rid rid, fs_resource *res)
     }
 
     g_static_mutex_unlock(&cache_mutex);
+
     GTimer *tmr = NULL;
     if (q->qs->verbosity) {
         tmr = g_timer_new();
@@ -345,6 +358,8 @@ fs_value fs_expression_eval(fs_query *q, int row, int block, rasqal_expression *
     case RASQAL_EXPR_STRAFTER:
         return fn_strbefore(q, fs_expression_eval(q, row, block, e->arg1),
                                fs_expression_eval(q, row, block, e->arg2));
+    case RASQAL_EXPR_REPLACE:
+        return fs_value_error(FS_ERROR_INVALID_TYPE, "fn:replace not yet implemented");
 #endif
     case RASQAL_EXPR_AND:
         return fn_logical_and(q, fs_expression_eval(q, row, block, e->arg1),
@@ -2953,9 +2968,15 @@ int fs_sort_column(fs_query *q, fs_binding *b, int col, int **sorted)
 
                 return 1;
             }
-            int len = strlen(res[s][i].lex);
+            char *lex = res[s][i].lex;
+            /* if it's a tmp resource, this resolve will fail */
+            /* potential optimisation: wrap tsp_resolve_all instead to save
+             * shunting data about */
+            fs_resource *tr = g_hash_table_lookup(q->tmp_resources, rid);
+            if (tr) lex = tr->lex;
+            int len = strlen(lex);
             char *sort = malloc(len+2);
-            memcpy(sort+1, res[s][i].lex, len);
+            memcpy(sort+1, lex, len);
             sort[len+1] = '\0';
             if (FS_IS_URI(res[s][i].rid)) {
                 sort[0] = 'U';

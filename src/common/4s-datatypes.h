@@ -155,6 +155,7 @@ int fs_rid_vector_contains(fs_rid_vector *v, fs_rid r);
 char *fs_rid_vector_to_string(fs_rid_vector *v);
 fs_rid_vector *fs_rid_vector_intersect(int count, const fs_rid_vector *rv[]);
 void fs_rid_vector_truncate(fs_rid_vector *rv, int32_t length);
+void fs_rid_vector_grow(fs_rid_vector *rv, int32_t length);
 void fs_rid_vector_free(fs_rid_vector *t);
 
 fs_p_vector *fs_p_vector_new(int length);

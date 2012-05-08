@@ -1301,4 +1301,11 @@ const char *fs_join_type_as_string(fs_join_type t)
     return "UNKNOWN";
 }
 
+void fs_free_cached_resource(gpointer r)
+{
+    fs_resource *res = r;
+    free(res->lex);
+    free(res);
+}
+
 /* vi:set expandtab sts=4 sw=4: */

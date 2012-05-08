@@ -39,6 +39,7 @@
 #include "import.h"
 #include "debug.h"
 #include "../common/params.h"
+#include "../common/4s-internals.h"
 #include "../common/error.h"
 #include "../common/rdf-constants.h"
 
@@ -296,10 +297,10 @@ static void tree_compact(fs_query *q)
             int parent = q->parent_block[block];
             int mergable = 0;
             if (q->join_type[block] == FS_INNER && q->blocks[block].length > 0) {
-                if (q->constraints[block] == NULL) {
+                if (q->constraints[block] == NULL && q->binds[block] == NULL) {
                     /* if there's nothing special about this block, merge up */
                     mergable = 1;
-                } else if (q->constraints[parent] == NULL && q->blocks[parent].length == 0) {
+                } else if (q->constraints[parent] == NULL && q->binds[block] == NULL && q->blocks[parent].length == 0) {
                     mergable = 1;
                 }
             }
@@ -311,6 +312,10 @@ static void tree_compact(fs_query *q)
                 if (q->constraints[parent] == NULL) {
                     q->constraints[parent] = q->constraints[block];
                     q->constraints[block] = NULL;
+                }
+                if (q->binds[parent] == NULL) {
+                    q->binds[parent] = q->binds[block];
+                    q->binds[block] = NULL;
                 }
                 for (int col=0; q->bb[0][col].name; col++) {
                     if (q->bb[0][col].appears == block) {
@@ -417,6 +422,8 @@ fs_query *fs_query_execute(fs_query_state *qs, fsp_link *link, raptor_uri *bu, c
         q->default_graphs = fs_rid_vector_new(1);
         q->default_graphs->data[0] = FS_DEFAULT_GRAPH_RID;
     }
+
+    q->tmp_resources = g_hash_table_new_full(fs_rid_hash, fs_rid_equal, g_free, fs_free_cached_resource);
 
 #ifdef DEBUG_MERGE
     explain = 1;
@@ -847,6 +854,33 @@ int fs_query_process_pattern(fs_query *q, rasqal_graph_pattern *pattern, raptor_
                 break;
             }
 	}
+
+        /* Evaluate BIND expressions */
+        fs_bind_expression *be = q->binds[i];
+        const int bind_length = fs_binding_length(q->bb[i]);
+        while (be) {
+            fs_binding *beb = fs_binding_get(q->bb[i], be->var);
+            // This is needed for fs_expression_eval() - don't ask
+            q->bt = q->bb[i];
+            beb->bound = 1;
+            if (beb->vals->length < bind_length) {
+                fs_rid_vector_grow(beb->vals, bind_length);
+            }
+            for (int row=0; row < bind_length; row++) {
+                fs_value eval = fs_expression_eval(q, row, i, be->expr);
+                eval = fs_value_fill_rid(q, eval);
+                /* insert entry if it's new */
+                if (!g_hash_table_lookup(q->tmp_resources, &eval.rid)) {
+                    fs_resource *res = fs_resource_value(q, eval);
+                    fs_rid *re = malloc(sizeof(fs_rid));
+                    *re = eval.rid;
+                    g_hash_table_insert(q->tmp_resources, re, res);
+                }
+                beb->vals->data[row] = eval.rid;
+            }
+            be = be->next;
+        }
+
 #if DEBUG_MERGE > 1
         printf("table after processing B%d:\n", i);
         fs_binding_print(q->bb[i], stdout);
@@ -904,7 +938,7 @@ int fs_query_process_pattern(fs_query *q, rasqal_graph_pattern *pattern, raptor_
                     printf("block B%d is in UNION group %d\n", j, q->union_group[j]);
 #endif
                     /* It's a UNION */
-                    /* apply constriants now, it's too trick to delay execution */
+                    /* apply constriants now, it's too tricky to delay execution */
                     if (q->constraints[j]) {
                         fs_binding *old = q->bb[j];
                         q->bb[j] = fs_binding_apply_filters(q, j, q->bb[j], q->constraints[j]);
@@ -1018,11 +1052,21 @@ void fs_query_free(fs_query *q)
 
         if (q->default_graphs) fs_rid_vector_free(q->default_graphs);
 
-    for(int i=0;i<FS_MAX_BLOCKS;i++) {
-        if (q->constraints[i]) {
-            raptor_free_sequence(q->constraints[i]);
+        for (int i=0;i<FS_MAX_BLOCKS;i++) {
+            if (q->constraints[i]) {
+                raptor_free_sequence(q->constraints[i]);
+            }
+            if (q->binds[i]) {
+                fs_bind_expression *be = q->binds[i];
+                while (be) {
+                    fs_bind_expression *next = be->next;
+                    free(be);
+                    be = next;
+                }
+            }
         }
-    }
+
+        g_hash_table_destroy(q->tmp_resources);
 
         memset(q, 0, sizeof(fs_query));
 	free(q);
@@ -1304,6 +1348,20 @@ static void graph_pattern_walk(fsp_link *link, rasqal_graph_pattern *pattern,
             raptor_sequence_push(q->constraints[parent], e);
         }
         break;
+    case RASQAL_GRAPH_PATTERN_OPERATOR_LET:
+        handled = 1;
+        rasqal_variable *v = rasqal_graph_pattern_get_variable(pattern);
+	fs_binding *b = fs_binding_get(q->bb[0], v);
+	if (b) {
+            b->need_val = 1;
+        }
+        fs_bind_expression *be = malloc(sizeof(fs_bind_expression));
+        be->var = v;
+        be->expr = rasqal_graph_pattern_get_filter_expression(pattern);
+        be->next = q->binds[q->block];
+        q->binds[q->block] = be;
+        check_variables(q, be->expr, 0);
+        break;
     case RASQAL_GRAPH_PATTERN_OPERATOR_MINUS:
         handled = 1;
 	(q->block)++;
@@ -1315,7 +1373,7 @@ static void graph_pattern_walk(fsp_link *link, rasqal_graph_pattern *pattern,
         q->warnings = g_slist_prepend(q->warnings, "SubSELECTs are not implemented");
     }
     if (!handled) {
-	fs_error(LOG_ERR, "Unknown GP operator %d not supported", op);
+	fs_error(LOG_ERR, "Unknown GP operator %s (%d) not supported", rasqal_graph_pattern_operator_as_string(op), op);
     }
 
     if (uni) {
