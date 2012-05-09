@@ -25,6 +25,7 @@
 #include "import.h"
 #include "query.h"
 #include "../common/4store.h"
+#include "../common/4s-internals.h"
 #include "../common/error.h"
 #include "../common/rdf-constants.h"
 
@@ -275,6 +276,10 @@ static int update_op(struct update_context *uc)
         q->link = uc->link;
         q->bb[0] = fs_binding_new();
         q->bt = q->bb[0];
+
+        /* hashtable to hold runtime created resources */
+        q->tmp_resources = g_hash_table_new_full(fs_rid_hash, fs_rid_equal, g_free, fs_free_cached_resource);
+
         /* add column to denote join ordering */
         fs_binding_create(q->bb[0], "_ord", FS_RID_NULL, 0);
 

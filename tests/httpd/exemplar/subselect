@@ -4,6 +4,6 @@ Query: select ?s ?p ?o where {
     } limit 4
   } limit 10
 400 Parser error
-This is a 4store SPARQL server v1.1.4-190-g5a13cad
+This is a 4store SPARQL server [VERSION]
 
 SubSELECTs are not implemented

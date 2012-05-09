@@ -1066,7 +1066,10 @@ void fs_query_free(fs_query *q)
             }
         }
 
-        g_hash_table_destroy(q->tmp_resources);
+        /* If the query object was created unconventionally it might not exist */
+        if (q->tmp_resources) {
+            g_hash_table_destroy(q->tmp_resources);
+        }
 
         memset(q, 0, sizeof(fs_query));
 	free(q);
