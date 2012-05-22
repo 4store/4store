@@ -10,5 +10,6 @@ int fs_bind_cache_wrapper(fs_query_state *qs, fs_query *q, int all,
     int offset, int limit);
 
 int fs_query_cache_flush(fs_query_state *qs, int verbosity);
-
+int fs_query_bind_cache_count_slots(fs_query_state *qs);
+int fs_query_bind_cache_size(void);
 #endif

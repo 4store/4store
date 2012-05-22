@@ -131,7 +131,7 @@ static int resolve(fs_query *q, fs_rid rid, fs_resource *res)
     g_static_mutex_unlock(&cache_mutex);
 
     GTimer *tmr = NULL;
-    if (q->qs->verbosity) {
+    if (q->qs->verbosity || q->qs->cache_stats) {
         tmr = g_timer_new();
         q->qs->cache_fail++;
     }
@@ -156,7 +156,7 @@ static int resolve(fs_query *q, fs_rid rid, fs_resource *res)
     g_static_mutex_unlock(&cache_mutex);
     fs_rid_vector_free(r);
 
-    if (q->qs->verbosity) {
+    if (q->qs->verbosity || q->qs->cache_stats) {
         q->qs->resolve_unique_elapse += g_timer_elapsed(tmr, NULL);
         g_timer_destroy(tmr);
     }
@@ -920,11 +920,19 @@ static int resolve_precache_all(fsp_link *l, fs_rid_vector *rv[], int segments)
 
 static int resolve_precache_all_with_stats(fs_query *q) {
     GTimer *tmr=NULL;
-    if (q->qs->verbosity) tmr = g_timer_new();
+    if (q->qs->verbosity || q->qs->cache_stats) tmr = g_timer_new();
     int res = resolve_precache_all(q->link, q->pending, q->segments);
-    if (q->qs->verbosity) {
-        q->qs->resolve_all_elapse += g_timer_elapsed(tmr,NULL);
+    if (q->qs->verbosity || q->qs->cache_stats) {
+        g_static_mutex_lock(&cache_mutex);
+        if (q->qs->cache_stats) { /* for web stats the avg */
+            gdouble acum = (q->qs->resolve_all_elapse *  q->qs->resolve_all_calls);
+            q->qs->resolve_all_elapse = (acum + g_timer_elapsed(tmr,NULL))/
+                                        (q->qs->resolve_all_calls+1);
+        }
+        else
+            q->qs->resolve_all_elapse = g_timer_elapsed(tmr,NULL);
         q->qs->resolve_all_calls++;
+        g_static_mutex_unlock(&cache_mutex);
         g_timer_destroy(tmr);
     }
     return res;
@@ -2430,6 +2438,7 @@ static void prefetch_lexical_data(fs_query *q, long int next_row,const int rows)
         TODO: all RIDs are cached in one go */
        lookup_buffer_size = next_row;
     }
+    unsigned int cache_l2_hit = 0;
     for (int row=q->row; row < q->row + lookup_buffer_size && row < rows; row++) {
         for (int col=1; col <= q->num_vars_total; col++) {
             if (!q->bt[col].need_val && !q->bt[col].expression) continue;
@@ -2444,10 +2453,19 @@ static void prefetch_lexical_data(fs_query *q, long int next_row,const int rows)
                 rid = FS_RID_NULL;
             }
             if (FS_IS_BNODE(rid)) continue;
-            if (res_l2_cache[rid & CACHE_MASK].rid == rid) continue;
+            if (res_l2_cache[rid & CACHE_MASK].rid == rid) {
+                cache_l2_hit++; 
+                continue;
+            }
             pre_cache_len++;
             fs_rid_vector_append(q->pending[FS_RID_SEGMENT(rid, q->segments)], rid);
         }
+    }
+    if (q->qs->cache_stats) {
+        double avg_saved = (cache_l2_hit+0.00001) / (cache_l2_hit+pre_cache_len+0.00001);
+        double total_avg_saved = q->qs->resolve_all_calls * q->qs->avg_cache_saves_l2;
+        q->qs->avg_cache_saves_l2 = (avg_saved + total_avg_saved) /
+                                    (q->qs->resolve_all_calls + 1.0001);
     }
     g_static_mutex_unlock(&cache_mutex);
     if (pre_cache_len)

@@ -84,6 +84,7 @@ int fs_bind_cache_wrapper(fs_query_state *qs, fs_query *q, int all,
     /* only consult the cache for optimasation levels 0-2 */
     if (q && q->opt_level < 3) goto skip_cache;
 
+    if (q->qs->cache_stats) q->qs->bind_hits++;
     cachable = 1;
 
     cache_hash += all + flags * 2 + offset * 256 + limit * 32768;
@@ -94,6 +95,8 @@ int fs_bind_cache_wrapper(fs_query_state *qs, fs_query *q, int all,
         } else if (rids[s]->length == 0) {
             cache_key[s] = 0;
         } else {
+           /* bind cache does not cache binds with any
+              slot containing multiple values */
             cachable = 0;
             break;
         }
@@ -120,6 +123,7 @@ int fs_bind_cache_wrapper(fs_query_state *qs, fs_query *q, int all,
             fsp_hit_limits_add(qs->link, qs->bind_cache[cache_hash].limited);
             qs->bind_cache[cache_hash].hits++;
 
+            if (q->qs->cache_stats) q->qs->bind_cache_success++;
             g_static_mutex_unlock(&qs->cache_mutex);
             return 0;
         }
@@ -221,4 +225,19 @@ int fs_query_cache_flush(fs_query_state *qs, int verbosity)
     return 0;
 }
 
+int fs_query_bind_cache_count_slots(fs_query_state *qs) {
+    unsigned int xc=0;
+    unsigned int count_bind=0;
+    if (qs->bind_cache) {
+        for (xc=0; xc < CACHE_SIZE; xc++) {
+            if (qs->bind_cache[xc].filled != 0)
+                count_bind += 1;
+        }
+    }
+    return count_bind;
+}
+
+int fs_query_bind_cache_size(void) {
+    return CACHE_SIZE;
+}
 /* vi:set expandtab sts=4 sw=4: */

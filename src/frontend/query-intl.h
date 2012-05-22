@@ -25,10 +25,18 @@ struct _fs_query_state {
     raptor_world *raptor_world;
 
     int verbosity;
+    int cache_stats;
+    /* the following cache stats are filled only if verbosity > 0  
+    or cache_stats option in httpd */
+    /* bind stats */
+    unsigned int bind_hits;
+    unsigned int bind_cache_success;
+
     /* the following cache stats are filled only if verbosity > 0 */
     unsigned int cache_hits; /* total queries to the cache */
     unsigned int cache_success_l1; /* number of l1 success hits */
     unsigned int cache_success_l2;  /* number of l2 success hits */
+    double avg_cache_saves_l2; /* avg number of resolve saves in cache l2 */
     unsigned int cache_fail;  /* number of cache hits with no data on l1 or l2 */
     unsigned int pre_cache_total; /* number of items pre cached for the query */
     unsigned int resolve_all_calls; /* total num of resolve_all calls */

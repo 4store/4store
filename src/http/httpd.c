@@ -68,6 +68,7 @@ static long all_time_import_count = 0;
 static int global_import_count = 0;
 static int unsafe = 0;
 static int default_graph = 0;
+static int cache_stats = 0;
 static int soft_limit = 0; /* default value for soft limit */
 static int opt_level = -1;  /* default value for optimisation level */
 static int cors_support = -1; /* cross-origin resource sharing (CORS) support */
@@ -750,6 +751,83 @@ static void http_status_report(client_ctxt *ctxt)
   http_close(ctxt);
 }
 
+static void http_cache_report(client_ctxt *ctxt) {
+
+  http_send(ctxt, "HTTP/1.0 200 OK\r\n"
+  "Server: 4s-httpd/" GIT_REV "\r\n"
+  "Content-Type: text/html; charset=UTF-8\r\n"
+  "\r\n"
+  "<!DOCTYPE HTML PUBLIC \"-//IETF//DTD HTML 2.0//EN\">\n"
+  "<html><head><title>SPARQL httpd server status - cache</title></head>\n"
+  "<body><h1>SPARQL httpd server " GIT_REV " status - cache</h1>\n"
+  "<h2>KB ");
+  http_send(ctxt, fsp_kb_name(fsplink));
+  http_send(ctxt, "</h2>\n");
+  http_send(ctxt, "<h3>RID cache stats</h3>\n");
+  http_send(ctxt, "<table border=1 cellpadding=6>\n");
+
+  g_static_mutex_lock(&query_state->cache_mutex);
+  char *line = g_strdup_printf("<tr><td>cache_hits</td><td>%d</td></tr>\n",query_state->cache_hits);
+  http_send(ctxt, line);
+  g_free(line);
+  
+  line = g_strdup_printf("<tr><td>resolve_all_calls</td><td>%d (avg elapse %.4f ms)</td></tr>\n",
+    query_state->resolve_all_calls,query_state->resolve_all_elapse*1000.0);
+  http_send(ctxt, line);
+  g_free(line);
+
+  line = g_strdup_printf("<tr><td>avg_cache_saves_l2</td><td>%.4f%%</td></tr>\n",
+    query_state->avg_cache_saves_l2 * 100);
+  http_send(ctxt, line);
+  g_free(line);
+
+  line = g_strdup_printf("<tr><td>cache_success_l2</td><td>%d (%.2f%%)</td></tr>\n",
+    query_state->cache_success_l2,
+    100 * (query_state->cache_success_l2 / (query_state->cache_hits+0.000)));
+  http_send(ctxt, line);
+  g_free(line);
+  
+  line = g_strdup_printf("<tr><td>cache_success_l1</td><td>%d (%.2f%%)</td></tr>\n",
+    query_state->cache_success_l1, 
+    100 * (query_state->cache_success_l1 / (query_state->cache_hits+0.000)));
+  http_send(ctxt, line);
+  g_free(line);
+
+  line = g_strdup_printf("<tr><td>cache_fail</td><td>%d (%.2f%%)</td></tr>\n",
+    query_state->cache_fail,
+    100 * (query_state->cache_fail / (query_state->cache_hits+0.000)));
+  http_send(ctxt, line);
+  g_free(line);
+  http_send(ctxt, "</table>\n");
+
+  http_send(ctxt, "<h3>BIND cache stats</h3>\n");
+  http_send(ctxt, "<table border=1 cellpadding=6>\n");
+
+  line = g_strdup_printf("<tr><td>bind_hits</td><td>%d</td></tr>\n",
+    query_state->bind_hits);
+  http_send(ctxt, line);
+  g_free(line);
+
+  line = g_strdup_printf("<tr><td>bind_cache_success</td><td>%d (%.4f%%)</td></tr>\n",
+    query_state->bind_cache_success,
+    100 * (query_state->bind_cache_success / (query_state->bind_hits+0.000)));
+  http_send(ctxt, line);
+  g_free(line);
+
+  unsigned int count_bind = fs_query_bind_cache_count_slots(query_state);
+  line = g_strdup_printf("<tr><td>bind_slots</td><td>%d (%.4f%%)</td></tr>\n",
+    count_bind,
+    100 * (count_bind / (fs_query_bind_cache_size()+0.0001)));
+  http_send(ctxt, line);
+  g_free(line);
+  
+  g_static_mutex_unlock(&query_state->cache_mutex);
+  http_send(ctxt, "</table>\n");
+
+  http_send(ctxt, "</body></html>\n");
+  http_close(ctxt);
+}
+
 static void http_size_report(client_ctxt *ctxt)
 {
   http_send(ctxt, "HTTP/1.0 200 OK\r\n"
@@ -953,6 +1031,9 @@ static void http_get_request(client_ctxt *ctxt, gchar *url, gchar *protocol)
   } else if (!strcmp(path, "/status")) {
     http_redirect(ctxt, "status/");
     http_close(ctxt);
+  } else if (!strcmp(path, "/status/cache/") ||
+             !strcmp(path, "/status/cache")) {
+    http_cache_report(ctxt);
   } else if (!strcmp(path, "/status/size/")) {
     http_size_report(ctxt);
   } else if (!strcmp(path, "/description/")) {
@@ -1633,6 +1714,9 @@ static int server_setup (int background, const char *host, const char *port)
   } else {
     fs_error(LOG_INFO, "4store HTTP daemon " GIT_REV " started on port %s", port);
   }
+  if (cache_stats)
+    fs_error(LOG_ERR,"cache stats enabled at /status/cache");
+  
   return srv;
 }
 
@@ -1658,6 +1742,7 @@ static void child (int srv, char *kb_name, char *password)
   query_log_open(kb_name);
 
   query_state = fs_query_init(fsplink, NULL, NULL);
+  query_state->cache_stats = cache_stats;
   bu = raptor_new_uri(query_state->raptor_world, (unsigned char *)"local:local");
   g_thread_init(NULL);
   pool = g_thread_pool_new(http_query_worker, NULL, QUERY_THREAD_POOL_SIZE, FALSE, NULL);
@@ -1721,7 +1806,7 @@ int main(int argc, char *argv[])
 
 
   int o;
-  while (!help && (o = getopt(argc, argv, "DH:p:Uds:O:Xc:")) != -1) {
+  while (!help && (o = getopt(argc, argv, "DCH:p:Uds:O:Xc:")) != -1) {
     switch (o) {
       case 'D':
         daemonize = 0;
@@ -1754,6 +1839,9 @@ int main(int argc, char *argv[])
       case 'c':
         fs_set_config_file(optarg);
         break;
+      case 'C':
+        cache_stats = 1;
+        break;
       default:
         help = 1;
         break;
@@ -1771,6 +1859,7 @@ int main(int argc, char *argv[])
     fprintf(stdout, "       -O   set query optimiser level (0-3, default is 3)\n");
     fprintf(stdout, "       -X   enable public cross-origin resource sharing (CORS) support\n");
     fprintf(stdout, "       -c   path to config file\n");
+    fprintf(stdout, "       -C   enable cache stats in /status/cache\n");
     fprintf(stdout, "Options can also be set permenantly in /etc/4store.conf\n");
     fprintf(stdout, "see http://4store.org/trac/wiki/SparqlServer for details\n");
 
