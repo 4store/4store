@@ -84,7 +84,7 @@ int fs_bind_cache_wrapper(fs_query_state *qs, fs_query *q, int all,
     /* only consult the cache for optimasation levels 0-2 */
     if (q && q->opt_level < 3) goto skip_cache;
 
-    if (q->qs->cache_stats) q->qs->bind_hits++;
+    if (q && q->qs && q->qs->cache_stats) q->qs->bind_hits++;
     cachable = 1;
 
     cache_hash += all + flags * 2 + offset * 256 + limit * 32768;
@@ -123,7 +123,7 @@ int fs_bind_cache_wrapper(fs_query_state *qs, fs_query *q, int all,
             fsp_hit_limits_add(qs->link, qs->bind_cache[cache_hash].limited);
             qs->bind_cache[cache_hash].hits++;
 
-            if (q->qs->cache_stats) q->qs->bind_cache_success++;
+            if (q && q->qs && q->qs->cache_stats) q->qs->bind_cache_success++;
             g_static_mutex_unlock(&qs->cache_mutex);
             return 0;
         }
