@@ -944,7 +944,13 @@ static raptor_term *slot_fill_from_rid(fs_query *q, fs_rid rid)
     resolve(q, rid, &r);
 
     if (FS_IS_BNODE(rid)) {
-	return raptor_new_term_from_blank(q->qs->raptor_world, (unsigned char *)r.lex+2);
+            if (FS_SKOLEMIZE) {
+                char tmp[256];
+                sprintf(tmp,"%s%llx", fs_global_skolem_prefix, FS_BNODE_NUM(rid));
+                return raptor_new_term_from_uri_string(q->qs->raptor_world, (unsigned char *)tmp);
+            }
+            else
+                return raptor_new_term_from_blank(q->qs->raptor_world, (unsigned char *)r.lex+2);
     } else if (FS_IS_URI(rid)) {
         return raptor_new_term_from_uri_string(q->qs->raptor_world, (unsigned char *)r.lex);
     } else if (FS_IS_LITERAL(rid)) {
@@ -1584,7 +1590,10 @@ static void describe_uri(fs_query *q, fs_rid rid, raptor_uri *uri)
                 raptor_uri_as_string(uri));
         } else {
             char tmp[256];
-            sprintf(tmp, "b%016llx", rid);
+            if (FS_SKOLEMIZE)
+                sprintf(tmp,"%s%llx", fs_global_skolem_prefix, FS_BNODE_NUM(rid));
+            else
+                sprintf(tmp, "b%016llx", rid);
             subject = raptor_new_term_from_blank(q->qs->raptor_world, (unsigned char *)tmp);
         }
     } else {
