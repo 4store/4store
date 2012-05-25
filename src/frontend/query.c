@@ -868,6 +868,7 @@ int fs_query_process_pattern(fs_query *q, rasqal_graph_pattern *pattern, raptor_
             }
             for (int row=0; row < bind_length; row++) {
                 fs_value eval = fs_expression_eval(q, row, i, be->expr);
+                eval = fs_value_fill_lexical(q, eval);
                 eval = fs_value_fill_rid(q, eval);
                 /* insert entry if it's new */
                 if (!g_hash_table_lookup(q->tmp_resources, &eval.rid)) {

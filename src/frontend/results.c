@@ -91,6 +91,9 @@ static int resolve(fs_query *q, fs_rid rid, fs_resource *res)
     /* doesn't require a mutex as it's not shared by multiple queries */
 
     if ((hit = g_hash_table_lookup(q->tmp_resources, &rid))) {
+#if DEBUG_FILTER
+        printf("fetching %016llx from tmp_resources\n", rid);
+#endif
         /* don't need deep copy as the hash grows monotonically until query is
          * complete */
         memcpy(res, hit, sizeof(fs_resource));
@@ -1999,7 +2002,9 @@ static void output_text(fs_query *q, int flags, FILE *out)
                                     fprintf(out, "%s.0", lex);
                                 }
                             } else if (!strcmp(row[c].dt, XSD_DOUBLE)) {
-                                if (strchr(lex, 'e')) {
+                                if (*lex && (strchr(lex, 'e') ||
+                                    !strcmp(lex, "-inf") ||
+                                    !strcmp(lex, "inf"))) {
                                     fprintf(out, "%s", lex);
                                 } else {
                                     fprintf(out, "%se0", lex);
