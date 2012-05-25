@@ -228,85 +228,85 @@ static fs_value literal_to_value(fs_query *q, int row, int block, rasqal_literal
     fs_rid attr = fs_c.empty;
 
     switch (l->type) {
-	case RASQAL_LITERAL_BLANK:
-	    return fs_value_error(FS_ERROR_INVALID_TYPE, "unhandled bNode in FILTER expression");
+    case RASQAL_LITERAL_BLANK:
+        return fs_value_error(FS_ERROR_INVALID_TYPE, "unhandled bNode in FILTER expression");
 
-	case RASQAL_LITERAL_URI:
-	    return fs_value_uri((char *)raptor_uri_as_string(l->value.uri));
+    case RASQAL_LITERAL_URI:
+        return fs_value_uri((char *)raptor_uri_as_string(l->value.uri));
 
-        case RASQAL_LITERAL_XSD_STRING:
-        case RASQAL_LITERAL_UDT:
-	case RASQAL_LITERAL_STRING:
-            if (l->language) {
-                attr = fs_hash_literal(l->language, 0);
-            } else if (l->datatype) {
-                attr = fs_hash_uri((char *)raptor_uri_as_string(l->datatype));
-            }
-	    v = fs_value_plain((char *)l->string);
-            v.attr = attr;
-            v = fn_cast_intl(q, v, attr);
-            return v;
+    case RASQAL_LITERAL_XSD_STRING:
+    case RASQAL_LITERAL_UDT:
+    case RASQAL_LITERAL_STRING:
+        if (l->language) {
+            attr = fs_hash_literal(l->language, 0);
+        } else if (l->datatype) {
+            attr = fs_hash_uri((char *)raptor_uri_as_string(l->datatype));
+        }
+        v = fs_value_plain((char *)l->string);
+        v.attr = attr;
+        v = fn_cast_intl(q, v, attr);
+        return v;
 
-	case RASQAL_LITERAL_BOOLEAN:
-	    return fs_value_boolean(l->value.integer);
+    case RASQAL_LITERAL_BOOLEAN:
+        return fs_value_boolean(l->value.integer);
 
-	case RASQAL_LITERAL_INTEGER:
-	case RASQAL_LITERAL_INTEGER_SUBTYPE:
-	    return fs_value_integer(l->value.integer);
+    case RASQAL_LITERAL_INTEGER:
+    case RASQAL_LITERAL_INTEGER_SUBTYPE:
+        return fs_value_integer(l->value.integer);
 
-	case RASQAL_LITERAL_DOUBLE:
-	    return fs_value_double(l->value.floating);
+    case RASQAL_LITERAL_DOUBLE:
+        return fs_value_double(l->value.floating);
 
-	case RASQAL_LITERAL_FLOAT:
-	    return fs_value_float(l->value.floating);
+    case RASQAL_LITERAL_FLOAT:
+        return fs_value_float(l->value.floating);
 
-	case RASQAL_LITERAL_DECIMAL:
-	    return fs_value_decimal_from_string((char *)l->string);
+    case RASQAL_LITERAL_DECIMAL:
+        return fs_value_decimal_from_string((char *)l->string);
 
-	case RASQAL_LITERAL_DATETIME:
-	    return fs_value_datetime_from_string((char *)l->string);
+    case RASQAL_LITERAL_DATETIME:
+        return fs_value_datetime_from_string((char *)l->string);
 
-	case RASQAL_LITERAL_PATTERN:
-	    return fs_value_plain((char *)l->string);
+    case RASQAL_LITERAL_PATTERN:
+        return fs_value_plain((char *)l->string);
 
-	case RASQAL_LITERAL_QNAME:
-	    return fs_value_error(FS_ERROR_INVALID_TYPE,
-		    "unhandled qname in FILTER expression");
+    case RASQAL_LITERAL_QNAME:
+        return fs_value_error(FS_ERROR_INVALID_TYPE,
+        "unhandled qname in FILTER expression");
 
-	case RASQAL_LITERAL_VARIABLE:
-	    {
+    case RASQAL_LITERAL_VARIABLE:
+    {
+
 #ifdef DEBUG_FILTER
-		char *name = (char *)l->value.variable->name;
-                printf("getting value of ?%s, row %d from B%d\n", name, row, block);
+        char *name = (char *)l->value.variable->name;
+        printf("getting value of ?%s, row %d from B%d\n", name, row, block);
 #endif
-		fs_binding *b = fs_binding_get(q->bt, l->value.variable);
-                /* TODO this code needs to be tested when the parser handles
-                 * { FILTER() } correctly, but not block can be -1 if we dont
-                 * care about scope */
+        fs_binding *b = fs_binding_get(q->bt, l->value.variable);
+        /* TODO this code needs to be tested when the parser handles
+         * { FILTER() } correctly, but not block can be -1 if we dont
+         * care about scope */
 #if 0
-                if (!b->bound_in_block[block]) {
+         if (!b->bound_in_block[block]) {
 #ifdef DEBUG_FILTER
-                    printf("?%s not bound in B%d, appears in B%d\n", name, block, b->appears);
+              printf("?%s not bound in B%d, appears in B%d\n", name, block, b->appears);
 #endif
-                    q->warnings = g_slist_prepend(q->warnings,
-                        "variable used in expression block where "
-                        "it is not bound");
-
-		    return fs_value_rid(FS_RID_NULL);
-                }
+              q->warnings = g_slist_prepend(q->warnings,
+                "variable used in expression block where "
+                "it is not bound");
+               return fs_value_rid(FS_RID_NULL);
+         }
 #endif
-		if (!b || row >= b->vals->length) {
-		    return fs_value_rid(FS_RID_NULL);
-		}
-		fs_resource r;
-                resolve(q, b->vals->data[row], &r);
-		fs_value v = fs_value_resource(q, &r);
+        if (!b || row >= b->vals->length) {
+            return fs_value_rid(FS_RID_NULL);
+        }
+        fs_resource r;
+        resolve(q, b->vals->data[row], &r);
+        fs_value v = fs_value_resource(q, &r);
 
-		return v;
-	    }
+        return v;
+    }
 
-	case RASQAL_LITERAL_UNKNOWN:
-	    return fs_value_error(FS_ERROR_INVALID_TYPE, "bad literal FILTER expression");
+    case RASQAL_LITERAL_UNKNOWN:
+        return fs_value_error(FS_ERROR_INVALID_TYPE, "bad literal FILTER expression");
 
     }
 
@@ -316,7 +316,7 @@ static fs_value literal_to_value(fs_query *q, int row, int block, rasqal_literal
 fs_value fs_expression_eval(fs_query *q, int row, int block, rasqal_expression *e)
 {
     if (!e) {
-	return fs_value_rid(FS_RID_NULL);
+        return fs_value_rid(FS_RID_NULL);
     }
     if (block < 0) {
         fs_error(LOG_ERR, "block was less than zero, changing to 0");
@@ -1077,7 +1077,7 @@ static raptor_term *slot_fill(fs_query *q, rasqal_literal *l, fs_row *row)
     case RASQAL_LITERAL_QNAME:
     case RASQAL_LITERAL_UNKNOWN:
         fs_error(LOG_CRIT, "fell through result handler");
-	break;
+        break;
     }
 
     return raptor_new_term_from_blank(q->qs->raptor_world, (unsigned char *)"unknown");
@@ -1903,7 +1903,7 @@ static void output_sparql(fs_query *q, int flags, FILE *out)
                 }
             }
         }
-	fprintf(out, "</sparql>\n");
+        fprintf(out, "</sparql>\n");
     }
 }
 
@@ -2569,7 +2569,6 @@ nextrow: ;
                 }
             } else {
                 goto returng;
-                //return NULL;
             }
         } else {
             long len = fs_binding_length(q->bt);
@@ -2764,17 +2763,17 @@ void fs_query_results_output(fs_query *q, const char *fmt, int flags, FILE *out)
     if (!fmt) fmt = "sparql";
 
     if (!strcmp(fmt, "sparql")) {
-	output_sparql(q, flags, out);
+        output_sparql(q, flags, out);
     } else if (!strcmp(fmt, "text") || !strcmp(fmt, "ascii") || !strcmp(fmt, "tsv")) {
-	output_text(q, flags, out);
+        output_text(q, flags, out);
     } else if (!strcmp(fmt, "csv")) {
-	output_csv(q, flags, out);
+        output_csv(q, flags, out);
     } else if (!strcmp(fmt, "json")) {
-	output_json(q, flags, out);
+        output_json(q, flags, out);
     } else if (!strcmp(fmt, "testcase")) {
-	output_testcase(q, flags, out);
+        output_testcase(q, flags, out);
     } else {
-	fprintf(out, "unknown format: %s\n", fmt);
+        fprintf(out, "unknown format: %s\n", fmt);
     }
 
     //fs_query_free_row_freeable(q);
@@ -2789,7 +2788,7 @@ void fs_value_to_row(fs_query *q, fs_value v, fs_row *r)
         r->lex = g_strdup_printf("error: %s", v.lex);
         fs_query_add_freeable(q, (char *)r->lex);
 
-	return;
+        return;
     }
 
     if (v.attr == fs_c.xsd_double) {
@@ -2862,8 +2861,8 @@ void fs_value_to_row(fs_query *q, fs_value v, fs_row *r)
         r->lex = g_strdup(v.lex);
         fs_query_add_freeable(q, (char *)r->lex);
     } else if (v.attr == fs_c.empty || v.attr == FS_RID_NULL) {
-	if (v.rid == FS_RID_NULL) {
-	} else if (FS_IS_BNODE(v.rid)) {
+        if (v.rid == FS_RID_NULL) {
+        } else if (FS_IS_BNODE(v.rid)) {
             r->rid = v.rid;
             r->dt = NULL;
             r->lang = NULL;
@@ -2882,14 +2881,14 @@ void fs_value_to_row(fs_query *q, fs_value v, fs_row *r)
             r->type = FS_TYPE_URI;
             r->lex = g_strdup(v.lex);
             fs_query_add_freeable(q, (char *)r->lex);
-	} else {
+        } else {
             r->rid = 1;
             r->dt = NULL;
             r->lang = NULL;
             r->type = FS_TYPE_LITERAL;
             r->lex = g_strdup(v.lex);
             fs_query_add_freeable(q, (char *)r->lex);
-	}
+        }
     } else {
         fs_resource res;
         resolve(q, v.attr, &res);
