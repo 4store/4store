@@ -62,7 +62,7 @@ fs_value fs_value_resource(fs_query *q, fs_resource *r)
     v.lex = r->lex;
 
     if (r->rid == FS_RID_NULL) {
-	return fs_value_rid(FS_RID_NULL);
+        return fs_value_rid(FS_RID_NULL);
     } if (r->attr == fs_c.xsd_integer) {
         v = fn_cast_intl(q, v, fs_c.xsd_integer);
     } else if (r->attr == fs_c.xsd_float || r->attr == fs_c.xsd_double) {
@@ -70,21 +70,23 @@ fs_value fs_value_resource(fs_query *q, fs_resource *r)
     } else if (r->attr == fs_c.xsd_decimal) {
         v = fn_cast_intl(q, v, fs_c.xsd_decimal);
     } else if (r->attr == fs_c.xsd_boolean) {
-	if (!strcmp(r->lex, "true") || !strcmp(r->lex, "1")) {
-	    v = fs_value_boolean(1);
-	} else {
-	    v = fs_value_boolean(0);
-	}
+        if (!strcmp(r->lex, "true") || !strcmp(r->lex, "1")) {
+            v = fs_value_boolean(1);
+        } else {
+            v = fs_value_boolean(0);
+        }
     } else if (r->attr == fs_c.xsd_datetime) {
-	v = fs_value_datetime_from_string(r->lex);
+        v = fs_value_datetime_from_string(r->lex);
     }
     if (fs_is_error(v)) {
         v = fs_value_blank();
         v.lex = r->lex;
     }
-
     v.rid = r->rid;
-    v.attr = r->attr;
+    if (FS_IS_URI(v.rid) || FS_IS_BNODE(v.rid))
+        v.attr = fs_c.empty;
+    else
+        v.attr = r->attr;
     v.valid |= fs_valid_bit(FS_V_RID) | fs_valid_bit(FS_V_ATTR);
 
     return v;
