@@ -979,6 +979,7 @@ static raptor_term *slot_fill(fs_query *q, rasqal_literal *l, fs_row *row)
 
     case RASQAL_LITERAL_BLANK:
     {
+        fs_error(LOG_ERR,"freaking blank node");
         char *label = g_strdup_printf("%s_%d", l->string, q->row);
         raptor_term *term = raptor_new_term_from_blank(q->qs->raptor_world,
             (unsigned char *)label);
@@ -1051,7 +1052,7 @@ static raptor_term *slot_fill(fs_query *q, rasqal_literal *l, fs_row *row)
 	    }
 	}
         if (!b) {
-            fs_error(LOG_CRIT, "caanot find column in binding table");
+            fs_error(LOG_CRIT, "cannot find column in binding table");
 
             return raptor_new_term_from_blank(q->qs->raptor_world, (unsigned char *)"");
         }
@@ -1061,8 +1062,10 @@ static raptor_term *slot_fill(fs_query *q, rasqal_literal *l, fs_row *row)
                 /* b->lex is the string "NULL", so return as is */
                 return raptor_new_term_from_blank(q->qs->raptor_world, (unsigned char *)b->lex);
             }
-
-            return raptor_new_term_from_blank(q->qs->raptor_world, (unsigned char *)b->lex+2);
+            if (FS_SKOLEMIZE)
+                return raptor_new_term_from_uri_string(q->qs->raptor_world, (unsigned char *)b->lex+2);
+            else
+                return raptor_new_term_from_blank(q->qs->raptor_world, (unsigned char *)b->lex+2);
         } else if (FS_IS_URI(b->rid)) {
             return raptor_new_term_from_uri_string(q->qs->raptor_world, (unsigned char *)b->lex);
         } else if (FS_IS_LITERAL(b->rid)) {
@@ -1075,7 +1078,7 @@ static raptor_term *slot_fill(fs_query *q, rasqal_literal *l, fs_row *row)
                 tag = (unsigned char *)b->lang;
             }
             return raptor_new_term_from_literal(q->qs->raptor_world, (unsigned char *)b->lex, dt, tag);
-        }
+        } 
     }
 
     /* this should never happen */
@@ -1093,7 +1096,6 @@ static void insert_slot_fill(fs_query *q, fs_rid *rid,
                              rasqal_literal *l, fs_row *row)
 {
     fs_resource res = { FS_RID_NULL, NULL, FS_RID_NULL };
-
     switch (l->type) {
     case RASQAL_LITERAL_URI:
 	res.lex = (char *)raptor_uri_as_string(l->value.uri);
@@ -1104,12 +1106,11 @@ static void insert_slot_fill(fs_query *q, fs_rid *rid,
 
     case RASQAL_LITERAL_BLANK:
         res.lex = g_strdup_printf("%s_%d", l->string, q->row);
-	/* TODO this should be a bNode, but it's tricky to summon a bNode RID
+       /* TODO this should be a bNode, but it's tricky to summon a bNode RID
          * from here */
         res.rid = fs_hash_uri(res.lex);
         res.attr = FS_RID_NULL;
         fs_query_add_freeable(q, res.lex);
-
 	break;
 
     case RASQAL_LITERAL_XSD_STRING:
