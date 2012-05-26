@@ -94,8 +94,13 @@ fs_value fs_value_resource(fs_query *q, fs_resource *r)
 
 fs_resource *fs_resource_value(fs_query *q, fs_value v)
 {
-    v = fs_value_fill_rid(q, v);
     v = fs_value_fill_lexical(q, v);
+    v = fs_value_fill_rid(q, v);
+#if DEBUG_FILTER
+    printf("resource->value ");
+    fs_value_print(v);
+    printf("\n");
+#endif
     fs_resource *res = malloc(sizeof(fs_resource));
     res->rid = v.rid;
     res->attr = v.attr;
