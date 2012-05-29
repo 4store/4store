@@ -23,6 +23,7 @@
 #include <pcre.h>
 #include <time.h>
 #include <errno.h>
+#include <uuid/uuid.h>
 
 #include "filter-datatypes.h"
 #include "filter.h"
@@ -1786,6 +1787,30 @@ fs_value fn_sha256(fs_query *q, fs_value arg)
 #else
     return fs_value_error(FS_ERROR_INVALID_TYPE, "glib version does not support hash functions, at least 2.16.0 required");
 #endif
+}
+
+fs_value fn_uuid(fs_query *q)
+{
+    uuid_t uu;
+    uuid_string_t uus;
+    uuid_generate(uu);
+    uuid_unparse(uu, uus);
+    char *str = g_strdup_printf("urn:uuid:%s", uus);
+    fs_query_add_freeable(q, str);
+
+    return fs_value_uri(str);
+}
+
+fs_value fn_struuid(fs_query *q)
+{
+    uuid_t uu;
+    uuid_string_t uus;
+    uuid_generate(uu);
+    uuid_unparse(uu, uus);
+    char *str = g_strdup(uus);
+    fs_query_add_freeable(q, str);
+
+    return fs_value_plain(str);
 }
 
 /* vi:set expandtab sts=4 sw=4: */

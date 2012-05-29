@@ -83,6 +83,8 @@ fs_value fn_rand(fs_query *q);
 fs_value fn_md5(fs_query *q, fs_value arg);
 fs_value fn_sha1(fs_query *q, fs_value arg);
 fs_value fn_sha256(fs_query *q, fs_value arg);
+fs_value fn_uuid(fs_query *q);
+fs_value fn_struuid(fs_query *q);
 
 /* casts and similar */
 fs_value fn_cast(fs_query *q, fs_value v, fs_value d);
