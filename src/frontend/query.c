@@ -2042,6 +2042,12 @@ static fs_rid const_literal_to_rid(fs_query *q, rasqal_literal *l, fs_rid *attr)
             *attr = fs_c.xsd_datetime;
 
 	    return fs_hash_literal((char *)l->string, *attr);
+#if RASQAL_VERSION >= 929
+	case RASQAL_LITERAL_DATE:
+            *attr = fs_c.xsd_date;
+
+	    return fs_hash_literal((char *)l->string, *attr);
+#endif
 	case RASQAL_LITERAL_VARIABLE:
             /* not const, don't handle here */
             break;
@@ -2171,6 +2177,14 @@ int fs_bind_slot(fs_query *q, int block, fs_binding *b,
 	    }
 	    fs_rid_vector_append(v, fs_hash_literal((char *)l->string, fs_c.xsd_datetime));
 	    break;
+#if RASQAL_VERSION >= 929
+	case RASQAL_LITERAL_DATE:
+	    if (!lit_allowed) {
+		return 1;
+	    }
+	    fs_rid_vector_append(v, fs_hash_literal((char *)l->string, fs_c.xsd_date));
+	    break;
+#endif
 	case RASQAL_LITERAL_BLANK:
 	case RASQAL_LITERAL_PATTERN:
 	case RASQAL_LITERAL_QNAME:

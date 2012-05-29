@@ -78,6 +78,7 @@ void fs_hash_init(fsp_hash_enum type)
     fs_c.xsd_decimal = fs_hash_uri(XSD_DECIMAL);
     fs_c.xsd_boolean = fs_hash_uri(XSD_BOOLEAN);
     fs_c.xsd_datetime = fs_hash_uri(XSD_DATETIME);
+    fs_c.xsd_date = fs_hash_uri(XSD_DATE);
     fs_c.xsd_pinteger = fs_hash_uri(XSD_NAMESPACE "positiveInteger");
     fs_c.xsd_ninteger = fs_hash_uri(XSD_NAMESPACE "negativeInteger");
     fs_c.xsd_npinteger = fs_hash_uri(XSD_NAMESPACE "nonPositiveInteger");

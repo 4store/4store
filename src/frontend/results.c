@@ -263,11 +263,14 @@ static fs_value literal_to_value(fs_query *q, int row, int block, rasqal_literal
     case RASQAL_LITERAL_FLOAT:
         return fs_value_float(l->value.floating);
 
+	case RASQAL_LITERAL_DATETIME:
+#if RASQAL_VERSION >= 929
+	case RASQAL_LITERAL_DATE:
+#endif
+	    return fs_value_datetime_from_string((char *)l->string);
+
     case RASQAL_LITERAL_DECIMAL:
         return fs_value_decimal_from_string((char *)l->string);
-
-    case RASQAL_LITERAL_DATETIME:
-        return fs_value_datetime_from_string((char *)l->string);
 
     case RASQAL_LITERAL_PATTERN:
         return fs_value_plain((char *)l->string);
@@ -363,6 +366,12 @@ fs_value fs_expression_eval(fs_query *q, int row, int block, rasqal_expression *
                                fs_expression_eval(q, row, block, e->arg2));
     case RASQAL_EXPR_REPLACE:
         return fs_value_error(FS_ERROR_INVALID_TYPE, "fn:replace not yet implemented");
+#endif
+#if RASQAL_VERSION >= 929
+    case RASQAL_EXPR_UUID:
+        return fn_uuid(q);
+    case RASQAL_EXPR_STRUUID:
+        return fn_struuid(q);
 #endif
     case RASQAL_EXPR_AND:
         return fn_logical_and(q, fs_expression_eval(q, row, block, e->arg1),
@@ -1044,6 +1053,19 @@ static raptor_term *slot_fill(fs_query *q, rasqal_literal *l, fs_row *row)
 	return term;
     }
 
+#if RASQAL_VERSION >= 929
+    case RASQAL_LITERAL_DATE:
+    {
+        raptor_uri *dt = raptor_new_uri(q->qs->raptor_world,
+            (unsigned char *)XSD_DATE);
+        raptor_term *term = raptor_new_term_from_literal(q->qs->raptor_world,
+            l->string, dt, NULL);
+        raptor_free_uri(dt);
+
+	return term;
+    }
+#endif
+
     case RASQAL_LITERAL_VARIABLE:
     {
 	fs_row *b = NULL;
@@ -1167,6 +1189,15 @@ static void insert_slot_fill(fs_query *q, fs_rid *rid,
         res.rid = fs_hash_literal(res.lex, res.attr);
 
 	break;
+
+#if RASQAL_VERSION >= 929
+    case RASQAL_LITERAL_DATE:
+	res.lex = (char *)l->string;
+        res.attr = fs_c.xsd_date;
+        res.rid = fs_hash_literal(res.lex, res.attr);
+
+	break;
+#endif
 
     case RASQAL_LITERAL_VARIABLE: {
 	fs_row *b = NULL;

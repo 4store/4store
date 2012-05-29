@@ -51,6 +51,9 @@ int fs_opt_num_vals(fs_binding *b, rasqal_literal *l)
 	case RASQAL_LITERAL_FLOAT:
 	case RASQAL_LITERAL_DECIMAL:
 	case RASQAL_LITERAL_DATETIME:
+#if RASQAL_VERSION >= 929
+	case RASQAL_LITERAL_DATE:
+#endif
 	    return 1;
 	case RASQAL_LITERAL_VARIABLE: {
 	    fs_binding *bv = fs_binding_get(b, l->value.variable);
@@ -88,6 +91,9 @@ int fs_opt_is_const(fs_binding *b, rasqal_literal *l)
 	case RASQAL_LITERAL_FLOAT:
 	case RASQAL_LITERAL_DECIMAL:
 	case RASQAL_LITERAL_DATETIME:
+#if RASQAL_VERSION >= 929
+	case RASQAL_LITERAL_DATE:
+#endif
 	    return 1;
 	case RASQAL_LITERAL_VARIABLE: {
 	    fs_binding *bv = fs_binding_get(b, l->value.variable);
@@ -151,6 +157,9 @@ int fs_opt_is_bound(fs_binding *b, rasqal_literal *l)
 	case RASQAL_LITERAL_FLOAT:
 	case RASQAL_LITERAL_DECIMAL:
 	case RASQAL_LITERAL_DATETIME:
+#if RASQAL_VERSION >= 929
+	case RASQAL_LITERAL_DATE:
+#endif
 	    return 0;
 
 	/* we shouldn't find any of these... */
@@ -181,6 +190,9 @@ static char *var_name(rasqal_literal *l)
 	case RASQAL_LITERAL_FLOAT:
 	case RASQAL_LITERAL_DECIMAL:
 	case RASQAL_LITERAL_DATETIME:
+#if RASQAL_VERSION >= 929
+	case RASQAL_LITERAL_DATE:
+#endif
 	    return NULL;
 
 	case RASQAL_LITERAL_VARIABLE:

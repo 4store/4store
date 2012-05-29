@@ -31,6 +31,7 @@ struct fs_globals {
 	fs_rid xsd_boolean;
 	fs_rid xsd_byte;
 	fs_rid xsd_datetime;
+	fs_rid xsd_date;
 	fs_rid xsd_decimal;
 	fs_rid xsd_double;
 	fs_rid xsd_float;

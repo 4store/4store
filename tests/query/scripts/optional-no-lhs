@@ -1,5 +1,7 @@
 #!
 
+pkg-config rasqal --atleast-version=0.9.29 || exit 3
+
 # tests OPTIONALs with no left-hand-side
 
 $TESTPATH/frontend/4s-query $CONF $1 '
