@@ -86,8 +86,16 @@ int fsp_link_segments (fsp_link *link);
 const char *fsp_link_features (fsp_link *link);
 unsigned char *fsp_error_new(fs_segment segment, const char *message);
 unsigned char *message_new(int type, fs_segment segment, size_t length);
-
 char * fsp_argv_password (int *argc, char *argv[]);
+
+/* Graph access control function */
+void fsp_reload_acl_system(fsp_link *link);
+void fsp_init_acl_system(fsp_link *link);
+int fsp_is_acl_enabled(fsp_link *link);
+int fsp_acl_needs_reload(fsp_link *link);
+void fsp_acl_reloaded(fsp_link *link);
+fs_rid_set *fsp_acl_admin_users(fsp_link *link);
+int fsp_acl_is_admin(fsp_link *link, fs_rid user);
 
 #ifdef FS_PROFILE_WRITE
 long long* fsp_profile_write(fsp_link *link);

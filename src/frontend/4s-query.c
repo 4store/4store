@@ -44,6 +44,7 @@ static void interactive(fsp_link *link, raptor_uri *bu, const char *result_forma
 static void programatic_io(fsp_link *link, raptor_uri *bu, const char *query_lang, const char *result_format, fs_query_timing *timing, int verbosity, int opt_level, unsigned int result_flags, int soft_limit, raptor_world *rw);
 
 static int show_timing;
+static char *apikey=NULL;
 
 static double ftime()
 {
@@ -58,7 +59,7 @@ int main(int argc, char *argv[])
 {
     char *password = fsp_argv_password(&argc, argv);
 
-    static char *optstring = "hevf:PO:Ib:rs:dc:";
+    static char *optstring = "hevf:PO:Ib:rs:dc:A:";
     char *format = getenv("FORMAT");
     char *kb_name = NULL, *query = NULL;
     int programatic = 0, help = 0;
@@ -81,6 +82,7 @@ int main(int argc, char *argv[])
         { "format", 1, 0, 'f' },
         { "programatic", 0, 0, 'P' },
         { "opt-level", 1, 0, 'O' },
+        { "api-key", 1, 0, 'A' },
         { "insert", 0, 0, 'I' },
         { "restricted", 0, 0, 'r' },
         { "soft-limit", 1, 0, 's' },
@@ -118,6 +120,8 @@ int main(int argc, char *argv[])
             help_return = 0;
         } else if (c == 'e') {
             explain = 1;
+        } else if (c == 'A') {
+            apikey = strdup(optarg);
         } else if (c == 'V') {
             printf("%s, built for 4store %s\n", argv[0], GIT_REV);
             exit(0); 
@@ -219,8 +223,11 @@ int main(int argc, char *argv[])
     int ret = 0;
 
     fs_query_state *qs = fs_query_init(link, NULL, NULL);
+    if (apikey != NULL)
+        fsp_init_acl_system(link);
+
     qs->verbosity = verbosity;
-    fs_query *qr = fs_query_execute(qs, link, bu, query, flags, opt_level, soft_limit, explain);
+    fs_query *qr = fs_query_execute(qs, link, bu, query, flags, opt_level, soft_limit, apikey, explain);
     if (fs_query_errors(qr)) {
         ret = 1;
     }
@@ -267,6 +274,8 @@ static void programatic_io(fsp_link *link, raptor_uri *bu, const char *query_lan
 
     const int segments = fsp_link_segments(link);
     fs_query_state *qs = fs_query_init(link, NULL, NULL);
+    if (apikey != NULL)
+        fsp_init_acl_system(link);
     qs->verbosity = verbosity;
 
     do {
@@ -286,7 +295,7 @@ static void programatic_io(fsp_link *link, raptor_uri *bu, const char *query_lan
                 printf("Q: %s\n", query);
             }
 	    fs_query *tq = fs_query_execute(qs, link, bu, query,
-		    result_flags, opt_level, soft_limit, 0);
+		    result_flags, opt_level, soft_limit, apikey, 0);
 	    fs_query_results_output(tq, result_format, 0, stdout);
             if (show_timing) {
                 printf("# time: %f s\n", fs_time() - fs_query_start_time(tq));
@@ -372,6 +381,8 @@ static void interactive(fsp_link *link, raptor_uri *bu, const char *result_forma
 
     fs_query_state *qs = fs_query_init(link, NULL, NULL);
     qs->verbosity = verbosity;
+    if (apikey != NULL)
+        fsp_init_acl_system(link);
 
     do {
 	/* assemble query string */
@@ -408,7 +419,7 @@ static void interactive(fsp_link *link, raptor_uri *bu, const char *result_forma
                 then = fs_time();
             }
 	    fs_query *tq = fs_query_execute(qs, link, bu, query,
-		    result_flags, opt_level, soft_limit, 0);
+		    result_flags, opt_level, soft_limit, apikey, 0);
             if (show_timing) {
                 double now = fs_time();
                 printf("# bind time %.3fs\n", now-then);

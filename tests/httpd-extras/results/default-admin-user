@@ -1,0 +1,18 @@
+Update: INSERT DATA { GRAPH <a> { <x> <y> <z> . <a> <b> <c> . } }
+403 forbidden - updates only with admin API KEY when ACL is enabled
+This is a 4store SPARQL server [VERSION]
+403 forbidden - updates only with admin API KEY when ACL is enabled
+This is a 4store SPARQL server [VERSION]
+Query: SELECT * WHERE { ?s ?p ?o }
+403 forbidden - apikey parameter has to be included in request.
+This is a 4store SPARQL server [VERSION]
+Query: SELECT * WHERE { ?s ?p ?o }
+?s	?p	?o
+Update: INSERT DATA { GRAPH <a> { <x> <y> <z> . <a> <b> <c> . } }
+
+Query: SELECT * WHERE { ?s ?p ?o } ORDER BY ?s ?p ?o
+?s	?p	?o
+<local:a>	<local:b>	<local:c>
+<local:x>	<local:y>	<local:z>
+Update: DELETE DATA { GRAPH <a> { <x> <y> <z> . <a> <b> <c> . } }
+

@@ -26,6 +26,7 @@ struct _fs_query_state {
 
     int verbosity;
     int cache_stats;
+
     /* the following cache stats are filled only if verbosity > 0  
     or cache_stats option in httpd */
     /* bind stats */
@@ -67,6 +68,7 @@ struct _fs_query {
     int limit;				/* a user specified limit, or -1 */
     int soft_limit;			/* a limit chosen by the system
 					   to prevent complexity explostion */
+    fs_rid apikey_rid; /* api key rid used in access control for graphs */
     int offset;
     int opt_level;			/* optimisation level in [0,3] */
     int boolean;			/* true if the query succeeded */

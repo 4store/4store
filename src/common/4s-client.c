@@ -562,6 +562,45 @@ void get_uuid(fsp_link *link)
   fs_global_skolem_prefix_len = strlen(fs_global_skolem_prefix);
 }
 
+void fsp_init_acl_system(fsp_link *link) {
+   link->acl_system_info = calloc(sizeof(fs_acl_system_info),1);
+   link->acl_system_info->reload = 1;
+}
+
+void fsp_reload_acl_system(fsp_link *link) {
+   if (!link->acl_system_info)
+        return;
+   link->acl_system_info->reload = 1;
+}
+
+fs_rid_set *fsp_acl_admin_users(fsp_link *link) {
+    if (!link->acl_system_info)
+        return NULL;
+    return link->acl_system_info->admin_user_set;
+}
+
+int fsp_acl_is_admin(fsp_link *link, fs_rid user) {
+    if (!link->acl_system_info)
+        return 1;
+    return fs_rid_set_contains(link->acl_system_info->admin_user_set,user);
+}
+
+void fsp_acl_reloaded(fsp_link *link) {
+   if (!link->acl_system_info)
+        return;
+   link->acl_system_info->reload = 0;
+}
+
+int fsp_is_acl_enabled(fsp_link *link) {
+    return link->acl_system_info != NULL;
+}
+
+int fsp_acl_needs_reload(fsp_link *link) {
+   if (!link->acl_system_info)
+        return 0;
+    return link->acl_system_info && link->acl_system_info->reload;
+}
+
 fsp_link* fsp_open_link (const char *name, char *password, int readonly)
 {
   if (!name) {
@@ -1283,6 +1322,10 @@ int fsp_delete_model_all (fsp_link *link, fs_rid_vector *models)
   for (fs_segment segment = 0; segment < link->segments; ++segment) {
     errors += check_message_replica(link, segment, "delete_model(%d) failed: %s");
   }
+
+  struct fs_globals g = fs_global_constants();
+  if (fs_rid_vector_contains(models, g.system_config))
+    fsp_reload_acl_system(link);
 
   return errors;
 }

@@ -1,0 +1,62 @@
+Query: SELECT * WHERE { ?s ?p ?o } ORDER BY ?s ?p ?o
+?s	?p	?o
+Update: INSERT DATA { GRAPH <system:config> { 
+<graph:x> <http://4store.org/acl#onlyAccessBy> "user1" . } }
+
+Update: INSERT DATA { GRAPH <system:config> { 
+<graph:y> <http://4store.org/acl#onlyAccessBy> "user2" . } }
+
+Update: INSERT DATA { GRAPH <graph:x> { <x> <y> <z> . <a> <b> <c> . } }
+
+Update: INSERT DATA { GRAPH <graph:y> { <x1> <y1> <z1> . <a1> <b1> <c1> . } }
+
+Update: INSERT DATA { GRAPH <graph:z> { <x2> <y2> <z2> . <a2> <b2> <c2> . } }
+
+Query: SELECT * WHERE { ?s ?p ?o } ORDER BY ?s ?p ?o
+?s	?p	?o
+<graph:x>	<http://4store.org/acl#onlyAccessBy>	"user1"
+<graph:y>	<http://4store.org/acl#onlyAccessBy>	"user2"
+<local:a>	<local:b>	<local:c>
+<local:a1>	<local:b1>	<local:c1>
+<local:a2>	<local:b2>	<local:c2>
+<local:x>	<local:y>	<local:z>
+<local:x1>	<local:y1>	<local:z1>
+<local:x2>	<local:y2>	<local:z2>
+Query: SELECT * WHERE { ?s ?p ?o } ORDER BY ?s ?p ?o
+?s	?p	?o
+<local:a>	<local:b>	<local:c>
+<local:a2>	<local:b2>	<local:c2>
+<local:x>	<local:y>	<local:z>
+<local:x2>	<local:y2>	<local:z2>
+Query: SELECT * WHERE { ?s ?p ?o } ORDER BY ?s ?p ?o
+?s	?p	?o
+<local:a1>	<local:b1>	<local:c1>
+<local:a2>	<local:b2>	<local:c2>
+<local:x1>	<local:y1>	<local:z1>
+<local:x2>	<local:y2>	<local:z2>
+Update: DELETE DATA { GRAPH <system:config> { 
+<graph:x> <http://4store.org/acl#onlyAccessBy> "user1" . } };
+INSERT DATA { GRAPH <system:config> { 
+<graph:x> <http://4store.org/acl#onlyAccessBy> "user2" . } }
+
+
+Query: SELECT * WHERE { ?s ?p ?o } ORDER BY ?s ?p ?o
+?s	?p	?o
+<local:a2>	<local:b2>	<local:c2>
+<local:x2>	<local:y2>	<local:z2>
+Query: SELECT * WHERE { ?s ?p ?o } ORDER BY ?s ?p ?o
+?s	?p	?o
+<local:a>	<local:b>	<local:c>
+<local:a1>	<local:b1>	<local:c1>
+<local:a2>	<local:b2>	<local:c2>
+<local:x>	<local:y>	<local:z>
+<local:x1>	<local:y1>	<local:z1>
+<local:x2>	<local:y2>	<local:z2>
+200 deleted successfully
+This is a 4store SPARQL server [VERSION]
+200 deleted successfully
+This is a 4store SPARQL server [VERSION]
+200 deleted successfully
+This is a 4store SPARQL server [VERSION]
+200 deleted successfully
+This is a 4store SPARQL server [VERSION]

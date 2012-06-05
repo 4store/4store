@@ -334,11 +334,10 @@ static void tree_compact(fs_query *q)
     } while (done_something);
 }
 
-fs_query *fs_query_execute(fs_query_state *qs, fsp_link *link, raptor_uri *bu, const char *query, unsigned int flags, int opt_level, int soft_limit, int explain)
+fs_query *fs_query_execute(fs_query_state *qs, fsp_link *link, raptor_uri *bu, const char *query, unsigned int flags, int opt_level, int soft_limit,const char *apikey, int explain)
 {
     if (!qs) {
         fs_error(LOG_CRIT, "fs_query_execute() handed NULL query state");
-
         return NULL;
     }
 
@@ -366,6 +365,12 @@ fs_query *fs_query_execute(fs_query_state *qs, fsp_link *link, raptor_uri *bu, c
     q->rq = rq;
     q->qs = qs;
     q->opt_level = opt_level;
+
+    if (fsp_is_acl_enabled(qs->link) && apikey)
+        q->apikey_rid = fs_hash_literal(apikey,0);
+    else
+        q->apikey_rid = FS_RID_NULL;
+
     if (soft_limit) {
         q->soft_limit = soft_limit;
     } else {

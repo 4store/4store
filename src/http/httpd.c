@@ -69,6 +69,7 @@ static int global_import_count = 0;
 static int unsafe = 0;
 static int default_graph = 0;
 static int cache_stats = 0;
+static int graph_access_control = 0;
 static int soft_limit = 0; /* default value for soft limit */
 static int opt_level = -1;  /* default value for optimisation level */
 static int cors_support = -1; /* cross-origin resource sharing (CORS) support */
@@ -127,8 +128,10 @@ static void query_log (client_ctxt *ctxt, const char *query)
     struct tm *ts = gmtime(&now);
     char time_str[21];
     strftime(time_str, sizeof(time_str), "%Y-%m-%dT%H:%M:%SZ", ts);
-
-    fprintf(ql_file, "##### %s Q%u\n%s\n", time_str, ctxt->query_id, query);
+    if (!ctxt->apikey)
+      fprintf(ql_file, "##### %s Q%u-pid%u\n%s\n", time_str, ctxt->query_id, cpid, query);
+    else
+      fprintf(ql_file, "##### %s Q%u-pid%u %s\n%s\n", time_str, ctxt->query_id, cpid, ctxt->apikey, query);
     fflush(ql_file);
   }
 }
@@ -337,7 +340,9 @@ static void http_query_worker(gpointer data, gpointer user_data)
   client_ctxt *ctxt = (client_ctxt *) data;
 
   ctxt->start_time = fs_time();
-  ctxt->qr = fs_query_execute(query_state, fsplink, bu, ctxt->query_string, ctxt->query_flags, opt_level, ctxt->soft_limit, 0);
+  ctxt->qr = fs_query_execute(query_state, fsplink, bu, ctxt->query_string, 
+                              ctxt->query_flags, opt_level, ctxt->soft_limit, 
+                              ctxt->apikey, 0);
   if (ctxt->qr->errors) {
     http_error(ctxt, "400 Parser error");
     GSList *w = ctxt->qr->warnings;
@@ -450,6 +455,18 @@ static gboolean import_watchdog (gpointer data)
 
   http_put_finished(ctxt, "500 watchdog timeout fired");
   return FALSE;
+}
+
+static int data_modification_acl_granted(client_ctxt *ctxt) {
+    if (fsp_is_acl_enabled(fsplink)) {
+        if (fsp_acl_needs_reload(fsplink))
+          fs_acl_load_system_info(fsplink);
+        if (!ctxt->apikey ||
+           !fsp_acl_is_admin(fsplink, fs_hash_literal(ctxt->apikey,0))) {
+              return 0;
+        }
+    }
+    return 1; 
 }
 
 static void http_import_start(client_ctxt *ctxt)
@@ -635,9 +652,45 @@ static void http_put_finished(client_ctxt *ctxt, const char *msg)
 
 static void http_put_request(client_ctxt *ctxt, gchar *url, gchar *protocol)
 {
-  if (!strncmp(url, "/data/?graph=", 13)) { /* SPARQL 1.1 way */
-    url += 13;
-    url_decode(url);
+
+  int sparql11 = !strncmp(url, "/data/?", 7);  /* SPARQL 1.1 way */
+  /* access control only implmented in SPARQL 1.1 way */
+
+  if (sparql11) {
+    char *qm = strchr(url, '?');
+    char *qs = qm ? qm + 1 : NULL;
+    if (qs) {
+      *qm = '\0';
+    }
+    char *path = url;
+    url_decode(path);
+    while (qs) {
+      char *ampersand = strchr(qs, '&');
+      char *next = ampersand ? ampersand + 1 : NULL;
+      if (next) {
+        *ampersand = '\0';
+      }
+      char *key = qs;
+      char *equals = strchr(qs, '=');
+      char *value = equals ? equals + 1 : NULL;
+      if (equals) {
+        *equals = '\0';
+      }
+      url_decode(key);
+      if (!strcmp(key, "graph") && value) {
+        url_decode(value);
+        url = value;
+      } else if (!strcmp(key, "apikey") && value) {
+        url_decode(value);
+        ctxt->apikey = value;
+      }
+      qs = next;
+    }
+    if (!data_modification_acl_granted(ctxt)) {
+        http_error(ctxt, "403 forbidden - updates only with admin API KEY when ACL is enabled");
+        http_close(ctxt);
+        return;
+    }
   } else if (!strncmp(url, "/data/", 6)) { /* pre-SPARQL 1.1 4store way */
     url += 6;
     url_decode(url);
@@ -667,10 +720,51 @@ static void http_put_request(client_ctxt *ctxt, gchar *url, gchar *protocol)
 
 static void http_delete_request(client_ctxt *ctxt, gchar *url, gchar *protocol)
 {
-  if (!strncmp(url, "/data/?graph=", 13)) { /* SPARQL 1.1 way */
-    url += 13;
-    url_decode(url);
+
+  int sparql11 = !strncmp(url, "/data/?", 7);  /* SPARQL 1.1 way */
+  /* access control only implmented in SPARQL 1.1 way */
+
+  if (sparql11) {
+    char *qm = strchr(url, '?');
+    char *qs = qm ? qm + 1 : NULL;
+    if (qs) {
+      *qm = '\0';
+    }
+    char *path = url;
+    url_decode(path);
+    while (qs) {
+      char *ampersand = strchr(qs, '&');
+      char *next = ampersand ? ampersand + 1 : NULL;
+      if (next) {
+        *ampersand = '\0';
+      }
+      char *key = qs;
+      char *equals = strchr(qs, '=');
+      char *value = equals ? equals + 1 : NULL;
+      if (equals) {
+        *equals = '\0';
+      }
+      url_decode(key);
+      if (!strcmp(key, "graph") && value) {
+        url_decode(value);
+        url = value;
+      } else if (!strcmp(key, "apikey") && value) {
+        url_decode(value);
+        ctxt->apikey = value;
+      }
+      qs = next;
+    }
+    if (!data_modification_acl_granted(ctxt)) {
+        http_error(ctxt, "403 forbidden - updates only with admin API KEY when ACL is enabled");
+        http_close(ctxt);
+        return;
+    }
   } else if (!strncmp(url, "/data/", 6)) { /* pre-SPARQL 1.1 4store syntax */
+    #if 0 /* uncomment if only SPARQL 1.1 way with access control */
+        http_error(ctxt, "403 forbidden - updates only with admin API KEY when ACL is enabled");
+        http_close(ctxt);
+        return;
+    #endif 
     url += 6;
     url_decode(url);
   } else if (!strncmp(url, "/", 1)) {
@@ -1011,10 +1105,17 @@ static void http_get_request(client_ctxt *ctxt, gchar *url, gchar *protocol)
       } else if (!strcmp(key, "default-graph-uri") && value) {
         url_decode(value);
         default_graph = value;
+      } else if (!strcmp(key, "apikey") && value) {
+        url_decode(value);
+        ctxt->apikey = value;
       }
       qs = next;
     }
-    if (query) {
+    if (graph_access_control && !ctxt->apikey) {
+        http_error(ctxt, "403 forbidden - apikey parameter has to be included in request.");
+        http_close(ctxt);
+    }
+    else if (query) {
       http_answer_query(ctxt, query);
     } else {
       http_error(ctxt, "500 SPARQL protocol error");
@@ -1143,10 +1244,17 @@ static void http_post_request(client_ctxt *ctxt, gchar *url, gchar *protocol)
       } else if (!strcmp(key, "default-graph-uri") && value) {
         url_decode(value);
         default_graph = value;
+      } else if (!strcmp(key, "apikey") && value) {
+        url_decode(value);
+        ctxt->apikey = value;
       }
       qs = next;
     }
-    if (query) {
+    if (graph_access_control && !ctxt->apikey) {
+        http_error(ctxt, "403 forbidden - apikey parameter has to be included in request.");
+        http_close(ctxt);
+    }
+    else if (query) {
       http_answer_query(ctxt, query);
     } else {
       http_error(ctxt, "500 SPARQL protocol error");
@@ -1207,17 +1315,25 @@ static void http_post_request(client_ctxt *ctxt, gchar *url, gchar *protocol)
       if (!strcmp(key, "update") && value) {
         url_decode(value);
         update = value;
+      } else if (!strcmp(key, "apikey") && value) {
+        url_decode(value);
+        ctxt->apikey = value;
       }
       qs = next;
     }
     if (update) {
-      ctxt->update_string = update;
-      g_source_remove_by_user_data(ctxt);
-      if (import_queue) {
-        import_queue = g_slist_append(import_queue, ctxt);
+      if (!data_modification_acl_granted(ctxt)) {
+        http_error(ctxt, "403 forbidden - updates only with admin API KEY when ACL is enabled");
+        http_close(ctxt);
       } else {
-        import_queue = g_slist_append(import_queue, ctxt);
-        http_import_start(ctxt);
+        ctxt->update_string = update;
+        g_source_remove_by_user_data(ctxt);
+        if (import_queue) {
+          import_queue = g_slist_append(import_queue, ctxt);
+        } else {
+          import_queue = g_slist_append(import_queue, ctxt);
+          http_import_start(ctxt);
+        }
       }
     } else {
       http_error(ctxt, "500 SPARQL protocol error");
@@ -1288,11 +1404,20 @@ static void http_post_request(client_ctxt *ctxt, gchar *url, gchar *protocol)
       } else if (!strcmp(key, "mime-type") && value) {
         url_decode(value);
         mime_type = value;
+      } else if (!strcmp(key, "apikey") && value) {
+        url_decode(value);
+        ctxt->apikey = value;
       }
       qs = next;
     }
+
     if (graph && data) {
-      http_post_data(ctxt, graph, mime_type, data);
+      if (!data_modification_acl_granted(ctxt)) {
+            http_error(ctxt, "403 forbidden - updates only with admin API KEY when ACL is enabled");
+            http_close(ctxt);
+      } else {
+        http_post_data(ctxt, graph, mime_type, data);
+      }
     } else {
       http_error(ctxt, "500 SPARQL REST protocol error");
       http_close(ctxt);
@@ -1715,7 +1840,9 @@ static int server_setup (int background, const char *host, const char *port)
     fs_error(LOG_INFO, "4store HTTP daemon " GIT_REV " started on port %s", port);
   }
   if (cache_stats)
-    fs_error(LOG_ERR,"cache stats enabled at /status/cache");
+    fs_error(LOG_ERR,"Cache stats enabled at /status/cache.");
+  if (graph_access_control)
+    fs_error(LOG_ERR,"Access control for graphs is enabled.");
   
   return srv;
 }
@@ -1743,6 +1870,8 @@ static void child (int srv, char *kb_name, char *password)
 
   query_state = fs_query_init(fsplink, NULL, NULL);
   query_state->cache_stats = cache_stats;
+  if (graph_access_control)
+    fsp_init_acl_system(fsplink);
   bu = raptor_new_uri(query_state->raptor_world, (unsigned char *)"local:local");
   g_thread_init(NULL);
   pool = g_thread_pool_new(http_query_worker, NULL, QUERY_THREAD_POOL_SIZE, FALSE, NULL);
@@ -1806,7 +1935,7 @@ int main(int argc, char *argv[])
 
 
   int o;
-  while (!help && (o = getopt(argc, argv, "DCH:p:Uds:O:Xc:")) != -1) {
+  while (!help && (o = getopt(argc, argv, "DCAH:p:Uds:O:Xc:")) != -1) {
     switch (o) {
       case 'D':
         daemonize = 0;
@@ -1842,6 +1971,9 @@ int main(int argc, char *argv[])
       case 'C':
         cache_stats = 1;
         break;
+      case 'A':
+        graph_access_control = 1;
+        break;
       default:
         help = 1;
         break;
@@ -1860,6 +1992,7 @@ int main(int argc, char *argv[])
     fprintf(stdout, "       -X   enable public cross-origin resource sharing (CORS) support\n");
     fprintf(stdout, "       -c   path to config file\n");
     fprintf(stdout, "       -C   enable cache stats in /status/cache\n");
+    fprintf(stdout, "       -A   enable access control at graph level\n");
     fprintf(stdout, "Options can also be set permenantly in /etc/4store.conf\n");
     fprintf(stdout, "see http://4store.org/trac/wiki/SparqlServer for details\n");
 
@@ -1894,6 +2027,10 @@ int main(int argc, char *argv[])
     set_string(keyfile, kb_name, "port", &port);
 
     set_string(keyfile, kb_name, "listen", &host);
+
+    set_boolean(keyfile, kb_name, "cache-stats", &cache_stats);
+    
+    set_boolean(keyfile, kb_name, "graph-access-control", &graph_access_control);
 
     if (soft_limit == 0) {
       const char *soft_limit_str = NULL;

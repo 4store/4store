@@ -103,6 +103,9 @@ void fs_hash_init(fsp_hash_enum type)
     fs_c.fs_token = fs_hash_uri(FS_TEXT_TOKEN);
     fs_c.fs_dmetaphone = fs_hash_uri(FS_TEXT_DMETAPHONE);
     fs_c.fs_stem = fs_hash_uri(FS_TEXT_STEM);
+    fs_c.fs_acl_admin = fs_hash_uri(FS_ACL_ADMIN);
+    fs_c.fs_acl_access_by = fs_hash_uri(FS_ACL_ONLY_ACCESS_BY);
+    fs_c.fs_acl_default_admin = fs_hash_literal(FS_ACL_DEFAULT_ADMIN,0);
 }
 
 GHashTable * fs_hash_bnids()
@@ -250,4 +253,8 @@ gboolean fs_rid_equal(gconstpointer va, gconstpointer vb)
     return *a == *b;
 }
 
+
+struct fs_globals fs_global_constants(void) {
+    return fs_c; 
+}
 /* vi:set ts=8 sts=4 sw=4: */

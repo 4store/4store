@@ -48,7 +48,6 @@ struct quad_buf {
     int length;
     fs_rid quads[QUAD_BUF_SIZE][4];
 };
-
 static struct quad_buf *quad_buffer = NULL;
 
 int fs_load(struct update_context *uc, char *resuri, char *graphuri);
@@ -126,6 +125,9 @@ static int delete_rasqal_triple(struct update_context *uc, fs_rid_vector *vec[],
     fs_rid_vector_append(vec[2], p);
     fs_rid_vector_append(vec[3], o);
 
+    if (fs_rid_vector_contains(vec[0], fs_c.system_config))
+        fsp_reload_acl_system(uc->link);
+
     if (fs_rid_vector_length(vec[0]) > 999) {
         fsp_delete_quads_all(uc->link, vec);
         for (int s=0; s<4; s++) {
@@ -153,6 +155,10 @@ static int insert_rasqal_triple(struct update_context *uc, rasqal_triple *triple
         res.lex = FS_DEFAULT_GRAPH;
         res.attr = FS_RID_NULL;
     }
+
+    if (quad_buf[0][0] == fs_c.system_config)
+        fsp_reload_acl_system(uc->link);
+
     if (!FS_IS_URI(quad_buf[0][0])) {
         return 1;
     }
@@ -662,7 +668,8 @@ static int insert_triples(struct update_context *uc, fs_rid model, fs_rid_vector
         }
     }
     flush_triples(uc);
-    
+    //if (model == fs
+    printf("%p ",uc->link->kb_name); 
     return 0;
 }
 
@@ -955,5 +962,4 @@ int fs_copy(struct update_context *uc, char *from, char *to)
 
     return 0;
 }
-
 /* vi:set expandtab sts=4 sw=4: */

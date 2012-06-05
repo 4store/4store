@@ -49,4 +49,8 @@
 #define FS_TEXT_DMETAPHONE FS_TEXT "dmetaphone"
 #define FS_TEXT_STEM       FS_TEXT "stem"
 
+#define FS_ACL            "http://4store.org/acl#"
+#define FS_ACL_ADMIN      FS_ACL "admin"
+#define FS_ACL_ONLY_ACCESS_BY      FS_ACL "onlyAccessBy"
+#define FS_ACL_DEFAULT_ADMIN      "4sadminuser"
 #endif
