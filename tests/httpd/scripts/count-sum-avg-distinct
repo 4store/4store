@@ -1,0 +1,27 @@
+#!/bin/bash
+
+source sparql.sh
+
+update "$EPR" 'INSERT DATA { GRAPH <g> { <r> <y> <c> . <t> <y> <c> . <z> <y> <d> } }'
+
+#expecting 2 not 3.
+sparql "$EPR" 'SELECT (count(DISTINCT ?o) as ?count) WHERE { 
+    ?s <y> ?o .
+} ORDER BY ?count'
+
+update "$EPR" 'DELETE DATA { GRAPH <g> { <r> <y> <c> . <t> <y> <c> . <z> <y> <d> } }'
+
+update "$EPR" 'INSERT DATA { GRAPH <g> { <r> <y> 2 . <t> <y> 2 . <z> <y> 1 } }'
+
+sparql "$EPR" 'SELECT * WHERE { ?s ?p ?o }' 
+#expecting 1.5 not 1.666
+sparql "$EPR" 'SELECT (avg(DISTINCT ?o) as ?count) WHERE { 
+    ?s <y> ?o .
+} ORDER BY ?count'
+
+#expecting 3 not 5
+sparql "$EPR" 'SELECT (sum(DISTINCT ?o) as ?count) WHERE { 
+    ?s <y> ?o .
+} ORDER BY ?count'
+
+update "$EPR" 'DELETE DATA { GRAPH <g> { <r> <y> 2 . <t> <y> 2 . <z> <y> 1 } }'

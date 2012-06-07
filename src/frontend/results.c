@@ -525,6 +525,7 @@ fs_value fs_expression_eval(fs_query *q, int row, int block, rasqal_expression *
             return fs_value_integer(q->group_length);
         }
         int count = 0;
+        fs_rid rid_prev = FS_RID_NULL;
         for (int r=0; r<q->group_length; r++) {
             if (q->apply_constraints && !fs_bit_array_get(q->apply_constraints,q->group_rows[r])) continue;
                 
@@ -534,7 +535,13 @@ fs_value fs_expression_eval(fs_query *q, int row, int block, rasqal_expression *
                   v.rid == FS_RID_NULL)) {
                /* do nothing */
             } else {
-                count++;
+                if (e->flags & RASQAL_EXPR_FLAG_DISTINCT) { 
+                    if (v.rid != rid_prev) {
+                        count++;
+                        rid_prev = v.rid;
+                    }
+                } else
+                    count++;
             }
         }
 
@@ -735,9 +742,17 @@ fs_value fs_expression_eval(fs_query *q, int row, int block, rasqal_expression *
 
     case RASQAL_EXPR_SUM: {
         fs_value v = fs_value_integer(0);
+        fs_rid rid_prev = FS_RID_NULL;
         for (int r=0; r<q->group_length; r++) {
             if (q->apply_constraints && !fs_bit_array_get(q->apply_constraints,q->group_rows[r])) continue;
-            v = fn_numeric_add(q, v, fs_expression_eval(q, q->group_rows[r], block, e->arg1));
+            fs_value expr = fs_expression_eval(q, q->group_rows[r], block, e->arg1);
+            if (e->flags & RASQAL_EXPR_FLAG_DISTINCT) { 
+                if (expr.rid != rid_prev) {
+                    rid_prev = expr.rid;
+                } else
+                    continue;
+            }
+            v = fn_numeric_add(q, v, expr);
         }
 
         return v;
@@ -746,9 +761,16 @@ fs_value fs_expression_eval(fs_query *q, int row, int block, rasqal_expression *
     case RASQAL_EXPR_AVG: {
         fs_value sum = fs_value_integer(0);
         int count = 0;
+        fs_rid rid_prev = FS_RID_NULL;
         for (int r=0; r<q->group_length; r++) {
             if (q->apply_constraints && !fs_bit_array_get(q->apply_constraints,q->group_rows[r])) continue;
             fs_value expr = fs_expression_eval(q, q->group_rows[r], block, e->arg1);
+            if (e->flags & RASQAL_EXPR_FLAG_DISTINCT) { 
+                if (expr.rid != rid_prev) {
+                    rid_prev = expr.rid;
+                } else
+                    continue;
+            }
             sum = fn_numeric_add(q, sum, expr);
             if (sum.valid & fs_valid_bit(FS_V_TYPE_ERROR)) {
                 return sum;

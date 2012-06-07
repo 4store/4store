@@ -1,0 +1,28 @@
+Update: INSERT DATA { GRAPH <g> { <r> <y> <c> . <t> <y> <c> . <z> <y> <d> } }
+
+Query: SELECT (count(DISTINCT ?o) as ?count) WHERE { 
+    ?s <y> ?o .
+} ORDER BY ?count
+?count
+2
+Update: DELETE DATA { GRAPH <g> { <r> <y> <c> . <t> <y> <c> . <z> <y> <d> } }
+
+Update: INSERT DATA { GRAPH <g> { <r> <y> 2 . <t> <y> 2 . <z> <y> 1 } }
+
+Query: SELECT * WHERE { ?s ?p ?o }
+?s	?p	?o
+<local:z>	<local:y>	1
+<local:t>	<local:y>	2
+<local:r>	<local:y>	2
+Query: SELECT (avg(DISTINCT ?o) as ?count) WHERE { 
+    ?s <y> ?o .
+} ORDER BY ?count
+?count
+1.4999999999999999997
+Query: SELECT (sum(DISTINCT ?o) as ?count) WHERE { 
+    ?s <y> ?o .
+} ORDER BY ?count
+?count
+3
+Update: DELETE DATA { GRAPH <g> { <r> <y> 2 . <t> <y> 2 . <z> <y> 1 } }
+
