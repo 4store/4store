@@ -108,6 +108,58 @@ void fs_hash_init(fsp_hash_enum type)
     fs_c.fs_acl_default_admin = fs_hash_literal(FS_ACL_DEFAULT_ADMIN,0);
 }
 
+const char * fs_hash_predefined_uri(fs_rid rid) {
+    if (rid == fs_c.xsd_string)
+        return XSD_STRING;
+    if (rid == fs_c.xsd_integer)
+        return XSD_INTEGER;
+    if (rid == fs_c.xsd_float)
+        return XSD_FLOAT;
+    if (rid == fs_c.xsd_double)
+        return XSD_DOUBLE;
+    if (rid == fs_c.xsd_decimal)
+        return XSD_DECIMAL;
+    if (rid == fs_c.xsd_boolean)
+        return XSD_BOOLEAN;
+    if (rid == fs_c.xsd_datetime)
+        return XSD_DATETIME;
+    if (rid == fs_c.xsd_date)
+        return XSD_DATE;
+    if (rid == fs_c.xsd_pinteger)
+        return XSD_NAMESPACE "positiveInteger";
+    if (rid == fs_c.xsd_ninteger)
+        return XSD_NAMESPACE "negativeInteger";
+    if (rid == fs_c.xsd_npinteger)
+        return XSD_NAMESPACE "nonPositiveInteger";
+    if (rid == fs_c.xsd_nninteger)
+        return XSD_NAMESPACE "nonNegativeInteger";
+    if (rid == fs_c.xsd_long)
+        return XSD_NAMESPACE "long";
+    if (rid == fs_c.xsd_int)
+        return XSD_NAMESPACE "int";
+    if (rid == fs_c.xsd_short)
+        return XSD_NAMESPACE "short";
+    if (rid == fs_c.xsd_byte)
+        return XSD_NAMESPACE "short";
+    if (rid == fs_c.xsd_ulong)
+        return XSD_NAMESPACE "unsignedLong";
+    if (rid == fs_c.xsd_uint)
+        return XSD_NAMESPACE "unsignedInt";
+    if (rid == fs_c.xsd_ushort)
+        return XSD_NAMESPACE "unsignedShort";
+    if (rid == fs_c.xsd_ubyte)
+        return XSD_NAMESPACE "unsignedByte";
+    if (rid == fs_c.rdf_type)
+        return XSD_NAMESPACE "type";
+    if (rid == fs_c.default_graph)
+        return FS_DEFAULT_GRAPH;
+    if (rid == fs_c.system_config)
+        return FS_SYSTEM_CONFIG;
+    if (rid == fs_c.rdfs_label)
+        return RDFS_LABEL;
+    return NULL;
+}
+
 GHashTable * fs_hash_bnids()
 {
     return bnids;

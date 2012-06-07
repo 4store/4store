@@ -72,19 +72,19 @@ static int resolve(fs_query *q, fs_rid rid, fs_resource *res)
     res->lex = NULL;
 
     if (rid == FS_RID_NULL) {
-	res->rid = rid;
+        res->rid = rid;
         res->attr = FS_RID_NULL;
-	res->lex = "NULL";
+        res->lex = "NULL";
 
         return 0;
     }
     if (FS_IS_BNODE(rid)) {
-	res->rid = rid;
-	res->attr = FS_RID_NULL;
-	res->lex = g_strdup_printf("_:b%llx", FS_BNODE_NUM(rid));
+        res->rid = rid;
+        res->attr = FS_RID_NULL;
+        res->lex = g_strdup_printf("_:b%llx", FS_BNODE_NUM(rid));
         fs_query_add_row_freeable(q, res->lex);
 
-	return 0;
+        return 0;
     }
 
     fs_resource *hit;
@@ -98,6 +98,16 @@ static int resolve(fs_query *q, fs_rid rid, fs_resource *res)
         /* don't need deep copy as the hash grows monotonically until query is
          * complete */
         memcpy(res, hit, sizeof(fs_resource));
+
+        return 0;
+    }
+
+    const char *lex_constant = fs_hash_predefined_uri(rid);
+    if (lex_constant) {
+        res->lex = strdup(lex_constant);
+        res->rid = rid;
+        res->attr = FS_RID_NULL;
+        fs_query_add_row_freeable(q, res->lex);
 
         return 0;
     }

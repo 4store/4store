@@ -70,5 +70,6 @@ fs_rid fs_hash_literal(const char *str, fs_rid attr);
 struct fs_globals fs_global_constants(void);
 
 void umac_crypto_hash(const char *str, char *result);
+const char * fs_hash_predefined_uri(fs_rid rid);
 
 #endif
