@@ -150,7 +150,7 @@ const char * fs_hash_predefined_uri(fs_rid rid) {
     if (rid == fs_c.xsd_ubyte)
         return XSD_NAMESPACE "unsignedByte";
     if (rid == fs_c.rdf_type)
-        return XSD_NAMESPACE "type";
+        return RDF_TYPE;
     if (rid == fs_c.default_graph)
         return FS_DEFAULT_GRAPH;
     if (rid == fs_c.system_config)
