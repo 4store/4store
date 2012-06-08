@@ -1076,6 +1076,9 @@ void fs_query_free(fs_query *q)
         if (q->tmp_resources) {
             g_hash_table_destroy(q->tmp_resources);
         }
+        /* we forgot to do this somewhere else */
+        if (q->free_row_list)
+            fs_query_free_row_freeable(q);
 
         memset(q, 0, sizeof(fs_query));
 	free(q);

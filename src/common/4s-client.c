@@ -562,6 +562,18 @@ void get_uuid(fsp_link *link)
   fs_global_skolem_prefix_len = strlen(fs_global_skolem_prefix);
 }
 
+void fsp_free_acl_system(fsp_link *link) {
+    fs_acl_system_info *t = link->acl_system_info;
+    if (t && t->admin_user_set)
+        fs_rid_set_free( t->admin_user_set );
+    if (t && t->acl_graph_hash) {
+        g_hash_table_steal(t->acl_graph_hash, &fs_c.system_config);
+        g_hash_table_destroy(t->acl_graph_hash);
+    }
+    if (t)
+        free(t);
+}
+
 void fsp_init_acl_system(fsp_link *link) {
    link->acl_system_info = calloc(sizeof(fs_acl_system_info),1);
    link->acl_system_info->reload = 1;

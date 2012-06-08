@@ -93,6 +93,13 @@ volatile static unsigned int last_query_id = 0;
 static void set_boolean(GKeyFile *keyfile, const char *kb_name, const char *key, int *set);
 static void set_string(GKeyFile *keyfile, const char *kb_name, const char *key, const char **set);
 
+static void fs_free_global_elements() {
+  if (fsplink) {
+    fsp_free_acl_system(fsplink);
+    fsp_close_link(fsplink);
+  }
+}
+
 static void query_log_open (const char *kb_name)
 {
   char *filename = g_strdup_printf("/var/log/4store/query-%s.log", kb_name);
@@ -322,6 +329,8 @@ static void client_free(client_ctxt *ctxt)
   }
   g_hash_table_destroy(ctxt->headers);
   free(ctxt->request);
+  if (ctxt->apikey)
+    g_free(ctxt->apikey);
   g_free(ctxt);
 }
 
@@ -682,7 +691,7 @@ static void http_put_request(client_ctxt *ctxt, gchar *url, gchar *protocol)
         url = value;
       } else if (!strcmp(key, "apikey") && value) {
         url_decode(value);
-        ctxt->apikey = value;
+        ctxt->apikey = g_strdup(value);
       }
       qs = next;
     }
@@ -750,7 +759,7 @@ static void http_delete_request(client_ctxt *ctxt, gchar *url, gchar *protocol)
         url = value;
       } else if (!strcmp(key, "apikey") && value) {
         url_decode(value);
-        ctxt->apikey = value;
+        ctxt->apikey = g_strdup(value);
       }
       qs = next;
     }
@@ -1107,7 +1116,7 @@ static void http_get_request(client_ctxt *ctxt, gchar *url, gchar *protocol)
         default_graph = value;
       } else if (!strcmp(key, "apikey") && value) {
         url_decode(value);
-        ctxt->apikey = value;
+        ctxt->apikey = g_strdup(value);
       }
       qs = next;
     }
@@ -1246,7 +1255,7 @@ static void http_post_request(client_ctxt *ctxt, gchar *url, gchar *protocol)
         default_graph = value;
       } else if (!strcmp(key, "apikey") && value) {
         url_decode(value);
-        ctxt->apikey = value;
+        ctxt->apikey = g_strdup(value);
       }
       qs = next;
     }
@@ -1317,7 +1326,7 @@ static void http_post_request(client_ctxt *ctxt, gchar *url, gchar *protocol)
         update = value;
       } else if (!strcmp(key, "apikey") && value) {
         url_decode(value);
-        ctxt->apikey = value;
+        ctxt->apikey = g_strdup(value);
       }
       qs = next;
     }
@@ -1406,7 +1415,7 @@ static void http_post_request(client_ctxt *ctxt, gchar *url, gchar *protocol)
         mime_type = value;
       } else if (!strcmp(key, "apikey") && value) {
         url_decode(value);
-        ctxt->apikey = value;
+        ctxt->apikey = g_strdup(value);
       }
       qs = next;
     }
@@ -1910,6 +1919,7 @@ static void child_exited(pid_t pid, gint status)
     int code = WTERMSIG(status);
     fs_error((code == SIGTERM || code == SIGKILL) ? LOG_INFO : LOG_CRIT,
              "child %d terminated by signal %d", pid, code);
+    fs_free_global_elements();
   } else if (WIFSTOPPED(status)) {
     fs_error(LOG_ERR, "child %d stopped by signal %d", pid, WSTOPSIG(status));
   } else {
@@ -2051,6 +2061,7 @@ int main(int argc, char *argv[])
       }
     }
   }
+  g_key_file_free(keyfile);
 
   /* handle defaults */
 

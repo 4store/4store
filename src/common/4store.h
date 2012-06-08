@@ -96,6 +96,7 @@ int fsp_acl_needs_reload(fsp_link *link);
 void fsp_acl_reloaded(fsp_link *link);
 fs_rid_set *fsp_acl_admin_users(fsp_link *link);
 int fsp_acl_is_admin(fsp_link *link, fs_rid user);
+void fsp_free_acl_system(fsp_link *link);
 
 #ifdef FS_PROFILE_WRITE
 long long* fsp_profile_write(fsp_link *link);

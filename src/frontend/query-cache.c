@@ -98,14 +98,14 @@ static fs_rid_set *no_access_for_user(fs_acl_system_info *acl_info, fs_rid user_
   if (!acl_info || is_admin(acl_info->admin_user_set, user_rid))
     return NULL;
 
-  fs_rid_set *res = fs_rid_set_new();
-  struct _acl_sec_tuple t = { .set_size = 0, .res = res, .user_key = user_rid };
 
   if (acl_info->acl_graph_hash) {
-     g_hash_table_foreach(acl_info->acl_graph_hash, key_in , &t);
-     if (t.set_size)
-       return res;
-     return NULL;
+      fs_rid_set *res = fs_rid_set_new();
+      struct _acl_sec_tuple t = { .set_size = 0, .res = res, .user_key = user_rid };
+      g_hash_table_foreach(acl_info->acl_graph_hash, key_in , &t);
+      if (t.set_size)
+        return res;
+      return NULL;
   }
   return NULL;
 }
@@ -169,7 +169,10 @@ int fs_acl_load_system_info(fsp_link *link) {
     fs_rid_vector *orids = fs_rid_vector_new(0);
     fs_rid_vector **result = NULL;
     fsp_bind_limit_all(link, flags, mrids, srids, prids, orids, &result, -1, -1);
-    
+    fs_rid_vector_free(mrids);
+    fs_rid_vector_free(srids);
+    fs_rid_vector_free(prids);
+    fs_rid_vector_free(orids);
     int admin_users_count = 0;
     fs_acl_system_info *acl_system_info = link->acl_system_info;
     if (result && result[0]) {
@@ -216,6 +219,12 @@ int fs_acl_load_system_info(fsp_link *link) {
         g_hash_table_insert(acl_system_info->acl_graph_hash, &fs_c.system_config, acl_system_info->admin_user_set);
     }
     fsp_acl_reloaded(link);
+    if (result) {
+        for (int i=0;i<3;i++) {
+            fs_rid_vector_free(result[i]);
+        }
+        free(result);
+    }
     return 1;
 }
 
@@ -377,6 +386,8 @@ int fs_bind_cache_wrapper_intl_acl(fs_query_state *qs, fs_query *q, int all,
         /* TODO probably this can be done with one iteration of results */
         fs_rid_set *inv_acl = no_access_for_user(qs->link->acl_system_info,q->apikey_rid); 
         ndiscarded = fs_mark_discard_rows((*result)[0], inv_acl, &rows_discarded);
+        if (inv_acl)
+            fs_rid_set_free(inv_acl);
         int slots = fs_slots_n(flags_copy);
         if (!(flags_copy & FS_BIND_MODEL) && (flags & FS_BIND_MODEL)) {
             fs_rid_vector **result_copy = calloc(slots, sizeof(fs_rid_vector));
@@ -400,6 +411,8 @@ int fs_bind_cache_wrapper_intl_acl(fs_query_state *qs, fs_query *q, int all,
                 rows[s]->length -= ndiscarded;
             }
         }
+        if (rows_discarded)
+            fs_bit_array_destroy(rows_discarded);
     }
 
     return ret - ndiscarded;

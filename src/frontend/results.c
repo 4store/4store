@@ -2882,7 +2882,7 @@ void fs_query_results_output(fs_query *q, const char *fmt, int flags, FILE *out)
         fprintf(out, "unknown format: %s\n", fmt);
     }
 
-    //fs_query_free_row_freeable(q);
+    fs_query_free_row_freeable(q);
 }
 
 void fs_value_to_row(fs_query *q, fs_value v, fs_row *r)
