@@ -339,7 +339,6 @@ fs_value fs_expression_eval(fs_query *q, int row, int block, rasqal_expression *
         fs_error(LOG_ERR, "block was less than zero, changing to 0");
         block = 0;
     }
-    
     switch (e->op) {
 #if RASQAL_VERSION >= 925
     case RASQAL_EXPR_ABS:
@@ -527,9 +526,13 @@ fs_value fs_expression_eval(fs_query *q, int row, int block, rasqal_expression *
         int count = 0;
         fs_rid rid_prev = FS_RID_NULL;
         for (int r=0; r<q->group_length; r++) {
-            if (q->apply_constraints && !fs_bit_array_get(q->apply_constraints,q->group_rows[r])) continue;
-                
-            fs_value v = fs_expression_eval(q, q->group_rows[r], block, e->arg1);
+            int rr;
+            if (!q->group_by && (e->flags & RASQAL_EXPR_FLAG_DISTINCT))
+                rr = q->bt[0].vals->data[r];
+            else
+                rr = q->group_rows[r];
+            if (q->apply_constraints && !fs_bit_array_get(q->apply_constraints,rr)) continue;
+            fs_value v = fs_expression_eval(q, rr, block, e->arg1);
             if (v.valid & fs_valid_bit(FS_V_TYPE_ERROR) ||
                 ((v.attr == fs_c.empty || v.attr == FS_RID_NULL) &&
                   v.rid == FS_RID_NULL)) {
@@ -744,8 +747,13 @@ fs_value fs_expression_eval(fs_query *q, int row, int block, rasqal_expression *
         fs_value v = fs_value_integer(0);
         fs_rid rid_prev = FS_RID_NULL;
         for (int r=0; r<q->group_length; r++) {
-            if (q->apply_constraints && !fs_bit_array_get(q->apply_constraints,q->group_rows[r])) continue;
-            fs_value expr = fs_expression_eval(q, q->group_rows[r], block, e->arg1);
+            int rr;
+            if (!q->group_by && (e->flags & RASQAL_EXPR_FLAG_DISTINCT))
+                rr = q->bt[0].vals->data[r];
+            else
+                rr = q->group_rows[r];
+            if (q->apply_constraints && !fs_bit_array_get(q->apply_constraints,rr)) continue;
+            fs_value expr = fs_expression_eval(q, rr, block, e->arg1);
             if (e->flags & RASQAL_EXPR_FLAG_DISTINCT) { 
                 if (expr.rid != rid_prev) {
                     rid_prev = expr.rid;
@@ -759,12 +767,18 @@ fs_value fs_expression_eval(fs_query *q, int row, int block, rasqal_expression *
     }
 
     case RASQAL_EXPR_AVG: {
+        /* if distinct applies we should sort and unique */
         fs_value sum = fs_value_integer(0);
         int count = 0;
         fs_rid rid_prev = FS_RID_NULL;
         for (int r=0; r<q->group_length; r++) {
-            if (q->apply_constraints && !fs_bit_array_get(q->apply_constraints,q->group_rows[r])) continue;
-            fs_value expr = fs_expression_eval(q, q->group_rows[r], block, e->arg1);
+            int rr;
+            if (!q->group_by && (e->flags & RASQAL_EXPR_FLAG_DISTINCT))
+                rr = q->bt[0].vals->data[r];
+            else
+                rr = q->group_rows[r];
+            if (q->apply_constraints && !fs_bit_array_get(q->apply_constraints,rr)) continue;
+            fs_value expr = fs_expression_eval(q, rr, block, e->arg1);
             if (e->flags & RASQAL_EXPR_FLAG_DISTINCT) { 
                 if (expr.rid != rid_prev) {
                     rid_prev = expr.rid;
@@ -2615,6 +2629,19 @@ nextrow: ;
         fs_rid_vector *ord = q->bt[0].vals;
         if (q->aggregate && q->length > 0 && fs_rid_vector_length(ord) == 0) {
             /* fallback position: ord should contain values, but in some cases it does not */
+            fs_binding *b = q->bt;
+            int some_sort = 0;
+            for (int i=0; b[i].name; i++)
+                some_sort |=  b[i].sort;
+            if (!some_sort) {
+                for (int i=0; b[i].name; i++) {
+                    if (b[i].proj || b[i].selected) {
+                        b[i].sort = 1;
+                    } else {
+                        b[i].sort = 0;
+                    }
+                }
+            }
             fs_binding_sort(q->bt);
             ord = q->bt[0].vals;
         }

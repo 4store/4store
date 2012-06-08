@@ -2,26 +2,78 @@
 
 source sparql.sh
 
-update "$EPR" 'INSERT DATA { GRAPH <g> { <r> <y> <c> . <t> <y> <c> . <z> <y> <d> } }'
+update "$EPR" 'INSERT DATA { GRAPH <g> { 
+<r> <y> <c> .
+<t> <y> <c> . 
+<z> <y> <d> .
+<r1> <y> <c1> .
+<t1> <y> <c1> . 
+<z1> <y> <d1> .
+<r2> <y> <c1> .
+<t2> <y> <c1> . 
+<z3> <y> <d1> .
+} }'
 
-#expecting 2 not 3.
+#expecting 4 not 8.
 sparql "$EPR" 'SELECT (count(DISTINCT ?o) as ?count) WHERE { 
     ?s <y> ?o .
-} ORDER BY ?count'
+}'
 
-update "$EPR" 'DELETE DATA { GRAPH <g> { <r> <y> <c> . <t> <y> <c> . <z> <y> <d> } }'
+update "$EPR" 'DELETE DATA { GRAPH <g> { 
+<r> <y> <c> .
+<t> <y> <c> . 
+<z> <y> <d> .
+<r1> <y> <c1> .
+<t1> <y> <c1> . 
+<z1> <y> <d1> .
+<r2> <y> <c1> .
+<t2> <y> <c1> . 
+<z3> <y> <d1> .
+} }'
 
-update "$EPR" 'INSERT DATA { GRAPH <g> { <r> <y> 2 . <t> <y> 2 . <z> <y> 1 } }'
+update "$EPR" 'INSERT DATA { GRAPH <g> { 
+<r> <y> 1 .
+<t> <y> 2 . 
+<z> <y> 3 .
+<r1> <y> 4 .
+<t1> <y> 5 . 
+<z1> <y> 1 .
+<r2> <y> 2 .
+<t2> <y> 3 . 
+<z3> <y> 4 .
+} }'
 
-sparql "$EPR" 'SELECT * WHERE { ?s ?p ?o }' 
-#expecting 1.5 not 1.666
+#expecting 3 not less
 sparql "$EPR" 'SELECT (avg(DISTINCT ?o) as ?count) WHERE { 
     ?s <y> ?o .
-} ORDER BY ?count'
+}'
 
-#expecting 3 not 5
+#expecting 15 not 25
 sparql "$EPR" 'SELECT (sum(DISTINCT ?o) as ?count) WHERE { 
     ?s <y> ?o .
-} ORDER BY ?count'
+}'
 
-update "$EPR" 'DELETE DATA { GRAPH <g> { <r> <y> 2 . <t> <y> 2 . <z> <y> 1 } }'
+
+# just to check that without distinct is not broken
+sparql "$EPR" 'SELECT (count(?o) as ?count) WHERE { 
+    ?s <y> ?o .
+}'
+
+#count + filters with filters ... 
+#that actually somebody will ever  run this ... that I don't know.
+sparql "$EPR" 'SELECT (COUNT(DISTINCT ?o) as ?count) WHERE { 
+    ?s <y> ?o .
+    FILTER( ?o > 2)
+}'
+
+update "$EPR" 'DELETE DATA { GRAPH <g> { 
+<r> <y> 1 .
+<t> <y> 2 . 
+<z> <y> 3 .
+<r1> <y> 4 .
+<t1> <y> 5 . 
+<z1> <y> 1 .
+<r2> <y> 2 .
+<t2> <y> 3 . 
+<z3> <y> 4 .
+} }'
