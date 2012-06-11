@@ -1,0 +1,36 @@
+#!/bin/bash
+
+source sparql.sh
+
+
+# Default admin user is included only when there 
+# is not a user admin specified but httpd was started 
+# with access control (-A)
+
+# Default admin user is setup in 
+# rdf-constants.h (FS_ACL_DEFAULT_ADMIN)
+adminkey="4sadminuser"
+
+user1="user1"
+user2="user2"
+
+# Only default admin should be able to update. 403 error expected.
+updatekey "$EPR" 'INSERT DATA { GRAPH <a> { <x> <y> <z> . <a> <b> <c> . } }' $user1
+
+# Only default admin should be able to update. 403 error expected.
+putkey "$EPR" ../../data/swh.xrdf 'application/rdf+xml' 'http://example.com/test.ttl' $user2
+
+# Queries without apikey are not allowed. 403 error expected.
+sparql "$EPR" 'SELECT * WHERE { ?s ?p ?o }'
+
+# Queries without apikey are not allowed. OK expected.
+sparqlkey "$EPR" 'SELECT * WHERE { ?s ?p ?o }' $user1
+
+# Only default admin should be able to update. OK expected.
+updatekey "$EPR" 'INSERT DATA { GRAPH <a> { <x> <y> <z> . <a> <b> <c> . } }' $adminkey
+
+# Queries without apikey are not allowed. OK Expected.
+sparqlkey "$EPR" 'SELECT * WHERE { ?s ?p ?o } ORDER BY ?s ?p ?o' $user1
+
+# DELETE everything
+updatekey "$EPR" 'DELETE DATA { GRAPH <a> { <x> <y> <z> . <a> <b> <c> . } }' $adminkey

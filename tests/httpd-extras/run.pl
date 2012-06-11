@@ -1,11 +1,9 @@
 #!/usr/bin/perl -w
 
 use Term::ANSIColor;
+use POSIX ":sys_wait_h";
 
-$kb_name = "query_test_".$ENV{'USER'};
-
-# names of tests that require LAQRS support
-my @need_laqrs = ('count', 'union-nobind');
+$kb_name = "http_test_".$ENV{'USER'};
 
 $dirname=`dirname '$0'`;
 chomp $dirname;
@@ -18,6 +16,7 @@ my $spawn = 1;
 my $valgrind = 0;
 
 $SIG{USR2} = 'IGNORE';
+$SIG{TERM} = 'IGNORE';
 
 if ($ARGV[0]) {
 	if ($ARGV[0] eq "--exemplar") {
@@ -45,18 +44,29 @@ mkdir($outdir);
 
 if (!@tests) {
 	@tests = `ls scripts`;
-	chomp @tests;
-}
-
-if (`../../src/frontend/4s-query -h 2>&1 | grep LAQRS` eq '') {
-	my %tmp;
-	foreach $t (@tests) { $tmp{$t} ++; }
-	foreach $t (@need_laqrs) { delete $tmp{$t}; }
-	@tests = sort keys %tmp;
 }
 
 if ($pid = fork()) {
 	sleep(2);
+	if ($httppid = fork()) {
+		if ($valgrind) {
+			sleep(4);
+		} else {
+			sleep(1);
+		}
+	} else {
+		my @cmd = ("../../src/http/4s-httpd", "-c", "../tests_4store.conf","-A", "-X", "-D", "-p", "13579", $kb_name);
+		if ($valgrind) {
+			print("Running httpd under valgrind, output in valgrind.txt\n");
+			unshift(@cmd, 'valgrind', '-v', '--trace-children=yes', '--log-file=valgrind.txt');
+		}
+		close STDERR;
+		print(join(" ", @cmd)."\n");
+		exec(@cmd);
+		die "failed to exec HTTP server: $!";
+	}
+	print("4s-httpd running on PID $httppid\n");
+	sleep(1);
 	my $fails = 0;
 	my $passes = 0;
 	for $t (@tests) {
@@ -71,20 +81,19 @@ if ($pid = fork()) {
 		} else {
 			$errout = "";
 		}
-		print("[....] $t\r");
-		my $ret = system("FORMAT=ascii LANG=C LC_ALL=C TESTPATH=../../src CONF='--config-file ../tests_4store.conf' scripts/$t $kb_name > $outdir/$t $errout");
+		print("[....] $t\r[");
+		my $ret = system("EPR=http://localhost:13579 LANG=C LC_ALL=C TESTPATH=../../src scripts/$t > $outdir/$t $errout");
 		if ($ret == 2) {
 			exit(2);
 		}
-        if ($ret >> 8 == 3) {
+		if ($ret >> 8 == 3) {
 			print color 'bold yellow';
 			print("SKIP");
 			print color 'reset';
 			print("] $t\n");
-        } elsif ($test) {
+		} elsif ($test) {
 			@diff = `diff exemplar/$t $outdir/$t 2>/dev/null`;
 			if (@diff) {
-				print("[");
 				print color 'bold red';
 				print("FAIL");
 				print color 'reset';
@@ -95,7 +104,6 @@ if ($pid = fork()) {
 				close(RES);
 				$fails++;
 			} else {
-				print("[");
 				print color 'bold green';
 				print("PASS");
 				print color 'reset';
@@ -103,14 +111,20 @@ if ($pid = fork()) {
 				$passes++;
 			}
 		} else {
-			print("[PROC] $t\n");
+			print("PROC] $t\n");
 		}
 
 	}
 	print("Tests completed: passed $passes/".($fails+$passes)." ($fails fails)\n");
+	$ret = kill 15, $httppid;
+	if (!$ret) {
+		warn("failed to kill HTTP server process, pid $httppid");
+	} else {
+		waitpid($httppid, 0);
+	}
 	$ret = kill 15, $pid;
 	if (!$ret) {
-		warn("failed to kill server process, pid $pid");
+		warn("failed to kill backend server process, pid $pid");
 	} else {
 		waitpid($pid, 0);
 	}
@@ -123,17 +137,10 @@ if ($pid = fork()) {
 } else {
 	# child
 	if ($spawn) {
-		my @pre = ();
-		if ($valgrind) {
-			push(@pre, "valgrind");
-			push(@pre, " --leak-check=full");
-			if (`uname -a` =~ /Darwin/) {
-				push(@pre, "--dsymutil=yes");
-			}
-		}
-		push(@pre, "../../src/backend/4s-backend");
-print(join(" ", @pre)."\n");
-		exec(@pre, "-D", "$kb_name");
+		system('../../src/utilities/4s-backend-setup', "$kb_name");
+		close(STDERR);
+		exec("../../src/backend/4s-backend", "-D", "-l", "2.0", "$kb_name");
 		die "failed to exec sever: $!";
 	}
 }
+

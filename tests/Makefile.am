@@ -1,12 +1,15 @@
 all:
 
-test: test-query test-httpd test-admin
+test: test-query test-httpd test-httpd-extras test-admin
 
 test-query:
 	(cd query && pwd && ./setup.sh --autorun)
 
 test-httpd:
 	(cd httpd && pwd && ./run.pl)
+
+test-httpd-extras:
+	(cd httpd-extras && pwd && ./run.pl)
 
 test-admin:
 	(cd admin && pwd && ./run.pl)

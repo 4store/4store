@@ -12,4 +12,5 @@ network operations, eg. LOAD */
 
 int fs_update(fs_query_state *qs, char *update, char **message, int unsafe);
 
+int fs_is_system_conf_modified_in_update(void);
 #endif

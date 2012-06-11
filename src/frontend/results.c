@@ -31,6 +31,7 @@
 #include "query-intl.h"
 #include "filter.h"
 #include "debug.h"
+#include "../common/bit_arr.h"
 #include "../common/4s-hash.h"
 #include "../common/error.h"
 #include "../common/rdf-constants.h"
@@ -71,19 +72,19 @@ static int resolve(fs_query *q, fs_rid rid, fs_resource *res)
     res->lex = NULL;
 
     if (rid == FS_RID_NULL) {
-	res->rid = rid;
+        res->rid = rid;
         res->attr = FS_RID_NULL;
-	res->lex = "NULL";
+        res->lex = "NULL";
 
         return 0;
     }
     if (FS_IS_BNODE(rid)) {
-	res->rid = rid;
-	res->attr = FS_RID_NULL;
-	res->lex = g_strdup_printf("_:b%llx", FS_BNODE_NUM(rid));
+        res->rid = rid;
+        res->attr = FS_RID_NULL;
+        res->lex = g_strdup_printf("_:b%llx", FS_BNODE_NUM(rid));
         fs_query_add_row_freeable(q, res->lex);
 
-	return 0;
+        return 0;
     }
 
     fs_resource *hit;
@@ -97,6 +98,16 @@ static int resolve(fs_query *q, fs_rid rid, fs_resource *res)
         /* don't need deep copy as the hash grows monotonically until query is
          * complete */
         memcpy(res, hit, sizeof(fs_resource));
+
+        return 0;
+    }
+
+    const char *lex_constant = fs_hash_predefined_uri(rid);
+    if (lex_constant) {
+        res->lex = strdup(lex_constant);
+        res->rid = rid;
+        res->attr = FS_RID_NULL;
+        fs_query_add_row_freeable(q, res->lex);
 
         return 0;
     }
@@ -328,7 +339,6 @@ fs_value fs_expression_eval(fs_query *q, int row, int block, rasqal_expression *
         fs_error(LOG_ERR, "block was less than zero, changing to 0");
         block = 0;
     }
-    
     switch (e->op) {
 #if RASQAL_VERSION >= 925
     case RASQAL_EXPR_ABS:
@@ -514,16 +524,27 @@ fs_value fs_expression_eval(fs_query *q, int row, int block, rasqal_expression *
             return fs_value_integer(q->group_length);
         }
         int count = 0;
+        fs_rid rid_prev = FS_RID_NULL;
         for (int r=0; r<q->group_length; r++) {
-            if (q->apply_constraints && !fs_bit_array_get(q->apply_constraints,q->group_rows[r])) continue;
-                
-            fs_value v = fs_expression_eval(q, q->group_rows[r], block, e->arg1);
+            int rr;
+            if (!q->group_by && (e->flags & RASQAL_EXPR_FLAG_DISTINCT))
+                rr = q->bt[0].vals->data[r];
+            else
+                rr = q->group_rows[r];
+            if (q->apply_constraints && !fs_bit_array_get(q->apply_constraints,rr)) continue;
+            fs_value v = fs_expression_eval(q, rr, block, e->arg1);
             if (v.valid & fs_valid_bit(FS_V_TYPE_ERROR) ||
                 ((v.attr == fs_c.empty || v.attr == FS_RID_NULL) &&
                   v.rid == FS_RID_NULL)) {
                /* do nothing */
             } else {
-                count++;
+                if (e->flags & RASQAL_EXPR_FLAG_DISTINCT) { 
+                    if (v.rid != rid_prev) {
+                        count++;
+                        rid_prev = v.rid;
+                    }
+                } else
+                    count++;
             }
         }
 
@@ -724,20 +745,46 @@ fs_value fs_expression_eval(fs_query *q, int row, int block, rasqal_expression *
 
     case RASQAL_EXPR_SUM: {
         fs_value v = fs_value_integer(0);
+        fs_rid rid_prev = FS_RID_NULL;
         for (int r=0; r<q->group_length; r++) {
-            if (q->apply_constraints && !fs_bit_array_get(q->apply_constraints,q->group_rows[r])) continue;
-            v = fn_numeric_add(q, v, fs_expression_eval(q, q->group_rows[r], block, e->arg1));
+            int rr;
+            if (!q->group_by && (e->flags & RASQAL_EXPR_FLAG_DISTINCT))
+                rr = q->bt[0].vals->data[r];
+            else
+                rr = q->group_rows[r];
+            if (q->apply_constraints && !fs_bit_array_get(q->apply_constraints,rr)) continue;
+            fs_value expr = fs_expression_eval(q, rr, block, e->arg1);
+            if (e->flags & RASQAL_EXPR_FLAG_DISTINCT) { 
+                if (expr.rid != rid_prev) {
+                    rid_prev = expr.rid;
+                } else
+                    continue;
+            }
+            v = fn_numeric_add(q, v, expr);
         }
 
         return v;
     }
 
     case RASQAL_EXPR_AVG: {
+        /* if distinct applies we should sort and unique */
         fs_value sum = fs_value_integer(0);
         int count = 0;
+        fs_rid rid_prev = FS_RID_NULL;
         for (int r=0; r<q->group_length; r++) {
-            if (q->apply_constraints && !fs_bit_array_get(q->apply_constraints,q->group_rows[r])) continue;
-            fs_value expr = fs_expression_eval(q, q->group_rows[r], block, e->arg1);
+            int rr;
+            if (!q->group_by && (e->flags & RASQAL_EXPR_FLAG_DISTINCT))
+                rr = q->bt[0].vals->data[r];
+            else
+                rr = q->group_rows[r];
+            if (q->apply_constraints && !fs_bit_array_get(q->apply_constraints,rr)) continue;
+            fs_value expr = fs_expression_eval(q, rr, block, e->arg1);
+            if (e->flags & RASQAL_EXPR_FLAG_DISTINCT) { 
+                if (expr.rid != rid_prev) {
+                    rid_prev = expr.rid;
+                } else
+                    continue;
+            }
             sum = fn_numeric_add(q, sum, expr);
             if (sum.valid & fs_valid_bit(FS_V_TYPE_ERROR)) {
                 return sum;
@@ -2582,6 +2629,19 @@ nextrow: ;
         fs_rid_vector *ord = q->bt[0].vals;
         if (q->aggregate && q->length > 0 && fs_rid_vector_length(ord) == 0) {
             /* fallback position: ord should contain values, but in some cases it does not */
+            fs_binding *b = q->bt;
+            int some_sort = 0;
+            for (int i=0; b[i].name; i++)
+                some_sort |=  b[i].sort;
+            if (!some_sort) {
+                for (int i=0; b[i].name; i++) {
+                    if (b[i].proj || b[i].selected) {
+                        b[i].sort = 1;
+                    } else {
+                        b[i].sort = 0;
+                    }
+                }
+            }
             fs_binding_sort(q->bt);
             ord = q->bt[0].vals;
         }
@@ -2822,7 +2882,7 @@ void fs_query_results_output(fs_query *q, const char *fmt, int flags, FILE *out)
         fprintf(out, "unknown format: %s\n", fmt);
     }
 
-    //fs_query_free_row_freeable(q);
+    fs_query_free_row_freeable(q);
 }
 
 void fs_value_to_row(fs_query *q, fs_value v, fs_row *r)

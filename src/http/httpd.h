@@ -47,4 +47,5 @@ typedef struct {
   char *output;
   unsigned int query_id;
   double start_time;
+  char *apikey;
 } client_ctxt;

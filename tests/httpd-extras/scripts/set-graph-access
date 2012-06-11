@@ -1,0 +1,40 @@
+#!/bin/bash
+
+source sparql.sh
+
+
+# Default admin user is included only when there 
+# is not a user admin specified but httpd was started 
+# with access control (-A)
+
+# Default admin user is setup in 
+# rdf-constants.h (FS_ACL_DEFAULT_ADMIN)
+adminkey="4sadminuser"
+
+user1="user1"
+user2="user2"
+
+# Admin user grants user1 with access to <graph:x>
+updatekey "$EPR" 'INSERT DATA { GRAPH <system:config> { 
+<graph:x> <http://4store.org/acl#onlyAccessBy> "user1" . } }' $adminkey
+
+# Admin user adds data into graph:x.
+putkey "$EPR" ../../data/swh.xrdf 'application/rdf+xml' 'graph:x' $adminkey
+
+# User 1 access the data in graph:x
+sparqlkey "$EPR" 'SELECT * WHERE { ?s ?p ?o } ORDER BY ?s ?p ?o' $user1
+
+# User 2 access the data in graph:x ... no results back expected.
+sparqlkey "$EPR" 'SELECT * WHERE { ?s ?p ?o } ORDER BY ?s ?p ?o' $user2
+
+#delete with no api key 403 expected
+delete "$EPR" 'graph:x'
+
+#no admin trying to delete 403 expected
+deletekey "$EPR" 'graph:x' $user1
+
+#ok expected
+deletekey "$EPR" 'graph:x' $adminkey
+
+#delete with no api key 403 expected
+deletekey "$EPR" 'system:config' $adminkey
