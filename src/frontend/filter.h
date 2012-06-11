@@ -91,4 +91,9 @@ fs_value fn_cast(fs_query *q, fs_value v, fs_value d);
 fs_value fn_cast_intl(fs_query *q, fs_value v, fs_rid dt);
 fs_value fn_ebv(fs_value a);
 
+#ifndef HAVE_UUID_STRING_T
+#define HAVE_UUID_STRING_T 1
+typedef char uuid_string_t[37];
+#endif
+
 #endif
