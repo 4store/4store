@@ -5,7 +5,7 @@ source sparql.sh
 put "$EPR" ../../data/nasty.ttl 'text/turtle' 'http://example.com/nasty.ttl'
 put "$EPR" ../../data/numbers.ttl 'text/turtle' 'http://example.com/numbers.ttl'
 
-sparql "$EPR" 'SELECT ?x (?x AS ?b) (?z AS ?c) WHERE { ?x ?y ?z } ORDER BY ?x'
+sparql "$EPR" 'SELECT ?x (?x AS ?b) (?z AS ?c) WHERE { ?x ?y ?z } ORDER BY ?x ?z'
 
 delete "$EPR" 'http://example.com/nasty.ttl'
 delete "$EPR" 'http://example.com/numbers.ttl'
