@@ -15,7 +15,7 @@ test: all filter-test
 	@./tests/run.pl
 
 4s_query_SOURCES = 4s-query.c query.c results.c query-data.c query-datatypes.c query-cache.c filter.c filter-datatypes.c order.c group.c optimiser.c decimal.c
-4s_query_LDADD = ../common/lib4sintl.a ../common/libsort.a ../libs/mt19937-64/libmt64.a @RAPTOR_LIBS@ @RASQAL_LIBS@ @MDNS_LIBS@
+4s_query_LDADD = ../common/lib4sintl.a ../common/libsort.a ../libs/mt19937-64/libmt64.a -lm @RAPTOR_LIBS@ @RASQAL_LIBS@ @MDNS_LIBS@
 
 4s_update_SOURCES = 4s-update.c update.c import.c ../common/gnu-options.c query.c results.c query-data.c query-datatypes.c query-cache.c filter.c filter-datatypes.c order.c group.c optimiser.c decimal.c
 4s_update_LDADD = ../common/lib4sintl.a ../common/libsort.a ../libs/stemmer/libstemmer.a ../libs/double-metaphone/libdouble_metaphone.a ../libs/mt19937-64/libmt64.a @RAPTOR_LIBS@ @RASQAL_LIBS@ @MDNS_LIBS@
