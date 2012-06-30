@@ -301,20 +301,18 @@ fs_binding *fs_binding_get(fs_binding *b, rasqal_variable *var)
 #endif
     if (var->user_data) {
         long col = (long)var->user_data;
-
         return b+col;
     }
-
     const char *vname = (char *)var->name;
     fs_binding *vb = NULL;
     long i;
     for (i=0; b[i].name; i++) {
-	if (!strcmp(b[i].name, vname)) {
-	    vb = b+i;
+        if (!strcmp(b[i].name, vname)) {
+            vb = b+i;
             var->user_data = (void *)i;
 
             break;
-	}
+        }
     }
 
     return vb;

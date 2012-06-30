@@ -220,7 +220,7 @@ static void fs_free_agg_rows(GPtrArray *agg,int vars) {
 }
 
 static fs_value literal_to_value_in_aggs(fs_query *q, int row, int block, rasqal_literal *l) {
-    rasqal_variable *var =   rasqal_literal_as_variable(l);
+    rasqal_variable *var = rasqal_literal_as_variable(l);
     int i=0;
     fs_binding *b=q->bt;
     for (i=0; b[i].name; i++) {
@@ -923,6 +923,11 @@ fs_value fs_expression_eval(fs_query *q, int row, int block, rasqal_expression *
     if (e->literal && q->aggregate_order_sorted == 1) {
         return literal_to_value_in_aggs(q, row, block, e->literal);
     } else if (e->literal) {
+        if (e->literal &&
+            e->literal->type == RASQAL_LITERAL_VARIABLE &&
+            e->literal->value.variable->expression)
+            return fs_expression_eval(q,row,block,
+                    e->literal->value.variable->expression); 
         return literal_to_value(q, row, block, e->literal);
     }
 
@@ -3067,6 +3072,7 @@ int fs_sort_column(fs_query *q, fs_binding *b, int col, int **sorted)
     }
 
     /* store strings that will strcmp into the correct order */
+    fs_error(LOG_ERR,"ORDERING?");
     GHashTable *rl = g_hash_table_new_full(fs_rid_hash, fs_rid_equal, g_free, NULL);
     for (int s=0; s<q->segments; s++) {
         for (int i=0; i<rv[s]->length; i++) {
