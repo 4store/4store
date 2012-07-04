@@ -1,4 +1,7 @@
 #!/usr/bin/perl
+#
+# Script to build a static binary of 4store, including its dependancies
+#
 
 use File::Basename;
 use Cwd;
@@ -15,78 +18,97 @@ my $DEFAULT_CONFIGURE_ARGS = "--enable-static --disable-shared --prefix=$ROOT_DI
 my $packages = [
     {
         'url' => 'http://pkgconfig.freedesktop.org/releases/pkg-config-0.25.tar.gz',
+        'md5' => 'a3270bab3f4b69b7dc6dbdacbcae9745',
         'config' => "./configure $DEFAULT_CONFIGURE_ARGS --with-pc-path=${ROOT_DIR}/lib/pkgconfig",
-        'checkfor' => 'bin/pkg-config',
+        'checkfor' => ['bin/pkg-config', 'share/aclocal/pkg.m4']
     },
     {
-        'url' => 'http://curl.haxx.se/download/curl-7.21.7.tar.gz',
+        # libuuid
+        'url' => 'http://www.kernel.org/pub/linux/utils/util-linux/v2.21/util-linux-2.21.2.tar.gz',
+        'md5' => 'b228170ecdfce9ced77313d57b21b37c',
+        'make' => "cd libuuid && make",
+        'install' => "cd libuuid && make install",
+        'checkfor' => ['include/uuid/uuid.h', 'lib/libuuid.a', 'lib/pkgconfig/uuid.pc'],
+    },
+    {
+        'url' => 'http://curl.haxx.se/download/curl-7.26.0.tar.bz2',
+        'md5' => 'bfa80f01b3d300359cfb4d409b6136a3',
         'config' => "./configure $DEFAULT_CONFIGURE_ARGS ".
                     "--disable-ssh --disable-ldap --disable-ldaps --disable-rtsp ".
                     "--without-librtmp --disable-dict --disable-telnet --disable-pop3 ".
                     "--disable-imap --disable-smtp --disable-manual --without-libssh2",
-        'checkfor' => 'lib/pkgconfig/libcurl.pc',
+        'checkfor' => ['include/curl/curl.h', 'lib/libcurl.a', 'lib/pkgconfig/libcurl.pc'],
     },
     {
-        'url' => 'http://kent.dl.sourceforge.net/project/pcre/pcre/8.12/pcre-8.12.tar.bz2',
+        'url' => 'http://kent.dl.sourceforge.net/project/pcre/pcre/8.30/pcre-8.30.tar.bz2',
+        'md5' => '98e8928cccc945d04279581e778fbdff',
         'config' => "./configure $DEFAULT_CONFIGURE_ARGS ".
                     "--enable-utf8 --enable-unicode-properties",
-        'checkfor' => 'lib/pkgconfig/libpcre.pc'
+        'checkfor' => ['include/pcre.h', 'lib/libpcre.a', 'lib/pkgconfig/libpcre.pc']
     },
     {
-        # NOTE: libxml2-2.7.8 doesn't seem to work with Mac OS 10.6 zlib
-        'url' => 'http://xmlsoft.org/sources/libxml2-2.7.6.tar.gz',
-        'checkfor' => 'lib/pkgconfig/libxml-2.0.pc',
+        'url' => 'http://xmlsoft.org/sources/libxml2-2.8.0.tar.gz',
+        'md5' => 'c62106f02ee00b6437f0fb9d370c1093',
+        'checkfor' => ['include/libxml2', 'lib/libxml2.a', 'lib/pkgconfig/libxml-2.0.pc'],
     },
     {
         'url' => 'http://xmlsoft.org/sources/libxslt-1.1.26.tar.gz',
-        'checkfor' => 'lib/pkgconfig/libxslt.pc',
+        'md5' => 'e61d0364a30146aaa3001296f853b2b9',
+        # Hack to fix broken compile on Mac OS 10.5 SDK
+        'make' => 'touch libxslt/ansidecl.h && make',
+        'checkfor' => ['include/libxslt/xslt.h', 'lib/libxslt.a', 'lib/pkgconfig/libxslt.pc'],
     },
     {
         'url' => 'http://ftp.gnu.org/pub/gnu/gettext/gettext-0.18.1.1.tar.gz',
+        'md5' => '3dd55b952826d2b32f51308f2f91aa89',
         'patch' => 'gettext.patch',
         'config' => "./configure $DEFAULT_CONFIGURE_ARGS --disable-debug ".
                     "--without-included-gettext --without-included-glib ".
                     "--without-included-libcroco --without-included-libxml ".
                     "--without-emacs --disable-java",
-        'checkfor' => 'lib/libgettextlib.la',
+        'checkfor' => ['bin/gettext', 'include/gettext-po.h', 'lib/libgettextlib.la'],
     },
 #     {
 #         'url' => 'http://ftp.gnu.org/gnu/readline/readline-6.2.tar.gz',
 #         'checkfor' => 'lib/libreadline.a',
 #     },
     {
-        'url' => 'ftp://ftp.gnome.org/pub/gnome/sources/glib/2.28/glib-2.28.8.tar.bz2',
+        'url' => 'http://ftp.gnome.org/pub/gnome/sources/glib/2.28/glib-2.28.8.tar.bz2',
+        'md5' => '789e7520f71c6a4bf08bc683ec764d24',
         'patch' => 'glib2.patch',
         'config' => "./configure $DEFAULT_CONFIGURE_ARGS --disable-selinux && ".
                     "ed - config.h < ${TOP_DIR}/app-aux/glib2-config.h.ed",
-        'checkfor' => 'lib/pkgconfig/glib-2.0.pc',
+        'checkfor' => ['include/glib-2.0/glib.h', 'lib/libglib-2.0.a', 'lib/pkgconfig/glib-2.0.pc'],
     },
     {
-        'url' => 'http://github.com/lloyd/yajl/tarball/1.0.12',
-        'dirname' => 'lloyd-yajl-17b1790',
-        'tarname' => 'yajl-1.0.12.tar.gz',
-        'config' => "mkdir build && cd build && /usr/local/bin/cmake ..",
+        'url' => 'http://github.com/lloyd/yajl/tarball/2.0.4',
+        'md5' => 'ee6208e697c43dcccf798ce80d370379',
+        'dirname' => 'lloyd-yajl-fee1ebe',
+        'tarname' => 'yajl-2.0.4.tar.gz',
+        'config' => "mkdir build && cd build && cmake ..",
         'make' => "cd build && make yajl_s",
-        'install' => "cd build/yajl-1.0.12 && ".
+        'install' => "cd build/yajl-2.0.4 && ".
                      "cp -Rfv include/yajl ${ROOT_DIR}/include/ && ".
                      "cp -fv lib/libyajl_s.a ${ROOT_DIR}/lib/libyajl.a",
-        'checkfor' => 'lib/libyajl.a',
+        'checkfor' => ['include/yajl/yajl_common.h', 'lib/libyajl.a'],
     },
     {
-        'url' => 'http://download.librdf.org/source/raptor2-2.0.4.tar.gz',
+        'url' => 'http://download.librdf.org/source/raptor2-2.0.8.tar.gz',
+        'md5' => 'ac60858b875aab8fa7917f21a1237aa9',
         'config' => "./configure $DEFAULT_CONFIGURE_ARGS --with-yajl=${ROOT_DIR}",
-        'checkfor' => 'lib/pkgconfig/raptor2.pc',
+        'checkfor' => ['lib/libraptor2.a', 'include/raptor2/raptor2.h', 'lib/pkgconfig/raptor2.pc'],
     },
     {
-        'url' => 'http://download.librdf.org/source/rasqal-0.9.27.tar.gz',
-        'config' => "./configure $DEFAULT_CONFIGURE_ARGS --enable-raptor2",
-        'checkfor' => 'lib/pkgconfig/rasqal.pc',
+        'url' => 'http://download.librdf.org/source/rasqal-0.9.29.tar.gz',
+        'md5' => '49e4b75a0c67465edf55dd20606715fa',
+        'config' => "./configure $DEFAULT_CONFIGURE_ARGS --with-regex-library=pcre --enable-raptor2",
+        'checkfor' => ['include/rasqal/rasqal.h', 'lib/librasqal.a', 'lib/pkgconfig/rasqal.pc'],
     },
     {
         'name' => '4store',
         'dirpath' => $TOP_DIR,
         'test' => 'make check',
-        'checkfor' => 'lib/pkgconfig/4store-0.pc',
+        'checkfor' => ['bin/4s-query', 'include/4store/4store.h', 'lib/lib4store.la', 'lib/pkgconfig/4store-0.pc'],
         'alwaysbuild' => 1,
     },
 ];
@@ -99,12 +121,12 @@ $ENV{'LDFLAGS'} = "-L${ROOT_DIR}/lib";
 $ENV{'INFOPATH'} = "${ROOT_DIR}/share/info";
 $ENV{'MANPATH'} = "${ROOT_DIR}/share/man";
 $ENV{'M4PATH'} = "${ROOT_DIR}/share/aclocal";
-$ENV{'PATH'} = "${ROOT_DIR}/bin:/usr/bin:/bin";
+$ENV{'PATH'} = "${ROOT_DIR}/bin:/usr/bin:/bin:/sbin";
 $ENV{'PKG_CONFIG_PATH'} = "${ROOT_DIR}/lib/pkgconfig";
 $ENV{'CLASSPATH'} = '';
 
 # Check tools required are available
-my @TOOLS_REQUIRED = ('cmake', 'curl', 'ed', 'make', 'patch', 'tar');
+my @TOOLS_REQUIRED = ('cmake', 'curl', 'ed', 'make', 'md5', 'patch', 'tar');
 foreach my $cmd (@TOOLS_REQUIRED) {
   system("which $cmd > /dev/null") && die "Error: $cmd is not available on this system.";
 }
@@ -133,6 +155,7 @@ if (`uname` =~ /^Darwin/) {
     $ENV{'LDFLAGS'} .= " -Wl,-headerpad_max_install_names";
     $ENV{'MACOSX_DEPLOYMENT_TARGET'} = $SDKver;
     $ENV{'CMAKE_OSX_ARCHITECTURES'} = 'x86_64';
+    $ENV{'CMAKE_OSX_SYSROOT'} = $SDK;
 
     my $GCC_VER = '4.2';
     $ENV{'CC'} = "/Developer/usr/bin/gcc-$GCC_VER";
@@ -174,12 +197,9 @@ foreach my $pkg (@$packages) {
         $pkg->{'name'} = $pkg->{'dirname'};
     }
 
-    unless ($pkg->{'alwaysbuild'} or defined $pkg->{'checkfor'}) {
-        die "Don't know how to check if ".$pkg->{'name'}." is already built.";
-    }
-
-    if ($pkg->{'alwaysbuild'} or !-e $ROOT_DIR.'/'.$pkg->{'checkfor'}) {
+    if ($pkg->{'alwaysbuild'} or check_installed($pkg) == 0) {
         download_package($pkg) if (defined $pkg->{'url'});
+        check_digest($pkg) if (defined $pkg->{'tarpath'});
         extract_package($pkg) if (defined $pkg->{'tarpath'});
         clean_package($pkg);
         patch_package($pkg);
@@ -188,8 +208,8 @@ foreach my $pkg (@$packages) {
         test_package($pkg);
         install_package($pkg);
 
-        if (defined $pkg->{'checkfor'} && !-e $ROOT_DIR.'/'.$pkg->{'checkfor'}) {
-            die "Installing $pkg->{'name'} failed.";
+        if (check_installed($pkg) == 0) {
+            die "Building $pkg->{'name'} failed.";
         }
     }
 }
@@ -199,6 +219,59 @@ foreach my $pkg (sort {$a->{'name'} cmp $b->{'name'}} @$packages) {
     print " * ".$pkg->{'name'}."\n";
 }
 
+
+sub check_installed {
+    my ($pkg) = @_;
+    my $checkfor = $pkg->{'checkfor'};
+
+    unless (defined $checkfor and $checkfor) {
+        die "Don't know how to check if ".$pkg->{'name'}." is built.";
+    }
+
+    print "Checking if ".$pkg->{'name'}." is built correctly.\n";
+    $checkfor = [$checkfor] unless (ref $checkfor eq 'ARRAY');
+    foreach (@$checkfor) {
+        my $path = $ROOT_DIR . '/' . $_;
+        unless (-e $path) {
+            print "  No - $path is missing.\n";
+            return 0;
+        }
+    }
+
+    # Everything exists
+    print "  Yes.\n";
+    return 1;
+}
+
+sub download_package {
+    my ($pkg) = @_;
+
+    unless (-f $pkg->{'tarpath'}) {
+        safe_chdir();
+        print "Downloading: ".$pkg->{'tarname'}."\n";
+        safe_system('curl', '-L', '-k', '-o', $pkg->{'tarpath'}, $pkg->{'url'});
+    }
+}
+
+sub check_digest {
+    my ($pkg) = @_;
+
+    print "Checking digest for: ".$pkg->{'tarname'}."\n";
+    if ($pkg->{'md5'}) {
+        if (`md5 $pkg->{'tarpath'}` =~ / = ([0-9a-f]{32})$/) {
+            if ($pkg->{'md5'} ne $1) {
+                warn "MD5 digests don't match.\n";
+                warn "  Expected: $pkg->{'md5'}\n";
+                warn "  Actual: $1\n";
+                exit(-1);
+            }
+        } else {
+            die "  Unable to calculate MD5 digest for downloaded package.\n";
+        }
+    } else {
+        die "  Error: no digest defined.\n";
+    }
+}
 
 sub extract_package {
     my ($pkg) = @_;
@@ -215,16 +288,6 @@ sub extract_package {
         safe_system('tar', '-zxf', $pkg->{'tarpath'});
     } else {
         die "Don't know how to decomress archive.";
-    }
-}
-
-sub download_package {
-    my ($pkg) = @_;
-
-    unless (-e $pkg->{'tarpath'}) {
-        safe_chdir();
-        print "Downloading: ".$pkg->{'tarname'}."\n";
-        safe_system('curl', '-L', '-k', '-o', $pkg->{'tarpath'}, $pkg->{'url'});
     }
 }
 
