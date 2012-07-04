@@ -1,0 +1,50 @@
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix owl:  <http://www.w3.org/2002/07/owl#> .
+@prefix rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+
+<http://foaf.qdos.com/a> a <http://foaf.qdos.com/something>.
+<http://foaf.qdos.com/b> a <http://foaf.qdos.com/something> .
+<http://foaf.qdos.com/c> a <http://foaf.qdos.com/something> .
+<http://foaf.qdos.com/d> a <http://foaf.qdos.com/something> .
+<http://foaf.qdos.com/e> a <http://foaf.qdos.com/something> .
+
+<http://foaf.qdos.com/1> a owl:Class;
+    rdfs:subClassOf <http://foaf.qdos.com/0>;
+    skos:prefLabel "class 1";
+.
+
+<http://foaf.qdos.com/11> a owl:Class;
+    rdfs:subClassOf <http://foaf.qdos.com/1>;
+    skos:prefLabel "class 11";
+.
+
+<http://foaf.qdos.com/12> a owl:Class;
+    rdfs:subClassOf <http://foaf.qdos.com/1>;
+    skos:prefLabel "class 12";
+.
+
+<http://foaf.qdos.com/13> a owl:Class;
+    rdfs:subClassOf <http://foaf.qdos.com/1>;
+    skos:prefLabel "class 13";
+.
+
+<http://foaf.qdos.com/2> a owl:Class;
+    rdfs:subClassOf <http://foaf.qdos.com/0>;
+    skos:prefLabel "class 2";
+.
+
+<http://foaf.qdos.com/21> a owl:Class;
+    rdfs:subClassOf <http://foaf.qdos.com/2>;
+    skos:prefLabel "class 21";
+.
+
+<http://foaf.qdos.com/3> a owl:Class;
+    rdfs:subClassOf <http://foaf.qdos.com/0>;
+    skos:prefLabel "class 3";
+.
+
+<http://foaf.qdos.com/0> a owl:Class;
+    skos:prefLabel "class 0";
+.
+

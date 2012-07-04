@@ -1,0 +1,13 @@
+#!/bin/bash
+
+source sparql.sh
+
+put "$EPR" ../../data/nasty.ttl 'text/turtle' 'http://example.com/nasty.ttl'
+put "$EPR" ../../data/numbers.ttl 'text/turtle' 'http://example.com/numbers.ttl'
+
+sparql "$EPR" 'SELECT ?b WHERE { ?x ?y ?z BIND(CONCAT(STR(?z), "!!") AS ?b) } ORDER BY str(?b)'
+
+sparql "$EPR" 'SELECT ?na ?nb ?diff WHERE { <http://example.com/zi> <test:num> ?na . ?b <test:num> ?nb . BIND(?na - ?nb AS ?diff) } ORDER BY str(?na) str(?nb) str(?b)'
+
+delete "$EPR" 'http://example.com/nasty.ttl'
+delete "$EPR" 'http://example.com/numbers.ttl'

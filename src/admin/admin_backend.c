@@ -79,7 +79,7 @@ int fsab_kb_info_init(fsa_kb_info *ki, const unsigned char *kb_name, int *err)
         free(path);
         return -1;
     }
- 
+
     rv = stat(path, &info);
     free(path);
     if (rv == -1) {
@@ -114,7 +114,7 @@ int fsab_kb_info_init(fsa_kb_info *ki, const unsigned char *kb_name, int *err)
         free(path);
         return -1;
     }
- 
+
     /* attempt to open file for reading, ignore failures, but log them */
     ri_file = fopen(path, "r");
 
@@ -160,7 +160,7 @@ int fsab_kb_info_init(fsa_kb_info *ki, const unsigned char *kb_name, int *err)
             }
             else {
                 /* file locked and contains running port and pid */
-                ki->port = port;    
+                ki->port = port;
                 ki->status = KB_STATUS_RUNNING;
             }
         }
@@ -275,7 +275,7 @@ int fsab_stop_local_kb(const unsigned char *kb_name, int *err)
     if (ki == NULL) {
         return -1;
     }
-    
+
     if (*err == ADM_ERR_KB_NOT_EXISTS) {
         fsa_kb_info_free(ki);
         return -1;
@@ -384,7 +384,7 @@ static int exec_fs_cmd(const char *cmdname, int n_args, char **args,
     }
 
     /* will have been null terminated by sprintf */
-    
+
     fsa_error(LOG_DEBUG, "running '%s'", cmd);
 
     FILE *process = popen(cmd, "r");
@@ -507,4 +507,73 @@ int fsab_delete_local_kb(const unsigned char *kb_name, int *exit_val,
     char *args[1] = {(char *)kb_name};
 
     return exec_fs_cmd(cmdname, 1, args, exit_val, output, err);
+}
+
+/* Return 0 on normal operation, -1 or error */
+int fsab_create_local_kb(const fsa_kb_setup_args *ksargs, int *exit_val,
+                         unsigned char **output, int *err)
+{
+    fsa_error(LOG_DEBUG, "creating kb '%s'", ksargs->name);
+
+    /* check whether kb exists already, and it's state */
+    fsa_kb_info *ki = fsab_get_local_kb_info(ksargs->name, err);
+
+    /* if KB exists */
+    if (ki != NULL && *err != ADM_ERR_KB_NOT_EXISTS) {
+        /* do not overwrite existing kb */
+        if (!ksargs->delete_existing) {
+            *err = ADM_ERR_KB_EXISTS;
+            fsa_error(LOG_DEBUG,
+                      "kb '%s' exists, and delete_existing=0, doing nothing",
+                      ksargs->name);
+            fsa_kb_info_free(ki);
+            return -1;
+        }
+        else {
+            /* ok to overwrite, so stop first, ignoring errors */
+            fsab_stop_local_kb(ksargs->name, err);
+        }
+    }
+
+    fsa_kb_info_free(ki);
+
+    /* kb should either not exist or be stopped by now */
+
+    /* max args length is 11 */
+    char *args[11];
+    int n_args = 0;
+    char node_id_str[4];        /* holds uint8 */
+    char cluster_size_str[4];   /* holds uint8 */
+    char num_segments_str[6];   /* holds uint16 */
+
+    sprintf(node_id_str, "%d", ksargs->node_id);
+    sprintf(cluster_size_str, "%d", ksargs->cluster_size);
+    sprintf(num_segments_str, "%d", ksargs->num_segments);
+
+    args[n_args++] = "--node";
+    args[n_args++] = node_id_str;
+    args[n_args++] = "--cluster";
+    args[n_args++] = cluster_size_str;
+    args[n_args++] = "--segments";
+    args[n_args++] = num_segments_str;
+
+    if (ksargs->password != NULL) {
+        args[n_args++] = "--password";
+        args[n_args++] = (char *)ksargs->password;
+    }
+
+    if (ksargs->mirror_segments) {
+        args[n_args++] = "--mirror";
+    }
+
+    if (ksargs->model_files) {
+        args[n_args++] = "--model-files";
+    }
+
+    args[n_args++] = (char *)ksargs->name;
+
+    /* use 4s-backend-setup to delete the store */
+    char *cmdname = "4s-backend-setup";
+
+    return exec_fs_cmd(cmdname, n_args, args, exit_val, output, err);
 }

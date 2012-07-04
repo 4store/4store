@@ -31,6 +31,7 @@ struct fs_globals {
 	fs_rid xsd_boolean;
 	fs_rid xsd_byte;
 	fs_rid xsd_datetime;
+	fs_rid xsd_date;
 	fs_rid xsd_decimal;
 	fs_rid xsd_double;
 	fs_rid xsd_float;
@@ -52,6 +53,9 @@ struct fs_globals {
 	fs_rid fs_token;
 	fs_rid fs_dmetaphone;
 	fs_rid fs_stem;
+	fs_rid fs_acl_admin;
+	fs_rid fs_acl_access_by;
+    fs_rid fs_acl_default_admin;
 };
 
 extern struct fs_globals fs_c;
@@ -63,7 +67,9 @@ void fs_hash_fini(void);
 fs_rid fs_hash_uri(const char *str);
 fs_rid fs_hash_uri_ignore_bnode(const char *str);
 fs_rid fs_hash_literal(const char *str, fs_rid attr);
+struct fs_globals fs_global_constants(void);
 
 void umac_crypto_hash(const char *str, char *result);
+const char * fs_hash_predefined_uri(fs_rid rid);
 
 #endif

@@ -1,6 +1,7 @@
 #ifndef QUERY_DATATYPES_H
 #define QUERY_DATATYPES_H
 
+#include <glib.h>
 #include <rasqal.h>
 
 #include "../common/4s-datatypes.h"
@@ -28,6 +29,7 @@ typedef struct _fs_binding {
 
 typedef struct _fs_query fs_query;
 typedef struct _fs_query_state fs_query_state;
+typedef struct _fs_bind_expression fs_bind_expression;
 
 typedef enum { FS_NONE, FS_INNER, FS_LEFT, FS_UNION, FS_MINUS } fs_join_type;
 
@@ -61,5 +63,7 @@ void fs_binding_uniq(fs_binding *b);
 void fs_binding_truncate(fs_binding *b, int length);
 
 fs_binding *fs_binding_apply_filters(fs_query *q, int block, fs_binding *b, raptor_sequence *c);
+
+void fs_free_cached_resource(gpointer r);
 
 #endif

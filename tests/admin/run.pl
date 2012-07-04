@@ -181,7 +181,7 @@ if ($backend_pid = fork()) {
         exit(0);
     }
     else {
-        my @cmd = ("../../src/http/4s-httpd", "-X", "-D", "-p", "13579", $kb_name);
+        my @cmd = ("../../src/http/4s-httpd", "-c", "admin_tests.conf", "-X", "-D", "-p", "13579", $kb_name);
         if ($valgrind) {
             print("Running httpd under valgrind, output in valgrind.txt\n");
             unshift(@cmd, 'valgrind', '-v', '--trace-children=yes', '--log-file=valgrind.txt');

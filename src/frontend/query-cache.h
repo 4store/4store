@@ -2,6 +2,7 @@
 #define QUERY_CACHE_H
 
 #include "query-datatypes.h"
+#include "../common/4store.h"
 
 typedef struct _fs_bind_cache fs_bind_cache;
 
@@ -10,5 +11,7 @@ int fs_bind_cache_wrapper(fs_query_state *qs, fs_query *q, int all,
     int offset, int limit);
 
 int fs_query_cache_flush(fs_query_state *qs, int verbosity);
-
+int fs_acl_load_system_info(fsp_link *link);
+int fs_query_bind_cache_count_slots(fs_query_state *qs);
+int fs_query_bind_cache_size(void);
 #endif

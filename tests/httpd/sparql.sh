@@ -10,7 +10,7 @@ function postescape {
 function sparql {
 	uriescape "$2";
 	echo "Query: $2"
-	curl -s -H "Accept: text/plain" "$1/sparql/?query=${escaped}$3"
+	curl -s -H "Accept: text/plain" "$1/sparql/?query=${escaped}$3" | sed 's/ v[0-9]\.[.0-9a-z-]*/ [VERSION]/'
 }
 
 # usage: update $endpoint $update

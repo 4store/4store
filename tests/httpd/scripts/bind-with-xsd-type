@@ -1,0 +1,11 @@
+#!/bin/bash
+
+source sparql.sh
+
+update "$EPR" 'INSERT DATA { GRAPH <a> { <x> <y> <z> . <a> <b> <c> . } }'
+sparql "$EPR" 'SELECT DISTINCT * WHERE { 
+{ ?s <b> ?o BIND(1 as ?union) . }
+UNION
+{ ?s <b> ?o BIND(2 as ?union) . }
+} ORDER BY ?s'
+update "$EPR" 'DELETE DATA { GRAPH <a> { <x> <y> <z> . <a> <b> <c> . } }'

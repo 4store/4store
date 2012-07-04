@@ -10,7 +10,7 @@
 */
 
 /* Protocol headers */
-#define ADM_PROTO_VERS 0x2
+#define ADM_PROTO_VERS 0x3
 #define ADM_H_LEN 2
 #define ADM_H_VERS_LEN 1
 #define ADM_H_CMD_LEN 1
@@ -36,6 +36,8 @@
 #define ADM_RSP_START_KB_ALL   16
 #define ADM_CMD_DELETE_KB      17
 #define ADM_RSP_DELETE_KB      18
+#define ADM_CMD_CREATE_KB      19
+#define ADM_RSP_CREATE_KB      20
 #define ADM_RSP_EXPECT_N_KB   252
 #define ADM_RSP_EXPECT_N      253
 #define ADM_RSP_ABORT_EXPECT  254
@@ -51,10 +53,11 @@
 #define ADM_ERR_KB_STATUS_RUNNING 7
 #define ADM_ERR_KB_STATUS_STOPPED 8
 #define ADM_ERR_KB_STATUS_UNKNOWN 9
-#define ADM_ERR_NETWORK          10 
-#define ADM_ERR_KB_NOT_EXISTS    11 
-#define ADM_ERR_KILL_FAILED      12
-#define ADM_ERR_POPEN            13
+#define ADM_ERR_NETWORK          10
+#define ADM_ERR_KB_NOT_EXISTS    11
+#define ADM_ERR_KB_EXISTS        12
+#define ADM_ERR_KILL_FAILED      13
+#define ADM_ERR_POPEN            14
 #define ADM_ERR_SEE_ERRNO       254
 #define ADM_ERR_GENERIC         255
 
@@ -104,10 +107,26 @@ typedef struct _fsa_kb_info {
     struct _fsa_kb_info *next;
 } fsa_kb_info;
 
+/* Represents arguments to a 4s-backend-setup call */
+typedef struct _fsa_kb_setup_args {
+    /* passed directly over wire */
+    unsigned char *name;
+    unsigned char *password;
+    uint8_t node_id;
+    uint8_t cluster_size;
+    uint16_t num_segments;
+
+    /* combined into flags field before sending */
+    int mirror_segments;
+    int model_files;
+    int delete_existing;
+} fsa_kb_setup_args;
+
 /* Linked list of storage node hosts/ports */
 typedef struct _fsa_node_addr {
     char *host;
     int port;
+    int node_num;
 
     struct _fsa_node_addr *next;
 } fsa_node_addr;
@@ -123,6 +142,10 @@ typedef struct _fsa_kb_response {
 fsa_kb_info *fsa_kb_info_new();
 void fsa_kb_info_free(fsa_kb_info *ki);
 char *fsa_kb_info_status_to_string(int status);
+
+/* KB setup arguments functions */
+fsa_kb_setup_args *fsa_kb_setup_args_new();
+void fsa_kb_setup_args_free(fsa_kb_setup_args *ksargs);
 
 /* Storage node info  */
 fsa_node_addr *fsa_node_addr_new(const char *host);

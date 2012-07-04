@@ -60,6 +60,7 @@ fs_value fs_value_blank(void);
 fs_value fs_value_rid(fs_rid r);
 fs_value fs_value_resource(fs_query *q, fs_resource *r);
 fs_value fs_value_error(fs_error e, const char *msg);
+fs_resource *fs_resource_value(fs_query *q, fs_value v);
 
 fs_value fs_value_uri(const char *u);
 fs_value fs_value_plain(const char *s);
@@ -85,6 +86,7 @@ int fs_is_error(fs_value a);
 int fs_is_plain_or_string(fs_value v);
 int fs_value_is_true(fs_value a);
 int fs_value_equal(fs_value a, fs_value b);
+int fs_arg_compatible(fs_value arg1, fs_value arg2);
 
 void fs_value_print(fs_value v);
 

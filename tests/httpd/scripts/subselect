@@ -1,0 +1,14 @@
+#!/bin/bash
+
+# This tests that we get an error when trying subqueries, they're not
+# implemented yet
+
+pkg-config rasqal --atleast-version=0.9.25 || exit 3
+
+source sparql.sh
+
+sparql "$EPR" 'select ?s ?p ?o where {
+  select ?s ?p ?o where {
+    ?s ?p ?o
+    } limit 4
+  } limit 10'

@@ -301,20 +301,18 @@ fs_binding *fs_binding_get(fs_binding *b, rasqal_variable *var)
 #endif
     if (var->user_data) {
         long col = (long)var->user_data;
-
         return b+col;
     }
-
     const char *vname = (char *)var->name;
     fs_binding *vb = NULL;
     long i;
     for (i=0; b[i].name; i++) {
-	if (!strcmp(b[i].name, vname)) {
-	    vb = b+i;
+        if (!strcmp(b[i].name, vname)) {
+            vb = b+i;
             var->user_data = (void *)i;
 
             break;
-	}
+        }
     }
 
     return vb;
@@ -579,23 +577,26 @@ void fs_binding_sort(fs_binding *b)
     for (int row=0; row<length; row++) {
         fs_rid_vector_append(b[0].vals, row);
     }
+
+    if (length > 1) {
 #ifdef DEBUG_MERGE
-    double then = fs_time();
+        double then = fs_time();
 #endif
 
-    /* ctxt could include other stuff for optimisations */
-    struct sort_context ctxt = { b };
-    fs_qsort_r(b[0].vals->data, length, sizeof(fs_rid), qsort_r_cmp, &ctxt);
+        /* ctxt could include other stuff for optimisations */
+        struct sort_context ctxt = { b };
+        fs_qsort_r(b[0].vals->data, length, sizeof(fs_rid), qsort_r_cmp, &ctxt);
 
 #ifdef DEBUG_MERGE
-    double now = fs_time();
-    printf("sort took %f seconds\n", now - then);
+        double now = fs_time();
+        printf("sort took %f seconds\n", now - then);
 #endif
+    }
 }
 
 void fs_binding_uniq(fs_binding *bi)
 {
-    if (fs_binding_length(bi) == 0) {
+    if (fs_binding_length(bi) < 2) {
         /* we don't need to do anything, code below assumes >= 1 row */
         return;
     }
@@ -759,7 +760,6 @@ void fs_binding_merge(fs_query *q, int block, fs_binding *from, fs_binding *to)
 	    for (int d=0; d<length_t; d++) {
 		to[i].vals->data[d] = FS_RID_NULL;
 	    }
-      if (q->opt_level == 0)
         rep_list = g_list_append(rep_list, GINT_TO_POINTER(i));
 	}
     }
@@ -867,41 +867,44 @@ if (fp < DEBUG_CUTOFF) {
     to[0].vals->length = 0;
 
     /* ms8: INIT code to clean up rows that where not replaced */
-    if (q->opt_level == 0 && rep_list) {
-        GList *del_list = NULL;
+    if (rep_list) {
+        unsigned char *to_del = fs_new_bit_array(length_t);
+        int to_del_count = 0;
         while(rep_list) {
             int col_r = GPOINTER_TO_INT(rep_list->data);
              rep_list = g_list_next(rep_list);
              for (int d=0; d<length_t; d++) {
                 if (to[col_r].vals->data[d] == FS_RID_NULL) {
-                     del_list = g_list_append(del_list,GINT_TO_POINTER(d));
+                     fs_bit_array_set(to_del, d, 0);
+                     to_del_count++;
                 }
              }
          }
          g_list_free(rep_list);
-         if (del_list) {
+         if (to_del_count) {
              int vars = 0;
              for (int i=1; to[i].name; i++)
                 vars++;
              fs_rid_vector **clean = calloc(vars, sizeof(fs_rid_vector *));
-             for (int i=1;i<=vars;i++)
+             for (int i=0;i<vars;i++)
                 clean[i] = fs_rid_vector_new(0);
              for (int d = 0;d<length_t;d++) {
-                   if (!g_list_find(del_list,GINT_TO_POINTER(d))) {
-                     for (int i=1;i<=vars;i++)
-                        fs_rid_vector_append(clean[i],to[i].vals->data[d]);
+                   if (fs_bit_array_get(to_del,d)) {
+                     for (int i=0;i<vars;i++) {
+                        fs_rid_vector_append(clean[i],to[i+1].vals->data[d]);
+                     }
                    }
-              }
-
+             }
              for (int i=1;i<=vars;i++) {
                 free(to[i].vals->data);
-                to[i].vals->data = clean[i]->data;
-                to[i].vals->length = clean[i]->length;
-                to[i].vals->size = clean[i]->size;
+                to[i].vals->data = clean[i-1]->data;
+                to[i].vals->length = clean[i-1]->length;
+                to[i].vals->size = clean[i-1]->size;
+                free(clean[i-1]);
              }
-             for (int i=0;i<=vars;i++)
-                 g_list_free(del_list);
+             free(clean);
          }
+         fs_bit_array_destroy(to_del);
      }
     /* ms8: END code to clean up rows that where not replaced */
 
@@ -1294,6 +1297,13 @@ const char *fs_join_type_as_string(fs_join_type t)
     }
 
     return "UNKNOWN";
+}
+
+void fs_free_cached_resource(gpointer r)
+{
+    fs_resource *res = r;
+    free(res->lex);
+    free(res);
 }
 
 /* vi:set expandtab sts=4 sw=4: */

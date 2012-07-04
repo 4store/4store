@@ -1,0 +1,155 @@
+#!/bin/bash
+
+source vars.sh
+
+$FS_BACKEND_SETUP 4s_admin_test_kb2
+$FS_BACKEND_SETUP 4s_admin_test_kb3
+$FS_BACKEND -D 4s_admin_test_kb2 &
+PID=$!
+sleep 2
+kill -15 $PID
+sleep 1
+
+ARGS="create-store 4s_admin_test_kb4"
+CMD="$FS_ADMIN --config-file $FS_CONF $ARGS"
+OUTPUT=`$CMD`
+EXITSTATUS=$?
+echo "args: $ARGS"
+echo "$OUTPUT"
+echo "Exit status: $EXITSTATUS"
+echo
+
+ARGS="create-store 4s_admin_test_kb4"
+CMD="$FS_ADMIN --config-file $FS_CONF $ARGS"
+OUTPUT=`$CMD`
+EXITSTATUS=$?
+echo "args: $ARGS"
+echo "$OUTPUT"
+echo "Exit status: $EXITSTATUS"
+echo
+
+ARGS="create-store 4s_admin_test_kb2"
+CMD="$FS_ADMIN --config-file $FS_CONF $ARGS"
+OUTPUT=`$CMD`
+EXITSTATUS=$?
+echo "args: $ARGS"
+echo "$OUTPUT"
+echo "Exit status: $EXITSTATUS"
+echo
+
+ARGS="create-store 4s_admin_test_kb3"
+CMD="$FS_ADMIN --config-file $FS_CONF $ARGS"
+OUTPUT=`$CMD`
+EXITSTATUS=$?
+echo "args: $ARGS"
+echo "$OUTPUT"
+echo "Exit status: $EXITSTATUS"
+echo
+
+ARGS="create-store invalid-store"
+CMD="$FS_ADMIN --config-file $FS_CONF $ARGS"
+OUTPUT=`$CMD`
+EXITSTATUS=$?
+echo "args: $ARGS"
+echo "$OUTPUT"
+echo "Exit status: $EXITSTATUS"
+echo
+
+ARGS="create-store --force 4s_admin_test_kb4"
+CMD="$FS_ADMIN --config-file $FS_CONF $ARGS"
+OUTPUT=`$CMD`
+EXITSTATUS=$?
+echo "args: $ARGS"
+echo "$OUTPUT"
+echo "Exit status: $EXITSTATUS"
+echo
+
+ARGS="create-store --force --segments=16 4s_admin_test_kb4"
+CMD="$FS_ADMIN --config-file $FS_CONF $ARGS"
+OUTPUT=`$CMD`
+EXITSTATUS=$?
+echo "args: $ARGS"
+echo "$OUTPUT"
+echo "Exit status: $EXITSTATUS"
+echo
+
+ARGS="create-store --force --segments=1 4s_admin_test_kb4"
+CMD="$FS_ADMIN --config-file $FS_CONF $ARGS"
+OUTPUT=`$CMD`
+EXITSTATUS=$?
+echo "args: $ARGS"
+echo "$OUTPUT"
+echo "Exit status: $EXITSTATUS"
+echo
+
+ARGS="create-store --force --segments=20000 4s_admin_test_kb4"
+CMD="$FS_ADMIN --config-file $FS_CONF $ARGS"
+OUTPUT=`$CMD`
+EXITSTATUS=$?
+echo "args: $ARGS"
+echo "$OUTPUT"
+echo "Exit status: $EXITSTATUS"
+echo
+
+ARGS="create-store --force --segments=13 4s_admin_test_kb4"
+CMD="$FS_ADMIN --config-file $FS_CONF $ARGS"
+OUTPUT=`$CMD`
+EXITSTATUS=$?
+echo "args: $ARGS"
+echo "$OUTPUT"
+echo "Exit status: $EXITSTATUS"
+echo
+
+ARGS="create-store --force --segments=bob 4s_admin_test_kb4"
+CMD="$FS_ADMIN --config-file $FS_CONF $ARGS"
+OUTPUT=`$CMD`
+EXITSTATUS=$?
+echo "args: $ARGS"
+echo "$OUTPUT"
+echo "Exit status: $EXITSTATUS"
+echo
+
+ARGS="create-store --force --model-files --mirror --password=foobar 4s_admin_test_kb4"
+CMD="$FS_ADMIN --config-file $FS_CONF $ARGS"
+OUTPUT=`$CMD`
+EXITSTATUS=$?
+echo "args: $ARGS"
+echo "$OUTPUT"
+echo "Exit status: $EXITSTATUS"
+echo
+
+ARGS="create-store --force --nodes=0 4s_admin_test_kb4"
+CMD="$FS_ADMIN --config-file $FS_CONF $ARGS"
+OUTPUT=`$CMD`
+EXITSTATUS=$?
+echo "args: $ARGS"
+echo "$OUTPUT"
+echo "Exit status: $EXITSTATUS"
+echo
+
+ARGS="create-store --force --nodes=0,1,2,3,4,5,6,7,8 4s_admin_test_kb4"
+CMD="$FS_ADMIN --config-file $FS_CONF $ARGS"
+OUTPUT=`$CMD`
+EXITSTATUS=$?
+echo "args: $ARGS"
+echo "$OUTPUT"
+echo "Exit status: $EXITSTATUS"
+echo
+
+ARGS="create-store --force --nodes=bob 4s_admin_test_kb4"
+CMD="$FS_ADMIN --config-file $FS_CONF $ARGS"
+OUTPUT=`$CMD`
+EXITSTATUS=$?
+echo "args: $ARGS"
+echo "$OUTPUT"
+echo "Exit status: $EXITSTATUS"
+echo
+
+ARGS="delete-stores 4s_admin_test_kb2 4s_admin_test_kb3 4s_admin_test_kb4"
+CMD="$FS_ADMIN --config-file $FS_CONF $ARGS"
+OUTPUT=`$CMD`
+EXITSTATUS=$?
+echo "args: $ARGS"
+echo "$OUTPUT"
+echo "Exit status: $EXITSTATUS"
+echo

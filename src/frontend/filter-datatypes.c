@@ -62,7 +62,7 @@ fs_value fs_value_resource(fs_query *q, fs_resource *r)
     v.lex = r->lex;
 
     if (r->rid == FS_RID_NULL) {
-	return fs_value_rid(FS_RID_NULL);
+        return fs_value_rid(FS_RID_NULL);
     } if (r->attr == fs_c.xsd_integer) {
         v = fn_cast_intl(q, v, fs_c.xsd_integer);
     } else if (r->attr == fs_c.xsd_float || r->attr == fs_c.xsd_double) {
@@ -70,24 +70,43 @@ fs_value fs_value_resource(fs_query *q, fs_resource *r)
     } else if (r->attr == fs_c.xsd_decimal) {
         v = fn_cast_intl(q, v, fs_c.xsd_decimal);
     } else if (r->attr == fs_c.xsd_boolean) {
-	if (!strcmp(r->lex, "true") || !strcmp(r->lex, "1")) {
-	    v = fs_value_boolean(1);
-	} else {
-	    v = fs_value_boolean(0);
-	}
+        if (!strcmp(r->lex, "true") || !strcmp(r->lex, "1")) {
+            v = fs_value_boolean(1);
+        } else {
+            v = fs_value_boolean(0);
+        }
     } else if (r->attr == fs_c.xsd_datetime) {
-	v = fs_value_datetime_from_string(r->lex);
+        v = fs_value_datetime_from_string(r->lex);
     }
     if (fs_is_error(v)) {
         v = fs_value_blank();
         v.lex = r->lex;
     }
-
     v.rid = r->rid;
-    v.attr = r->attr;
+    if (FS_IS_URI(v.rid) || FS_IS_BNODE(v.rid))
+        v.attr = fs_c.empty;
+    else
+        v.attr = r->attr;
     v.valid |= fs_valid_bit(FS_V_RID) | fs_valid_bit(FS_V_ATTR);
 
     return v;
+}
+
+fs_resource *fs_resource_value(fs_query *q, fs_value v)
+{
+    v = fs_value_fill_lexical(q, v);
+    v = fs_value_fill_rid(q, v);
+#if DEBUG_FILTER
+    printf("resource->value ");
+    fs_value_print(v);
+    printf("\n");
+#endif
+    fs_resource *res = malloc(sizeof(fs_resource));
+    res->rid = v.rid;
+    res->attr = v.attr;
+    res->lex = strdup(v.lex);
+
+    return res;
 }
 
 fs_value fs_value_uri(const char *s)
@@ -382,6 +401,29 @@ int fs_is_plain_or_string(fs_value v)
     return 1;
 }
 
+/* return true if arg1 and arg2 are compatible, as per
+ * http://www.w3.org/TR/sparql11-query/#func-arg-compatibility */
+int fs_arg_compatible(fs_value arg1, fs_value arg2)
+{
+    /* The arguments are simple literals or literals typed as xsd:string */
+    if (fs_is_plain_or_string(arg1) && fs_is_plain_or_string(arg2)) {
+        return 1;
+    }
+
+    /* The arguments are plain literals with identical language tags */
+    if (arg1.attr == arg2.attr && FS_IS_LITERAL(arg1.attr)) {
+        return 1;
+    }
+
+    /* The first argument is a plain literal with language tag and the second
+     * argument is a simple literal or literal typed as xsd:string */
+    if (FS_IS_LITERAL(arg1.attr) && fs_is_plain_or_string(arg2)) {
+        return 1;
+    }
+
+    return 0;
+}
+
 int fs_value_is_true(fs_value a)
 {
     if (a.attr == fs_c.xsd_boolean) {
@@ -474,7 +516,7 @@ void fs_value_print(fs_value v)
     }
 
     if (v.valid & fs_valid_bit(FS_V_RID)) {
-	printf(" rid:%llx", v.rid);
+	printf(" rid:%016llx", v.rid);
     }
     if (v.lex) {
 	printf(" l:%s", v.lex);

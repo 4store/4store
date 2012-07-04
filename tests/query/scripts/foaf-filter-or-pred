@@ -1,0 +1,6 @@
+#!
+
+$TESTPATH/frontend/4s-query $CONF $1 '
+PREFIX foaf: <http://xmlns.com/foaf/0.1/>
+SELECT *
+WHERE { <mailto:steve@example.net> ?p ?o . FILTER (?p = <http://xmlns.com/foaf/0.1/knows> || ?p = <http://xmlns.com/foaf/0.1/homepage>) }' | sort

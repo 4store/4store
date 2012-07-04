@@ -20,10 +20,12 @@
 #include <pcre.h>
 #include <rasqal.h>
 
+#include "debug.h"
 #include "update.h"
 #include "import.h"
 #include "query.h"
 #include "../common/4store.h"
+#include "../common/4s-internals.h"
 #include "../common/error.h"
 #include "../common/rdf-constants.h"
 
@@ -46,7 +48,6 @@ struct quad_buf {
     int length;
     fs_rid quads[QUAD_BUF_SIZE][4];
 };
-
 static struct quad_buf *quad_buffer = NULL;
 
 int fs_load(struct update_context *uc, char *resuri, char *graphuri);
@@ -124,6 +125,9 @@ static int delete_rasqal_triple(struct update_context *uc, fs_rid_vector *vec[],
     fs_rid_vector_append(vec[2], p);
     fs_rid_vector_append(vec[3], o);
 
+    if (fs_rid_vector_contains(vec[0], fs_c.system_config))
+        fsp_reload_acl_system(uc->link);
+
     if (fs_rid_vector_length(vec[0]) > 999) {
         fsp_delete_quads_all(uc->link, vec);
         for (int s=0; s<4; s++) {
@@ -151,6 +155,10 @@ static int insert_rasqal_triple(struct update_context *uc, rasqal_triple *triple
         res.lex = FS_DEFAULT_GRAPH;
         res.attr = FS_RID_NULL;
     }
+
+    if (quad_buf[0][0] == fs_c.system_config)
+        fsp_reload_acl_system(uc->link);
+
     if (!FS_IS_URI(quad_buf[0][0])) {
         return 1;
     }
@@ -245,7 +253,7 @@ static int update_op(struct update_context *uc)
         }
         if (where) {
             fs_error(LOG_ERR, "DELETE WHERE { x } not yet supported");
-            add_message(uc, "DELETE WHERE { x } not yet supported", 0);
+            add_message(uc, "DELETE WHERE { x } not yet supported, use DELETE { x } WHERE { x }", 0);
 
             return 1;
         }
@@ -264,12 +272,20 @@ static int update_op(struct update_context *uc)
         q->qs = uc->qs;
         q->rq = uc->rq;
         q->flags = FS_BIND_DISTINCT;
+#ifdef DEBUG_MERGE
+        q->flags |= FS_QUERY_CONSOLE_OUTPUT;
+#endif
+        q->boolean = 1;
         q->opt_level = 3;
         q->soft_limit = -1;
         q->segments = fsp_link_segments(uc->link);
         q->link = uc->link;
         q->bb[0] = fs_binding_new();
         q->bt = q->bb[0];
+
+        /* hashtable to hold runtime created resources */
+        q->tmp_resources = g_hash_table_new_full(fs_rid_hash, fs_rid_equal, g_free, fs_free_cached_resource);
+
         /* add column to denote join ordering */
         fs_binding_create(q->bb[0], "_ord", FS_RID_NULL, 0);
 
@@ -305,12 +321,7 @@ static int update_op(struct update_context *uc)
 
         for (int i=0; i < q->num_vars; i++) {
             rasqal_variable *v = raptor_sequence_get_at(vars, i);
-            fs_binding *b = fs_binding_get(q->bb[0], v);
-            if (b) {
-                b->need_val = 1;
-            } else {
-                fs_binding_add(q->bb[0], v, FS_RID_NULL, 1);
-            }
+            fs_binding_add(q->bb[0], v, FS_RID_NULL, 1);
         }
 
         /* perform the WHERE match */
@@ -476,21 +487,20 @@ fs_rid fs_hash_rasqal_literal(struct update_context *uc, rasqal_literal *l, int 
 
     rasqal_literal_type type = rasqal_literal_get_rdf_term_type(l);
     switch (type) {
-    case RASQAL_LITERAL_UNKNOWN:
-        fs_error(LOG_ERR, "unknown literal type received");
-
-        return FS_RID_NULL;
-
     case RASQAL_LITERAL_URI:
-	return fs_hash_uri((char *)raptor_uri_as_string(l->value.uri));
-
+        return fs_hash_uri((char *)raptor_uri_as_string(l->value.uri));
+    
+    case RASQAL_LITERAL_UNKNOWN:
     case RASQAL_LITERAL_STRING:
     case RASQAL_LITERAL_XSD_STRING: {
         fs_rid attr = 0;
         if (l->datatype) {
             attr = fs_hash_uri((char *)raptor_uri_as_string(l->datatype));
         } else if (l->language) {
-            attr = fs_hash_literal((char *)l->language, 0);
+            /* lang tags are normalised to upper case internally */
+            char *lang = g_ascii_strup((char *)l->language, -1);
+            attr = fs_hash_literal(lang, 0);
+            g_free(lang);
         }
 
         return fs_hash_literal((char *)rasqal_literal_as_string(l), attr);
@@ -515,6 +525,9 @@ fs_rid fs_hash_rasqal_literal(struct update_context *uc, rasqal_literal *l, int 
     case RASQAL_LITERAL_DOUBLE:
     case RASQAL_LITERAL_DATETIME:
     case RASQAL_LITERAL_UDT:
+#if RASQAL_VERSION >= 929
+    case RASQAL_LITERAL_DATE:
+#endif
         break;
     }
     fs_error(LOG_ERR, "bad rasqal literal (type %d)", type);
@@ -655,7 +668,8 @@ static int insert_triples(struct update_context *uc, fs_rid model, fs_rid_vector
         }
     }
     flush_triples(uc);
-    
+    //if (model == fs
+    printf("%p ",uc->link->kb_name); 
     return 0;
 }
 
@@ -948,5 +962,4 @@ int fs_copy(struct update_context *uc, char *from, char *to)
 
     return 0;
 }
-
 /* vi:set expandtab sts=4 sw=4: */

@@ -39,7 +39,7 @@ int fsaf_get_admind_usage(void)
                   "could not read config file, returning default port");
         return ADMIND_USAGE_NONE;
     }
-    
+
     char *usage_str;
     int usage = -1;
     GError *err = NULL;

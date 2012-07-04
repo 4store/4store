@@ -1,0 +1,11 @@
+#!/bin/bash
+
+source sparql.sh
+
+put "$EPR" ../../data/nasty.ttl 'text/turtle' 'http://example.com/nasty.ttl'
+
+sparql "$EPR" 'SELECT (str(?o) AS ?x) (MD5(str(?o)) AS ?md5) WHERE { ?s ?p ?o . } ORDER BY str(?md5)'
+sparql "$EPR" 'SELECT (str(?o) AS ?x) (SHA1(str(?o)) AS ?sha1) WHERE { ?s ?p ?o . } ORDER BY str(?sha1)'
+sparql "$EPR" 'SELECT (str(?o) AS ?x) (SHA256(str(?o)) AS ?sha256) WHERE { ?s ?p ?o . } ORDER BY str(?sha256)'
+
+delete "$EPR" 'http://example.com/nasty.ttl'

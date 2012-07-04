@@ -28,6 +28,15 @@
 
 #define FS_DEFAULT_PORT 6734
 
+/* we need this here the link is the only 
+* known structure for query,import and update
+*/
+typedef struct  {
+    GHashTable *acl_graph_hash;
+    fs_rid_set *admin_user_set;
+    int reload;
+} fs_acl_system_info;
+
 struct fsp_link_struct {
   const char *kb_name;
   fsp_hash_enum hash_type;
@@ -52,6 +61,8 @@ struct fsp_link_struct {
   int try_dns_again;
 #endif
   char *uuid;
+
+  fs_acl_system_info *acl_system_info;
 };
 
 /* common functions */

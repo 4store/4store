@@ -16,7 +16,8 @@ int fs_query_fini(fs_query_state *qs);
 
 /* Execute a SPARQL query, see results.h for how to read results from the fs_query */
 fs_query *fs_query_execute(fs_query_state *qs, fsp_link *link, raptor_uri *bu,
-                           const char *query, unsigned int flags, int opt_level, int soft_limit, int explain);
+                           const char *query, unsigned int flags, int opt_level, int soft_limit,
+                           const char *apikey, int explain);
 
 /* internal function used to process WHERE clauses */
 int fs_query_process_pattern(fs_query *q, rasqal_graph_pattern *pattern, raptor_sequence *vars);

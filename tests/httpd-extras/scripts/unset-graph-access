@@ -1,0 +1,56 @@
+#!/bin/bash
+
+source sparql.sh
+
+
+# Default admin user is included only when there 
+# is not a user admin specified but httpd was started 
+# with access control (-A)
+
+# Default admin user is setup in 
+# rdf-constants.h (FS_ACL_DEFAULT_ADMIN)
+adminkey="4sadminuser"
+
+user1="user1"
+user2="user2"
+
+sparqlkey "$EPR" 'SELECT * WHERE { ?s ?p ?o } ORDER BY ?s ?p ?o' $adminkey
+
+# Admin user grants user1 with access to <graph:x>
+updatekey "$EPR" 'INSERT DATA { GRAPH <system:config> { 
+<graph:x> <http://4store.org/acl#onlyAccessBy> "user1" . } }' $adminkey
+
+updatekey "$EPR" 'INSERT DATA { GRAPH <system:config> { 
+<graph:y> <http://4store.org/acl#onlyAccessBy> "user2" . } }' $adminkey
+
+updatekey "$EPR" 'INSERT DATA { GRAPH <graph:x> { <x> <y> <z> . <a> <b> <c> . } }' $adminkey
+updatekey "$EPR" 'INSERT DATA { GRAPH <graph:y> { <x1> <y1> <z1> . <a1> <b1> <c1> . } }' $adminkey
+updatekey "$EPR" 'INSERT DATA { GRAPH <graph:z> { <x2> <y2> <z2> . <a2> <b2> <c2> . } }' $adminkey
+
+# admin sees everything
+sparqlkey "$EPR" 'SELECT * WHERE { ?s ?p ?o } ORDER BY ?s ?p ?o' $adminkey
+
+# User 1 access the data in graph:x graph:z
+sparqlkey "$EPR" 'SELECT * WHERE { ?s ?p ?o } ORDER BY ?s ?p ?o' $user1
+
+# User 2 access the data in graph:y and z
+sparqlkey "$EPR" 'SELECT * WHERE { ?s ?p ?o } ORDER BY ?s ?p ?o' $user2
+
+# User 1 cannot accesss graph x any more, we give it to user 2.
+updatekey "$EPR" 'DELETE DATA { GRAPH <system:config> { 
+<graph:x> <http://4store.org/acl#onlyAccessBy> "user1" . } };
+INSERT DATA { GRAPH <system:config> { 
+<graph:x> <http://4store.org/acl#onlyAccessBy> "user2" . } }
+' $adminkey
+
+# User 1 access the data in only graph:z
+sparqlkey "$EPR" 'SELECT * WHERE { ?s ?p ?o } ORDER BY ?s ?p ?o' $user1
+
+# User 2 access the data in graph:y and z
+sparqlkey "$EPR" 'SELECT * WHERE { ?s ?p ?o } ORDER BY ?s ?p ?o' $user2
+
+#ok expected
+deletekey "$EPR" 'graph:x' $adminkey
+deletekey "$EPR" 'graph:z' $adminkey
+deletekey "$EPR" 'graph:y' $adminkey
+deletekey "$EPR" 'system:config' $adminkey

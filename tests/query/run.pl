@@ -76,7 +76,12 @@ if ($pid = fork()) {
 		if ($ret == 2) {
 			exit(2);
 		}
-		if ($test) {
+        if ($ret >> 8 == 3) {
+			print color 'bold yellow';
+			print("SKIP");
+			print color 'reset';
+			print("] $t\n");
+        } elsif ($test) {
 			@diff = `diff exemplar/$t $outdir/$t 2>/dev/null`;
 			if (@diff) {
 				print("[");

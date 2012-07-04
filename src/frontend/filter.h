@@ -77,14 +77,23 @@ fs_value fn_timezone(fs_query *q, fs_value v);
 fs_value fn_strstarts(fs_query *q, fs_value arg1, fs_value arg2);
 fs_value fn_strends(fs_query *q, fs_value arg1, fs_value arg2);
 fs_value fn_contains(fs_query *q, fs_value arg1, fs_value arg2);
+fs_value fn_strbefore(fs_query *q, fs_value arg1, fs_value arg2);
+fs_value fn_strafter(fs_query *q, fs_value arg1, fs_value arg2);
 fs_value fn_rand(fs_query *q);
 fs_value fn_md5(fs_query *q, fs_value arg);
 fs_value fn_sha1(fs_query *q, fs_value arg);
 fs_value fn_sha256(fs_query *q, fs_value arg);
+fs_value fn_uuid(fs_query *q);
+fs_value fn_struuid(fs_query *q);
 
 /* casts and similar */
 fs_value fn_cast(fs_query *q, fs_value v, fs_value d);
 fs_value fn_cast_intl(fs_query *q, fs_value v, fs_rid dt);
 fs_value fn_ebv(fs_value a);
+
+#ifndef HAVE_UUID_STRING_T
+#define HAVE_UUID_STRING_T 1
+typedef char uuid_string_t[37];
+#endif
 
 #endif

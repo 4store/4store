@@ -316,6 +316,18 @@ void fs_rid_vector_truncate(fs_rid_vector *rv, int32_t length)
     rv->length = length;
 }
 
+void fs_rid_vector_grow(fs_rid_vector *rv, int32_t length)
+{
+    if (!rv) return;
+
+    if (length > rv->size) {
+	rv->data = realloc(rv->data, sizeof(fs_rid *) * length);
+	rv->size = length;
+    }
+
+    rv->length = length;
+}
+
 int fs_rid_vector_contains(fs_rid_vector *v, fs_rid r)
 {
     if (!v) return 0;

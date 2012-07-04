@@ -10,7 +10,19 @@ Query: SELECT DISTINCT * WHERE { GRAPH ?G { ?s ?p ?o } } ORDER BY ?s ?p ?o
 ?G	?s	?p	?o
 <local:a>	<local:a>	<local:b>	<local:c>
 <local:a>	<local:x>	<local:y>	<local:z>
+Update: INSERT DATA { GRAPH <a> { <a> <b> "ccc"@fr . } }
+
+Query: SELECT DISTINCT * WHERE { GRAPH ?G { ?s ?p ?o } } ORDER BY ?s ?p ?o
+?G	?s	?p	?o
+<local:a>	<local:a>	<local:b>	<local:c>
+<local:a>	<local:a>	<local:b>	"ccc"@fr
+<local:a>	<local:x>	<local:y>	<local:z>
+Query: SELECT DISTINCT * WHERE { ?s ?p "ccc"@fr } ORDER BY ?s ?p
+?s	?p
+<local:a>	<local:b>
 Update: DELETE DATA { <a> <b> <c> }
+
+Update: DELETE DATA { <a> <b> "ccc"@fr }
 
 Query: SELECT DISTINCT * WHERE { GRAPH ?G { ?s ?p ?o } } ORDER BY ?s ?p ?o
 ?G	?s	?p	?o

@@ -321,6 +321,7 @@ int fs_import_stream_finish(fsp_link *link, int *count, int *errors)
 
     if (parse_data.model_hash == fs_c.system_config) {
         fs_import_reread_config();
+        fsp_reload_acl_system(link);
     }
 
     *errors = parse_data.count_err;
@@ -858,5 +859,4 @@ void fs_import_reread_config()
     /* reset flag so that we will check the config on next import */
     read_config = 0;
 }
-
 /* vi:set expandtab sts=4 sw=4: */

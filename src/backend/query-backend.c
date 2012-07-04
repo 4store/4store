@@ -157,6 +157,25 @@ fs_rid_vector **fs_bind(fs_backend *be, fs_segment segment, unsigned int tobind,
 			     fs_rid_vector *pv, fs_rid_vector *ov,
                              int offset, int limit)
 {
+
+    int conjuctive = ((tobind & FS_BIND_BY_SUBJECT) &&
+                     (fs_rid_vector_length(sv) > 0) &&
+                     (fs_rid_vector_length(pv) > 0) &&
+                     (fs_rid_vector_length(pv) == fs_rid_vector_length(sv)))
+                     ||
+                     ((tobind & FS_BIND_BY_OBJECT) &&
+                     (fs_rid_vector_length(ov) > 0) &&
+                     (fs_rid_vector_length(pv) > 0) &&
+                     (fs_rid_vector_length(pv) == fs_rid_vector_length(ov)));
+
+
+    #ifdef DEBUG_BRANCH
+        fs_error(LOG_ERR,"mv length %d",fs_rid_vector_length(mv));
+        fs_error(LOG_ERR,"sv length %d",fs_rid_vector_length(sv));
+        fs_error(LOG_ERR,"pv length %d",fs_rid_vector_length(pv));
+        fs_error(LOG_ERR,"ov length %d",fs_rid_vector_length(ov));
+    #endif
+
     if (!(tobind & (FS_BIND_BY_SUBJECT | FS_BIND_BY_OBJECT))) {
 	fs_error(LOG_ERR, "tried to bind without s/o spec");
 
@@ -180,16 +199,18 @@ fs_rid_vector **fs_bind(fs_backend *be, fs_segment segment, unsigned int tobind,
 	    cols++;
 	}
     }
-
-    fs_rid_vector_sort(mv);
-    fs_rid_vector_uniq(mv, 0);
-    fs_rid_vector_sort(sv);
-    fs_rid_vector_uniq(sv, 0);
-    fs_rid_vector_sort(pv);
-    fs_rid_vector_uniq(pv, 0);
-    fs_rid_vector_sort(ov);
-    fs_rid_vector_uniq(ov, 0);
     
+    if (!conjuctive) {
+        fs_rid_vector_sort(mv);
+        fs_rid_vector_uniq(mv, 0);
+        fs_rid_vector_sort(sv);
+        fs_rid_vector_uniq(sv, 0);
+        fs_rid_vector_sort(pv);
+        fs_rid_vector_uniq(pv, 0);
+        fs_rid_vector_sort(ov);
+        fs_rid_vector_uniq(ov, 0);
+    }
+
     fs_rid_vector **ret;
     if (cols == 0) {
 	ret = calloc(1, sizeof(fs_rid_vector *));
@@ -369,13 +390,14 @@ fs_error(LOG_INFO, "bind() branch");
 	}
     /* query like (_ s p _) */
     } else if (tobind & FS_BIND_BY_SUBJECT && fs_rid_vector_length(pv) > 0 && fs_rid_vector_length(sv) > 0) {
-	if (fs_rid_vector_length(pv) == 1) {
+	if (!conjuctive) {
 #ifdef DEBUG_BRANCH
 fs_error(LOG_INFO, "bind() branch");
 #endif
 	    const int ml = mvl ? mvl : 1;
 	    const int ol = ovl ? ovl : 1;
-	    fs_ptree *pt = fs_backend_get_ptree(be, pv->data[0], 0);
+            for (int p=0; p<pvl && count<limit; p++) {
+	    fs_ptree *pt = fs_backend_get_ptree(be, pv->data[p], 0);
 	    if (pt) {
 		for (int s=0; s<svl && count<limit; s++) {
 		    fs_rid pk = sv->data[s];
@@ -387,7 +409,7 @@ fs_error(LOG_INFO, "bind() branch");
 			    fs_ptree_it *it = fs_ptree_search(pt, pk, pair);
 			    while (it && fs_ptree_it_next(it, pair) && count<limit) {
 				const fs_rid quad[4] =
-				    { pair[0], pk, pv->data[0], pair[1] };
+				    { pair[0], pk, pv->data[p], pair[1] };
 				if (!bind_same(quad, tobind)) continue;
 				if (!graph_ok(quad, tobind)) continue;
 				count++;
@@ -398,6 +420,7 @@ fs_error(LOG_INFO, "bind() branch");
 		    }
 		}
 	    }
+            }
 	} else {
 #ifdef DEBUG_BRANCH
 fs_error(LOG_INFO, "bind() branch");
@@ -433,11 +456,11 @@ fs_error(LOG_INFO, "bind() branch");
 #ifdef DEBUG_BRANCH
 fs_error(LOG_INFO, "bind() branch");
 #endif
-	/* optimisation for exactly one predicate */
-	if (pvl == 1) {
+	if (!conjuctive) {
 	    const int ml = mvl ? mvl : 1;
 	    const int sl = svl ? svl : 1;
-	    fs_ptree *pt = fs_backend_get_ptree(be, pv->data[0], 1);
+            for (int p=0; p<pvl && count<limit; p++) {
+	    fs_ptree *pt = fs_backend_get_ptree(be, pv->data[p], 1);
 	    if (pt) {
 		for (int o=0; o<ovl && count<limit; o++) {
 		    fs_rid pk = ov->data[o];
@@ -449,7 +472,7 @@ fs_error(LOG_INFO, "bind() branch");
 			    fs_ptree_it *it = fs_ptree_search(pt, pk, pair);
 			    while (it && fs_ptree_it_next(it, pair) && count<limit) {
 				const fs_rid quad[4] = {
-				    pair[0], pair[1], pv->data[0], pk
+				    pair[0], pair[1], pv->data[p], pk
 				};
 				if (!bind_same(quad, tobind)) continue;
 				if (!graph_ok(quad, tobind)) continue;
@@ -461,6 +484,7 @@ fs_error(LOG_INFO, "bind() branch");
 		    }
 		}
 	    }
+            }
 	} else {
 	    const int ml = mvl ? mvl : 1;
 	    const int sl = svl ? svl : 1;

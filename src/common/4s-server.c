@@ -37,6 +37,7 @@
 #include <netdb.h>
 #include <glib.h>
 #include <netinet/in.h>
+#include <sys/stat.h>
 
 static char *global_kb_name = NULL;
 static float global_disk_limit = 0.0f;

@@ -155,7 +155,7 @@ static fsa_node_addr *get_storage_nodes(void)
     if (config == NULL) {
         fsa_error(LOG_WARNING,
                   "Unable to read config file at '%s', assuming localhost\n",
-                  fs_get_config_file()); 
+                  fs_get_config_file());
         nodes = fsa_node_addr_new("localhost");
         nodes->port = default_port;
         return nodes;
@@ -170,13 +170,22 @@ static fsa_node_addr *get_storage_nodes(void)
     if (nodes == NULL) {
         fsa_error(LOG_WARNING,
                   "No nodes found in '%s', assuming localhost\n",
-                  fs_get_config_file()); 
+                  fs_get_config_file());
         nodes = fsa_node_addr_new("localhost");
         nodes->port = default_port;
         return nodes;
     }
 
     return nodes;
+}
+
+static void number_nodes(fsa_node_addr *nodes)
+{
+    int n = 0;
+    for (fsa_node_addr *node = nodes; node != NULL; node = node->next) {
+        node->node_num = n;
+        n += 1;
+    }
 }
 
 /* get single node_addr based on matching host name in config file */
@@ -285,6 +294,7 @@ static fsa_node_addr *node_num_to_node_addr(int node_num)
             /* free rest of node list, then return the current */
             fsa_node_addr_free(cur->next);
             cur->next = NULL;
+            cur->node_num = node_num;
             return cur;
         }
 
@@ -296,6 +306,14 @@ static fsa_node_addr *node_num_to_node_addr(int node_num)
     }
 
     return NULL;
+}
+
+static int get_node_list_length(fsa_node_addr *nodes) {
+    int n = 0;
+    for (fsa_node_addr *node = nodes; node != NULL; node = node->next) {
+        n += 1;
+    }
+    return n;
 }
 
 /* Print short usage message */
@@ -329,6 +347,7 @@ static void print_help(void)
 "  stop-stores   Stop a store backend process on all nodes\n"
 "  start-stores  Start a store backend process on all nodes\n"
 "  delete-stores Delete a store on all nodes\n"
+"  create-store  Create a new store on some or all nodes\n"
 "\n",
             program_invocation_short_name
         );
@@ -400,6 +419,186 @@ static void print_help(void)
 static void print_version(void)
 {
     printf("%s, built for 4store %s\n", program_invocation_short_name, GIT_REV);
+}
+
+static int handle_create_store_opts(fsa_kb_setup_args *ksargs,
+                                    fsa_node_addr **nodes)
+{
+    fsa_error(LOG_DEBUG, "parsing create-store arguments/options");
+
+    int c;
+    int opt_index = 0;
+
+    /* set defaults before parsing flags */
+    ksargs->mirror_segments = 0;
+    ksargs->model_files = 0;
+    ksargs->delete_existing = 0;
+
+    char *nodes_arg = NULL;
+    char *segments_arg = NULL;
+    char *password_arg = NULL;
+
+    struct option long_opts[] = {
+        {"nodes",       required_argument, NULL,                     'n'},
+        {"segments",    required_argument, NULL,                     's'},
+        {"password",    required_argument, NULL,                     'p'},
+        {"mirror",      no_argument,       &(ksargs->mirror_segments), 1},
+        {"model-files", no_argument,       &(ksargs->model_files),     1},
+        {"force",       no_argument,       &(ksargs->delete_existing), 1},
+        {NULL,          0,                 NULL,                       0}
+    };
+
+    while(1) {
+        c = getopt_long(argc, argv, "", long_opts, &opt_index);
+
+        if (c == -1) {
+            break;
+        }
+
+        switch(c) {
+            case 0:
+                /* flag set */
+                break;
+            case 'n':
+                nodes_arg = optarg;
+                break;
+            case 's':
+                segments_arg = optarg;
+                break;
+            case 'p':
+                password_arg = optarg;
+                break;
+            case '?':
+                print_usage(1);
+                return 1;
+                break;
+            default:
+                abort();
+        }
+    }
+
+    /* if we don't have exactly one argument remaining */
+    if (argc - optind != 1) {
+        fsa_error(LOG_ERR, "Exactly one store name must be specified");
+        print_usage(1);
+        return 1;
+    }
+
+    /* validate kb name argument */
+    if (!fsa_is_valid_kb_name(argv[optind])) {
+        fsa_error(LOG_ERR, "'%s' is not a valid store name", argv[optind]);
+        return 1;
+    }
+    ksargs->name = (unsigned char *)strdup(argv[optind]);
+    /* end of kb name validation */
+
+    if (password_arg != NULL) {
+        ksargs->password = (unsigned char *)strdup(password_arg);
+    }
+
+    if (nodes_arg == NULL) {
+        /* use all nodes if no args specified */
+        *nodes = get_storage_nodes();
+        number_nodes(*nodes);
+    }
+    else {
+        /* parse --nodes argument */
+        fsa_node_addr *prev_node = NULL;
+        char *cur = nodes_arg; /* point to start of string */
+
+        /* check chars in nodelist */
+        for (int i = 0; i < strlen(nodes_arg); i++) {
+            if (nodes_arg[i] != ','
+                && (nodes_arg[i] < '0' || nodes_arg[i] > '9')) {
+                fsa_error(LOG_ERR, "Invalid nodes argument: %s\n", nodes_arg);
+                return 1;
+            }
+        }
+
+        while (cur != NULL && cur != '\0') {
+            errno = 0;
+            int node_num = (int)strtol(cur, (char **)NULL, 10);
+            if (node_num == 0 && errno != 0) {
+                fsa_error(LOG_ERR, "Invalid node number: %s\n", cur);
+                return 1;
+            }
+
+            fsa_node_addr *node = node_num_to_node_addr(node_num);
+            if (node == NULL) {
+                fsa_error(
+                    LOG_ERR,
+                    "Invalid node number, no node with ID %d in cluster\n",
+                    node_num
+                );
+                return 1;
+            }
+
+            if (prev_node == NULL) {
+                /* set pointer to first node in list */
+                *nodes = node;
+            }
+            else {
+                /* else append to list so that order is preserved */
+                prev_node->next = node;
+            }
+            prev_node = node;
+
+            /* move to next ',' */
+            cur = strchr(cur, ',');
+            if (cur != NULL && cur != '\0') {
+                /* if not at end of string, move past ',' */
+                cur += 1;
+            }
+        }
+    }
+
+    if (*nodes == NULL) {
+        fsa_error(LOG_ERR, "No nodes specified\n");
+        return 1;
+    }
+
+    ksargs->cluster_size = get_node_list_length(*nodes);
+    /* end of nodes validation */
+
+    /* validate segments argument */
+    int n_segments;
+
+    if (segments_arg == NULL) {
+        /* round up to nearest power of 2 */
+        int32_t ns = 2 * ksargs->cluster_size;
+        ns -= 1;
+        ns |= ns >> 1;
+        ns |= ns >> 2;
+        ns |= ns >> 4;
+        ns |= ns >> 8;
+        ns |= ns >> 16;
+        ns += 1;
+        n_segments = ns;
+    }
+    else {
+        n_segments = (int)strtol(segments_arg, (char **)NULL, 10);
+        if (n_segments == 0 && errno != 0) {
+            fsa_error(LOG_ERR, "Invalid number of segments: %s\n",
+                      segments_arg);
+            return 1;
+        }
+    }
+
+    if (n_segments % 2 != 0) {
+        fsa_error(LOG_ERR, "Number of segments must be a power of 2");
+        return 1;
+    }
+
+    if (n_segments < 2 || n_segments > FS_MAX_SEGMENTS) {
+        fsa_error(LOG_ERR, "Number of segments must be between 2 and %d",
+                  FS_MAX_SEGMENTS);
+        return 1;
+    }
+
+    ksargs->num_segments = n_segments;
+    /* end of segments validation */
+
+    return 0;
 }
 
 /* Parse command line opts/args into variables */
@@ -524,7 +723,7 @@ static int start_or_stop_stores(int action)
             }
         }
     }
-    
+
     /* get list of all storage nodes */
     fsa_node_addr *nodes = get_storage_nodes();
 
@@ -560,7 +759,7 @@ static int start_or_stop_stores(int action)
             print_colour("unreachable\n", ANSI_COLOUR_RED);
             continue;
         }
-        
+
         if (all) {
             /* start/stop all kbs */
             if (action == STOP_STORE) {
@@ -820,7 +1019,7 @@ static int start_or_stop_stores(int action)
                     fsa_error(LOG_CRIT, "unknown response from server");
                     n_errors += 1;
                 }
-                
+
                 free(buf);
             }
         }
@@ -865,6 +1064,243 @@ static void cleanup_sock_fds(int *sock_fds, int n)
     free(sock_fds);
 }
 
+/* convenience function since this is used a few times */
+static int get_max_node_name_length(fsa_node_addr *nodes, int max)
+{
+    for (fsa_node_addr *node = nodes; node != NULL; node = node->next) {
+        int len = strlen(node->host);
+        if (len > max) {
+            max = len;
+        }
+    }
+    return max;
+}
+
+static int cmd_create_store(void)
+{
+    int rv;
+    fsa_kb_setup_args *ksargs = fsa_kb_setup_args_new();
+
+    /* check then parse remaining cmd line args into struct */
+    fsa_node_addr *nodes = NULL;
+    rv = handle_create_store_opts(ksargs, &nodes);
+    if (rv != 0) {
+        return rv;
+    }
+
+    /* nodes guaranteed to be non-null */
+
+    int node_name_len = get_max_node_name_length(nodes, 11);
+    int n_nodes = get_node_list_length(nodes);
+
+    /* connections to each node */
+    int *sock_fds = init_sock_fds(n_nodes);
+
+    /* Setup hints information */
+    struct addrinfo hints;
+    memset(&hints, 0, sizeof(hints));
+    hints.ai_family = AF_UNSPEC;
+    hints.ai_socktype = SOCK_STREAM;
+
+    char ipaddr[INET6_ADDRSTRLEN];
+    int print_node_header = 1;
+    int node_status;
+
+    printf("Checking cluster status:\n");
+
+    int cur_node = 0;
+    for (fsa_node_addr *node = nodes; node != NULL; node = node->next) {
+        sock_fds[cur_node] =
+            fsaf_connect_to_admind(node->host, node->port, &hints, ipaddr);
+
+        if (sock_fds[cur_node] == -1) {
+                node_status = -1;
+        }
+        else {
+            node_status = 0;
+        }
+
+        print_node_status_line(node->node_num, node->host, node_status,
+                               node_name_len, print_node_header);
+        print_node_header = 0;
+
+        cur_node += 1;
+    }
+
+    /* check that we've got a connection to all nodes */
+    for (int i = 0; i < n_nodes; i++) {
+        if (sock_fds[i] == -1) {
+            cleanup_sock_fds(sock_fds, n_nodes);
+            printf("Failed to connect to all nodes, aborting.\n");
+            fsa_kb_setup_args_free(ksargs);
+            fsa_node_addr_free(nodes);
+            return 1;
+        }
+    }
+    printf("\n");
+
+    /* all nodes responding, attempt to create store on each */
+    int response, bufsize, err, len;
+    int n_errors = 0;
+    int n_created = 0; /* incremented on successful kb creation */
+    unsigned char *buf;
+
+    if (colour_flag) {
+        printf(ANSI_COLOUR_BLUE);
+    }
+
+    printf("node_number store_status");
+
+    if (colour_flag) {
+        printf(ANSI_COLOUR_RESET);
+    }
+
+    printf("\n");
+
+    fsa_error(LOG_DEBUG, "ksargs len is: %d", len);
+    fsa_error(LOG_DEBUG, "ksargs->name: %s", ksargs->name);
+    fsa_error(LOG_DEBUG, "ksargs->password: %s", ksargs->password);
+    fsa_error(LOG_DEBUG, "ksargs->node_id: %d", ksargs->node_id);
+    fsa_error(LOG_DEBUG, "ksargs->cluster_size: %d", ksargs->cluster_size);
+    fsa_error(LOG_DEBUG, "ksargs->num_segments: %d", ksargs->num_segments);
+    fsa_error(LOG_DEBUG, "ksargs->mirror_segments: %d",ksargs->mirror_segments);
+    fsa_error(LOG_DEBUG, "ksargs->model_files: %d", ksargs->model_files);
+    fsa_error(LOG_DEBUG, "ksargs->delete_existing: %d",ksargs->delete_existing);
+
+    unsigned char *cmd = NULL;
+    cur_node = 0;
+    for (fsa_node_addr *node = nodes; node != NULL; node = node->next) {
+        ksargs->node_id =cur_node;
+
+        cmd = fsap_encode_cmd_create_kb(ksargs, &len);
+        if (cmd == NULL) {
+            fsa_error(LOG_CRIT, "failed to encode %s command",
+                      argv[cmd_index]);
+            fsa_kb_setup_args_free(ksargs);
+            fsa_node_addr_free(nodes);
+            cleanup_sock_fds(sock_fds, n_nodes);
+            return 1;
+        }
+
+        fsa_error(LOG_DEBUG, "sending %s '%s' command to %s:%d",
+                  argv[cmd_index], ksargs->name, node->host, node->port);
+
+        buf = fsaf_send_recv_cmd(node, sock_fds[cur_node], cmd, len,
+                                 &response, &bufsize, &err);
+
+        /* usually a network error */
+        if (buf == NULL) {
+            /* error already handled */
+            n_errors += 1;
+            break;
+        }
+
+        if (response == ADM_RSP_CREATE_KB) {
+            fsa_kb_response *kbr = fsap_decode_rsp_create_kb(buf);
+
+            switch (kbr->return_val) {
+                case ADM_ERR_OK:
+                    fsa_error(
+                        LOG_DEBUG,
+                        "kb '%s' created on node %s",
+                        kbr->kb_name, node->host
+                    );
+                    printf("%-11d ", node->node_num);
+                    print_colour("created", ANSI_COLOUR_GREEN);
+                    printf("\n");
+                    n_created += 1;
+                    break;
+                case ADM_ERR_KB_EXISTS:
+                    fsa_error(
+                        LOG_ERR,
+                        "kb '%s' already exists on node %s",
+                        kbr->kb_name, node->host
+                    );
+                    n_errors += 1;
+                    break;
+                case ADM_ERR_POPEN:
+                case ADM_ERR_GENERIC:
+                default:
+                    fsa_error(
+                        LOG_ERR,
+                        "failed to create kb '%s' on node %s",
+                        kbr->kb_name, node->host
+                    );
+                    n_errors += 1;
+                    break;
+            }
+
+            fsa_kb_response_free(kbr);
+        }
+        else if (response == ADM_RSP_ERROR) {
+            unsigned char *errmsg = fsap_decode_rsp_error(buf, bufsize);
+            fsa_error(LOG_ERR, "server error: %s", errmsg);
+            free(errmsg);
+            free(buf);
+            n_errors += 1;
+            break;
+        }
+        else {
+            fsa_error(LOG_CRIT, "unknown response from server");
+            free(buf);
+            n_errors += 1;
+            break;
+        }
+
+        free(buf);
+        if (n_errors > 0) {
+            break;
+        }
+
+        cur_node += 1;
+    }
+
+    if (cmd != NULL) {
+        free(cmd);
+    }
+
+    /* delete any stores already created, ignore errors */
+    if (n_errors > 0 && n_created > 0) {
+        int cmd_len;
+        unsigned char *delete_cmd =
+            fsap_encode_cmd_delete_kb(ksargs->name, &cmd_len);
+
+        if (cmd == NULL) {
+            fsa_error(LOG_CRIT, "failed to encode delete_stores command");
+        }
+        else {
+            cur_node = 0;
+            for (fsa_node_addr *node = nodes; node != NULL; node = node->next) {
+                fsa_error(LOG_DEBUG,
+                          "sending delete-store '%s' command to %s:%d",
+                          ksargs->name, node->host, node->port);
+
+                fsaf_send_recv_cmd(node, sock_fds[cur_node], delete_cmd,
+                                   cmd_len, &response, &bufsize, &err);
+                cur_node += 1;
+
+                if (cur_node == n_created) {
+                    /* only delete as many as we created */
+                    break;
+                }
+            }
+        }
+    }
+
+    /* cleanup */
+    cleanup_sock_fds(sock_fds, n_nodes);
+    fsa_kb_setup_args_free(ksargs);
+    fsa_node_addr_free(nodes);
+
+    if (n_errors > 0) {
+        printf(
+          "Store creation aborted.\n"
+        );
+        return 1;
+    }
+    return 0;
+}
+
 static int cmd_delete_stores(void)
 {
     if (args_index < 0) {
@@ -890,7 +1326,7 @@ static int cmd_delete_stores(void)
             store_name_len = len;
         }
     }
-    
+
     /* get list of all storage nodes */
     fsa_node_addr *node;
     fsa_node_addr *nodes = get_storage_nodes();
@@ -901,7 +1337,7 @@ static int cmd_delete_stores(void)
         if (len > node_name_len) {
             node_name_len = len;
         }
-        
+
         n_nodes += 1;
     }
 
@@ -1469,14 +1905,14 @@ static int cmd_list_nodes(void)
         /* assume localhost if no config file found */
         fsa_error(LOG_WARNING,
                   "Unable to read config file at '%s', assuming localhost\n",
-                  fs_get_config_file()); 
+                  fs_get_config_file());
     }
     else {
         nodes = fsa_get_node_list(config);
         if (nodes == NULL) {
             fsa_error(LOG_WARNING,
                       "No nodes found in '%s', assuming localhost\n",
-                      fs_get_config_file()); 
+                      fs_get_config_file());
             default_port = fsa_get_admind_port(config);
         }
     }
@@ -1568,6 +2004,9 @@ static int handle_command(void)
     }
     else if (strcmp(argv[cmd_index], "delete-stores") == 0) {
         return cmd_delete_stores();
+    }
+    else if (strcmp(argv[cmd_index], "create-store") == 0) {
+        return cmd_create_store();
     }
     else {
         fsa_error(LOG_ERR, "unrecognized command '%s'", argv[cmd_index]);

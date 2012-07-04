@@ -51,6 +51,9 @@ int fs_opt_num_vals(fs_binding *b, rasqal_literal *l)
 	case RASQAL_LITERAL_FLOAT:
 	case RASQAL_LITERAL_DECIMAL:
 	case RASQAL_LITERAL_DATETIME:
+#if RASQAL_VERSION >= 929
+	case RASQAL_LITERAL_DATE:
+#endif
 	    return 1;
 	case RASQAL_LITERAL_VARIABLE: {
 	    fs_binding *bv = fs_binding_get(b, l->value.variable);
@@ -88,6 +91,9 @@ int fs_opt_is_const(fs_binding *b, rasqal_literal *l)
 	case RASQAL_LITERAL_FLOAT:
 	case RASQAL_LITERAL_DECIMAL:
 	case RASQAL_LITERAL_DATETIME:
+#if RASQAL_VERSION >= 929
+	case RASQAL_LITERAL_DATE:
+#endif
 	    return 1;
 	case RASQAL_LITERAL_VARIABLE: {
 	    fs_binding *bv = fs_binding_get(b, l->value.variable);
@@ -151,6 +157,9 @@ int fs_opt_is_bound(fs_binding *b, rasqal_literal *l)
 	case RASQAL_LITERAL_FLOAT:
 	case RASQAL_LITERAL_DECIMAL:
 	case RASQAL_LITERAL_DATETIME:
+#if RASQAL_VERSION >= 929
+	case RASQAL_LITERAL_DATE:
+#endif
 	    return 0;
 
 	/* we shouldn't find any of these... */
@@ -181,6 +190,9 @@ static char *var_name(rasqal_literal *l)
 	case RASQAL_LITERAL_FLOAT:
 	case RASQAL_LITERAL_DECIMAL:
 	case RASQAL_LITERAL_DATETIME:
+#if RASQAL_VERSION >= 929
+	case RASQAL_LITERAL_DATE:
+#endif
 	    return NULL;
 
 	case RASQAL_LITERAL_VARIABLE:
@@ -243,6 +255,31 @@ int fs_optimise_triple_pattern(fs_query_state *qs, fs_query *q, int block, rasqa
 	    pbuf[i] = NULL;
 	}
     }
+
+    /* triples like :s :p ?o, where :p != rdf:type */
+    for (int i=0; i<length; i++) {
+	if (!pbuf[i]) {
+	    continue;
+	}
+
+	if (fs_opt_is_const(q->bb[block], pbuf[i]->subject) && fs_opt_is_const(q->bb[block], pbuf[i]->predicate) && fs_opt_is_bound(q->bb[block], pbuf[i]->object) && !fs_opt_literal_is_rdf_type(pbuf[i]->predicate)) {
+	    patt[append_pos++] = pbuf[i];
+	    pbuf[i] = NULL;
+	}
+    }
+
+    /* triples like :s :p _, where :p != rdf:type */
+    for (int i=0; i<length; i++) {
+	if (!pbuf[i]) {
+	    continue;
+	}
+
+	if (fs_opt_is_const(q->bb[block], pbuf[i]->subject) && fs_opt_is_const(q->bb[block], pbuf[i]->predicate) && !fs_opt_literal_is_rdf_type(pbuf[i]->predicate)) {
+	    patt[append_pos++] = pbuf[i];
+	    pbuf[i] = NULL;
+	}
+    }
+
     /* triples like ?s :p :o, where :p != rdf:type */
     for (int i=0; i<length; i++) {
 	if (!pbuf[i]) {
@@ -254,6 +291,7 @@ int fs_optimise_triple_pattern(fs_query_state *qs, fs_query *q, int block, rasqa
 	    pbuf[i] = NULL;
 	}
     }
+
     /* triples like ?s rdf:type :o */
     for (int i=0; i<length; i++) {
 	if (!pbuf[i]) {

@@ -23,6 +23,7 @@
 #include <pcre.h>
 #include <time.h>
 #include <errno.h>
+#include <uuid/uuid.h>
 
 #include "filter-datatypes.h"
 #include "filter.h"
@@ -37,73 +38,6 @@ typedef struct _fs_date_fields {
     int month;
     int day;
 } fs_date_fields;
-
-
-static char fs_bit_mask_set(short nbit,short value) {
-    
-    if (value)
-        return  0xFF;
-
-    if (nbit == 0) 
-        return 0x7F;
-    else if (nbit == 1)
-        return 0xBF;
-    else if (nbit == 2) 
-        return 0xDF;
-    else if (nbit == 3) 
-        return 0xEF;
-    else if (nbit == 4) 
-        return 0xF7;
-    else if (nbit == 5) 
-        return 0xFB;
-    else if (nbit == 6) 
-        return 0xFD;
-    else if (nbit == 7) 
-        return 0xFE;
-    return 0xFF;
-}
-
-
-static char fs_bit_mask_get(short nbit) {
-    if (nbit == 0) 
-        return 0x80;
-    else if (nbit == 1)
-        return 0x40;
-    else if (nbit == 2) 
-        return 0x20;
-    else if (nbit == 3) 
-        return 0x10;
-    else if (nbit == 4) 
-        return 0x08;
-    else if (nbit == 5) 
-        return 0x04;
-    else if (nbit == 6) 
-        return 0x02;
-    else if (nbit == 7) 
-        return 0x01;
-    return 0x00;
-}
-
-unsigned char *fs_new_bit_array(long n) {
-    int extra = (n % 8) ? 1 : 0;
-    size_t ms = ((n / 8)+extra) * sizeof(unsigned char);
-    unsigned char *p = malloc(ms);
-    memset(p,0xFF,ms);
-    return p;
-}
-
-void fs_bit_array_set(unsigned char *p,long i,int value) {
-    p[i/8] &= fs_bit_mask_set(i % 8,value);
-}
-
-short fs_bit_array_get(unsigned char *p,long i) {
-    return p[i/8] & fs_bit_mask_get(i % 8) ? 1 : 0;
-}
-
-void fs_bit_array_destroy(unsigned char *p) {
-    if (p)
-        free(p);
-}
 
 static fs_value cast_double(fs_value a)
 {
@@ -1288,6 +1222,35 @@ fs_value fn_datatype(fs_query *q, fs_value a)
     return fs_value_uri("error:unresloved");
 }
 
+static int regex_flags(const char *flags)
+{
+    int reflags = PCRE_UTF8;
+    if (flags) {
+	for (const char *c = flags; *c; c++) {
+	    switch (*c) {
+		case 's':
+		    reflags |= PCRE_DOTALL;
+		    break;
+		case 'm':
+		    reflags |= PCRE_MULTILINE;
+		    break;
+		case 'i':
+		    reflags |= PCRE_CASELESS;
+		    break;
+		case 'x':
+		    reflags |= PCRE_EXTENDED;
+		    break;
+		default:
+		    fs_error(LOG_ERR, "unknown regex flag '%c'", *c);
+
+                    return 0;
+	    }
+	}
+    }
+
+    return reflags;
+}
+
 fs_value fn_matches(fs_query *q, fs_value str, fs_value pat, fs_value flags)
 {
     if (str.valid & fs_valid_bit(FS_V_TYPE_ERROR)) {
@@ -1300,6 +1263,8 @@ fs_value fn_matches(fs_query *q, fs_value str, fs_value pat, fs_value flags)
 	return flags;
     }
 
+    str = fs_value_fill_lexical(q, str);
+    pat = fs_value_fill_lexical(q, pat);
     if (!str.lex || !pat.lex) {
 	return fs_value_error(FS_ERROR_INVALID_TYPE,
                               "argument to fn:matches has no lexical value");
@@ -1318,27 +1283,9 @@ fs_value fn_matches(fs_query *q, fs_value str, fs_value pat, fs_value flags)
     printf("\n");
 #endif
 
-    int reflags = PCRE_UTF8;
-    if (flags.lex) {
-	for (char *c = flags.lex; *c; c++) {
-	    switch (*c) {
-		case 's':
-		    reflags |= PCRE_DOTALL;
-		    break;
-		case 'm':
-		    reflags |= PCRE_MULTILINE;
-		    break;
-		case 'i':
-		    reflags |= PCRE_CASELESS;
-		    break;
-		case 'x':
-		    reflags |= PCRE_EXTENDED;
-		    break;
-		default:
-		    fs_error(LOG_ERR, "unknown regex flag '%c'", *c);
-		    return fs_value_error(FS_ERROR_INVALID_TYPE, "unrecognised flag in fn:matches");
-	    }
-	}
+    int reflags = regex_flags(flags.lex);
+    if (!reflags) {
+        return fs_value_error(FS_ERROR_INVALID_TYPE, "unrecognised flag in fn:matches");
     }
 
     const char *error;
@@ -1625,7 +1572,7 @@ fs_value fn_timezone(fs_query *q, fs_value v)
 
 fs_value fn_strstarts(fs_query *q, fs_value arg1, fs_value arg2)
 {
-    if (!fs_is_plain_or_string(arg1) || !fs_is_plain_or_string(arg2)) {
+    if (!fs_arg_compatible(arg1, arg2)) {
         return fs_value_error(FS_ERROR_INVALID_TYPE, NULL);
     }
     arg1 = fs_value_fill_lexical(q, arg1);
@@ -1636,7 +1583,7 @@ fs_value fn_strstarts(fs_query *q, fs_value arg1, fs_value arg2)
 
 fs_value fn_strends(fs_query *q, fs_value arg1, fs_value arg2)
 {
-    if (!fs_is_plain_or_string(arg1) || !fs_is_plain_or_string(arg2)) {
+    if (!fs_arg_compatible(arg1, arg2)) {
         return fs_value_error(FS_ERROR_INVALID_TYPE, NULL);
     }
     arg1 = fs_value_fill_lexical(q, arg1);
@@ -1654,13 +1601,65 @@ fs_value fn_strends(fs_query *q, fs_value arg1, fs_value arg2)
 
 fs_value fn_contains(fs_query *q, fs_value arg1, fs_value arg2)
 {
-    if (!fs_is_plain_or_string(arg1) || !fs_is_plain_or_string(arg2)) {
+    if (!fs_arg_compatible(arg1, arg2)) {
         return fs_value_error(FS_ERROR_INVALID_TYPE, NULL);
     }
     arg1 = fs_value_fill_lexical(q, arg1);
     arg2 = fs_value_fill_lexical(q, arg2);
 
     return fs_value_boolean(strstr(arg1.lex, arg2.lex) != NULL);
+}
+
+fs_value fn_strbefore(fs_query *q, fs_value arg1, fs_value arg2)
+{
+    if (!fs_arg_compatible(arg1, arg2)) {
+        return fs_value_error(FS_ERROR_INVALID_TYPE, NULL);
+    }
+
+    arg1 = fs_value_fill_lexical(q, arg1);
+    arg2 = fs_value_fill_lexical(q, arg2);
+
+    char *pos = strstr(arg1.lex, arg2.lex);
+    if (!pos) {
+        fs_value ret = fs_value_plain("");
+        ret.attr = arg1.attr;
+
+        return ret;
+    }
+
+    char *new = g_strndup(arg1.lex, pos-arg1.lex);
+    fs_query_add_freeable(q, new);
+
+    fs_value ret = fs_value_plain(new);
+    ret.attr = arg1.attr;
+
+    return ret;
+}
+
+fs_value fn_strafter(fs_query *q, fs_value arg1, fs_value arg2)
+{
+    if (!fs_arg_compatible(arg1, arg2)) {
+        return fs_value_error(FS_ERROR_INVALID_TYPE, NULL);
+    }
+
+    arg1 = fs_value_fill_lexical(q, arg1);
+    arg2 = fs_value_fill_lexical(q, arg2);
+
+    char *pos = strstr(arg1.lex, arg2.lex);
+    if (!pos) {
+        fs_value ret = fs_value_plain("");
+        ret.attr = arg1.attr;
+
+        return ret;
+    }
+
+    char *new = g_strdup(pos + strlen(arg2.lex));
+    fs_query_add_freeable(q, new);
+
+    fs_value ret = fs_value_plain(new);
+    ret.attr = arg1.attr;
+
+    return ret;
 }
 
 fs_value fn_rand(fs_query *q)
@@ -1721,6 +1720,30 @@ fs_value fn_sha256(fs_query *q, fs_value arg)
 #else
     return fs_value_error(FS_ERROR_INVALID_TYPE, "glib version does not support hash functions, at least 2.16.0 required");
 #endif
+}
+
+fs_value fn_uuid(fs_query *q)
+{
+    uuid_t uu;
+    uuid_string_t uus;
+    uuid_generate(uu);
+    uuid_unparse(uu, uus);
+    char *str = g_strdup_printf("urn:uuid:%s", uus);
+    fs_query_add_freeable(q, str);
+
+    return fs_value_uri(str);
+}
+
+fs_value fn_struuid(fs_query *q)
+{
+    uuid_t uu;
+    uuid_string_t uus;
+    uuid_generate(uu);
+    uuid_unparse(uu, uus);
+    char *str = g_strdup(uus);
+    fs_query_add_freeable(q, str);
+
+    return fs_value_plain(str);
 }
 
 /* vi:set expandtab sts=4 sw=4: */

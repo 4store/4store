@@ -172,7 +172,7 @@ static int check_bin_dir(void)
                   bin_dir, strerror(errno));
         return -1;
     }
-    
+
     closedir(dir);
 
     return 0;
@@ -676,7 +676,67 @@ static void handle_cmd_get_kb_info(int client_fd, uint16_t datasize)
     fsa_error(LOG_DEBUG, "%d bytes sent to client", len);
 }
 
-/* start or stop a running kb */
+/* create a single kb */
+static void handle_cmd_create_kb(int client_fd, uint16_t datasize)
+{
+    int rv, err;
+    unsigned char *msg = NULL;
+    int exit_val; /* exit value from 4s-backend-setup */
+
+    /* unpack client data into buffer */
+    unsigned char *buf = (unsigned char *)malloc(datasize);
+    rv = recv_from_client(client_fd, buf, datasize);
+    if (rv <= 0) {
+        /* errors already logged/handled */
+        free(buf);
+        return;
+    }
+
+    /* parse buffer into kb setup args struct */
+    fsa_kb_setup_args *ksargs = fsap_decode_cmd_create_kb(buf);
+    fsa_error(LOG_DEBUG, "ksargs->name: %s", ksargs->name);
+    fsa_error(LOG_DEBUG, "ksargs->node_id: %d", ksargs->node_id);
+    fsa_error(LOG_DEBUG, "ksargs->cluster_size: %d", ksargs->cluster_size);
+    fsa_error(LOG_DEBUG, "ksargs->num_segments: %d", ksargs->num_segments);
+    fsa_error(LOG_DEBUG, "ksargs->mirror_segments: %d",ksargs->mirror_segments);
+    fsa_error(LOG_DEBUG, "ksargs->model_files: %d", ksargs->model_files);
+    fsa_error(LOG_DEBUG, "ksargs->delete_existing: %d",ksargs->delete_existing);
+
+    /* should already have been checked by client */
+    if (!fsa_is_valid_kb_name((const char *)ksargs->name)) {
+        fsa_error(LOG_CRIT, "Invalid store name received from client");
+        send_error_message(client_fd, "store name invalid");
+        fsa_kb_setup_args_free(ksargs);
+    }
+
+    rv = fsab_create_local_kb(ksargs, &exit_val, &msg, &err);
+
+    /* encode message for client */
+    int len;
+    unsigned char *response =
+        fsap_encode_rsp_create_kb(err, ksargs->name, msg, &len);
+
+    fsa_error(LOG_DEBUG, "sending err: %d, kb_name: %s, msg: %s",
+              err, ksargs->name, msg);
+
+    fsa_kb_setup_args_free(ksargs);
+    free(msg);
+
+    fsa_error(LOG_DEBUG, "response size is %d bytes", len);
+
+    /* send entire response back to client */
+    rv = fsa_sendall(client_fd, response, &len);
+    free(response);
+    if (rv == -1) {
+        fsa_error(LOG_ERR, "failed to send response to client: %s",
+                  strerror(errno));
+        return;
+    }
+
+    fsa_error(LOG_DEBUG, "%d bytes sent to client", len);
+}
+
+/* delete a single kb */
 static void handle_cmd_delete_kb(int client_fd, uint16_t datasize)
 {
     int rv, err;
@@ -859,7 +919,7 @@ static void start_or_stop_kb(int client_fd, uint16_t datasize, int action)
     /* encode message for client */
     int len;
     unsigned char *response;
-    
+
     if (action == STOP_STORES) {
         response = fsap_encode_rsp_stop_kb(return_val, kb_name, msg, &len);
     }
@@ -941,6 +1001,9 @@ static void handle_client_data(int client_fd)
             break;
         case ADM_CMD_DELETE_KB:
             handle_cmd_delete_kb(client_fd, datasize);
+            break;
+        case ADM_CMD_CREATE_KB:
+            handle_cmd_create_kb(client_fd, datasize);
             break;
         default:
             fsa_error(LOG_ERR, "unknown client request");

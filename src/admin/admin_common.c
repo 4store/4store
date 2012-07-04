@@ -126,6 +126,7 @@ fsa_node_addr *fsa_node_addr_new(const char *host)
     }
 
     na->port = 0;
+    na->node_num = 0;
     na->next = NULL;
     na->host = (char *)malloc(strlen(host) + 1);
     if (na->host == NULL) {
@@ -260,6 +261,42 @@ void fsa_kb_response_free(fsa_kb_response *kbr)
         free(kbr->msg);
     }
     free(kbr);
+}
+
+/* Creates with same default options as current 4s-backend-setup */
+fsa_kb_setup_args *fsa_kb_setup_args_new(void)
+{
+    fsa_kb_setup_args *ksargs =
+        (fsa_kb_setup_args*)malloc(sizeof(fsa_kb_setup_args));
+
+    ksargs->name = NULL;
+    ksargs->password = NULL;
+    ksargs->node_id = 0;
+    ksargs->cluster_size = 1;
+    ksargs->num_segments = 2;
+
+    ksargs->mirror_segments = 0;
+    ksargs->model_files = 0;
+    ksargs->delete_existing = 1;
+
+    return ksargs;
+}
+
+void fsa_kb_setup_args_free(fsa_kb_setup_args *ksargs)
+{
+    if (ksargs == NULL) {
+        return;
+    }
+
+    if (ksargs->name != NULL) {
+        free(ksargs->name);
+    }
+
+    if (ksargs->password != NULL) {
+        free(ksargs->password);
+    }
+
+    free(ksargs);
 }
 
 /* Utility function to force sending of all bytes in a packet */
