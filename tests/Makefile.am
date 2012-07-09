@@ -16,4 +16,6 @@ test-admin:
 
 
 EXTRA_DIST = query/setup.sh query/run.pl query/exemplar query/scripts \
-	     httpd/run.pl httpd/sparql.sh httpd/exemplar httpd/scripts
+	     httpd/run.pl httpd/sparql.sh httpd/exemplar httpd/scripts \
+	     httpd-extras/run.pl httpd-extras/sparql.sh httpd-extras/exemplar httpd-extras/scripts \
+	     admin/admin_tests.conf admin/scripts admin/exemplar admin/run.pl admin/vars.sh

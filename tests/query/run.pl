@@ -77,6 +77,7 @@ if ($pid = fork()) {
 			exit(2);
 		}
         if ($ret >> 8 == 3) {
+			print("[");
 			print color 'bold yellow';
 			print("SKIP");
 			print color 'reset';
