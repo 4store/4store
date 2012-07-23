@@ -102,7 +102,7 @@ static void fs_free_global_elements() {
 
 static void query_log_open (const char *kb_name)
 {
-  char *filename = g_strdup_printf("/var/log/4store/query-%s.log", kb_name);
+  char *filename = g_strdup_printf(FS_HTTP_LOG "/query-%s.log", kb_name);
 
   ql_file= fopen(filename, "a");
   if (ql_file) {

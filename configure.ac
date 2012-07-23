@@ -36,6 +36,14 @@ AC_ARG_WITH([config_file],
 FS_CONFIG_FILE="$with_config_file"
 AC_SUBST(FS_CONFIG_FILE)
 
+AC_ARG_WITH([http_log],
+	[AS_HELP_STRING([--with-http-log=PATH],
+	                [set path and filename of httpd log file default=/var/log/4store])],
+	[],
+	[with_http_log=/var/log/4store])
+FS_HTTP_LOG="$with_http_log"
+AC_SUBST(FS_HTTP_LOG)
+
 AC_ARG_WITH([skolem_prefix],
 	[AS_HELP_STRING([--with-skolem-prefix=URI],
 	                [set skolemisation prefix, default=http://4store.org/.well-known/genid])],
