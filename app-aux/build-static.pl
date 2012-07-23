@@ -123,7 +123,7 @@ $ENV{'LDFLAGS'} = "-L${ROOT_DIR}/lib";
 $ENV{'INFOPATH'} = "${ROOT_DIR}/share/info";
 $ENV{'MANPATH'} = "${ROOT_DIR}/share/man";
 $ENV{'M4PATH'} = "${ROOT_DIR}/share/aclocal";
-$ENV{'PATH'} = "${ROOT_DIR}/bin:/usr/bin:/bin:/sbin";
+$ENV{'PATH'} = "${ROOT_DIR}/bin:/usr/bin:/bin:/sbin:/usr/local/bin";
 $ENV{'PKG_CONFIG_PATH'} = "${ROOT_DIR}/lib/pkgconfig";
 $ENV{'CLASSPATH'} = '';
 
