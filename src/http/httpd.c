@@ -1250,6 +1250,9 @@ static void http_post_request(client_ctxt *ctxt, gchar *url, gchar *protocol)
         if (strlen(value)) { /* ignore empty string, default form value */
           ctxt->soft_limit = atoi(value);
         }
+      } else if (!strcmp(key, "output") && value) {
+        url_decode(value);
+        ctxt->output = g_strdup(value);
       } else if (!strcmp(key, "default-graph-uri") && value) {
         url_decode(value);
         default_graph = value;
