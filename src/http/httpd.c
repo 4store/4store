@@ -1852,10 +1852,11 @@ static int server_setup (int background, const char *host, const char *port)
     fs_error(LOG_INFO, "4store HTTP daemon " GIT_REV " started on port %s", port);
   }
   if (cache_stats)
-    fs_error(LOG_ERR,"Cache stats enabled at /status/cache.");
+    fs_error(LOG_INFO,"Cache stats enabled at /status/cache.");
   if (graph_access_control)
-    fs_error(LOG_ERR,"Access control for graphs is enabled.");
-  
+    fs_error(LOG_INFO,"Access control for graphs is enabled.");
+  if (query_rewriting)
+    fs_error(LOG_INFO,"Rule engine (query rewriting) is enabled.");
   return srv;
 }
 
