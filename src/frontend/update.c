@@ -40,6 +40,7 @@ struct update_context {
     rasqal_literal *graph;
     rasqal_update_operation *op;
     int opid;
+    int error;
 };
 
 #define QUAD_BUF_SIZE 4096
@@ -76,9 +77,23 @@ static void error_handler(void *user_data, raptor_log_message *message)
 {
     struct update_context *uc = user_data;
 
-    char *msg = g_strdup_printf("%s: %s at line %d of operation %d", raptor_log_level_get_label(message->level), message->text, raptor_locator_line(message->locator), uc->opid);
+    char *msg = g_strdup_printf("%s: %s at line %d of operation %d", 
+            raptor_log_level_get_label(message->level), message->text, raptor_locator_line(message->locator), uc->opid);
+    uc->error = (message->level == RAPTOR_LOG_LEVEL_ERROR);
     add_message(uc, msg, 1);
     fs_error(LOG_ERR, "%s", msg);
+}
+
+static char *build_update_error_message(GSList *messages) {
+    int num_messages = g_slist_length(messages);
+    char **strv = calloc(sizeof(char *), num_messages+1);
+    int pos = 0;
+    for (GSList *it=messages; it; it=it->next) {
+        strv[pos++] = it->data;
+    }
+    char *message = g_strjoinv("\n", strv);
+    free(strv);
+    return message;
 }
 
 static int any_vars(rasqal_triple *t)
@@ -200,7 +215,6 @@ static char *graph_arg(raptor_uri *u)
 static int update_op(struct update_context *uc)
 {
     fs_rid_vector *vec[4];
-
     switch (uc->op->type) {
     case RASQAL_UPDATE_TYPE_UNKNOWN:
         add_message(uc, "Unknown update operation", 0);
@@ -418,6 +432,7 @@ int fs_update(fs_query_state *qs, char *update, char **message, int unsafe)
     }
     struct update_context uctxt;
     rasqal_world_set_log_handler(qs->rasqal_world, &uctxt, error_handler);
+
     memset(&uctxt, 0, sizeof(uctxt));
     uctxt.link = qs->link;
     uctxt.segments = fsp_link_segments(qs->link);
@@ -425,6 +440,13 @@ int fs_update(fs_query_state *qs, char *update, char **message, int unsafe)
     uctxt.rq = rq;
     raptor_uri *bu = raptor_new_uri(qs->raptor_world, (unsigned char *)"local:local");
     rasqal_query_prepare(rq, (unsigned char *)update, bu);
+    if (uctxt.error) {
+        if (uctxt.messages) {
+            *message = build_update_error_message(uctxt.messages);
+            g_slist_free(uctxt.messages);
+        }
+        return 1;
+    }
     if (!quad_buffer) {
         quad_buffer = calloc(uctxt.segments, sizeof(struct quad_buf));
     }
@@ -448,16 +470,9 @@ int fs_update(fs_query_state *qs, char *update, char **message, int unsafe)
     rasqal_free_query(rq);
 
     if (uctxt.messages) {
-        int num_messages = g_slist_length(uctxt.messages);
-        char **strv = calloc(sizeof(char *), num_messages+1);
-        int pos = 0;
-        for (GSList *it=uctxt.messages; it; it=it->next) {
-            strv[pos++] = it->data;
-        }
-        *message = g_strjoinv("\n", strv);
-        free(strv);
+        *message = build_update_error_message(uctxt.messages);
+        g_slist_free(uctxt.messages);
     }
-    g_slist_free(uctxt.messages);
     for (GSList *it=uctxt.freeable; it; it=it->next) {
         g_free(it->data);
     }
