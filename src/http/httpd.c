@@ -1855,8 +1855,6 @@ static int server_setup (int background, const char *host, const char *port)
     fs_error(LOG_INFO,"Cache stats enabled at /status/cache.");
   if (graph_access_control)
     fs_error(LOG_INFO,"Access control for graphs is enabled.");
-  if (query_rewriting)
-    fs_error(LOG_INFO,"Rule engine (query rewriting) is enabled.");
   return srv;
 }
 
