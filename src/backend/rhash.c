@@ -287,7 +287,7 @@ int fs_rhash_close(fs_rhash *rh)
     }
     if (rh->locked) flock(rh->fd, LOCK_UN);
     const size_t len = sizeof(struct rhash_header) + ((size_t) rh->size) * ((size_t) rh->bucket_size) * sizeof(fs_rhash_entry);
-    munmap(rh->entries - sizeof(struct rhash_header), len);
+    munmap((char *)rh->entries - sizeof(struct rhash_header), len);
     close(rh->fd);
     g_free(rh->filename);
     free(rh);
@@ -503,7 +503,7 @@ static int double_size(fs_rhash *rh)
     fs_rhash_ensure_size(rh);
     const size_t oldlen = sizeof(struct rhash_header) + ((size_t) oldsize) * ((size_t) rh->bucket_size) * sizeof(fs_rhash_entry);
     const size_t newlen = sizeof(struct rhash_header) + ((size_t) rh->size) * ((size_t) rh->bucket_size) * sizeof(fs_rhash_entry);
-    munmap(rh->entries - sizeof(struct rhash_header), oldlen);
+    munmap((char *)rh->entries - sizeof(struct rhash_header), oldlen);
     rh->entries = mmap(NULL, newlen, PROT_READ | PROT_WRITE, MAP_SHARED, rh->fd, 0) + sizeof(struct rhash_header);
     if (rh->entries == MAP_FAILED) {
         fs_error(LOG_ERR, "failed to re-mmap rhash file “%s”: %s", rh->filename, strerror(errno));
