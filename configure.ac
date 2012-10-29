@@ -103,6 +103,7 @@ if test $have_linux_uuid = yes; then
 	AC_DEFINE([USE_LINUX_UUID], [], [Defined if the linux libuuid is available])
 	AC_TRY_COMPILE(
 	    [#define IN_CONFIGURE
+	    #define HAVE_UUID_STRING_T 1
 	    #include "$srcdir/src/common/uuid.h"],
 	    [uuid_t uu; uuid_string_t uus; uuid_generate(uu); uuid_unparse(uu, uus);],
 	    have_uuid_string_t=yes,
