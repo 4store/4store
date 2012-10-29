@@ -1,9 +1,9 @@
 Query: SELECT * WHERE { ?s ?p ?o } ORDER BY ?s ?p ?o
 ?s	?p	?o
-Update: INSERT DATA { GRAPH <system:config> { 
+Update: INSERT DATA { GRAPH <system:config> {
 <graph:x> <http://4store.org/acl#onlyAccessBy> "user1" . } }
 
-Update: INSERT DATA { GRAPH <system:config> { 
+Update: INSERT DATA { GRAPH <system:config> {
 <graph:y> <http://4store.org/acl#onlyAccessBy> "user2" . } }
 
 Update: INSERT DATA { GRAPH <graph:x> { <x> <y> <z> . <a> <b> <c> . } }
@@ -34,9 +34,9 @@ Query: SELECT * WHERE { ?s ?p ?o } ORDER BY ?s ?p ?o
 <local:a2>	<local:b2>	<local:c2>
 <local:x1>	<local:y1>	<local:z1>
 <local:x2>	<local:y2>	<local:z2>
-Update: DELETE DATA { GRAPH <system:config> { 
+Update: DELETE DATA { GRAPH <system:config> {
 <graph:x> <http://4store.org/acl#onlyAccessBy> "user1" . } };
-INSERT DATA { GRAPH <system:config> { 
+INSERT DATA { GRAPH <system:config> {
 <graph:x> <http://4store.org/acl#onlyAccessBy> "user2" . } }
 
 

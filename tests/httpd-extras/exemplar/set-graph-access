@@ -1,4 +1,4 @@
-Update: INSERT DATA { GRAPH <system:config> { 
+Update: INSERT DATA { GRAPH <system:config> {
 <graph:x> <http://4store.org/acl#onlyAccessBy> "user1" . } }
 
 201 imported successfully

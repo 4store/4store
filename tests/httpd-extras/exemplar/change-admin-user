@@ -1,8 +1,8 @@
-Update: INSERT DATA { GRAPH <system:config> { 
+Update: INSERT DATA { GRAPH <system:config> {
 [] <http://4store.org/acl#admin> "manuelso". } }
 403 forbidden - updates only with admin API KEY when ACL is enabled
 This is a 4store SPARQL server [VERSION]
-Update: INSERT DATA { GRAPH <system:config> { 
+Update: INSERT DATA { GRAPH <system:config> {
 [] <http://4store.org/acl#admin> "manuelso". } }
 
 201 imported successfully
@@ -67,7 +67,7 @@ Query: SELECT DISTINCT ?o WHERE { ?s ?p ?o } ORDER BY ?o
 "nmg"
 "swh"
 "zool"
-Update: INSERT DATA { GRAPH <system:config> { 
+Update: INSERT DATA { GRAPH <system:config> {
 <graph:x> <http://4store.org/acl#onlyAccessBy> "user1" . } }
 403 forbidden - updates only with admin API KEY when ACL is enabled
 This is a 4store SPARQL server [VERSION]
