@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 # we need STRBEFORE etc.
 pkg-config rasqal --atleast-version=0.9.28 || exit 3

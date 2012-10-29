@@ -23,6 +23,11 @@
 #include <string.h>
 #include <errno.h>
 #include <stdio.h>
+#include <sys/types.h>
+#include <sys/socket.h>
+#if defined(__OpenBSD__)
+# include <netinet/in.h>
+#endif
 #include <arpa/inet.h>
 
 #include "admin_common.h"

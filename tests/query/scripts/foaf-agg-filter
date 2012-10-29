@@ -1,16 +1,16 @@
-#!
+#!/usr/bin/env bash
 
 # AGGs + Filter. Not great only one solution to aggregate.
 
 $TESTPATH/frontend/4s-query $CONF $1 '
 PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
-SELECT (count(?s) as ?count) 
-(sum(xsd:decimal(?o)) as ?sum) 
-(avg(xsd:decimal(?o)) as ?avg) 
-(min(xsd:decimal(?o)) as ?min) 
+SELECT (count(?s) as ?count)
+(sum(xsd:decimal(?o)) as ?sum)
+(avg(xsd:decimal(?o)) as ?avg)
+(min(xsd:decimal(?o)) as ?min)
 (max(xsd:decimal(?o)) as ?max)
 WHERE {
-  ?s a <http://xmlns.com/foaf/0.1/Person> .  
+  ?s a <http://xmlns.com/foaf/0.1/Person> .
   ?s <http://xmlns.com/foaf/0.1/someDecimal> ?o .
   FILTER (xsd:decimal(?o) > 1.13)
 }'

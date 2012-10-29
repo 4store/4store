@@ -1,4 +1,4 @@
-#!
+#!/usr/bin/env bash
 
 # looks somewhat like a typical query from Software Mind's garlik frontend
 

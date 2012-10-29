@@ -1,4 +1,4 @@
-#!
+#!/usr/bin/env bash
 
 # tests the case where a varaible appears in more than one column of a bind,
 # used to cause vertical expansion of the table due to a missing repeat check

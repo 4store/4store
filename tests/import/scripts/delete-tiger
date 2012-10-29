@@ -1,4 +1,4 @@
-#!
+#!/usr/bin/env bash
 # tries to test all three indexes after a delete
 
 ./test-create.sh --segments 4 $1

@@ -1,13 +1,13 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 source sparql.sh
 
 
-# Default admin user is included only when there 
-# is not a user admin specified but httpd was started 
+# Default admin user is included only when there
+# is not a user admin specified but httpd was started
 # with access control (-A)
 
-# Default admin user is setup in 
+# Default admin user is setup in
 # rdf-constants.h (FS_ACL_DEFAULT_ADMIN)
 adminkey="4sadminuser"
 
@@ -15,11 +15,11 @@ newadmin="manuelso"
 user2="user2"
 
 # manuelso cannot add data still is not admin. 403 expected.
-updatekey "$EPR" 'INSERT DATA { GRAPH <system:config> { 
+updatekey "$EPR" 'INSERT DATA { GRAPH <system:config> {
 [] <http://4store.org/acl#admin> "manuelso". } }' $newadmin
 
 # manuelso becomes the new admin. Default admin does the change.
-updatekey "$EPR" 'INSERT DATA { GRAPH <system:config> { 
+updatekey "$EPR" 'INSERT DATA { GRAPH <system:config> {
 [] <http://4store.org/acl#admin> "manuelso". } }' $adminkey
 
 # Admin user adds data into graph:x.
@@ -31,7 +31,7 @@ updatekey "$EPR" 'INSERT DATA { GRAPH <graph:a> { <x> <y> <z> . <a> <b> <c> . } 
 sparqlkey "$EPR" 'SELECT DISTINCT ?o WHERE { ?s ?p ?o } ORDER BY ?o' $user2
 
 # Admin user grants user1 with only access to <graph:x>. user 2 cannot see it anymore.
-updatekey "$EPR" 'INSERT DATA { GRAPH <system:config> { 
+updatekey "$EPR" 'INSERT DATA { GRAPH <system:config> {
 <graph:x> <http://4store.org/acl#onlyAccessBy> "user1" . } }' $adminkey
 
 # User 2 access the data in graph:x ... only results from graph:a are expected.

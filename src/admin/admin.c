@@ -30,6 +30,12 @@
 #include <math.h>
 #include <glib.h>
 
+#include <sys/types.h>
+#include <sys/socket.h>
+#if defined(__OpenBSD__)
+# include <netinet/in.h>
+#endif
+
 #include "../common/4store.h"
 #include "../common/error.h"
 #include "../common/params.h"

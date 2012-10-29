@@ -1,4 +1,4 @@
-#!
+#!/usr/bin/env bash
 
 ./test-create.sh --segments 4 $1
 ./test-start.sh $1

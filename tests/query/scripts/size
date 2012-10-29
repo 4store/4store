@@ -1,3 +1,3 @@
-#!
+#!/usr/bin/env bash
 
 $TESTPATH/frontend/4s-size $CONF $1

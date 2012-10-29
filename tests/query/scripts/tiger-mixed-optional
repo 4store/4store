@@ -1,4 +1,4 @@
-#!
+#!/usr/bin/env bash
 
 # tests that OPTIONAL blocks can be safely mixed with the basic graph pattern
 

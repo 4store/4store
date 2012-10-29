@@ -1,4 +1,4 @@
-#!
+#!/usr/bin/env bash
 
 # Tests multiple OPTIONAL blocks with shared variable
 

@@ -229,7 +229,7 @@ static void do_sigmisc(int sig)
 {
   if (fatal_error_in_progress) raise (sig);
   fatal_error_in_progress = 1;
-     
+
   signal (sig, SIG_DFL);
   kb_error(LOG_INFO, "signal %s received", strsignal(sig));
   raise (sig);
@@ -474,110 +474,113 @@ static int init_runtime_info(const char *kb_name, const char *cport)
     return 0;
 }
 
+#if !defined(MAXSOCK)
+# define MAXSOCK 16
+#endif
+
 void fsp_serve (const char *kb_name, fsp_backend *backend, int daemon, float disk_limit)
 {
-  struct addrinfo hints, *info;
-  uint16_t port = FS_DEFAULT_PORT;
-  char cport[6];
-  int on = 1, off = 0, srv, err;
-  
-  default_hints(&hints);
-  /* what we'll do is set IPv6 here and turn off IPV6-only on hosts where it's the default */
-  hints.ai_family = AF_INET6;
-  hints.ai_flags = AI_PASSIVE;
+    struct addrinfo hints, *info0, *info;
+    uint16_t port = FS_DEFAULT_PORT;
+    char cport[6];
+    int sock[MAXSOCK];
+    int nsock = 0;
+    int err, on=1, off=0, i;
 
-  /* we need access to these elsewhere */
-  global_kb_name = (char *)kb_name;
-  global_disk_limit = disk_limit;
+    /* we need access to these elsewhere */
+    global_kb_name = (char *)kb_name;
+    global_disk_limit = disk_limit;
 
-  if (!backend->open) {
-    /* no open function defined, we will eventually fail anyway, so give up early */
+    if (!backend->open) {
+	/* no open function defined, we will eventually fail anyway, so give up early */
+	return;
+    }
+
+    fs_backend *original = NULL;
+    original = backend->open(kb_name, FS_BACKEND_NO_OPEN);
+    if (!original)
+	return;
+
+    /* don't set any PF_INET or INET6 hints here */
+    default_hints(&hints);
+    hints.ai_flags = AI_PASSIVE;
+
+    snprintf(cport, sizeof(cport), "%u", port);
+
+    if ((err = getaddrinfo(NULL, cport, &hints, &info0))) {
+	kb_error(LOG_ERR, "getaddrinfo failed: %s", gai_strerror(err));
+	return;
+    }
+
+    /* keep track of the first addrinfo so we can free the whole chain later */
+    info = info0;
+    /* iterate through the list of possible addresses. on Linux we only get one: the
+       'dual stack' or ipv4 address. on some BSDs we will see two or more; often separate
+       INET6 and INET addrinfos. we want to listen on all of them. */
+    do {
+    	sock[nsock] = socket(info->ai_family, info->ai_socktype, info->ai_protocol);
+    	if (sock[nsock] < 0)
+    	    continue;
+#if defined(IPV6_V6ONLY)
+    	if (info->ai_family == AF_INET6)
+    	    /* don't check the return value -- some platforms (cough, OpenBSD, cough)
+    	       have IPV6_V6ONLY defined, but refuse to let it be turned off */
+    	    setsockopt(sock[nsock], IPPROTO_IPV6, IPV6_V6ONLY, &off, sizeof(off));
+#endif
+    	if (setsockopt(sock[nsock], SOL_SOCKET, SO_REUSEADDR, &on, sizeof(on)) == -1)
+    	    kb_error(LOG_ERR, "setsockopt(SO_REUSEADDR) failed, continuing");
+    	if (bind(sock[nsock], info->ai_addr, info->ai_addrlen) < 0) {
+	    err = errno;
+    	    close(sock[nsock]);
+    	    continue;
+    	}
+    	if (listen(sock[nsock], 64) < 0) {
+	    err = errno;
+    	    close(sock[nsock]);
+    	    continue;
+    	}
+    	++nsock;
+    } while ((info = info->ai_next) && nsock < MAXSOCK);
+
+    freeaddrinfo(info0);
+
+    if (nsock == 0) {
+    	kb_error(LOG_ERR, "fsp_serve failed to get a valid listening socket: %s", strerror(err));
+    	return;
+    }
+
+    /* preload toplevel indexes */
+    fs_backend *be = backend->open(kb_name, FS_BACKEND_PRELOAD);
+    if (!be) {
+	kb_error(LOG_CRIT, "failed to open backend");
+	return;
+    }
+
+    GMainLoop *loop = g_main_loop_new(NULL, FALSE);
+    fsp_mdns_setup_backend(port, kb_name, backend->segment_count(be));
+
+    backend->close(be);
+
+    if (daemon) {
+	daemonize();
+    }
+
+    /* set up pid/port lockfile */
+    err = init_runtime_info(kb_name, cport);
+    if (err < 0) {
+	/* error already logged so just return */
+	return;
+    }
+
+    signal_actions();
+    fs_error(LOG_INFO, "4store backend %s for kb %s on port %s (%d fds)", FS_BACKEND_VER, kb_name, cport, nsock);
+
+    for (i = 0; i < nsock; ++i) {
+	GIOChannel *listener = g_io_channel_unix_new(sock[i]);
+	g_io_add_watch(listener, G_IO_IN, accept_fn, backend);
+    }
+
+    g_main_loop_run(loop);
+
     return;
-  }
-
-  fs_backend *original = NULL;
-  original = backend->open(kb_name, FS_BACKEND_NO_OPEN);
-  if (!original) return;
-
-  do {
-    sprintf(cport, "%u", port);
-    if ((err = getaddrinfo(NULL, cport, &hints, &info))) {
-      kb_error(LOG_ERR, "getaddrinfo failed: %s", gai_strerror(err));
-      return;
-    }
-    srv = socket(info->ai_family, info->ai_socktype, info->ai_protocol);
-    if (srv < 0) {
-      if (errno == EAFNOSUPPORT) {
-        kb_error(LOG_INFO, "couldn't get IPv6 dual stack, trying IPv4-only");
-        hints.ai_family = AF_INET;
-        continue;
-      }
-      kb_error(LOG_ERR, "socket failed: %s", strerror(errno));
-      freeaddrinfo(info);
-      return;
-    }
-
-    if (hints.ai_family != AF_INET && setsockopt(srv, IPPROTO_IPV6, IPV6_V6ONLY, &off, sizeof(off)) == -1) {
-      kb_error(LOG_WARNING, "setsockopt IPV6_V6ONLY OFF failed");
-    }
-    if (setsockopt(srv, SOL_SOCKET, SO_REUSEADDR, &on, sizeof(on)) == -1) {
-      kb_error(LOG_WARNING, "setsockopt SO_REUSEADDR failed");
-    }
-
-    if (bind(srv, info->ai_addr, info->ai_addrlen) < 0) {
-      if (errno == EADDRINUSE) {
-        close(srv);
-        freeaddrinfo(info);
-        ++port; /* try another port */
-        continue;
-      } else {
-        kb_error(LOG_ERR, "server socket bind failed: %s", strerror(errno));
-        freeaddrinfo(info);
-        return;
-      }
-    }
-
-    break;
-  } while (1);
-
-  freeaddrinfo(info);
-
-  if (listen(srv, 64) < 0) {
-    kb_error(LOG_ERR, "listen failed");
-    return;
-  }
-
-  /* preload toplevel indexes */
-  fs_backend *be = backend->open(kb_name, FS_BACKEND_PRELOAD);
-  if (!be) {
-    kb_error(LOG_CRIT, "failed to open backend");
-    return;
-  }
-
-  GMainLoop *loop = g_main_loop_new (NULL, FALSE);
-  fsp_mdns_setup_backend (port, kb_name, backend->segment_count(be));
-
-  backend->close(be);
-
-  if (daemon) {
-    daemonize();
-  }
-
-  /* set up pid/port lockfile */
-  err = init_runtime_info(kb_name, cport);
-  if (err < 0) {
-      /* error already logged so just return */
-      return;
-  }
-                      
-
-  signal_actions();
-  fs_error(LOG_INFO, "4store backend %s for kb %s on port %s", FS_BACKEND_VER, kb_name, cport);
-
-  GIOChannel *listener = g_io_channel_unix_new (srv);
-  g_io_add_watch(listener, G_IO_IN, accept_fn, backend);
-
-  g_main_loop_run(loop);
-
-  return;
 }

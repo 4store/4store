@@ -1,4 +1,4 @@
-#!
+#!/usr/bin/env bash
 4s-cluster-stop cluster_test
 4s-cluster-create cluster_test --segments 8
 4s-cluster-start cluster_test

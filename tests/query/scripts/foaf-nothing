@@ -1,4 +1,4 @@
-#!
+#!/usr/bin/env bash
 
 # tests clearing the binding table becasue theres a 0-length match
 

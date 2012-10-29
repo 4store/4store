@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/env bash
 #
 # This script assumes that backup server is named 'backup' or there is
 # a suitable alias in the SSH configuration and the backup server
@@ -6,7 +6,7 @@
 #
 # to restore one machine use e.g.
 #
-# cat kbname.machine.datestamp.tar.gz | ssh machine tar -x -C / -z -f - 
+# cat kbname.machine.datestamp.tar.gz | ssh machine tar -x -C / -z -f -
 #
 # NB ensure target directories /var/lib/4store and MySQL DB directory exist
 #

@@ -1,4 +1,4 @@
-#!
+#!/usr/bin/env bash
 
 # tests GRAPH bindings, and some other stuff
 

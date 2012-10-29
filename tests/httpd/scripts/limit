@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 # This tests a deeply strange bug where bad double casts were setting errno,
 # and tripping up some other code which was testing errno when it shouldn't

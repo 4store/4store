@@ -1,13 +1,13 @@
-#!
+#!/usr/bin/env bash
 
 # tests GROUP BY, COUNT and FILTER
 
 $TESTPATH/frontend/4s-query $CONF $1 '
 PREFIX foaf: <http://xmlns.com/foaf/0.1/>
 PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
-SELECT ?x (count(?p) as ?count)  
-WHERE { 
+SELECT ?x (count(?p) as ?count)
+WHERE {
 ?x <http://xmlns.com/foaf/0.1/knows> ?p .
 ?p rdfs:seeAlso ?seeAlso .
 FILTER regex(str(?seeAlso), "soton")
-} GROUP BY ?x' | sort 
+} GROUP BY ?x' | sort

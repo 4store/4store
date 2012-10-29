@@ -1,4 +1,4 @@
-#!
+#!/usr/bin/env bash
 
 # none of this query does anything except exercise a rare codepath
 

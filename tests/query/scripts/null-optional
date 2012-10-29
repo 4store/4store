@@ -1,4 +1,4 @@
-#!
+#!/usr/bin/env bash
 
 # several OPTIONAL clauses after the main body of the query fails
 

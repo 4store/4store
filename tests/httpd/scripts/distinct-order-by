@@ -1,24 +1,24 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 source sparql.sh
 
-update "$EPR" 'INSERT DATA { GRAPH <g> { 
+update "$EPR" 'INSERT DATA { GRAPH <g> {
 <r> <y> <c> .
-<t> <y> <c> . 
+<t> <y> <c> .
 <z> <y> <d> .
 <r1> <y> <c1> .
-<t1> <y> <c1> . 
+<t1> <y> <c1> .
 <z1> <y> <d1> .
 <r2> <y> <c1> .
-<t2> <y> <c1> . 
+<t2> <y> <c1> .
 <z3> <y> <d1> .
 } }'
 
-sparql "$EPR" 'SELECT DISTINCT ?o WHERE { 
+sparql "$EPR" 'SELECT DISTINCT ?o WHERE {
     ?s <y> ?o .
 } ORDER BY ?o'
 
-sparql "$EPR" 'SELECT DISTINCT ?o WHERE { 
+sparql "$EPR" 'SELECT DISTINCT ?o WHERE {
     ?s <y> ?o .
     MINUS { {
             ?s <y> <c1> .
@@ -28,14 +28,14 @@ sparql "$EPR" 'SELECT DISTINCT ?o WHERE {
     }
 } ORDER BY ?o'
 
-update "$EPR" 'DELETE DATA { GRAPH <g> { 
+update "$EPR" 'DELETE DATA { GRAPH <g> {
 <r> <y> <c> .
-<t> <y> <c> . 
+<t> <y> <c> .
 <z> <y> <d> .
 <r1> <y> <c1> .
-<t1> <y> <c1> . 
+<t1> <y> <c1> .
 <z1> <y> <d1> .
 <r2> <y> <c1> .
-<t2> <y> <c1> . 
+<t2> <y> <c1> .
 <z3> <y> <d1> .
 } }'
