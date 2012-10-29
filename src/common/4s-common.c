@@ -126,7 +126,9 @@ void default_hints(struct addrinfo *hints)
   hints->ai_family = AF_UNSPEC;
   hints->ai_socktype = SOCK_STREAM; /* tcp */
   /* no IPv6 without a routeable IPv6 address */
+#if defined(AI_ADDRCONFIG)
   hints->ai_flags |= AI_ADDRCONFIG;
+#endif
 }
 
 unsigned char *message_new(int type, fs_segment segment, size_t length)

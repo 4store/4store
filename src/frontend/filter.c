@@ -23,11 +23,11 @@
 #include <pcre.h>
 #include <time.h>
 #include <errno.h>
-#include <uuid/uuid.h>
 
 #include "filter-datatypes.h"
 #include "filter.h"
 #include "query.h"
+#include "../common/uuid.h"
 #include "../common/4s-hash.h"
 #include "../common/error.h"
 #include "../common/rdf-constants.h"
@@ -1724,11 +1724,30 @@ fs_value fn_sha256(fs_query *q, fs_value arg)
 
 fs_value fn_uuid(fs_query *q)
 {
+#if defined(USE_LINUX_UUID)
     uuid_t uu;
     uuid_string_t uus;
     uuid_generate(uu);
     uuid_unparse(uu, uus);
+#elif defined(USE_BSD_UUID)
+    uuid_t uu;
+    char *uus = NULL;
+    int status = -1;
+    uuid_create(&uu, &status);
+    if (status) { fs_error(LOG_ERR, "bad return from uuid_create"); exit(1); }
+    uuid_to_string(&uu, &uus, &status);
+    if (status || uus == NULL) { fs_error(LOG_ERR, "bad return from uuid_to_string"); exit(1); }
+#elif defined(USE_OSSP_UUID)
+    uuid_t *uu = NULL;
+    char *uus = NULL;
+    if (uuid_create(&uu)) { fs_error(LOG_ERR, "bad return from uuid_create"); exit(1); }
+    if (uuid_make(uu, UUID_MAKE_V1)) { fs_error(LOG_ERR, "bad return from uuid_make"); exit(1); }
+    if (uuid_export(uu, UUID_FMT_STR, &uus, NULL) || uus == NULL) { fs_error(LOG_ERR, "bad return from uuid_export"); exit(1); }
+#endif
     char *str = g_strdup_printf("urn:uuid:%s", uus);
+#if defined(USE_OSSP_UUID)
+    uuid_destroy(uu);
+#endif
     fs_query_add_freeable(q, str);
 
     return fs_value_uri(str);
@@ -1736,11 +1755,30 @@ fs_value fn_uuid(fs_query *q)
 
 fs_value fn_struuid(fs_query *q)
 {
+#if defined(USE_LINUX_UUID)
     uuid_t uu;
     uuid_string_t uus;
     uuid_generate(uu);
     uuid_unparse(uu, uus);
+#elif defined(USE_BSD_UUID)
+    uuid_t uu;
+    char *uus = NULL;
+    int status = -1;
+    uuid_create(&uu, &status);
+    if (status) { fs_error(LOG_ERR, "bad return from uuid_create"); exit(1); }
+    uuid_to_string(&uu, &uus, &status);
+    if (status || uus == NULL) { fs_error(LOG_ERR, "bad return from uuid_to_string"); exit(1); }
+#elif defined(USE_OSSP_UUID)
+    uuid_t *uu = NULL;
+    char *uus = NULL;
+    if (uuid_create(&uu)) { fs_error(LOG_ERR, "bad return from uuid_create"); exit(1); }
+    if (uuid_make(uu, UUID_MAKE_V1)) { fs_error(LOG_ERR, "bad return from uuid_make"); exit(1); }
+    if (uuid_export(uu, UUID_FMT_STR, &uus, NULL) || uus == NULL) { fs_error(LOG_ERR, "bad return from uuid_export"); exit(1); }
+#endif
     char *str = g_strdup(uus);
+#if defined(USE_OSSP_UUID)
+    uuid_destroy(uu);
+#endif
     fs_query_add_freeable(q, str);
 
     return fs_value_plain(str);
