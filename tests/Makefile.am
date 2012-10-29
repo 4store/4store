@@ -1,6 +1,6 @@
 all:
 
-test: test-query test-httpd test-httpd-extras test-admin
+test: test-query test-httpd test-httpd-extras
 
 test-query:
 	(cd query && pwd && ./setup.sh --autorun)
