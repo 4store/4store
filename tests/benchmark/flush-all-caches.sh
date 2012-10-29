@@ -1,4 +1,4 @@
-#!
+#!/usr/bin/env bash
 
 # This script will flush the disk caches on backend nodes
 #

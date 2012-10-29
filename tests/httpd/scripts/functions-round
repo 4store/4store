@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 pkg-config rasqal --atleast-version=0.9.25 || exit 3
 

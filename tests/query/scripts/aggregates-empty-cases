@@ -1,4 +1,4 @@
-#!
+#!/usr/bin/env bash
 
 echo 'SELECT (COUNT(?a) AS ?count) (SUM(?a) AS ?sum)  (AVG(?a) AS ?avg) WHERE { ?a <http:://nonexisting.predicate.org> ?c } LIMIT 250000' | $TESTPATH/frontend/4s-query $CONF $1 -f text -P
 echo 'SELECT (COUNT(?a) AS ?count) WHERE { ?a ?b "Harris" . FILTER(!isURI(?b)) } LIMIT 250000' | $TESTPATH/frontend/4s-query $CONF $1 -f text -P

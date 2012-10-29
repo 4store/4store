@@ -1,4 +1,4 @@
-#!
+#!/usr/bin/env bash
 
 $TESTPATH/frontend/4s-query -f text $CONF $1 '
 PREFIX xsd: <http://www.w3.org/2001/XMLSchema#> SELECT ?o (count(?s) as ?c) WHERE { ?s a ?o } GROUP BY ?o ORDER BY ASC(xsd:integer(?c)) ASC(?o)'

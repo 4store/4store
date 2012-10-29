@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 pkg-config glib-2.0 --atleast-version=2.16.0 || exit 3
 

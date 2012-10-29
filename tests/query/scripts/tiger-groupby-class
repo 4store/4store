@@ -1,11 +1,11 @@
-#!
+#!/usr/bin/env bash
 
 # tests GROUP BY and COUNT.
 # counts every ?s that points to an instance ?x of a ?class.
 
 $TESTPATH/frontend/4s-query $CONF $1 '
-SELECT ?class (count(?s) as ?count)  
-WHERE { 
+SELECT ?class (count(?s) as ?count)
+WHERE {
 ?x a ?class .
 ?s ?p ?x .
 } GROUP BY ?class' | sort

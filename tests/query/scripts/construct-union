@@ -1,4 +1,4 @@
-#!
+#!/usr/bin/env bash
 
 echo 'CONSTRUCT { ?s <y> ?a. ?s <y> ?b . } WHERE { { ?s <http://xmlns.com/foaf/0.1/name> ?a } UNION { ?s <http://xmlns.com/foaf/0.1/nick> ?b } }' | $TESTPATH/frontend/4s-query $CONF $1 -f sparql -P
 

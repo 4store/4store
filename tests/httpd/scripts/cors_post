@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # POST method for cross-origin resource sharing (CORS)
 
 source sparql.sh

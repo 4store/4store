@@ -27,8 +27,8 @@
 #include <sys/time.h>
 #include <errno.h>
 #include <signal.h>
-#include <uuid/uuid.h>
 
+#include "../common/uuid.h"
 #include "../common/error.h"
 #include "../common/params.h"
 #include "../common/timing.h"
@@ -148,12 +148,31 @@ fs_backend *fs_backend_init(const char *db_name, int flags)
 	 * one */
 	ret->store_uuid = (char *)fs_metadata_get_string(ret->md, FS_MD_UUID, NULL);
 	if (!ret->store_uuid) {
+#if defined(USE_LINUX_UUID)
 	    uuid_t uu;
 	    uuid_string_t uus;
 	    uuid_generate(uu);
 	    uuid_unparse(uu, uus);
+#elif defined(USE_BSD_UUID)
+	    uuid_t uu;
+	    char *uus = NULL;
+	    int status = -1;
+	    uuid_create(&uu, &status);
+	    if (status) { fs_error(LOG_ERR, "bad return from uuid_create"); exit(1); }
+	    uuid_to_string(&uu, &uus, &status);
+	    if (status || uus == NULL) { fs_error(LOG_ERR, "bad return from uuid_to_string"); exit(1); }
+#elif defined(USE_OSSP_UUID)
+	    uuid_t *uu = NULL;
+	    char *uus = NULL;
+	    if (uuid_create(&uu)) { fs_error(LOG_ERR, "bad return from uuid_create"); exit(1); }
+	    if (uuid_make(uu, UUID_MAKE_V1)) { fs_error(LOG_ERR, "bad return from uuid_make"); exit(1); }
+	    if (uuid_export(uu, UUID_FMT_STR, &uus, NULL) || uus == NULL) { fs_error(LOG_ERR, "bad return from uuid_export"); exit(1); }
+#endif
 	    ret->store_uuid = g_strdup(uus);
 	    fs_metadata_add(ret->md, FS_MD_UUID, uus);
+#if defined(USE_OSSP_UUID)
+	    uuid_destroy(uu);
+#endif
 	    fs_metadata_flush(ret->md);
 	}
     }

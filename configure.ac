@@ -78,7 +78,76 @@ AC_CHECK_LIB([m], [sin])
 AC_CHECK_LIB([ncurses], [initscr],, [AC_MSG_ERROR([ncurses not found])])
 AC_CHECK_LIB([readline], [readline],, [AC_MSG_ERROR([readline not found])])
 AC_CHECK_LIB([z], [compress],, [AC_MSG_ERROR([libz not found])])
-AC_SEARCH_LIBS([uuid_generate], [uuid],, [AC_MSG_ERROR([uuid function not found])])
+
+AC_TRY_COMPILE([#include <sys/file.h>
+				#include <fcntl.h>],
+				[int r = flock(1, LOCK_SH);],,AC_MSG_ERROR([flock not found]))
+
+# We have to do this here so that the test below can compile
+AC_CHECK_HEADER(uuid/uuid.h,have_uuid_h=yes,have_uuid_h=no)
+if test $have_uuid_h = no; then
+	AC_CHECK_HEADER(ossp/uuid.h,have_uuid_h=yes,have_uuid_h=no)
+	if test $have_uuid_h = no; then
+		AC_CHECK_HEADER(uuid.h,,AC_ERROR([Could not find uuid.h]))
+	else
+		AC_DEFINE([HAVE_OSSP_UUID_H],[],[Defined if uuid.h is in the ossp/ subdir])
+	fi
+else
+	AC_DEFINE([HAVE_UUID_UUID_H],[],[Defined if uuid.h is in the uuid/ subdir])
+fi
+
+AC_SEARCH_LIBS([uuid_generate], [uuid], have_linux_uuid=yes, have_linux_uuid=no)
+AC_SEARCH_LIBS([uuid_export], [uuid], have_ossp_uuid=yes, have_ossp_uuid=no)
+AC_SEARCH_LIBS([uuid_to_string], [uuid], have_bsd_uuid=yes, have_bsd_uuid=no)
+if test $have_linux_uuid = yes; then
+	AC_DEFINE([USE_LINUX_UUID], [], [Defined if the linux libuuid is available])
+	AC_TRY_COMPILE(
+	    [#define IN_CONFIGURE
+	    #include "$srcdir/src/common/uuid.h"],
+	    [uuid_t uu; uuid_string_t uus; uuid_generate(uu); uuid_unparse(uu, uus);],
+	    have_uuid_string_t=yes,
+	    have_uuid_string_t=no
+	)
+
+	if test "$have_uuid_string_t" = yes; then
+	    AC_DEFINE(HAVE_UUID_STRING_T, 1, [define to 1 if uuid_string_t used])
+	fi
+	if test $ac_cv_search_uuid_generate != 'none required'; then
+		UUID_LIBS=$ac_cv_search_uuid_generate
+	fi
+	AC_SUBST(UUID_LIBS)
+elif test $have_ossp_uuid = yes; then
+	AC_DEFINE([USE_OSSP_UUID], [], [Defined if the OSSP libuuid is available])
+
+	AC_TRY_COMPILE(
+		[#define IN_CONFIGURE
+		#include "$srcdir/src/common/uuid.h"],
+	 	[uuid_t *uu = NULL; char *uus = NULL; int status; status = uuid_create(&uu); status = uuid_make(uu, UUID_MAKE_V1); status = uuid_export(uu, UUID_FMT_STR, &uus, NULL);],,
+	 	AC_ERROR([OSSP-style libuuid found but appears unusable])
+	)
+
+	if test $ac_cv_search_uuid_export != 'none required'; then
+		UUID_LIBS=$ac_cv_search_uuid_export
+	fi
+	AC_SUBST(UUID_LIBS)
+elif test $have_bsd_uuid = yes; then
+	AC_DEFINE([USE_BSD_UUID], [], [Defined if the BSD-style libuuid is available])
+
+	AC_TRY_COMPILE(
+		[#define IN_CONFIGURE
+		#include "$srcdir/src/common/uuid.h"],
+		[uuid_t uu; char *uus = NULL; int status; uuid_create(&uu, &status); uuid_to_string(&uu, &uus, &status);],,
+		AC_ERROR([BSD-style libuuid found but appears unusable])
+	)
+
+	if test $ac_cv_search_uuid_to_string != 'none required'; then
+		UUID_LIBS=$ac_cv_search_uuid_to_string
+	fi
+	AC_SUBST(UUID_LIBS)
+else
+	AC_ERROR([A compatible libuuid could not be found])
+fi
+
 PKG_CHECK_MODULES([GLIB], glib-2.0 >= 2.2.0)
 PKG_CHECK_MODULES([GTHREAD], gthread-2.0 >= 2.2.0)
 PKG_CHECK_MODULES([LIBXML], libxml-2.0)
@@ -113,7 +182,6 @@ AC_SUBST(GIT_REV)
 
 # Checks for header files.
 AC_FUNC_ALLOCA
-AC_CHECK_HEADER(uuid/uuid.h,,AC_MSG_ERROR([cannot find UUID header]))
 AC_CHECK_HEADERS([fcntl.h limits.h locale.h netdb.h stddef.h stdint.h stdlib.h string.h sys/file.h sys/mount.h sys/param.h sys/socket.h sys/time.h sys/vfs.h syslog.h unistd.h])
 
 # Checks for typedefs, structures, and compiler characteristics.
@@ -133,21 +201,6 @@ oLIBS=$LIBS
 LIBS="$GLIB_LIBS"
 AC_CHECK_FUNCS([g_uri_escape_string])
 LIBS=$oLIBS
-
-AC_TRY_COMPILE(
-    [#include <uuid/uuid.h>],
-    [uuid_t uu; uuid_string_t uus; uuid_generate(uu); uuid_unparse(uu, uus);],
-    have_uuid_string_t=yes,
-    have_uuid_string_t=no
-)
-
-UUID_LIBS=""
-if test "$have_uuid_string_t" = yes; then
-    AC_DEFINE(HAVE_UUID_STRING_T, 1, [define to 1 if uuid_string_t used])
-else
-    UUID_LIBS="-luuid"
-fi
-AC_SUBST(UUID_LIBS)
 
 AC_CONFIG_FILES([Makefile
                  man/Makefile
@@ -179,5 +232,8 @@ if test "X$have_avahi" = Xno -a "X$have_dns_sd" = Xno; then
 else
 	echo "   Cluster support available through mDNS or 4s-boss"
 fi
+if test $have_linux_uuid = yes; then echo "   Using Linux-style libuuid"; fi
+if test $have_ossp_uuid = yes; then echo "   Using OSSP-style libuuid"; fi
+if test $have_bsd_uuid = yes; then echo "   Using BSD-style libuuid"; fi
 echo "   Using Raptor version $raptor_version"
 echo "   Using Rasqal version $rasqal_version"

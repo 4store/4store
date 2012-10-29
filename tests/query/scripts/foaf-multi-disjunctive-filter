@@ -1,9 +1,9 @@
-#!
+#!/usr/bin/env bash
 
 echo "order 1";
 $TESTPATH/frontend/4s-query $CONF $1 '
 PREFIX foaf: <http://xmlns.com/foaf/0.1/>
-SELECT DISTINCT ?x 
+SELECT DISTINCT ?x
 WHERE {
   ?x <http://xmlns.com/foaf/0.1/mbox_sha1sum> ?s .
   ?x foaf:nick ?nick .
@@ -18,7 +18,7 @@ ORDER BY ?x
 echo "order 2";
 $TESTPATH/frontend/4s-query $CONF $1 '
 PREFIX foaf: <http://xmlns.com/foaf/0.1/>
-SELECT DISTINCT ?x 
+SELECT DISTINCT ?x
 WHERE {
   ?x <http://xmlns.com/foaf/0.1/mbox_sha1sum> ?s .
   ?x foaf:nick ?nick .

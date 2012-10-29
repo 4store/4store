@@ -1,13 +1,13 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 source sparql.sh
 
 
-# Default admin user is included only when there 
-# is not a user admin specified but httpd was started 
+# Default admin user is included only when there
+# is not a user admin specified but httpd was started
 # with access control (-A)
 
-# Default admin user is setup in 
+# Default admin user is setup in
 # rdf-constants.h (FS_ACL_DEFAULT_ADMIN)
 adminkey="4sadminuser"
 

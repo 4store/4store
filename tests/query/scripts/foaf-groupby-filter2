@@ -1,4 +1,4 @@
-#!
+#!/usr/bin/env bash
 
 # tests GROUP BY, COUNT and FILTER
 

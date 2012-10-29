@@ -1,4 +1,4 @@
-#!
+#!/usr/bin/env bash
 
 #(for i in 0001 0002 0003 0004 0005 0006 0007; do $TESTPATH/backend/ptreedump --table /var/lib/4store/$KB $1/$i/pairs.ptable /var/lib/4store/$KB $1/$i/p[so]-*.ptree ; done) | grep ERROR
 $TESTPATH/backend/ptreedump --table /var/lib/4store/$1/0000/pairs.ptable /var/lib/4store/$1/0000/p[so]-*.ptree | grep ERROR

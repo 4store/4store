@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/env bash
 
 if [ "$1" = '--help' ] ; then
   echo "Usage: $0 <kbname>"
@@ -14,6 +14,6 @@ fi
 if (($# == 1)) ; then
  logger -t $0 "'$*' by $USER"
  4s-ssh-all-parallel 4s-backend-destroy "$@"
-else 
+else
  echo "Usage: $0 <kbname>"
 fi

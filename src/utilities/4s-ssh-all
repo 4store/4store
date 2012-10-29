@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/env bash
 
 if [ "$1" = '--help' ] ; then
   echo "Usage: $0 <remote command>"

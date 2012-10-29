@@ -1,4 +1,4 @@
-#!
+#!/usr/bin/env bash
 
 # tests PREFIX, numbers in var names and single OPTIONAL triple with unbound
 # results, multiple result rows for repeated predicates and FILTER inside

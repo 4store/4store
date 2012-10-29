@@ -1,4 +1,4 @@
-#!
+#!/usr/bin/env bash
 
 # tests that DISTINCT works when OPTIONAL blocks fail part way through
 # we should get only one row with NULLs
