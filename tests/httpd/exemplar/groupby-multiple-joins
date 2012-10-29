@@ -7,7 +7,7 @@ PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
 
 SELECT DISTINCT ?child (COUNT(?sub_child) as ?c)
 FROM <http://example.com/group-by.ttl>
-WHERE { 
+WHERE {
        ?child a owl:Class .
        ?child rdfs:subClassOf <http://foaf.qdos.com/0> .
        OPTIONAL { ?sub_child rdfs:subClassOf ?child . }

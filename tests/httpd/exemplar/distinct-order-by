@@ -1,16 +1,16 @@
-Update: INSERT DATA { GRAPH <g> { 
+Update: INSERT DATA { GRAPH <g> {
 <r> <y> <c> .
-<t> <y> <c> . 
+<t> <y> <c> .
 <z> <y> <d> .
 <r1> <y> <c1> .
-<t1> <y> <c1> . 
+<t1> <y> <c1> .
 <z1> <y> <d1> .
 <r2> <y> <c1> .
-<t2> <y> <c1> . 
+<t2> <y> <c1> .
 <z3> <y> <d1> .
 } }
 
-Query: SELECT DISTINCT ?o WHERE { 
+Query: SELECT DISTINCT ?o WHERE {
     ?s <y> ?o .
 } ORDER BY ?o
 ?o
@@ -18,7 +18,7 @@ Query: SELECT DISTINCT ?o WHERE {
 <local:c1>
 <local:d>
 <local:d1>
-Query: SELECT DISTINCT ?o WHERE { 
+Query: SELECT DISTINCT ?o WHERE {
     ?s <y> ?o .
     MINUS { {
             ?s <y> <c1> .
@@ -30,15 +30,15 @@ Query: SELECT DISTINCT ?o WHERE {
 ?o
 <local:d>
 <local:d1>
-Update: DELETE DATA { GRAPH <g> { 
+Update: DELETE DATA { GRAPH <g> {
 <r> <y> <c> .
-<t> <y> <c> . 
+<t> <y> <c> .
 <z> <y> <d> .
 <r1> <y> <c1> .
-<t1> <y> <c1> . 
+<t1> <y> <c1> .
 <z1> <y> <d1> .
 <r2> <y> <c1> .
-<t2> <y> <c1> . 
+<t2> <y> <c1> .
 <z3> <y> <d1> .
 } }
 

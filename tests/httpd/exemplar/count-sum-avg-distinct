@@ -1,74 +1,74 @@
-Update: INSERT DATA { GRAPH <g> { 
+Update: INSERT DATA { GRAPH <g> {
 <r> <y> <c> .
-<t> <y> <c> . 
+<t> <y> <c> .
 <z> <y> <d> .
 <r1> <y> <c1> .
-<t1> <y> <c1> . 
+<t1> <y> <c1> .
 <z1> <y> <d1> .
 <r2> <y> <c1> .
-<t2> <y> <c1> . 
+<t2> <y> <c1> .
 <z3> <y> <d1> .
 } }
 
-Query: SELECT (count(DISTINCT ?o) as ?count) WHERE { 
+Query: SELECT (count(DISTINCT ?o) as ?count) WHERE {
     ?s <y> ?o .
 }
 ?count
 4
-Update: DELETE DATA { GRAPH <g> { 
+Update: DELETE DATA { GRAPH <g> {
 <r> <y> <c> .
-<t> <y> <c> . 
+<t> <y> <c> .
 <z> <y> <d> .
 <r1> <y> <c1> .
-<t1> <y> <c1> . 
+<t1> <y> <c1> .
 <z1> <y> <d1> .
 <r2> <y> <c1> .
-<t2> <y> <c1> . 
+<t2> <y> <c1> .
 <z3> <y> <d1> .
 } }
 
-Update: INSERT DATA { GRAPH <g> { 
+Update: INSERT DATA { GRAPH <g> {
 <r> <y> 1 .
-<t> <y> 2 . 
+<t> <y> 2 .
 <z> <y> 3 .
 <r1> <y> 4 .
-<t1> <y> 5 . 
+<t1> <y> 5 .
 <z1> <y> 1 .
 <r2> <y> 2 .
-<t2> <y> 3 . 
+<t2> <y> 3 .
 <z3> <y> 4 .
 } }
 
-Query: SELECT (avg(DISTINCT ?o) as ?count) WHERE { 
+Query: SELECT (avg(DISTINCT ?o) as ?count) WHERE {
     ?s <y> ?o .
 }
 ?count
 2.9999999999999999985
-Query: SELECT (sum(DISTINCT ?o) as ?count) WHERE { 
+Query: SELECT (sum(DISTINCT ?o) as ?count) WHERE {
     ?s <y> ?o .
 }
 ?count
 15
-Query: SELECT (count(?o) as ?count) WHERE { 
+Query: SELECT (count(?o) as ?count) WHERE {
     ?s <y> ?o .
 }
 ?count
 9
-Query: SELECT (COUNT(DISTINCT ?o) as ?count) WHERE { 
+Query: SELECT (COUNT(DISTINCT ?o) as ?count) WHERE {
     ?s <y> ?o .
     FILTER( ?o > 2)
 }
 ?count
 3
-Update: DELETE DATA { GRAPH <g> { 
+Update: DELETE DATA { GRAPH <g> {
 <r> <y> 1 .
-<t> <y> 2 . 
+<t> <y> 2 .
 <z> <y> 3 .
 <r1> <y> 4 .
-<t1> <y> 5 . 
+<t1> <y> 5 .
 <z1> <y> 1 .
 <r2> <y> 2 .
-<t2> <y> 3 . 
+<t2> <y> 3 .
 <z3> <y> 4 .
 } }
 
