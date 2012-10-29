@@ -1,6 +1,6 @@
 Update: INSERT DATA { GRAPH <a> { <x> <y> <z> . <a> <b> <c> . } }
 
-Query: SELECT DISTINCT * WHERE { 
+Query: SELECT DISTINCT * WHERE {
 { ?s <b> ?o BIND(1 as ?union) . }
 UNION
 { ?s <b> ?o BIND(2 as ?union) . }
