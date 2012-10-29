@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 # This tests that we get an error when trying subqueries, they're not
 # implemented yet

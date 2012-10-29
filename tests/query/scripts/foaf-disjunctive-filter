@@ -1,9 +1,9 @@
-#!
+#!/usr/bin/env bash
 
 echo "distinct";
 $TESTPATH/frontend/4s-query $CONF $1 '
 PREFIX foaf: <http://xmlns.com/foaf/0.1/>
-SELECT DISTINCT ?x 
+SELECT DISTINCT ?x
 WHERE {
   ?x <http://xmlns.com/foaf/0.1/mbox_sha1sum> ?s .
   FILTER( ?s = "828414515d398b42268a6c2ed879dc505369223a" ||
@@ -12,7 +12,7 @@ WHERE {
 echo "!distinct";
 $TESTPATH/frontend/4s-query $CONF $1 '
 PREFIX foaf: <http://xmlns.com/foaf/0.1/>
-SELECT ?x 
+SELECT ?x
 WHERE {
   ?x <http://xmlns.com/foaf/0.1/mbox_sha1sum> ?s .
   FILTER( ?s = "828414515d398b42268a6c2ed879dc505369223a" ||

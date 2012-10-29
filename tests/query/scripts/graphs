@@ -1,4 +1,4 @@
-#!
+#!/usr/bin/env bash
 
 $TESTPATH/frontend/4s-query $CONF $1 '
 SELECT DISTINCT ?graph

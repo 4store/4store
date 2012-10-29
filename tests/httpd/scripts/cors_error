@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # testing an error with cross-origin resource sharing (CORS)
 
 source sparql.sh

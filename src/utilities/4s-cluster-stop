@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 if [ "$1" = '--help' ] ; then
   echo "Usage: $0 <kbname>"
@@ -13,6 +13,6 @@ fi
 if (($# == 1)) ; then
  logger -t $0 "'$*' by $USER"
  4s-ssh-all "pkill -f ^4s-backend\ $1\$ || echo No matching 4store backend"
-else 
+else
  echo "Usage: $0 <kbname>"
 fi

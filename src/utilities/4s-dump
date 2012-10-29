@@ -1,4 +1,4 @@
-#!/usr/bin/perl -w
+#!/usr/bin/env perl -w
 
 use IPC::Open2;
 use Digest::MD5 'md5_hex';

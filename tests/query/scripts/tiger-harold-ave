@@ -1,4 +1,4 @@
-#!
+#!/usr/bin/env bash
 
 # tests number handling, string matching and medium-complex graph matches
 

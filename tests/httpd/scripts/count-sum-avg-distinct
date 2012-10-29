@@ -1,79 +1,79 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 source sparql.sh
 
-update "$EPR" 'INSERT DATA { GRAPH <g> { 
+update "$EPR" 'INSERT DATA { GRAPH <g> {
 <r> <y> <c> .
-<t> <y> <c> . 
+<t> <y> <c> .
 <z> <y> <d> .
 <r1> <y> <c1> .
-<t1> <y> <c1> . 
+<t1> <y> <c1> .
 <z1> <y> <d1> .
 <r2> <y> <c1> .
-<t2> <y> <c1> . 
+<t2> <y> <c1> .
 <z3> <y> <d1> .
 } }'
 
 #expecting 4 not 8.
-sparql "$EPR" 'SELECT (count(DISTINCT ?o) as ?count) WHERE { 
+sparql "$EPR" 'SELECT (count(DISTINCT ?o) as ?count) WHERE {
     ?s <y> ?o .
 }'
 
-update "$EPR" 'DELETE DATA { GRAPH <g> { 
+update "$EPR" 'DELETE DATA { GRAPH <g> {
 <r> <y> <c> .
-<t> <y> <c> . 
+<t> <y> <c> .
 <z> <y> <d> .
 <r1> <y> <c1> .
-<t1> <y> <c1> . 
+<t1> <y> <c1> .
 <z1> <y> <d1> .
 <r2> <y> <c1> .
-<t2> <y> <c1> . 
+<t2> <y> <c1> .
 <z3> <y> <d1> .
 } }'
 
-update "$EPR" 'INSERT DATA { GRAPH <g> { 
+update "$EPR" 'INSERT DATA { GRAPH <g> {
 <r> <y> 1 .
-<t> <y> 2 . 
+<t> <y> 2 .
 <z> <y> 3 .
 <r1> <y> 4 .
-<t1> <y> 5 . 
+<t1> <y> 5 .
 <z1> <y> 1 .
 <r2> <y> 2 .
-<t2> <y> 3 . 
+<t2> <y> 3 .
 <z3> <y> 4 .
 } }'
 
 #expecting 3 not less
-sparql "$EPR" 'SELECT (avg(DISTINCT ?o) as ?count) WHERE { 
+sparql "$EPR" 'SELECT (avg(DISTINCT ?o) as ?count) WHERE {
     ?s <y> ?o .
 }'
 
 #expecting 15 not 25
-sparql "$EPR" 'SELECT (sum(DISTINCT ?o) as ?count) WHERE { 
+sparql "$EPR" 'SELECT (sum(DISTINCT ?o) as ?count) WHERE {
     ?s <y> ?o .
 }'
 
 
 # just to check that without distinct is not broken
-sparql "$EPR" 'SELECT (count(?o) as ?count) WHERE { 
+sparql "$EPR" 'SELECT (count(?o) as ?count) WHERE {
     ?s <y> ?o .
 }'
 
-#count + filters with filters ... 
+#count + filters with filters ...
 #that actually somebody will ever  run this ... that I don't know.
-sparql "$EPR" 'SELECT (COUNT(DISTINCT ?o) as ?count) WHERE { 
+sparql "$EPR" 'SELECT (COUNT(DISTINCT ?o) as ?count) WHERE {
     ?s <y> ?o .
     FILTER( ?o > 2)
 }'
 
-update "$EPR" 'DELETE DATA { GRAPH <g> { 
+update "$EPR" 'DELETE DATA { GRAPH <g> {
 <r> <y> 1 .
-<t> <y> 2 . 
+<t> <y> 2 .
 <z> <y> 3 .
 <r1> <y> 4 .
-<t1> <y> 5 . 
+<t1> <y> 5 .
 <z1> <y> 1 .
 <r2> <y> 2 .
-<t2> <y> 3 . 
+<t2> <y> 3 .
 <z3> <y> 4 .
 } }'

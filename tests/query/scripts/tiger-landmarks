@@ -1,4 +1,4 @@
-#!
+#!/usr/bin/env bash
 
 # tests OPTIONAL with large number of NULL results
 

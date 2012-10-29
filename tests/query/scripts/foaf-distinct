@@ -1,4 +1,4 @@
-#!
+#!/usr/bin/env bash
 
 # tests DISTINCT, Jo has two mbox_sha1sums
 

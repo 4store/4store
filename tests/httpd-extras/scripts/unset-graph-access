@@ -1,13 +1,13 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 source sparql.sh
 
 
-# Default admin user is included only when there 
-# is not a user admin specified but httpd was started 
+# Default admin user is included only when there
+# is not a user admin specified but httpd was started
 # with access control (-A)
 
-# Default admin user is setup in 
+# Default admin user is setup in
 # rdf-constants.h (FS_ACL_DEFAULT_ADMIN)
 adminkey="4sadminuser"
 
@@ -17,10 +17,10 @@ user2="user2"
 sparqlkey "$EPR" 'SELECT * WHERE { ?s ?p ?o } ORDER BY ?s ?p ?o' $adminkey
 
 # Admin user grants user1 with access to <graph:x>
-updatekey "$EPR" 'INSERT DATA { GRAPH <system:config> { 
+updatekey "$EPR" 'INSERT DATA { GRAPH <system:config> {
 <graph:x> <http://4store.org/acl#onlyAccessBy> "user1" . } }' $adminkey
 
-updatekey "$EPR" 'INSERT DATA { GRAPH <system:config> { 
+updatekey "$EPR" 'INSERT DATA { GRAPH <system:config> {
 <graph:y> <http://4store.org/acl#onlyAccessBy> "user2" . } }' $adminkey
 
 updatekey "$EPR" 'INSERT DATA { GRAPH <graph:x> { <x> <y> <z> . <a> <b> <c> . } }' $adminkey
@@ -37,9 +37,9 @@ sparqlkey "$EPR" 'SELECT * WHERE { ?s ?p ?o } ORDER BY ?s ?p ?o' $user1
 sparqlkey "$EPR" 'SELECT * WHERE { ?s ?p ?o } ORDER BY ?s ?p ?o' $user2
 
 # User 1 cannot accesss graph x any more, we give it to user 2.
-updatekey "$EPR" 'DELETE DATA { GRAPH <system:config> { 
+updatekey "$EPR" 'DELETE DATA { GRAPH <system:config> {
 <graph:x> <http://4store.org/acl#onlyAccessBy> "user1" . } };
-INSERT DATA { GRAPH <system:config> { 
+INSERT DATA { GRAPH <system:config> {
 <graph:x> <http://4store.org/acl#onlyAccessBy> "user2" . } }
 ' $adminkey
 

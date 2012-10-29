@@ -1,4 +1,4 @@
-#!
+#!/usr/bin/env bash
 
 revision=`git describe --tags --always`
 name="4store-${revision}"

@@ -1,4 +1,4 @@
-#!
+#!/usr/bin/env bash
 
 # tests combinatorial explosion on the same query pattern, exercises the existienatial binding optimisation
 

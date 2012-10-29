@@ -1,4 +1,4 @@
-#!
+#!/usr/bin/env bash
 
 # tests use of DISTINCT keyword on the predicate slot
 # also tests the internal sorting, results should be in RID order

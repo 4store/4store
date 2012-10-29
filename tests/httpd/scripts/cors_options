@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # OPTIONS cross-origin resource sharing (CORS) preflight request
 
 curl -s -D- -o/dev/null -X OPTIONS \
