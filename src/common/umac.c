@@ -83,10 +83,22 @@
 /* ---------------------------------------------------------------------- */
 
 #include "../common/umac.h"
+#include "4store-config.h"
 
 #include <string.h>
 #include <stdlib.h>
 #include <stddef.h>
+#include <sys/types.h>
+#if defined(HAVE_MACHINE_ENDIAN_H)
+# include <machine/endian.h>
+#endif
+#if defined(HAVE_SYS_ENDIAN_H)
+# include <sys/endian.h>
+#endif
+#if defined(HAVE_ENDIAN_H)
+# include <endian.h>
+#endif
+
 #if GLADMAN_AES
 #include "aes.h"
 #else
@@ -103,7 +115,7 @@ typedef unsigned short     UINT16; /* 2 byte   */
 typedef unsigned int       UINT32; /* 4 byte   */
 typedef unsigned long long UINT64; /* 8 bytes  */
 
-#if __WORDSIZE == 64
+#if __WORDSIZE == 64 || defined(__LP64__)
 typedef UINT64 UWORD;
 #else
 typedef UINT32 UWORD;
@@ -126,7 +138,7 @@ typedef UINT32 UWORD;
 /* be set true if the host computer is little-endian.                     */
 
 #ifndef __LITTLE_ENDIAN__
-#if __i386__ || __alpha__ || _M_IX86 || __LITTLE_ENDIAN
+#if _M_IX86 || __BYTE_ORDER == __LITTLE_ENDIAN || _BYTE_ORDER == _LITTLE_ENDIAN
 #define __LITTLE_ENDIAN__ 1
 #else
 #define __LITTLE_ENDIAN__ 0
