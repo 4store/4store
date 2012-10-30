@@ -184,6 +184,9 @@ AC_SUBST(GIT_REV)
 # Checks for header files.
 AC_FUNC_ALLOCA
 AC_CHECK_HEADERS([fcntl.h limits.h locale.h netdb.h stddef.h stdint.h stdlib.h string.h sys/file.h sys/mount.h sys/param.h sys/socket.h sys/time.h sys/vfs.h syslog.h unistd.h])
+AC_CHECK_HEADER(machine/endian.h,AC_DEFINE([HAVE_MACHINE_ENDIAN_H], 1, [Defined if machine/endian.h exists]))
+AC_CHECK_HEADER(sys/endian.h,AC_DEFINE([HAVE_SYS_ENDIAN_H], 1, [Defined if sys/endian.h exists]))
+AC_CHECK_HEADER(endian.h,AC_DEFINE([HAVE_ENDIAN_H], 1, [Defined if endian.h exists]))
 
 # Checks for typedefs, structures, and compiler characteristics.
 AC_HEADER_STDBOOL
