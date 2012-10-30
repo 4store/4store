@@ -69,7 +69,7 @@ struct rhash_header {
                             // rev=1: 32 byte, packed entries
     char padding[488];      // allign to a block
 } FS_PACKED;
- 
+
 #define INLINE_STR_LEN 15
 
 typedef struct _fs_rhash_entry {
@@ -141,19 +141,15 @@ void fs_rhash_ensure_size(fs_rhash *rh)
 
     const off_t len = sizeof(struct rhash_header) + ((off_t) rh->size) * ((off_t) rh->bucket_size) * sizeof(fs_rhash_entry);
 
-    /* FIXME should use fallocate where it has decent performance,
-       in order to avoid fragmentation */
-
-    unsigned char byte = 0;
-    /* write one past the end to avoid possibility of overwriting the last RID */
-    if (pwrite(rh->fd, &byte, sizeof(byte), len) == -1) {
-        fs_error(LOG_ERR, "couldn't pre-allocate for '%s': %s", rh->filename, strerror(errno));
+    if (ftruncate(rh->fd, len)) {
+    	fs_error(LOG_ERR, "ftruncate failed for '%s': %s", rh->filename, strerror(errno));
     }
 }
 
 fs_rhash *fs_rhash_open_filename(const char *filename, int flags)
 {
-    struct rhash_header header;
+    struct rhash_header *header;
+
     if (sizeof(struct rhash_header) != 512) {
         fs_error(LOG_CRIT, "incorrect rhash header size %zd, should be 512",
                  sizeof(header));
@@ -207,37 +203,38 @@ fs_rhash *fs_rhash_open_filename(const char *filename, int flags)
         (rh->prefix_count)++;
     }
 #endif
-    if ((flags & O_TRUNC) || file_length == 0) {
-        fs_rhash_write_header(rh);
-    } else {
-        pread(rh->fd, &header, sizeof(header), 0);
-        if (header.id != FS_RHASH_ID) {
-            fs_error(LOG_ERR, "%s does not appear to be a rhash file", rh->filename);
-
-            return NULL;
-        }
-        rh->size = header.size;
-        rh->count = header.count;
-        rh->search_dist = header.search_dist;
-        rh->bucket_size = header.bucket_size;
-        if (rh->bucket_size == 0) {
-            rh->bucket_size = 1;
-        }
-        rh->revision = header.revision;
-    }
     fs_rhash_ensure_size(rh);
+
     const size_t len = sizeof(header) + ((size_t) rh->size) * ((size_t) rh->bucket_size) * sizeof(fs_rhash_entry);
-    rh->entries = mmap(NULL, len, PROT_READ | PROT_WRITE, MAP_SHARED, rh->fd, 0)
-                + sizeof(header);
-    if (rh->entries == MAP_FAILED) {
+    const int mmapflags = PROT_READ | (flags & (O_WRONLY | O_RDWR) ? PROT_WRITE : 0);
+    header = mmap(NULL, len, mmapflags, MAP_SHARED, rh->fd, 0);
+    if (header == MAP_FAILED) {
         fs_error(LOG_ERR, "failed to mmap rhash file “%s”: %s", rh->filename, strerror(errno));
         return NULL;
     }
+    rh->entries = (fs_rhash_entry *)(header + 1);
+
+    if ((flags & O_TRUNC) || file_length == 0) {
+        fs_rhash_write_header(rh);
+    } else {
+        if (header->id != FS_RHASH_ID) {
+            fs_error(LOG_ERR, "%s does not appear to be a rhash file", rh->filename);
+            return NULL;
+        }
+        rh->size = header->size;
+        rh->count = header->count;
+        rh->search_dist = header->search_dist;
+        rh->bucket_size = header->bucket_size;
+        if (rh->bucket_size == 0) {
+            rh->bucket_size = 1;
+        }
+        rh->revision = header->revision;
+    }
+
     rh->lex_f = fopen(rh->lex_filename, mode);
     if (!rh->lex_f) {
         fs_error(LOG_ERR, "failed to open rhash lex file “%s”: %s",
                  rh->lex_filename, strerror(errno));
-
         return NULL;
     }
 
@@ -246,21 +243,17 @@ fs_rhash *fs_rhash_open_filename(const char *filename, int flags)
 
 int fs_rhash_write_header(fs_rhash *rh)
 {
-    struct rhash_header header;
+    struct rhash_header *header;
 
-    header.id = FS_RHASH_ID;
-    header.size = rh->size;
-    header.count = rh->count;
-    header.search_dist = rh->search_dist;
-    header.bucket_size = rh->bucket_size;
-    header.revision = rh->revision;
-    memset(&header.padding, 0, sizeof(header.padding));
-    if (pwrite(rh->fd, &header, sizeof(header), 0) == -1) {
-        fs_error(LOG_CRIT, "failed to write header on %s: %s",
-                 rh->filename, strerror(errno));
+    header = ((struct rhash_header *)rh->entries) - 1;
 
-        return 1;
-    }
+    header->id = FS_RHASH_ID;
+    header->size = rh->size;
+    header->count = rh->count;
+    header->search_dist = rh->search_dist;
+    header->bucket_size = rh->bucket_size;
+    header->revision = rh->revision;
+    memset(&header->padding, 0, sizeof(header->padding));
 
     return 0;
 }
@@ -494,6 +487,7 @@ static int sort_by_hash(const void *va, const void *vb)
 
 static int double_size(fs_rhash *rh)
 {
+    struct rhash_header *header;
     long int oldsize = rh->size;
     long int errs = 0;
 
@@ -501,14 +495,21 @@ static int double_size(fs_rhash *rh)
 
     rh->size *= 2;
     fs_rhash_ensure_size(rh);
+
     const size_t oldlen = sizeof(struct rhash_header) + ((size_t) oldsize) * ((size_t) rh->bucket_size) * sizeof(fs_rhash_entry);
     const size_t newlen = sizeof(struct rhash_header) + ((size_t) rh->size) * ((size_t) rh->bucket_size) * sizeof(fs_rhash_entry);
-    munmap((char *)rh->entries - sizeof(struct rhash_header), oldlen);
-    rh->entries = mmap(NULL, newlen, PROT_READ | PROT_WRITE, MAP_SHARED, rh->fd, 0) + sizeof(struct rhash_header);
-    if (rh->entries == MAP_FAILED) {
+
+    header = (struct rhash_header *)rh->entries - 1;
+    if (munmap(header, oldlen)) {
+    	fs_error(LOG_ERR, "failed to unmap rhash file '%s': %s", rh->filename, strerror(errno));
+    	return -1;
+    }
+    header = mmap(NULL, newlen, PROT_READ | PROT_WRITE, MAP_SHARED, rh->fd, 0);
+    if (header == MAP_FAILED) {
         fs_error(LOG_ERR, "failed to re-mmap rhash file “%s”: %s", rh->filename, strerror(errno));
         return -1;
     }
+    rh->entries = (fs_rhash_entry *)(header + 1);
 
     fs_rhash_entry blank;
     memset(&blank, 0, sizeof(blank));

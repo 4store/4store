@@ -255,6 +255,8 @@ int fs_ptree_grow_nodes(fs_ptree *pt)
 
     /* need to copy this value as were about to unmap */
     off_t alloc = pt->header->alloc;
+    if (msync(pt->ptr, pt->file_length, MS_SYNC))
+        fs_error(LOG_ERR, "msync failed, ptree might be inconsistent");
     munmap(pt->ptr, pt->file_length);
     pt->file_length = sizeof(struct ptree_header) + alloc;
     if (pwrite(pt->fd, &junk, 1, pt->file_length) == -1) {
@@ -277,11 +279,12 @@ int fs_ptree_grow_leaves(fs_ptree *pt)
 
     /* need to copy this value as were about to unmap */
     off_t alloc = pt->header->alloc;
+    if (msync(pt->ptr, pt->file_length, MS_SYNC))
+        fs_error(LOG_ERR, "msync failed, ptree might be inconsistent");
     munmap(pt->ptr, pt->file_length);
     pt->file_length = sizeof(struct ptree_header) + alloc;
     if (pwrite(pt->fd, &junk, 1, pt->file_length) == -1) {
         fs_error(LOG_ERR, "failed to grow ptree file");
-
         return 1;
     }
     map_file(pt);
