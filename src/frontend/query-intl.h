@@ -112,6 +112,7 @@ struct _fs_query {
                                         position x shifts to 0 if no apply cons */
     int group_by;
     GHashTable *tmp_resources;
+    char *json_function;		/* function for JSON-P callbacks */
 };
 
 #endif

@@ -48,4 +48,5 @@ typedef struct {
   unsigned int query_id;
   double start_time;
   char *apikey;
+  char *json_function;
 } client_ctxt;

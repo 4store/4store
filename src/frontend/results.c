@@ -2270,7 +2270,13 @@ static void output_json(fs_query *q, int flags, FILE *out)
 
         return;
     } else if (q->describe) {
+        if (q->json_function) {
+            fprintf(out, "%s(", q->json_function);
+        }
         handle_describe(q, "json", out);
+        if (q->json_function) {
+            fprintf(out, ");");
+        }
 
         return;
     }
@@ -2279,6 +2285,9 @@ static void output_json(fs_query *q, int flags, FILE *out)
 
     fs_row *row, *header;
     row = header = fs_query_fetch_header_row(q);
+    if (q->json_function) {
+        fprintf(out, "%s(", q->json_function);
+    }
     fprintf(out, "{\"head\":{\"vars\":[");
     for (int i=0; i<cols; i++) {
         if (i) fputs(",", out);
@@ -2370,7 +2379,11 @@ static void output_json(fs_query *q, int flags, FILE *out)
         fprintf(out, "]\n");
     }
 
-    fprintf(out, "}\n");
+    if (q->json_function) {
+        fprintf(out, "});\n");
+    } else {
+        fprintf(out, "}\n");
+    }
 }
 
 static void output_testcase(fs_query *q, int flags, FILE *out)
