@@ -56,7 +56,7 @@
 typedef uint32_t nodeid;
 
 typedef struct _node {
-    nodeid branch[FS_PTREE_BRANCHES]; 
+    nodeid branch[FS_PTREE_BRANCHES];
 } node;
 
 typedef struct _leaf {
@@ -148,7 +148,7 @@ node *node_ref(fs_ptree *pt, nodeid n)
 static void map_file(fs_ptree *pt)
 {
     pt->ptr = mmap(NULL, pt->file_length, PROT_READ | PROT_WRITE, MAP_SHARED, pt->fd, 0);
-    if (pt->ptr == (void *)-1) {
+    if (pt->ptr == MAP_FAILED) {
         fs_error(LOG_ERR, "failed to mmap '%s'", pt->filename);
     }
     pt->header = pt->ptr;
@@ -174,7 +174,7 @@ fs_ptree *fs_ptree_open_filename(const char *filename, int flags, fs_ptable *cha
         return NULL;
     }
     pt->filename = g_strdup(filename);
-    
+
     if (flags & (O_WRONLY | O_RDWR)) {
         flock(pt->fd, LOCK_EX);
     }
@@ -195,7 +195,7 @@ fs_ptree *fs_ptree_open_filename(const char *filename, int flags, fs_ptable *cha
 
         return NULL;
     }
-    
+
     pt->table = chain;
 
     if (pt->header->node_free == 0) {
@@ -235,6 +235,8 @@ int fs_ptree_write_header(fs_ptree *pt)
         fs_error(LOG_ERR, "failed to extend ptree file");
     }
     map_file(pt);
+    if (msync(pt->ptr, pt->file_length, MS_SYNC))
+        fs_error(LOG_ERR, "msync failed, ptree might be inconsistent");
     memset(pt->nodes, 0, sizeof(node));
     memset(pt->leaves, 0, sizeof(leaf));
     node *root = pt->nodes+1;
@@ -517,7 +519,7 @@ static enum recurse_action remove_all_recurse(fs_ptree *pt, fs_rid pair[2], node
             /* dead end, do nothing */
         } else if (IS_LEAF(no->branch[b])) {
             leaf *lref = LEAF_REF(pt, no->branch[b]);
-            int sub_removed = 0; 
+            int sub_removed = 0;
             if (lref->block) {
                 fs_row_id newblock = fs_ptable_remove_pair(pt->table,
                                         lref->block, pair, &sub_removed, NULL);
@@ -559,7 +561,7 @@ static enum recurse_action remove_all_recurse(fs_ptree *pt, fs_rid pair[2], node
                 } else {
                     fs_error(LOG_CRIT, "tried to merge nodes, but no children were available");
                 }
-                    
+
                 branches++;
             } else {
                 branches++;
@@ -615,7 +617,7 @@ static enum recurse_action collapse_by_pk_recurse(fs_ptree *pt, fs_rid pk, fs_in
 static int collapse_by_pk(fs_ptree *pt, fs_rid pk)
 {
     collapse_by_pk_recurse(pt, pk, FS_PTREE_ROOT_NODE, 0);
-    
+
     return 0;
 }
 
@@ -650,7 +652,7 @@ int fs_ptree_remove(fs_ptree *pt, fs_rid pk, fs_rid pair[2], fs_rid_set *models)
     nodeid lid = get_leaf(pt, pk);
     if (!lid) {
         /* the leaf doesn't exist, so it doesn't need to be deleted */
-    
+
         return 0;
     }
     leaf *lref = LEAF_REF(pt, lid);
@@ -985,11 +987,11 @@ void fs_ptree_print(fs_ptree *pt, FILE *out, int verbosity)
         fprintf(out, "ERROR: number of rows in header (%d) does not match data (%d) in %s\n", (int)pt->header->count, stats.count, pt->filename);
     }
     if (stats.leaves + free_leaves != pt->header->leaf_count) {
-        fprintf(out, "ERROR: %d leaves have been leaked\n", 
+        fprintf(out, "ERROR: %d leaves have been leaked\n",
                      pt->header->leaf_count - free_leaves - stats.leaves);
     }
     if (stats.nodes + free_nodes != pt->header->node_count + 1) {
-        fprintf(out, "ERROR: %d nodes have been leaked\n", 
+        fprintf(out, "ERROR: %d nodes have been leaked\n",
                      pt->header->node_count + 1 - free_nodes - stats.nodes);
     }
 }

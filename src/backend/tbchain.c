@@ -99,7 +99,14 @@ static int unmap_bc(fs_tbchain *bc)
 {
     if (!bc) return 1;
 
-    if (bc->ptr) munmap(bc->ptr, bc->len);
+    if (bc->ptr) {
+        if (msync(bc->ptr, bc->len, MS_SYNC))
+            fs_error(LOG_ERR, "msync failed for %s: %s", bc->filename, strerror(errno));
+        if (munmap(bc->ptr, bc->len)) {
+            fs_error(LOG_CRIT, "munmap failed on %s: %s", bc->filename, strerror(errno));
+            return 1;
+        }
+    }
     bc->ptr = NULL;
     bc->header = NULL;
 
@@ -110,25 +117,24 @@ static int map_bc(fs_tbchain *bc, long length, long size)
 {
     if (!bc) {
         fs_error(LOG_ERR, "tried to map NULL chain");
-
         return 1;
     }
 
     bc->len = (size + 1) * sizeof(fs_tblock) + sizeof(struct fs_tbc_header);
-    if (lseek(bc->fd, bc->len, SEEK_SET) == -1) {
-        fs_error(LOG_CRIT, "failed to seek in chain file %s: %s", bc->filename, strerror(errno));
-    }
-    if (bc->flags & (O_RDWR | O_WRONLY) && write(bc->fd, "", 1) == -1) {
-        fs_error(LOG_CRIT, "failed to init chain file %s (fd %d): %s", bc->filename, bc->fd, strerror(errno));
-    }
-    int mflags = PROT_READ;
-    if (bc->flags & (O_RDWR | O_WRONLY)) mflags |= PROT_WRITE;
-    bc->ptr = mmap(NULL, bc->len, mflags, MAP_FILE | MAP_SHARED, bc->fd, 0);
-    if (bc->ptr == (void *)-1 || bc->ptr == NULL) {
-        fs_error(LOG_CRIT, "failed to mmap: %s", strerror(errno));
-
+    if (ftruncate(bc->fd, bc->len)) {
+        fs_error(LOG_CRIT, "failed to ftruncate %s: %s", bc->filename, strerror(errno));
         return 1;
     }
+
+    int mflags = PROT_READ;
+    if (bc->flags & (O_RDWR | O_WRONLY)) mflags |= PROT_WRITE;
+
+    bc->ptr = mmap(NULL, bc->len, mflags, MAP_FILE | MAP_SHARED, bc->fd, 0);
+    if (bc->ptr == MAP_FAILED || bc->ptr == NULL) {
+        fs_error(LOG_CRIT, "failed to mmap: %s", strerror(errno));
+        return 1;
+    }
+
     bc->header = (struct fs_tbc_header *)(bc->ptr);
     if (mflags & PROT_WRITE) {
         bc->header->id = TBCHAIN_ID;
@@ -152,49 +158,67 @@ fs_tbchain *fs_tbchain_open(fs_backend *be, const char *label, int flags)
 
 fs_tbchain *fs_tbchain_open_filename(const char *fname, int flags)
 {
+    struct fs_tbc_header *header;
     fs_tbchain *bc = calloc(1, sizeof(fs_tbchain));
 
     bc->fd = open(fname, FS_O_NOATIME | flags, FS_FILE_MODE);
     if (bc->fd == -1) {
         fs_error(LOG_CRIT, "failed to open chain %s: %s", fname, strerror(errno));
-
         return NULL;
     }
     bc->filename = g_strdup(fname);
     bc->flags = flags;
-    struct fs_tbc_header header;
-    if (sizeof(header) != 512) {
-        fs_error(LOG_CRIT, "tbchain header size is %zd, not 512 bytes", sizeof(header));
 
+    if (sizeof(*header) != 512) {
+        fs_error(LOG_CRIT, "tbchain header size is %zd, not 512 bytes", sizeof(header));
         return NULL;
     }
     if (sizeof(fs_tblock) != FS_TBLOCK_SIZE) {
         fs_error(LOG_CRIT, "tblock size is %zd, not %d bytes", sizeof(fs_tblock), FS_TBLOCK_SIZE);
-
         return NULL;
     }
-    lseek(bc->fd, 0, SEEK_SET);
     int init_reqd = 0;
-    memset(&header, 0, sizeof(header));
-    if (read(bc->fd, &header, sizeof(header)) <= 0) {
-        header.id = TBCHAIN_ID;
-        header.size = TBCHAIN_INIT_SIZE;
-        header.length = TBCHAIN_INIT_SIZE;
-        header.free_list = 0;
+
+    if (bc->flags & O_TRUNC && ftruncate(bc->fd, sizeof(*header))) {
+        fs_error(LOG_CRIT, "ftruncate failed on %s: %s", fname, strerror(errno));
+        return NULL;
+    }
+
+    int mflags = PROT_READ;
+    if (bc->flags & (O_RDWR | O_WRONLY)) mflags |= PROT_WRITE;
+    if (bc->flags & O_TRUNC) mflags |= PROT_WRITE;
+    header = mmap(NULL, sizeof(*header), mflags, MAP_FILE | MAP_SHARED, bc->fd, 0);
+    if (header == MAP_FAILED || header == NULL) {
+        munmap(header, sizeof(*header));
+        fs_error(LOG_CRIT, "header mmap failed for %s: %s", bc->filename, strerror(errno));
+        return NULL;
+    }
+
+    if (bc->flags & O_TRUNC) {
+        header->id = TBCHAIN_ID;
+        header->size = TBCHAIN_INIT_SIZE;
+        header->length = TBCHAIN_INIT_SIZE;
+        header->free_list = 0;
+        if (msync(header, sizeof(*header), MS_SYNC))
+            fs_error(LOG_ERR, "header msync failed for %s: %s", bc->filename, strerror(errno));
         init_reqd = 1;
     }
-    if (header.id != TBCHAIN_ID) {
+    if (header->id != TBCHAIN_ID) {
         fs_error(LOG_CRIT, "%s does not look like a tbchain file", bc->filename);
-
+        munmap(header, sizeof(*header));
         return NULL;
     }
-    if (map_bc(bc, header.length, header.size)) {
+
+    if (map_bc(bc, header->length, header->size)) {
         fs_error(LOG_CRIT, "failed to map %s", bc->filename);
-
+        munmap(header, sizeof(*header));
         return NULL;
     }
+    if (munmap(header, sizeof(*header)))
+        fs_error(LOG_ERR, "failed to unmap header for %s: %s", bc->filename, strerror(errno));
+
     if (init_reqd) {
-        for (fs_index_node i = 2; i < header.size; i++) {
+        for (fs_index_node i = 2; i < bc->header->size; i++) {
             fs_tbchain_free_block(bc, i);
         }
     }
@@ -206,7 +230,6 @@ int fs_tbchain_sync(fs_tbchain *bc)
 {
     if (msync(bc->ptr, bc->len, MS_SYNC) == -1) {
         fs_error(LOG_CRIT, "failed to msync chain: %s", strerror(errno));
-
         return 1;
     }
 
@@ -351,7 +374,7 @@ int fs_tbchain_set_bit(fs_tbchain *bc, fs_index_node b, fs_tbchain_bit bit)
 
     /* flipping bits can cause writes, so lets avoid if possible */
     if (!(bc->data[b].flags & bit)) bc->data[b].flags |= bit;
-    
+
     return 0;
 }
 
@@ -370,7 +393,7 @@ int fs_tbchain_clear_bit(fs_tbchain *bc, fs_index_node b, fs_tbchain_bit bit)
 
     /* flipping bits can cause writes, so lets avoid if possible */
     if (bc->data[b].flags & bit) bc->data[b].flags &= ~bit;
-    
+
     return 0;
 }
 
@@ -439,7 +462,7 @@ static int fs_tbchain_free_block(fs_tbchain *bc, fs_index_node b)
 
         return 1;
     }
-    
+
     bc->data[b].cont = bc->header->free_list;
     bc->header->free_list = b;
 
