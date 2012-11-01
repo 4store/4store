@@ -71,7 +71,14 @@ static int unmap_pt(fs_ptable *pt)
 {
     if (!pt) return 1;
 
-    if (pt->ptr) munmap(pt->ptr, pt->len);
+    if (pt->ptr) {
+        fs_ptable_sync(pt);
+        if (munmap(pt->ptr, pt->len)) {
+            fs_error(LOG_ERR, "failed to unmap ptable %s", pt->filename);
+            return 1;
+        }
+    }
+
     pt->ptr = NULL;
     pt->header = NULL;
     pt->data = NULL;
@@ -83,25 +90,23 @@ static int map_pt(fs_ptable *pt, long length, long size)
 {
     if (!pt) {
         fs_error(LOG_ERR, "tried to map NULL ptable");
-
         return 1;
     }
 
     pt->len = sizeof(struct ptable_header) + size * sizeof(row);
-    if (lseek(pt->fd, pt->len, SEEK_SET) == -1) {
-        fs_error(LOG_CRIT, "failed to seek in ptable file %s: %s", pt->filename, strerror(errno));
+    if (ftruncate(pt->fd, pt->len)) {
+        fs_error(LOG_CRIT, "failed to ftruncate ptable %s: %s", pt->filename, strerror(errno));
     }
-    if (pt->flags & (O_RDWR | O_WRONLY) && write(pt->fd, "", 1) == -1) {
-        fs_error(LOG_CRIT, "failed to init ptable file %s (fd %d): %s", pt->filename, pt->fd, strerror(errno));
-    }
+
     int mflags = PROT_READ;
     if (pt->flags & (O_RDWR | O_WRONLY)) mflags |= PROT_WRITE;
-    pt->ptr = mmap(NULL, pt->len, mflags, MAP_FILE | MAP_SHARED, pt->fd, 0);
-    if (pt->ptr == (void *)-1 || pt->ptr == NULL) {
-        fs_error(LOG_CRIT, "failed to mmap: %s", strerror(errno));
 
+    pt->ptr = mmap(NULL, pt->len, mflags, MAP_FILE | MAP_SHARED, pt->fd, 0);
+    if (pt->ptr == MAP_FAILED || pt->ptr == NULL) {
+        fs_error(LOG_CRIT, "failed to mmap: %s", strerror(errno));
         return 1;
     }
+
     pt->header = (struct ptable_header *)(pt->ptr);
     if (mflags & PROT_WRITE) {
         pt->header->id = PTABLE_ID;
@@ -109,7 +114,7 @@ static int map_pt(fs_ptable *pt, long length, long size)
         pt->header->length = length;
         pt->header->revision = PTABLE_REVISION;
     }
-    pt->data = (row *)(((char *)pt->ptr) + sizeof(struct ptable_header));
+    pt->data = (row *)(pt->header + 1);
 
     return 0;
 }
@@ -128,38 +133,57 @@ fs_ptable *fs_ptable_open_filename(const char *fname, int flags)
 
     if (sizeof(struct ptable_header) != 512) {
         fs_error(LOG_CRIT, "ptable header size not 512 bytes");
-
         return NULL;
     }
     pt->fd = open(fname, FS_O_NOATIME | flags, FS_FILE_MODE);
     if (pt->fd == -1) {
         fs_error(LOG_CRIT, "failed to open ptable %s: %s", fname, strerror(errno));
-
         return NULL;
     }
     pt->filename = g_strdup(fname);
     pt->flags = flags;
-    struct ptable_header header;
-    lseek(pt->fd, 0, SEEK_SET);
-    if (flags & O_TRUNC || read(pt->fd, &header, sizeof(header)) <= 0) {
-        header.id = PTABLE_ID;
-        header.size = 1024;
-        header.length = 0;
-        header.revision = PTABLE_REVISION;
+
+    if (flags & O_TRUNC && ftruncate(pt->fd, sizeof(struct ptable_header)))
+        fs_error(LOG_CRIT, "ftruncate failed: %s", strerror(errno));
+
+    int mflags = PROT_READ;
+    if (flags & (O_RDWR | O_WRONLY)) mflags |= PROT_WRITE;
+    if (flags & (O_TRUNC)) mflags |= PROT_WRITE;
+
+    struct ptable_header *header = mmap(NULL, sizeof(struct ptable_header), mflags, MAP_FILE | MAP_SHARED, pt->fd, 0);
+    if (header == MAP_FAILED || header == NULL) {
+        fs_error(LOG_CRIT, "failed to mmap: %s", strerror(errno));
+        return NULL;
     }
-    if (header.id != PTABLE_ID) {
+
+    if (flags & O_TRUNC) {
+        header->id = PTABLE_ID;
+        header->size = 1024;
+        header->length = 0;
+        header->revision = PTABLE_REVISION;
+
+        if (msync(header, sizeof(*header), MS_SYNC)) {
+            fs_error(LOG_CRIT, "could not msync %s: %s", pt->filename, strerror(errno));
+            munmap(header, sizeof(*header));
+            return NULL;
+        }
+    }
+    if (header->id != PTABLE_ID) {
         fs_error(LOG_CRIT, "%s does not look like a ptable file", pt->filename);
-
+        munmap(header, sizeof(*header));
         return NULL;
     }
-    if (header.revision != PTABLE_REVISION) {
+    if (header->revision != PTABLE_REVISION) {
         fs_error(LOG_CRIT, "%s is wrong revision of ptable file", pt->filename);
+        munmap(header, sizeof(*header));
+        return NULL;
+    }
 
+    if (map_pt(pt, header->length, header->size))
         return NULL;
-    }
-    if (map_pt(pt, header.length, header.size)) {
-        return NULL;
-    }
+
+    if (munmap(header, sizeof(*header)))
+        fs_error(LOG_ERR, "could not unmap %s: %s", pt->filename, strerror(errno));
 
     return pt;
 }
@@ -168,7 +192,6 @@ int fs_ptable_sync(fs_ptable *pt)
 {
     if (msync(pt->ptr, pt->len, MS_SYNC) == -1) {
         fs_error(LOG_CRIT, "failed to msync ptable: %s", strerror(errno));
-
         return 1;
     }
 
@@ -203,7 +226,6 @@ int fs_ptable_check_consistency(fs_ptable *pt, FILE *out, fs_row_id src, fs_row_
 
     if (src == 0) {
         fprintf(out, "ERROR: tried to check consistency of source 0\n");
-
         return 1;
     }
 
@@ -211,7 +233,6 @@ int fs_ptable_check_consistency(fs_ptable *pt, FILE *out, fs_row_id src, fs_row_
         pt->cons_data = calloc(pt->header->length, sizeof(fs_row_id));
         if (!pt->cons_data) {
             fprintf(out, "ERROR: cannot allocate enough meory to perform consistency check\n");
-
             return 1;
         }
         for (fs_row_id f = pt->header->free_list; f; f=pt->data[f].cont) {
@@ -224,7 +245,6 @@ int fs_ptable_check_consistency(fs_ptable *pt, FILE *out, fs_row_id src, fs_row_
         len++;
         if (pt->cons_data[r] != 0) {
             fprintf(out, "ERROR: some kind of badness\n");
-
             return 1;
         } else {
             pt->cons_data[r] = src;
@@ -241,7 +261,6 @@ int fs_ptable_check_leaks(fs_ptable *pt, FILE *out)
 {
     if (!pt->cons_data) {
         fprintf(out, "ERROR: consistency checks haven't been run\n");
-
         return 1;
     }
 
@@ -263,7 +282,6 @@ fs_row_id fs_ptable_new_row(fs_ptable *pt)
 {
     if (!pt->ptr) {
         fs_error(LOG_CRIT, "attempted to get row from unmapped ptable");
-
         return 0;
     }
     if (pt->header->length == 0) {
@@ -281,7 +299,7 @@ fs_row_id fs_ptable_new_row(fs_ptable *pt)
 
         return newr;
     }
-        
+
     if (pt->header->length >= pt->header->size) {
         int length = pt->header->length;
         int size = pt->header->size;
@@ -341,7 +359,7 @@ fs_row_id fs_ptable_add_pair(fs_ptable *pt, fs_row_id b, fs_rid pair[2])
         return 0;
     }
     if (b > pt->header->length) {
-        fs_error(LOG_CRIT, "tried to write off end of ptable\n");
+        fs_error(LOG_CRIT, "tried to write off end of ptable %s\n", pt->filename);
 
         return 0;
     }
@@ -363,8 +381,7 @@ int fs_ptable_get_row(fs_ptable *pt, fs_row_id b, fs_rid pair[2])
         return 1;
     }
     if (b > pt->header->length) {
-        fs_error(LOG_CRIT, "tried to read off end of ptable\n");
-
+        fs_error(LOG_CRIT, "tried to read off end of ptable %s (%d > %d / %d)\n", pt->filename, b, pt->header->length, pt->header->size);
         return 1;
     }
 
@@ -383,7 +400,7 @@ int fs_ptable_pair_exists(fs_ptable *pt, fs_row_id b, fs_rid pair[2])
         return 0;
     }
     if (b > pt->header->length) {
-        fs_error(LOG_CRIT, "tried to read off end of ptable\n");
+        fs_error(LOG_CRIT, "tried to read off end of ptable %s\n", pt->filename);
 
         return 0;
     }
@@ -411,7 +428,7 @@ fs_row_id fs_ptable_remove_pair(fs_ptable *pt, fs_row_id b, fs_rid pair[2], int 
         return ret;
     }
     if (b > pt->header->length) {
-        fs_error(LOG_CRIT, "tried to read off end of ptable (%d > %d)", b, pt->header->length);
+        fs_error(LOG_CRIT, "tried to read off end of ptable %s (%d > %d)", pt->filename, b, pt->header->length);
 
         return ret;
     }
@@ -489,7 +506,7 @@ fs_row_id fs_ptable_remove_pair(fs_ptable *pt, fs_row_id b, fs_rid pair[2], int 
 fs_row_id fs_ptable_get_next(fs_ptable *pt, fs_row_id r)
 {
     if (r > pt->header->length) {
-        fs_error(LOG_CRIT, "tried to read off end of ptable");
+        fs_error(LOG_CRIT, "tried to read off end of ptable %s", pt->filename);
 
         return 0;
     }
@@ -504,7 +521,7 @@ int fs_ptable_free_row(fs_ptable *pt, fs_row_id b)
 
         return 1;
     }
-    
+
     row *r = &(pt->data[b]);
     r->cont = pt->header->free_list;
     pt->header->free_list = b;
