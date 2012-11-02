@@ -1063,6 +1063,11 @@ static void http_query_widget(client_ctxt *ctxt)
    "\nSELECT * WHERE {\n ?s ?p ?o\n} LIMIT 10\n"
    "</textarea><br>\n"
    "<em>Soft limit</em> <input type=\"text\" name=\"soft-limit\">\n"
+   "<select name=\"output\">\n"
+   "<option>xml</option>\n"   
+   "<option>json</option>\n"
+   "<option>text</option>\n"
+   "</select>\n"
    "<input type=\"submit\" value=\"Execute\"><input type=\"reset\">\n"
    "</form>\n");
 
