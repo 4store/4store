@@ -505,44 +505,49 @@ void fsp_serve (const char *kb_name, fsp_backend *backend, int daemon, float dis
     default_hints(&hints);
     hints.ai_flags = AI_PASSIVE;
 
-    snprintf(cport, sizeof(cport), "%u", port);
-
-    if ((err = getaddrinfo(NULL, cport, &hints, &info0))) {
-	kb_error(LOG_ERR, "getaddrinfo failed: %s", gai_strerror(err));
-	return;
-    }
-
-    /* keep track of the first addrinfo so we can free the whole chain later */
-    info = info0;
-    /* iterate through the list of possible addresses. on Linux we only get one: the
-       'dual stack' or ipv4 address. on some BSDs we will see two or more; often separate
-       INET6 and INET addrinfos. we want to listen on all of them. */
     do {
-    	sock[nsock] = socket(info->ai_family, info->ai_socktype, info->ai_protocol);
-    	if (sock[nsock] < 0)
-    	    continue;
-#if defined(IPV6_V6ONLY)
-    	if (info->ai_family == AF_INET6)
-    	    /* don't check the return value -- some platforms (cough, OpenBSD, cough)
-    	       have IPV6_V6ONLY defined, but refuse to let it be turned off */
-    	    setsockopt(sock[nsock], IPPROTO_IPV6, IPV6_V6ONLY, &off, sizeof(off));
-#endif
-    	if (setsockopt(sock[nsock], SOL_SOCKET, SO_REUSEADDR, &on, sizeof(on)) == -1)
-    	    kb_error(LOG_ERR, "setsockopt(SO_REUSEADDR) failed, continuing");
-    	if (bind(sock[nsock], info->ai_addr, info->ai_addrlen) < 0) {
-	    err = errno;
-    	    close(sock[nsock]);
-    	    continue;
-    	}
-    	if (listen(sock[nsock], 64) < 0) {
-	    err = errno;
-    	    close(sock[nsock]);
-    	    continue;
-    	}
-    	++nsock;
-    } while ((info = info->ai_next) && nsock < MAXSOCK);
+	snprintf(cport, sizeof(cport), "%u", port);
 
-    freeaddrinfo(info0);
+	if ((err = getaddrinfo(NULL, cport, &hints, &info0))) {
+	    kb_error(LOG_ERR, "getaddrinfo failed: %s", gai_strerror(err));
+	    return;
+	}
+
+	/* keep track of the first addrinfo so we can free the whole chain later */
+	info = info0;
+	/* iterate through the list of possible addresses. on Linux we only get one: the
+	   'dual stack' or ipv4 address. on some BSDs we will see two or more; often separate
+	   INET6 and INET addrinfos. we want to listen on all of them. */
+	do {
+	    sock[nsock] = socket(info->ai_family, info->ai_socktype, info->ai_protocol);
+	    if (sock[nsock] < 0)
+		continue;
+#if defined(IPV6_V6ONLY)
+	    if (info->ai_family == AF_INET6)
+		/* don't check the return value -- some platforms (cough, OpenBSD, cough)
+		have IPV6_V6ONLY defined, but refuse to let it be turned off */
+		setsockopt(sock[nsock], IPPROTO_IPV6, IPV6_V6ONLY, &off, sizeof(off));
+#endif
+	    if (setsockopt(sock[nsock], SOL_SOCKET, SO_REUSEADDR, &on, sizeof(on)) == -1)
+		kb_error(LOG_ERR, "setsockopt(SO_REUSEADDR) failed, continuing");
+	    if (bind(sock[nsock], info->ai_addr, info->ai_addrlen) < 0) {
+		err = errno;
+		close(sock[nsock]);
+		continue;
+	    }
+	    if (listen(sock[nsock], 64) < 0) {
+		err = errno;
+		close(sock[nsock]);
+		continue;
+	    }
+	    ++nsock;
+	} while ((info = info->ai_next) && nsock < MAXSOCK);
+
+	freeaddrinfo(info0);
+
+	/* if we go around again, try the next port */
+	++port;
+    } while (nsock == 0 && port < 65535);
 
     if (nsock == 0) {
     	kb_error(LOG_ERR, "fsp_serve failed to get a valid listening socket: %s", strerror(err));
