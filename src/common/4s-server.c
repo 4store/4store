@@ -546,7 +546,7 @@ void fsp_serve (const char *kb_name, fsp_backend *backend, int daemon, float dis
 	freeaddrinfo(info0);
 
 	/* if we go around again, try the next port */
-	++port;
+	if (nsock == 0) ++port;
     } while (nsock == 0 && port < 65535);
 
     if (nsock == 0) {
