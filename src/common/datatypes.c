@@ -490,8 +490,7 @@ int fs_rid_set_contains(fs_rid_set *s, fs_rid val)
 	if (e->val == val) return 1;
 	e = e->next;
     }
-
-    return 0; 
+    return (e->val == val) && (e->val != FS_RID_NULL);
 }
 
 int fs_rid_set_rewind(fs_rid_set *s)

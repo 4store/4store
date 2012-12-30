@@ -33,3 +33,6 @@ build
 root
 tags
 TAGS
+*.swp
+tests/httpd-extras/4s-query
+src/common/datatypestest
