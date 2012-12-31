@@ -1,0 +1,38 @@
+#!/usr/bin/env bash
+
+source sparql.sh
+
+put "$EPR" ../../data/numbers.ttl 'text/turtle' 'http://example.com/numbers.ttl'
+
+sparql "$EPR" "BASE <http://example.com/> SELECT ?o WHERE { \
+    GRAPH <http://example.com/numbers.ttl> { \
+        ?s <test:num> ?o . \
+        FILTER (?o < -2) . \
+}} ORDER BY ?o"
+
+sparql "$EPR" "BASE <http://example.com/> SELECT ?o WHERE { \
+    GRAPH <http://example.com/numbers.ttl> { \
+        ?s <test:num> ?o . \
+        FILTER (?o > -2) . \
+}} ORDER BY ?o"
+
+sparql "$EPR" "BASE <http://example.com/> SELECT ?o WHERE { \
+    GRAPH <http://example.com/numbers.ttl> { \
+        ?s <test:num> ?o . \
+        FILTER (?o < -2.5) . \
+}} ORDER BY ?o"
+
+sparql "$EPR" "BASE <http://example.com/> SELECT ?o WHERE { \
+    GRAPH <http://example.com/numbers.ttl> { \
+        ?s <test:num> ?o . \
+        FILTER (?o > -2.5) . \
+}} ORDER BY ?o"
+
+sparql "$EPR" "BASE <http://example.com/> SELECT ?o WHERE { \
+    GRAPH <http://example.com/numbers.ttl> { \
+        ?s <test:num> ?o . \
+        FILTER (?o > -2.51) . \
+        FILTER (?o < -2.49) . \
+}} ORDER BY ?o"
+
+delete "$EPR" 'http://example.com/numbers.ttl'

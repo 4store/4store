@@ -1,0 +1,98 @@
+201 imported successfully
+This is a 4store SPARQL server [VERSION]
+Query: BASE <http://example.com/> SELECT ?o WHERE {     GRAPH <http://example.com/numbers.ttl> {         ?s <test:num> ?o .         FILTER (?o < -2) . }} ORDER BY ?o
+?o
+"-23.0e999999999999999999999999"^^<http://www.w3.org/2001/XMLSchema#float>
+"-12345678901234567890.23239300"^^<http://www.w3.org/2001/XMLSchema#float>
+-1234567890123456789
+-1234567890.23239300
+-1234
+-2.500001
+-2.500001e0
+"-2.500001"^^<http://www.w3.org/2001/XMLSchema#float>
+"-2.5"^^<http://www.w3.org/2001/XMLSchema#float>
+-2.5
+-2.5e0
+-2.499999
+-2.499999e0
+"-2.499999"^^<http://www.w3.org/2001/XMLSchema#float>
+-2.00050000
+Query: BASE <http://example.com/> SELECT ?o WHERE {     GRAPH <http://example.com/numbers.ttl> {         ?s <test:num> ?o .         FILTER (?o > -2) . }} ORDER BY ?o
+?o
+0
++0
+-0
+0000.0004999000
+2.000050000
+"2.4999"^^<http://www.w3.org/2001/XMLSchema#float>
+2.4999e0
+2.4999
+2.5
+2.5e0
+"2.5"^^<http://www.w3.org/2001/XMLSchema#float>
+"2.500001"^^<http://www.w3.org/2001/XMLSchema#float>
+2.500001e0
+2.500001
+1234
++1234
++1234567890.23239300
+1234567890.23239300
++1234567890123456789
+1234567890123456789
+"12345678901234567890.23239300"^^<http://www.w3.org/2001/XMLSchema#float>
+"+12345678901234567890.23239300"^^<http://www.w3.org/2001/XMLSchema#float>
+"+23.0e999999999999999999999999"^^<http://www.w3.org/2001/XMLSchema#float>
+"23.0e999999999999999999999999"^^<http://www.w3.org/2001/XMLSchema#float>
+Query: BASE <http://example.com/> SELECT ?o WHERE {     GRAPH <http://example.com/numbers.ttl> {         ?s <test:num> ?o .         FILTER (?o < -2.5) . }} ORDER BY ?o
+?o
+"-23.0e999999999999999999999999"^^<http://www.w3.org/2001/XMLSchema#float>
+"-12345678901234567890.23239300"^^<http://www.w3.org/2001/XMLSchema#float>
+-1234567890123456789
+-1234567890.23239300
+-1234
+-2.500001
+-2.500001e0
+"-2.500001"^^<http://www.w3.org/2001/XMLSchema#float>
+Query: BASE <http://example.com/> SELECT ?o WHERE {     GRAPH <http://example.com/numbers.ttl> {         ?s <test:num> ?o .         FILTER (?o > -2.5) . }} ORDER BY ?o
+?o
+-2.499999
+-2.499999e0
+"-2.499999"^^<http://www.w3.org/2001/XMLSchema#float>
+-2.00050000
+0
++0
+-0
+0000.0004999000
+2.000050000
+"2.4999"^^<http://www.w3.org/2001/XMLSchema#float>
+2.4999e0
+2.4999
+2.5
+2.5e0
+"2.5"^^<http://www.w3.org/2001/XMLSchema#float>
+"2.500001"^^<http://www.w3.org/2001/XMLSchema#float>
+2.500001e0
+2.500001
+1234
++1234
++1234567890.23239300
+1234567890.23239300
++1234567890123456789
+1234567890123456789
+"12345678901234567890.23239300"^^<http://www.w3.org/2001/XMLSchema#float>
+"+12345678901234567890.23239300"^^<http://www.w3.org/2001/XMLSchema#float>
+"+23.0e999999999999999999999999"^^<http://www.w3.org/2001/XMLSchema#float>
+"23.0e999999999999999999999999"^^<http://www.w3.org/2001/XMLSchema#float>
+Query: BASE <http://example.com/> SELECT ?o WHERE {     GRAPH <http://example.com/numbers.ttl> {         ?s <test:num> ?o .         FILTER (?o > -2.51) .         FILTER (?o < -2.49) . }} ORDER BY ?o
+?o
+-2.500001
+-2.500001e0
+"-2.500001"^^<http://www.w3.org/2001/XMLSchema#float>
+"-2.5"^^<http://www.w3.org/2001/XMLSchema#float>
+-2.5
+-2.5e0
+-2.499999
+-2.499999e0
+"-2.499999"^^<http://www.w3.org/2001/XMLSchema#float>
+200 deleted successfully
+This is a 4store SPARQL server [VERSION]
