@@ -21,8 +21,8 @@ Query: SELECT (CONCAT("CC") AS ?co) WHERE { <test:data> <test:bcd> ?s } ORDER BY
 ?co
 Query: SELECT (CONCAT("BEFORE-∂-",?s, "-§-AFTER") AS ?co) WHERE { <test:data> <test:bcd> ?s } ORDER BY ?s
 ?co
-"BEFORE-∂--1234-§-AFTER"
 "BEFORE-∂--1234567890.23239300-§-AFTER"
+"BEFORE-∂--1234-§-AFTER"
 "BEFORE-∂--1234567890.23239300-§-AFTER"
 "BEFORE-∂-.-+e.-+e.-+e.-+e.-+e.-+e.-+e-§-AFTER"
 "BEFORE-∂-..........----------++++++++++-§-AFTER"
