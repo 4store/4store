@@ -25,6 +25,7 @@ struct fs_globals {
 	fs_rid empty;
 	fs_rid lang_de;
 	fs_rid lang_en;
+	fs_rid lang_en_gb;
 	fs_rid lang_es;
 	fs_rid lang_fr;
 	fs_rid rdf_type;
@@ -71,5 +72,6 @@ struct fs_globals fs_global_constants(void);
 
 void umac_crypto_hash(const char *str, char *result);
 const char * fs_hash_predefined_uri(fs_rid rid);
+const char * fs_hash_predefined_literal(fs_rid rid);
 
 #endif

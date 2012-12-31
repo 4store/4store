@@ -119,20 +119,20 @@ Query: SELECT (STRBEFORE(?s, "789") AS ?be) WHERE { <test:data> <test:bcd> ?s } 
 "0123456"
 Query: SELECT (STRBEFORE(STRLANG(?s, "en-GB"), "89") AS ?be) WHERE { <test:data> <test:bcd> ?s } ORDER BY ?s
 ?be
-""@¡resource e6094293ef47fa not found!
-"-1234567"@¡resource e6094293ef47fa not found!
-"-1234567"@¡resource e6094293ef47fa not found!
-""@¡resource e6094293ef47fa not found!
-""@¡resource e6094293ef47fa not found!
-""@¡resource e6094293ef47fa not found!
-""@¡resource e6094293ef47fa not found!
-"01234567"@¡resource e6094293ef47fa not found!
-"01234567"@¡resource e6094293ef47fa not found!
-"01234567"@¡resource e6094293ef47fa not found!
-"01234567"@¡resource e6094293ef47fa not found!
-"01234567"@¡resource e6094293ef47fa not found!
-"01234567"@¡resource e6094293ef47fa not found!
-""@¡resource e6094293ef47fa not found!
+"-1234567"@en-GB
+""@en-GB
+"-1234567"@en-GB
+""@en-GB
+""@en-GB
+""@en-GB
+""@en-GB
+"01234567"@en-GB
+"01234567"@en-GB
+"01234567"@en-GB
+"01234567"@en-GB
+"01234567"@en-GB
+"01234567"@en-GB
+""@en-GB
 Query: SELECT (STRAFTER(?s, "789") AS ?be) WHERE { <test:data> <test:bcd> ?s } ORDER BY ?s
 ?be
 "-123456"
@@ -148,19 +148,19 @@ Query: SELECT (STRAFTER(?s, "789") AS ?be) WHERE { <test:data> <test:bcd> ?s } O
 "0123456"
 Query: SELECT (STRAFTER(STRLANG(?s, "en-GB"), "89") AS ?be) WHERE { <test:data> <test:bcd> ?s } ORDER BY ?s
 ?be
-""@¡resource e6094293ef47fa not found!
-"-1234567"@¡resource e6094293ef47fa not found!
-"-1234567"@¡resource e6094293ef47fa not found!
-""@¡resource e6094293ef47fa not found!
-""@¡resource e6094293ef47fa not found!
-""@¡resource e6094293ef47fa not found!
-""@¡resource e6094293ef47fa not found!
-"01234567"@¡resource e6094293ef47fa not found!
-"01234567"@¡resource e6094293ef47fa not found!
-"01234567"@¡resource e6094293ef47fa not found!
-"01234567"@¡resource e6094293ef47fa not found!
-"01234567"@¡resource e6094293ef47fa not found!
-"01234567"@¡resource e6094293ef47fa not found!
-""@¡resource e6094293ef47fa not found!
+"-1234567"@en-GB
+""@en-GB
+"-1234567"@en-GB
+""@en-GB
+""@en-GB
+""@en-GB
+""@en-GB
+"01234567"@en-GB
+"01234567"@en-GB
+"01234567"@en-GB
+"01234567"@en-GB
+"01234567"@en-GB
+"01234567"@en-GB
+""@en-GB
 200 deleted successfully
 This is a 4store SPARQL server [VERSION]

@@ -353,7 +353,7 @@ fs_value fn_numeric_round(fs_query *q, fs_value a)
     } else if (a.attr == fs_c.xsd_decimal) {
         /* 0 = round to num,        e.g. 2.x -> 2.0, -2.x -> -2.0
            1 = round away from num, e.g. 2.x -> 3.0, -2.x -> -3.0 */
-        int round_dir = -1; 
+        int round_dir = -1;
         int positive = fs_decimal_greater_than_equal(&a.de, fs_decimal_zero);
 
         int start_pos = FS_D_OVER_DIGITS+FS_D_INT_DIGITS;
@@ -1149,6 +1149,8 @@ fs_value fn_lang(fs_query *q, fs_value a)
 	    return fs_value_plain("de");
 	} else if (a.attr == fs_c.lang_es) {
 	    return fs_value_plain("es");
+	} else if (a.attr == fs_c.lang_en_gb) {
+	    return fs_value_plain("en-GB");
 	} else if (a.attr == fs_c.empty) {
 	    return fs_value_plain("");
 	}

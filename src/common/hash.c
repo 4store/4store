@@ -92,6 +92,7 @@ void fs_hash_init(fsp_hash_enum type)
     fs_c.xsd_ushort = fs_hash_uri(XSD_NAMESPACE "unsignedShort");
     fs_c.xsd_ubyte = fs_hash_uri(XSD_NAMESPACE "unsignedByte");
     fs_c.lang_en = fs_hash_literal("en", 0);
+    fs_c.lang_en_gb = fs_hash_literal("en-GB", 0);
     fs_c.lang_fr = fs_hash_literal("fr", 0);
     fs_c.lang_de = fs_hash_literal("de", 0);
     fs_c.lang_es = fs_hash_literal("es", 0);
@@ -106,6 +107,23 @@ void fs_hash_init(fsp_hash_enum type)
     fs_c.fs_acl_admin = fs_hash_uri(FS_ACL_ADMIN);
     fs_c.fs_acl_access_by = fs_hash_uri(FS_ACL_ONLY_ACCESS_BY);
     fs_c.fs_acl_default_admin = fs_hash_literal(FS_ACL_DEFAULT_ADMIN,0);
+}
+
+const char * fs_hash_predefined_literal(fs_rid rid) {
+    if (rid == fs_c.lang_en) {
+        return "en";
+    } else if (rid == fs_c.lang_fr) {
+        return "fr";
+    } else if (rid == fs_c.lang_de) {
+        return "de";
+    } else if (rid == fs_c.lang_es) {
+        return "es";
+    } else if (rid == fs_c.lang_en_gb) {
+        return "en-GB";
+    } else if (rid == fs_c.empty) {
+        return "";
+    }
+    return NULL;
 }
 
 const char * fs_hash_predefined_uri(fs_rid rid) {
@@ -157,6 +175,7 @@ const char * fs_hash_predefined_uri(fs_rid rid) {
         return FS_SYSTEM_CONFIG;
     if (rid == fs_c.rdfs_label)
         return RDFS_LABEL;
+
     return NULL;
 }
 
@@ -307,6 +326,6 @@ gboolean fs_rid_equal(gconstpointer va, gconstpointer vb)
 
 
 struct fs_globals fs_global_constants(void) {
-    return fs_c; 
+    return fs_c;
 }
 /* vi:set ts=8 sts=4 sw=4: */

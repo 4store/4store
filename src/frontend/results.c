@@ -103,6 +103,8 @@ static int resolve(fs_query *q, fs_rid rid, fs_resource *res)
     }
 
     const char *lex_constant = fs_hash_predefined_uri(rid);
+    if (!lex_constant)
+        lex_constant = fs_hash_predefined_literal(rid);
     if (lex_constant) {
         res->lex = strdup(lex_constant);
         res->rid = rid;
