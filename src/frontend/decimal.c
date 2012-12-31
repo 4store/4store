@@ -311,6 +311,14 @@ static int decimal_less_than(const fs_decimal *a, const fs_decimal *b, int def)
         return 0;
     }
 
+    if ((a->flags & FS_D_NEGATIVE) && (b->flags & FS_D_NEGATIVE)) {
+        for (int i=0; i<FS_D_DIGITS; i++) {
+            if (a->digit[i] > b->digit[i]) return 1;
+            if (a->digit[i] < b->digit[i]) return 0;
+        }
+        return def;
+    }
+
     for (int i=0; i<FS_D_DIGITS; i++) {
         if (a->digit[i] < b->digit[i]) return 1;
         if (a->digit[i] > b->digit[i]) return 0;
@@ -327,6 +335,14 @@ static int decimal_greater_than(const fs_decimal *a, const fs_decimal *b, int de
         return 1;
     }
 
+    if ((a->flags & FS_D_NEGATIVE) && (b->flags & FS_D_NEGATIVE)) {
+        for (int i=0; i<FS_D_DIGITS; i++) {
+            if (a->digit[i] > b->digit[i]) return 0;
+            if (a->digit[i] < b->digit[i]) return 1;
+        }
+        return def;
+    }
+
     for (int i=0; i<FS_D_DIGITS; i++) {
         if (a->digit[i] < b->digit[i]) return 0;
         if (a->digit[i] > b->digit[i]) return 1;
@@ -334,6 +350,7 @@ static int decimal_greater_than(const fs_decimal *a, const fs_decimal *b, int de
 
     return def;
 }
+
 int fs_decimal_less_than(const fs_decimal *a, const fs_decimal *b)
 {
     return decimal_less_than(a, b, 0);
@@ -536,8 +553,8 @@ int fs_decimal_divide(const fs_decimal *n, const fs_decimal *d, fs_decimal *q)
         /* otherwise, don't know where to start, use 1.0 */
         x = d1_val;
     }
-   
-    fs_decimal last = zero_val; 
+
+    fs_decimal last = zero_val;
 
     /* if it hasn't converged after 30 iterations it usually doesn't */
     for (int i=0; i<30; i++) {
