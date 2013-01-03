@@ -29,16 +29,20 @@ int main()
 
 	double then = fs_time();
     fs_rid_set *set = fs_rid_set_new();
-
+   // int entries = 2048 * 10;
+    int entries = 10;
+    for (int i=1; i <= entries; i++) {
+        fs_rid_set_add(set, i);
+          if ((i % 2 == 0) || (i % 5 == 0))
+          fs_rid_set_add(set, i);
+    }
+/*
     fs_rid_set_add(set, 4095);
     fs_rid_set_add(set, 4094);
     printf("contains(%d) -> %d\n",4095,fs_rid_set_contains(set, 4095));
     printf("contains(%d) -> %d\n",4094,fs_rid_set_contains(set, 4094));
 
     return 0;
-    int entries = 2048 * 10;
-    for (int i=0; i < entries; i++)
-        fs_rid_set_add(set, i);
     for (int i=0; i < entries; i++) {
         if (!fs_rid_set_contains(set, i))
             printf("%d not there!\n",i);
@@ -47,7 +51,7 @@ int main()
         if (fs_rid_set_contains(set, i))
             printf("%d there!\n",i);
     }
-
+*/
 	double now = fs_time();
 
     fs_rid d = FS_RID_NULL;
@@ -55,8 +59,8 @@ int main()
     fs_rid_set_rewind(set);
     int count =0;
     while ((d = fs_rid_set_next(set)) != FS_RID_NULL) {
-        //printf("value %d \n",(int)d);
-        count ++;
+        count = count + 1;
+        printf("%d value %d \n",count,(int)d);
     }
     printf("Count match %d\n",entries == count);
     fs_rid_set_free(set);

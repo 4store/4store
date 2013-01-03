@@ -468,8 +468,13 @@ void fs_rid_set_add(fs_rid_set *s, fs_rid val)
 	return;
     }
     while (e->next) {
-	if (e->val == val) return;
+	if (e->val == val) {
+            return;
+        }
 	e = e->next;
+    }
+    if (e->val != FS_RID_NULL) {
+        if (e->val == val) return;
     }
 
     struct rid_entry *ne = calloc(1, sizeof(struct rid_entry));
