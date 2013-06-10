@@ -466,6 +466,7 @@ int fs_update(fs_query_state *qs, char *update, char **message, int unsafe)
     }
     fsp_res_import_commit_all(qs->link);
     fsp_quad_import_commit_all(qs->link, FS_BIND_BY_SUBJECT);
+    fsp_stop_import_all(qs->link);
 
     rasqal_free_query(rq);
 
