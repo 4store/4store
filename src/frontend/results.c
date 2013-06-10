@@ -698,8 +698,14 @@ fs_value fs_expression_eval(fs_query *q, int row, int block, rasqal_expression *
             if (fs_is_error(v)) {
                 g_string_free(concat, TRUE);
 
-                return v;
+                return fs_value_error(FS_ERROR_INVALID_TYPE, NULL);
             }
+            if (v.rid == FS_RID_NULL) {
+                g_string_free(concat, TRUE);
+
+                return fs_value_error(FS_ERROR_INVALID_TYPE, NULL);
+            }
+
             v = fs_value_fill_lexical(q, v);
             g_string_append(concat, v.lex);
         }
