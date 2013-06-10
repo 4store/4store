@@ -572,7 +572,7 @@ fs_value fs_value_fill_lexical(fs_query *q, fs_value a)
 	}
     }
 
-    return fs_value_error(FS_ERROR_INVALID_TYPE, "bad lexical cast");
+    return fs_value_error(FS_ERROR_INVALID_TYPE, "¡bad lexical cast!");
 }
 
 fs_value fs_value_fill_rid(fs_query *q, fs_value a)
