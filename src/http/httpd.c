@@ -1203,6 +1203,7 @@ static void http_post_request(client_ctxt *ctxt, gchar *url, gchar *protocol)
       http_error(ctxt, "400 4store only implements application/x-www-form-urlencoded");
       http_close(ctxt);
       g_free(form_type);
+      fs_error(LOG_ERR, "received Content-Type of '%s', expecting 'application/x-www-form-urlencoded'", form_type);
       return;
     }
     g_free(form_type);
