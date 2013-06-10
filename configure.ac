@@ -5,7 +5,7 @@ AC_PREREQ([2.50])
 AC_INIT([4store], m4_esyscmd([./version.sh .version]), [http://4store.org/support/], [4store])
 AC_CONFIG_SRCDIR([src/backend/backend-intl.h])
 AM_INIT_AUTOMAKE([1.7 std-options -Wall])
-AM_CONFIG_HEADER(4store-config.h)
+AC_CONFIG_HEADERS(4store-config.h)
 
 # Checks for programs.
 AC_PROG_LIBTOOL
