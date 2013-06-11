@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+
+# tests PREFIX, numbers in var names and single OPTIONAL triple with unbound
+# results, multiple result rows for repeated predicates and FILTER inside
+# OPTIONAL
+
+$TESTPATH/frontend/4s-query $CONF $1 '
+PREFIX foaf: <http://xmlns.com/foaf/0.1/>
+SELECT DISTINCT ?x ?o
+WHERE { ?x foaf:knows ?o .
+        FILTER(REGEX(str(?o), "i")) } LIMIT 10 OFFSET 2
+' | sort
