@@ -2629,7 +2629,7 @@ nextrow: ;
                     q->offset_aggregate--;
                     q->agg_index++;
                 }
-                if (q->limit >= 0 && q->rows_output >= q->limit) {
+                if (q->limit >= 0 && q->rows_output >= (q->offset + q->limit)) {
                     if (grows) fs_rid_vector_free(grows);
                     return NULL;
                 }
@@ -2715,7 +2715,7 @@ nextrow: ;
     }
 
     const int rows = q->length;
-    if (!q->aggregate_order && q->limit >= 0 && q->rows_output >= q->limit) {
+    if (!q->aggregate_order && q->limit >= 0 && q->rows_output >= (q->offset + q->limit)) {
         if (grows) fs_rid_vector_free(grows);
         return NULL;
     }
@@ -2767,10 +2767,11 @@ nextrow: ;
                 return NULL;
             }
             q->row = next_row;
-            if (!q->aggregate)
+            if (!q->aggregate) {
                 goto nextrow;
-            else {
-                if(!q->apply_constraints) q->apply_constraints = fs_new_bit_array(q->group_length);
+            } else {
+                if(!q->apply_constraints) 
+                    q->apply_constraints = fs_new_bit_array(q->group_length);
                 fs_bit_array_set(q->apply_constraints,row_agg,0);
             }
         } else if (q->aggregate) {
@@ -2872,8 +2873,14 @@ nextrow: ;
     }
 
     q->row = next_row;
-    if (!q->aggregate_order)
+    if (!q->aggregate_order) {
+        if (q->rows_output < q->offset) {
+            q->rows_output++;
+            q->row = next_row;
+            goto nextrow;
+        }
         q->rows_output++;
+    }
     if (grows) fs_rid_vector_free(grows);
 
     if (!q->group_by && q->aggregate) {

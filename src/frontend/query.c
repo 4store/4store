@@ -653,7 +653,12 @@ fs_query *fs_query_execute(fs_query_state *qs, fsp_link *link, raptor_uri *bu, c
             (q->row)++;
         }
     } else {
-        q->row = q->offset;
+        int constraints = 0;
+        for (int block = 1; block <= q->block; block++) {
+            if (!q->constraints[block]) constraints++; 
+        }
+        if (!constraints)
+            q->row = q->offset;
     }
 
     if (q->row < 0) q->row = 0;
