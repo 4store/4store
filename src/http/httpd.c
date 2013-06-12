@@ -420,6 +420,8 @@ static void http_query_worker(gpointer data, gpointer user_data)
     }
     fs_query_results_output(ctxt->qr, type, flags, fp);
     rows_returned = ctxt->qr->rows_output;
+    if (ctxt->qr->offset > 0)
+      rows_returned -= ctxt->qr->offset;
     fs_query_free(ctxt->qr);
     ctxt->qr = NULL;
     free(ctxt->query_string);
