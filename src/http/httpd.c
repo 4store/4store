@@ -397,6 +397,9 @@ static void http_query_worker(gpointer data, gpointer user_data)
 
     if (ctxt->output) {
       type = ctxt->output;
+      if (!strcmp(type, "xml")) {
+        type = "sparql";
+      }
     } else if ((ctxt->qr->construct || ctxt->qr->describe) && accept && strstr(accept, "text/turtle")) {
       type = "text";
       fprintf(fp, "Content-Type: text/turtle\r\n\r\n");
