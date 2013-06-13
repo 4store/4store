@@ -1,16 +1,17 @@
-#!/usr/bin/env perl -w
+#!/usr/bin/env perl
 
 use IPC::Open2;
 use Digest::MD5 'md5_hex';
 use File::Path;
 use Net::HTTP;
 use URI::Escape;
+use strict;
 
-$outdir = "data";
-$force = 0;
-$all = 0;
-@graphs = ();
-$help = 0;
+my $outdir = "data";
+my $force = 0;
+my $all = 0;
+my @graphs = ();
+my $help = 0;
 
 if ($ARGV[0] && $ARGV[0] eq '--version') {
 	print("unknown\n");
@@ -20,9 +21,9 @@ if ($ARGV[0] && $ARGV[0] eq '--version') {
 	exit(0);
 }
 
-$endpoint = shift;
+my $endpoint = shift;
 
-while ($arg = shift) {
+while (my $arg = shift) {
 	if ($arg eq '-o') {
 		$outdir = shift;
 		$help = 1 if !$outdir;
@@ -57,23 +58,23 @@ if ($all) {
 	}
 }
 
-for $uri (@graphs) {
+for my $uri (@graphs) {
 	$uri =~ s/^\s*<//g;
 	$uri =~ s/>\s*$//g;
 	my $file = md5_hex($uri);
 	$file =~ s/^(..)(..)(.*)/$outdir\/$1\/$2\/$3/;
 	print("Export $uri\n   to $file\n");
-	$dir = "$outdir/$1/$2";
+	my $dir = "$outdir/$1/$2";
         File::Path::mkpath($dir);
 	open(DATA, '>', $file) || die "cannot create $file: $!";
 	print(DATA "## GRAPH $uri\n");
-	$res = sparql_query($endpoint, "CONSTRUCT { ?x ?y ?z } WHERE { GRAPH <$uri> { ?x ?y ?z } }", -1);
+	my $res = sparql_query($endpoint, "CONSTRUCT { ?x ?y ?z } WHERE { GRAPH <$uri> { ?x ?y ?z } }", -1);
 	print(DATA $res);
 	close(DATA);
 }
 
 sub sparql_query {
-	local($uri, $tquery, $limit) = @_;
+	my($uri, $tquery, $limit) = @_;
 
 	if (!$uri) {
 		warn "sparql_query() called without endpoint";
@@ -94,7 +95,7 @@ sub sparql_query {
 			return ();
 		}
 		$query = uri_escape($tquery);
-		$qpath = $path."?query=".$query;
+		my $qpath = $path."?query=".$query;
 		if ($limit) {
 			$qpath .= '&soft-limit='.$limit;
 		}
@@ -128,8 +129,8 @@ sub sparql_query {
 	my @retrows = ();
 	my $errors = 0;
 	if ($tsv) {
-		@rows = split("\n", $ret);
-		$header = shift @rows;
+		my @rows = split("\n", $ret);
+		my $header = shift @rows;
 		if (!$header) {
 			warn("no header from query");
 			return ();
