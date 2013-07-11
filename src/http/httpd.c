@@ -55,7 +55,7 @@
 
 #define IS_CORS(ctxt) (cors_support && \
   (ctxt->method == FS_HTTP_HEAD || ctxt->method == FS_HTTP_OPTIONS \
-   || ctxt->method == FS_HTTP_GET) && \
+   || ctxt->method == FS_HTTP_POST || ctxt->method == FS_HTTP_GET) && \
   g_hash_table_lookup(ctxt->headers, "origin"))
 
 /* file globals */
