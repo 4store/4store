@@ -51,7 +51,7 @@ if (!$force && -d $outdir) {
 }
 
 if ($all) {
-	my $res = sparql_query($endpoint, "SELECT DISTINCT ?g WHERE { GRAPH ?g { ?x ?y ?z } }", -1);
+	my $res = sparql_query(undef, $endpoint, "SELECT DISTINCT ?g WHERE { GRAPH ?g { ?x ?y ?z } }", -1);
 	my $r;
 	for $r (@{ $res }) {
 		push(@graphs, $r->{'g'});
@@ -62,19 +62,19 @@ for my $uri (@graphs) {
 	$uri =~ s/^\s*<//g;
 	$uri =~ s/>\s*$//g;
 	my $file = md5_hex($uri);
+	my $fh;
 	$file =~ s/^(..)(..)(.*)/$outdir\/$1\/$2\/$3/;
 	print("Export $uri\n   to $file\n");
 	my $dir = "$outdir/$1/$2";
         File::Path::mkpath($dir);
-	open(DATA, '>', $file) || die "cannot create $file: $!";
-	print(DATA "## GRAPH $uri\n");
-	my $res = sparql_query($endpoint, "CONSTRUCT { ?x ?y ?z } WHERE { GRAPH <$uri> { ?x ?y ?z } }", -1);
-	print(DATA $res);
-	close(DATA);
+	open($fh, '>', $file) || die "cannot create $file: $!";
+	print($fh "## GRAPH $uri\n");
+	my $res = sparql_query($fh, $endpoint, "CONSTRUCT { ?x ?y ?z } WHERE { GRAPH <$uri> { ?x ?y ?z } }", -1);
+	close($fh);
 }
 
 sub sparql_query {
-	my($uri, $tquery, $limit) = @_;
+	my($fileHandle, $uri, $tquery, $limit) = @_;
 
 	if (!$uri) {
 		warn "sparql_query() called without endpoint";
@@ -116,10 +116,15 @@ sub sparql_query {
 
 		while (1) {
 			my $buf;
-			my $n = $s->read_entity_body($buf, 1024);
+			my $n = $s->read_entity_body($buf, 32768);
 			warn "read failed: $!" unless defined $n;
 			last unless $n;
-			$ret .= $buf;
+			if(defined $fileHandle) {
+				print($fileHandle $buf);  
+			} else {
+				$ret .= $buf;
+			}
+			
 		}
 	} else {
 		warn "unexpected URI form '$uri'";
