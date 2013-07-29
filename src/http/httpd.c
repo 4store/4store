@@ -416,6 +416,8 @@ static void http_query_worker(gpointer data, gpointer user_data)
       type = "text";
     } else if (accept && strstr(accept, "application/n-triples")) {
       type = "text";
+      fprintf(fp, "Content-Type: application/n-triples\r\n\r\n");
+      flags = 0;
     } else if (accept && strstr(accept, "text/csv")) {
       type = "csv";
     } else if (accept && strstr(accept, "text/plain")) {
