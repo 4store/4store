@@ -414,6 +414,8 @@ static void http_query_worker(gpointer data, gpointer user_data)
       type = "json";
     } else if (accept && strstr(accept, "text/tab-separated-values")) {
       type = "text";
+    } else if (accept && strstr(accept, "application/n-triples")) {
+      type = "text";
     } else if (accept && strstr(accept, "text/csv")) {
       type = "csv";
     } else if (accept && strstr(accept, "text/plain")) {
