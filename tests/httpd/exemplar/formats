@@ -15,6 +15,7 @@ Query: SELECT * WHERE { GRAPH ?g { ?x ?y ?z } } ORDER BY ?x ?y ?z ?g
 <http://example.org/test1>	<test:a>	<test:b>	"turtle"
 <http://example.org/test1.ttl>	<test:a>	<test:b>	"turtle"
 <http://example.org/test1>	<test:x>	<test:y>	"ntriples"
+<http://example.org/test1.nt>	<test:x>	<test:y>	"ntriples"
 <http://example.org/test1>	<test:x>	<test:y>	"rdfxml"
 <http://example.org/test1.rdf>	<test:x>	<test:y>	"rdfxml"
 200 deleted successfully
