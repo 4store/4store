@@ -15,11 +15,11 @@ datatypestest_LDADD = lib4sintl.a @GLIB_LIBS@
 hashtest_SOURCES = hashtest.c
 hashtest_LDADD = lib4sintl.a @GLIB_LIBS@
 
-lib4sintl_a_SOURCES = 4s-common.c 4s-client.c 4s-server.c 4s-mdns.c datatypes.c error.c umac.c rijndael-alg-fst.c md5.c hash.c ../admin/admin_common.c ../admin/admin_protocol.c ../admin/admin_frontend.c  bit_arr.c
+lib4sintl_a_SOURCES = 4s-common.c 4s-store-root.c 4s-client.c 4s-server.c 4s-mdns.c datatypes.c error.c umac.c rijndael-alg-fst.c md5.c hash.c ../admin/admin_common.c ../admin/admin_protocol.c ../admin/admin_frontend.c  bit_arr.c
 
 libsort_a_SOURCES = msort.c qsort.c
 
 lib_LTLIBRARIES = lib4store.la
-lib4store_la_SOURCES = 4s-common.c 4s-client.c 4s-mdns.c datatypes.c error.c umac.c rijndael-alg-fst.c md5.c hash.c  bit_arr.c
+lib4store_la_SOURCES = 4s-common.c 4s-store-root.c 4s-client.c 4s-mdns.c datatypes.c error.c umac.c rijndael-alg-fst.c md5.c hash.c  bit_arr.c
 lib4store_la_CFLAGS = $(AM_CFLAGS)
 lib4store_la_LIBADD = @GLIB_LIBS@

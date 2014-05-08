@@ -30,13 +30,14 @@
 
 #include "../common/error.h"
 #include "../common/params.h"
+#include "../common/4s-store-root.h"
 
 /* returns the free disk space (in GB) remaining in the filesystem used by the
  * storage system */
 float fs_free_disk_gb(const char *kb)
 {
     struct statfs buf;
-    char *mdfn = g_strdup_printf(FS_MD_FILE, kb);
+    char *mdfn = g_strdup_printf(fs_get_md_file_format(), kb);
 
     if (statfs(mdfn, &buf) == -1) {
         fs_error(LOG_ERR, "cannot statfs('%s'): %s", mdfn, strerror(errno));
@@ -54,7 +55,7 @@ float fs_free_disk_gb(const char *kb)
 float fs_free_disk(const char *kb)
 {
     struct statfs buf;
-    char *mdfn = g_strdup_printf(FS_MD_FILE, kb);
+    char *mdfn = g_strdup_printf(fs_get_md_file_format(), kb);
 
     if (statfs(mdfn, &buf) == -1) {
         fs_error(LOG_ERR, "cannot statfs('%s'): %s", mdfn, strerror(errno));

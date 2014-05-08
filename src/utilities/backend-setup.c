@@ -37,6 +37,7 @@
 #include "../common/4store.h"
 #include "../common/error.h"
 #include "../common/params.h"
+#include "../common/4s-store-root.h"
 #include "../common/md5.h"
 #include "../backend/backend.h"
 #include "../backend/metadata.h"
@@ -197,7 +198,7 @@ void create_dir(kbconfig *config)
     char *tmp;
 
     LOG(1, "Creating data directory");
-    tmp = g_strdup_printf("%s/%s", FS_STORE_ROOT, config->name);
+    tmp = g_strdup_printf("%s/%s", fs_get_store_root(), config->name);
     if (mkdir(tmp, 0755)) {
 	if (errno != EEXIST) {
 	    fprintf(stderr, "Failed to create store directory '%s': %s\n", 
@@ -210,7 +211,7 @@ void create_dir(kbconfig *config)
     LOG(1, "Create segment directories");
     for (int i=0; i<config->segments; i++) {
 	if (!uses_segment(config, i)) continue;
-	tmp = g_strdup_printf("%s/%s/%04x", FS_STORE_ROOT, config->name, i);
+	tmp = g_strdup_printf("%s/%s/%04x", fs_get_store_root(), config->name, i);
 	if (mkdir(tmp, 0755)) {
 	    if (errno != EEXIST) {
 		fprintf(stderr, "Failed to create store directory '%s': %s\n", 
@@ -228,7 +229,7 @@ void create_dir(kbconfig *config)
 	fs_backend_cleanup_files(be);
 	fs_backend_close_files(be, i);
 	/* create directories for model indexes */
-	tmp = g_strdup_printf("%s/%s/%04x/m", FS_STORE_ROOT,
+	tmp = g_strdup_printf("%s/%s/%04x/m", fs_get_store_root(),
 			      config->name, i);
 	mkdir(tmp, 0755);
 	g_free(tmp);
@@ -241,7 +242,7 @@ void erase_db(kbconfig *config)
     for (int i=0; i < config->segments; i++) {
         if (!uses_segment(config, i)) continue;
 	// TODO cleaner delete method, but this is only an admin operation
-        char *command = g_strdup_printf("rm -rf %s/%s/", FS_STORE_ROOT, config->name);
+        char *command = g_strdup_printf("rm -rf %s/%s/", fs_get_store_root(), config->name);
 	system(command);
 	g_free(command);
     }

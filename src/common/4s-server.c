@@ -23,6 +23,7 @@
 #include "4s-internals.h"
 #include "error.h"
 #include "params.h"
+#include "4s-store-root.h"
 
 #include <errno.h>
 #include <stdlib.h>
@@ -365,7 +366,7 @@ static int init_runtime_info(const char *kb_name, const char *cport)
     struct flock ri_lock;
 
     /* alloc mem for string path to runtime.info */
-    len = (strlen(FS_RI_FILE)-2) + strlen(kb_name) + 1;
+    len = (strlen(fs_get_ri_file_format())-2) + strlen(kb_name) + 1;
     path = (char *)malloc(len * sizeof(char));
     if (path == NULL) {
         kb_error(LOG_CRIT, "failed to malloc %d bytes", len);
@@ -373,7 +374,7 @@ static int init_runtime_info(const char *kb_name, const char *cport)
     }
 
     /* generate full path to runtime.info */
-    rv = sprintf(path, FS_RI_FILE, kb_name);
+    rv = sprintf(path, fs_get_ri_file_format(), kb_name);
     if (rv < 0) {
         kb_error(LOG_ERR, "sprintf failed to write %d bytes", len);
         free(path);

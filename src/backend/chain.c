@@ -33,13 +33,14 @@
 #include "bucket.h"
 #include "chain.h"
 #include "../common/params.h"
+#include "../common/4s-store-root.h"
 #include "../common/error.h"
 
 #define CHAIN_ID 0x4a584230
 
 static char *fname_from_label(fs_backend *be, const char *label)
 {
-    return g_strdup_printf(FS_CHAIN, fs_backend_get_kb(be), fs_backend_get_segment(be), label);
+  return g_strdup_printf(fs_get_chain_format(), fs_backend_get_kb(be), fs_backend_get_segment(be), label);
 }
 
 static int unmap_bc(fs_chain *bc)

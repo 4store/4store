@@ -28,10 +28,11 @@
 
 #include "lock.h"
 #include "../common/error.h"
+#include "../common/4s-store-root.h"
 
 int fs_lock_kb(const char *kb)
 {
-    char *fn = g_strdup_printf(FS_MD_FILE, kb);
+    char *fn = g_strdup_printf(fs_get_md_file_format(), kb);
     int fd = open(fn, FS_O_NOATIME | O_RDONLY | O_CREAT, 0600);
     if (fd == -1) {
         fs_error(LOG_CRIT, "failed to open metadata file %s for locking: %s",
@@ -56,7 +57,7 @@ int fs_lock_kb(const char *kb)
 
 int fs_lock(fs_backend *be, const char *name, fs_lock_action action, int block)
 {
-    char *fn = g_strdup_printf(FS_FILE_LOCK, fs_backend_get_kb(be), fs_backend_get_segment(be), name);
+    char *fn = g_strdup_printf(fs_get_file_lock_format(), fs_backend_get_kb(be), fs_backend_get_segment(be), name);
     int ret = -1;
     int fd;
 
@@ -99,7 +100,7 @@ int fs_lock(fs_backend *be, const char *name, fs_lock_action action, int block)
 int fs_lock_taken(fs_backend *be, const char *name)
 {
     struct stat junk;
-    char *fn = g_strdup_printf(FS_FILE_LOCK, fs_backend_get_kb(be), fs_backend_get_segment(be), name);
+    char *fn = g_strdup_printf(fs_get_file_lock_format(), fs_backend_get_kb(be), fs_backend_get_segment(be), name);
     int ret = stat(fn, &junk);
     g_free(fn);
     if (ret == -1 && errno == ENOENT) {

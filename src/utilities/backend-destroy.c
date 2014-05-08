@@ -33,6 +33,7 @@
 #include "../common/4store.h"
 #include "../common/error.h"
 #include "../common/params.h"
+#include "../common/4s-store-root.h"
 
 static int dummy = 0;
 
@@ -112,19 +113,31 @@ int main(int argc, char *argv[])
     char lexf[PATH_MAX + 1];
     lexf[PATH_MAX] = '\0';
     int unlinked = 0, errs = 0;
+    gchar *rm_seg_dir_format = g_strconcat("rm -rf ",
+					   fs_get_seg_dir_format(),
+					   "*",
+					   NULL);
     for (fs_segment segment = 0; segment < FS_MAX_SEGMENTS; ++segment)  {
-        snprintf(lexf, PATH_MAX, "rm -rf " FS_SEG_DIR "*", name, segment);
+        snprintf(lexf, PATH_MAX, rm_seg_dir_format, name, segment);
         system(lexf);
-        snprintf(lexf, PATH_MAX, FS_SEG_DIR, name, segment);
+        snprintf(lexf, PATH_MAX, fs_get_seg_dir_format(), name, segment);
         unlinked += delete_it(lexf, &errs);
     }
-    snprintf(lexf, PATH_MAX, FS_KB_DIR "metadata.nt", name);
+    g_free(rm_seg_dir_format);
+
+    gchar *metadata_nt_format = g_strconcat(fs_get_kb_dir_format(), "metadata.nt", NULL);
+    snprintf(lexf, PATH_MAX, metadata_nt_format, name);
     unlinked += delete_it(lexf, &errs);
-    snprintf(lexf, PATH_MAX, FS_KB_DIR "runtime.info", name);
+    g_free(metadata_nt_format);
+    gchar *runtime_info_format = g_strconcat(fs_get_kb_dir_format(), "runtime.info", NULL);
+    snprintf(lexf, PATH_MAX, runtime_info_format, name);
     unlinked += delete_it(lexf, &errs);
-    snprintf(lexf, PATH_MAX, FS_KB_DIR "backup", name);
+    g_free(runtime_info_format);
+    gchar *backup_format = g_strconcat(fs_get_kb_dir_format(), "backup", NULL);
+    snprintf(lexf, PATH_MAX, backup_format, name);
     unlinked += delete_it(lexf, &errs);
-    snprintf(lexf, PATH_MAX, FS_KB_DIR, name);
+    g_free(backup_format);
+    snprintf(lexf, PATH_MAX, fs_get_kb_dir_format(), name);
     unlinked += delete_it(lexf, &errs);
 
     if (unlinked > 0 && !errs) fs_error(LOG_INFO, "deleted data files for KB %s", name);
