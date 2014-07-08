@@ -1297,12 +1297,14 @@ static void http_post_request(client_ctxt *ctxt, gchar *url, gchar *protocol)
     g_free(form);
 
   } else if (!strcmp(url, "/update/")) {
-    const char *form_type = g_hash_table_lookup(ctxt->headers, "content-type");
+    char *form_type = just_content_type(ctxt);
     if (!form_type || strcasecmp(form_type, "application/x-www-form-urlencoded")) {
       http_error(ctxt, "400 4store only implements application/x-www-form-urlencoded");
       http_close(ctxt);
+      g_free(form_type);
       return;
     }
+    g_free(form_type);
 
     const char *length = g_hash_table_lookup(ctxt->headers, "content-length");
     ctxt->bytes_left = length ? atol(length) : 0;
