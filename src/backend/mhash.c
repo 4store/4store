@@ -31,6 +31,7 @@
 #include "mhash.h"
 #include "tbchain.h"
 #include "../common/params.h"
+#include "../common/4s-store-root.h"
 #include "../common/error.h"
 
 #define FS_MHASH_DEFAULT_LENGTH         4096
@@ -72,7 +73,7 @@ static int fs_mhash_write_header(fs_mhash *mh);
 
 fs_mhash *fs_mhash_open(fs_backend *be, const char *label, int flags)
 {
-    char *filename = g_strdup_printf(FS_MHASH, fs_backend_get_kb(be),
+    char *filename = g_strdup_printf(fs_get_mhash_format(), fs_backend_get_kb(be),
                                      fs_backend_get_segment(be), label);
     fs_mhash *mh = fs_mhash_open_filename(filename, flags);
     g_free(filename);

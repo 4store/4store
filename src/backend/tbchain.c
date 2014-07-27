@@ -31,6 +31,7 @@
 #include "tbchain.h"
 #include "ptree.h"
 #include "../common/params.h"
+#include "../common/4s-store-root.h"
 #include "../common/error.h"
 #include "../common/timing.h"
 
@@ -92,7 +93,7 @@ static fs_index_node fs_tbchain_new_block(fs_tbchain *bc);
 
 static char *fname_from_label(fs_backend *be, const char *label)
 {
-    return g_strdup_printf(FS_TBCHAIN, fs_backend_get_kb(be), fs_backend_get_segment(be), label);
+    return g_strdup_printf(fs_get_tbchain_format(), fs_backend_get_kb(be), fs_backend_get_segment(be), label);
 }
 
 static int unmap_bc(fs_tbchain *bc)

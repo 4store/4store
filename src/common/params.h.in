@@ -42,27 +42,8 @@
 /* enables profiling of write() times in import clients */
 #define FS_PROFILE_WRITE
 
-#define FS_STORE_ROOT "@FS_STORE_ROOT@"
-#define FS_KB_DIR     FS_STORE_ROOT "/%s/"
-#define FS_MD_FILE    FS_STORE_ROOT "/%s/metadata.nt"
-#define FS_RI_FILE    FS_STORE_ROOT "/%s/runtime.info"
-#define FS_SEG_DIR    FS_STORE_ROOT "/%s/%04x/"
-#define FS_FILE_LOCK  FS_STORE_ROOT "/%s/%04x/%s.lock"
-#define FS_LEX        FS_STORE_ROOT "/%s/%04x/lex.dat"
-#define FS_CHAIN      FS_STORE_ROOT "/%s/%04x/%s.chain"
-#define FS_TREE       FS_STORE_ROOT "/%s/%04x/%s.tree"
-#define FS_LIST       FS_STORE_ROOT "/%s/%04x/%s.list"
-#define FS_QLIST      FS_STORE_ROOT "/%s/%04x/%s.qlist"
-#define FS_TLIST      FS_STORE_ROOT "/%s/%04x/m/%016llx.tlist"
-#define FS_TLIST_ALL  FS_STORE_ROOT "/%s/%04x/m/*.tlist"
-#define FS_TLIST_DIR  FS_STORE_ROOT "/%s/%04x/m/%c%c/%c%c/%s.tlist"
-#define FS_TLIST_DIRD FS_STORE_ROOT "/%s/%04x/m/%c%c/%c%c"
-#define FS_SLIST      FS_STORE_ROOT "/%s/%04x/%s.slist"
-#define FS_RHASH      FS_STORE_ROOT "/%s/%04x/%s.rhash"
-#define FS_MHASH      FS_STORE_ROOT "/%s/%04x/%s.mhash"
-#define FS_PTREE      FS_STORE_ROOT "/%s/%04x/p%c-%016llx.ptree"
-#define FS_PTABLE     FS_STORE_ROOT "/%s/%04x/%s.ptable"
-#define FS_TBCHAIN    FS_STORE_ROOT "/%s/%04x/%s.tbchain"
+#define FS_DEFAULT_STORE_ROOT "@FS_DEFAULT_STORE_ROOT@"
+#define FS_STORE_ROOT_ENV_VAR "FS_STORE_ROOT"
 
 #define FS_CONFIG_FILE              "@FS_CONFIG_FILE@"
 

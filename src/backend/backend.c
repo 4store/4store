@@ -31,6 +31,7 @@
 #include "../common/uuid.h"
 #include "../common/error.h"
 #include "../common/params.h"
+#include "../common/4s-store-root.h"
 #include "../common/timing.h"
 #include "backend.h"
 #include "import-backend.h"
@@ -703,7 +704,11 @@ int fs_backend_unlink_indexes(fs_backend *be, fs_segment seg)
     }
 
     /* TODO remove TList support or cleaner impl. here */
-    char *command = g_strdup_printf("rm -f "FS_TLIST_ALL, be->db_name, be->segment);
+    gchar *command_format = g_strconcat("rm -f ",
+					fs_get_tlist_all_format(),
+					NULL);
+    char *command = g_strdup_printf(command_format, be->db_name, be->segment);
+    g_free(command_format);
     system(command);
     g_free(command);
 

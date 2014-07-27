@@ -34,6 +34,7 @@
 #include "list.h"
 #include "prefix-trie.h"
 #include "../common/4s-hash.h"
+#include "../common/4s-store-root.h"
 #include "../common/params.h"
 #include "../common/error.h"
 
@@ -126,7 +127,7 @@ static char *uncompress_bcdate(unsigned char *bcd);
 
 fs_rhash *fs_rhash_open(fs_backend *be, const char *label, int flags)
 {
-    char *filename = g_strdup_printf(FS_RHASH, fs_backend_get_kb(be),
+    char *filename = g_strdup_printf(fs_get_rhash_format(), fs_backend_get_kb(be),
                                      fs_backend_get_segment(be), label);
     fs_rhash *rh = fs_rhash_open_filename(filename, flags);
     g_free(filename);

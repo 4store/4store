@@ -33,6 +33,7 @@
 #include "../common/4s-datatypes.h"
 #include "../common/4s-hash.h"
 #include "../common/params.h"
+#include "../common/4s-store-root.h"
 #include "../common/error.h"
 
 #define FS_PTREE_ID 0x4a585031
@@ -120,7 +121,7 @@ int fs_ptree_grow_leaves(fs_ptree *pt);
 
 fs_ptree *fs_ptree_open(fs_backend *be, fs_rid pred, char pk, int flags, fs_ptable *chain)
 {
-    char *filename = g_strdup_printf(FS_PTREE, fs_backend_get_kb(be),
+    char *filename = g_strdup_printf(fs_get_ptree_format(), fs_backend_get_kb(be),
                                      fs_backend_get_segment(be), pk, pred);
     fs_ptree *pt = fs_ptree_open_filename(filename, flags, chain);
     g_free(filename);

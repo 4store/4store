@@ -28,6 +28,7 @@
 #include <syslog.h>
 
 #include "../common/params.h"
+#include "../common/4s-store-root.h"
 #include "../common/error.h"
 #include "metadata.h"
 
@@ -62,10 +63,15 @@ static void parse_stmt(void *user_data, raptor_statement *statement)
 fs_metadata *fs_metadata_open(const char *kb)
 {
     fs_metadata *m = calloc(1, sizeof(fs_metadata));
+    gchar *fs_md_file_uri_format;
+    fs_md_file_uri_format = g_strconcat("file://",
+					fs_get_md_file_format(),
+					NULL);
     m->size = 16;
     m->length = 0;
     m->entries = calloc(m->size, sizeof(struct m_entry));
-    m->uri = g_strdup_printf("file://"FS_MD_FILE, kb);
+    m->uri = g_strdup_printf(fs_md_file_uri_format, kb);
+    g_free(fs_md_file_uri_format);
 
     int fd;
     if ((fd = open(m->uri + 7, FS_O_NOATIME | O_CREAT, FS_FILE_MODE)) == -1) {

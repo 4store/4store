@@ -38,6 +38,7 @@
 #include "../common/4store.h"
 #include "../common/error.h"
 #include "../common/params.h"
+#include "../common/4s-store-root.h"
 
 #include "../backend/metadata.h"
 
@@ -106,8 +107,11 @@ int main(int argc, char *argv[])
     }
 
     char lexf[PATH_MAX + 1];
+    /* this has no trailing slash, unlike fs_get_kb_dir_format() */
+    gchar *lexf_format = g_strconcat(fs_get_store_root(), "/%s", NULL);
     lexf[PATH_MAX] = '\0';
-    snprintf(lexf, PATH_MAX, FS_STORE_ROOT "/%s", tokb);
+    snprintf(lexf, PATH_MAX, lexf_format, tokb);
+    g_free(lexf_format);
 
     int result = mkdir(lexf, 0777);
     if (result) {
@@ -119,11 +123,20 @@ int main(int argc, char *argv[])
       return 3;
     }
 
-    snprintf(lexf, PATH_MAX, "cp -a " FS_KB_DIR "* " FS_STORE_ROOT "/%s", fromkb, tokb);
+    lexf_format = g_strconcat("cp -a ",
+			      fs_get_kb_dir_format(),
+			      "* ",
+			      fs_get_store_root(),
+			      "/%s",
+			      NULL);
+    snprintf(lexf, PATH_MAX, lexf_format, fromkb, tokb);
     if (verbosity) printf("executing %s\n", lexf);
     if (system(lexf)) {
       fs_error(LOG_ERR, "problem while copying data files from “%s” to “%s”", fromkb, tokb);
+      g_free(lexf_format);
       return 4;
+    } else {
+	g_free(lexf_format);
     }
 
     /* fix up */

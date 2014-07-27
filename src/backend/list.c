@@ -32,6 +32,7 @@
 #include "lock.h"
 #include "../common/error.h"
 #include "../common/timing.h"
+#include "../common/4s-store-root.h"
 
 #define LIST_BUFFER_SIZE 256
 
@@ -63,7 +64,7 @@ struct _fs_list {
 
 fs_list *fs_list_open(fs_backend *be, const char *label, size_t width, int flags)
 {
-    char *filename = g_strdup_printf(FS_LIST, fs_backend_get_kb(be), fs_backend_get_segment(be), label);
+  char *filename = g_strdup_printf(fs_get_list_format(), fs_backend_get_kb(be), fs_backend_get_segment(be), label);
     fs_list *l = fs_list_open_filename(filename, width, flags);
     g_free(filename);
 

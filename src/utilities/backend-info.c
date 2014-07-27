@@ -28,6 +28,7 @@
 #include "../backend/backend.h"
 #include "../backend/backend-intl.h"
 #include "../common/gnu-options.h"
+#include "../common/4s-store-root.h"
 
 int main(int argc, char *argv[])
 {
@@ -46,9 +47,14 @@ int main(int argc, char *argv[])
         return 1;
     }
 
-    char *tmp = g_strdup_printf("du -hs "FS_KB_DIR" | sed 's/.\\/var.*/ disk usage/; s/^/  /'", kbname);
+    gchar *tmp_format = g_strconcat("du -hs ",
+				    fs_get_kb_dir_format(),
+				    " | sed 's/.\\/var.*/ disk usage/; s/^/  /'",
+				    NULL);
+    char *tmp = g_strdup_printf(tmp_format, kbname);
     system(tmp);
     g_free(tmp);
+    g_free(tmp_format);
 
     return 0;
 }

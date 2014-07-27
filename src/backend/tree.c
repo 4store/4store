@@ -32,6 +32,7 @@
 #include "backend.h"
 #include "tree.h"
 #include "../common/params.h"
+#include "../common/4s-store-root.h"
 #include "../common/error.h"
 
 #include "tree-intl.h"
@@ -142,7 +143,7 @@ void fs_tree_print(fs_tree *t, FILE *out, int verbosity)
 
 fs_tree *fs_tree_open(fs_backend *be, const char *name, int flags)
 {
-    char *file = g_strdup_printf(FS_TREE, fs_backend_get_kb(be), fs_backend_get_segment(be), name);
+    char *file = g_strdup_printf(fs_get_tree_format(), fs_backend_get_kb(be), fs_backend_get_segment(be), name);
     fs_tree *t = fs_tree_open_filename(be, name, file, flags);
 
     return t;
