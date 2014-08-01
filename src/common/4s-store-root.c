@@ -12,7 +12,7 @@ const gchar * fs_get_store_root(void)
 	if(env_setting) {
 	    _fs_store_root = g_strdup((const gchar *)env_setting);
 	} else {
-	    _fs_store_root = strdup((const gchar *)FS_DEFAULT_STORE_ROOT);
+	    _fs_store_root = strdup((const gchar *)FS_BUILD_TIME_STORE_ROOT);
 	}
     }
     return _fs_store_root;

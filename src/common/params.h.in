@@ -42,7 +42,7 @@
 /* enables profiling of write() times in import clients */
 #define FS_PROFILE_WRITE
 
-#define FS_DEFAULT_STORE_ROOT "@FS_DEFAULT_STORE_ROOT@"
+#define FS_BUILD_TIME_STORE_ROOT "@FS_BUILD_TIME_STORE_ROOT@"
 #define FS_STORE_ROOT_ENV_VAR "FS_STORE_ROOT"
 
 #define FS_CONFIG_FILE              "@FS_CONFIG_FILE@"

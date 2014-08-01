@@ -20,13 +20,13 @@ if test "X$PKG_CONFIG" = X; then
 	AC_MSG_ERROR([Cannot find pkg-config, you need this to build])
 fi
 
-AC_ARG_WITH([default_storage_path],
-	[AS_HELP_STRING([--with-default-storage-path=PATH],
-	                [set default directory used to store indexes default=/var/lib/4store])],
+AC_ARG_WITH([storage_path],
+	[AS_HELP_STRING([--with-storage-path=PATH],
+	                [set directory used to store indexes default=/var/lib/4store])],
 	[],
 	[with_storage_path=/var/lib/4store])
-FS_DEFAULT_STORE_ROOT="$with_default_storage_path"
-AC_SUBST(FS_DEFAULT_STORE_ROOT)
+FS_BUILD_TIME_STORE_ROOT="$with_storage_path"
+AC_SUBST(FS_BUILD_TIME_STORE_ROOT)
 
 AC_ARG_WITH([config_file],
 	[AS_HELP_STRING([--with-config-file=PATH],
