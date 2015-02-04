@@ -82,7 +82,7 @@ if ($pid = fork()) {
 			$errout = "";
 		}
 		print("[....] $t\r[");
-		my $ret = system("EPR=http://localhost:13579 LANG=C LC_ALL=C TESTPATH=../../src scripts/$t > $outdir/$t $errout");
+		my $ret = system("EPR=http://127.0.0.1:13579 LANG=C LC_ALL=C TESTPATH=../../src scripts/$t > $outdir/$t $errout");
 		if ($ret == 2) {
 			exit(2);
 		}
