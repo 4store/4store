@@ -22,7 +22,7 @@ Set the format to output results it, options are "sparql", "text", "json", and "
 .It Fl "O, \-\-opt-level"
 Set the optimisation level of the query engine, in the range 0-3.
 .It Fl "I, \-\-insert"
-Treat CONSTRUCT statements as INSERT statements. This feature is highly experimental and largly untested.
+Treat CONSTRUCT statements as INSERT statements. This feature is highly experimental and largely untested.
 .It Fl "r, \-\-restricted"
 Enable query complexity restriction mode
 .It Fl "s, \-\-soft-limit"
@@ -32,19 +32,19 @@ Enable SPARQL default graph support
 .It Fl "b, \-\-base"
 Set base URI for queries
 .It Fl "e, \-\-explain"
-Return an explanation of the query planner's descisions
+Return an explanation of the query planner's decisions
 .It Fl "P"
 Enable programatic IO mode
 .El
 .Sh INTERACTIVE MODE
 If
 .Op query
-is ommited then
+is omitted then
 .Nm
 goes into interactive mode, suitable for trying queries from the command line.
 .sp
 .Fl P
-enables programatic interactive mode, suitable for infacing with processes via
+enables programmatic interactive mode, suitable for interfacing with processes via
 stdin and stdout. Queries are sent as UTF-8 bytes, terminated with
 "#EOQ" on a line of it's own, results are returned, ending with "#EOR".
 Interacting with 4store in this way is more efficient than using the SPARQL
@@ -58,7 +58,7 @@ protocol, but non-standard.
 .Nm
 implements the SPARQL Query Language specification (aka. SPARQL/Query 1.0) and the SPARQL Result Format specification (aka. SPARQL/Results 1.0).
 .sp
-Default graph support is no normally enabled, the \-\-default\-graph turns it on, as does speicfying FROM <default:> in the query. Data loaded with
+Default graph support is no normally enabled, the \-\-default\-graph turns it on, as does specifying FROM <default:> in the query. Data loaded with
 .sp
 $ 4s-import
 .Ar kb
