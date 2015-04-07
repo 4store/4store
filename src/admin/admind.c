@@ -785,7 +785,7 @@ static void handle_cmd_delete_kb(int client_fd, uint16_t datasize)
     fsa_error(LOG_DEBUG, "%d bytes sent to client", len);
 }
 
-static void start_or_stop_kb_all(int client_fd, int action)
+static void start_or_stop_kb_all(int client_fd, int action, int force)
 {
     int rv, err;
     int n_kbs = 0;
@@ -830,7 +830,9 @@ static void start_or_stop_kb_all(int client_fd, int action)
 
     for (fsa_kb_info *p = ki; p != NULL; p = p->next) {
         if (action == STOP_STORES) {
-            rv = fsab_stop_local_kb(p->name, &err);
+            rv = fsab_stop_local_kb(p->name, force, &err);
+            if (rv == 0)
+                ki->status = KB_STATUS_STOPPED; 
         }
         else if (action == START_STORES) {
             rv = fsab_start_local_kb(p->name, &exit_val, &msg, &err);
@@ -876,18 +878,18 @@ static void start_or_stop_kb_all(int client_fd, int action)
     fsa_kb_info_free(ki);
 }
 
-static void handle_cmd_stop_kb_all(int client_fd)
+static void handle_cmd_stop_kb_all(int client_fd,int force)
 {
-    start_or_stop_kb_all(client_fd, STOP_STORES);
+    start_or_stop_kb_all(client_fd, STOP_STORES,force);
 }
 
-static void handle_cmd_start_kb_all(int client_fd)
+static void handle_cmd_start_kb_all(int client_fd, int force)
 {
-    start_or_stop_kb_all(client_fd, START_STORES);
+    start_or_stop_kb_all(client_fd, START_STORES, force);
 }
 
 /* start or stop a running kb */
-static void start_or_stop_kb(int client_fd, uint16_t datasize, int action)
+static void start_or_stop_kb(int client_fd, uint16_t datasize, int action, int force)
 {
     int rv, err;
     unsigned char *msg = NULL;
@@ -901,7 +903,7 @@ static void start_or_stop_kb(int client_fd, uint16_t datasize, int action)
     }
 
     if (action == STOP_STORES) {
-        rv = fsab_stop_local_kb(kb_name, &err);
+        rv = fsab_stop_local_kb(kb_name, force, &err);
     }
     else {
         /* action == START_STORES */
@@ -944,14 +946,14 @@ static void start_or_stop_kb(int client_fd, uint16_t datasize, int action)
     fsa_error(LOG_DEBUG, "%d bytes sent to client", len);
 }
 
-static void handle_cmd_stop_kb(int client_fd, uint16_t datasize)
+static void handle_cmd_stop_kb(int client_fd, uint16_t datasize, int force)
 {
-    start_or_stop_kb(client_fd, datasize, STOP_STORES);
+    start_or_stop_kb(client_fd, datasize, STOP_STORES, force);
 }
 
 static void handle_cmd_start_kb(int client_fd, uint16_t datasize)
 {
-    start_or_stop_kb(client_fd, datasize, START_STORES);
+    start_or_stop_kb(client_fd, datasize, START_STORES, 0);
 }
 
 /* receive header from client, work out what request they want */
@@ -988,16 +990,22 @@ static void handle_client_data(int client_fd)
             handle_cmd_get_kb_info(client_fd, datasize);
             break;
         case ADM_CMD_STOP_KB:
-            handle_cmd_stop_kb(client_fd, datasize);
+            handle_cmd_stop_kb(client_fd, datasize,0);
+            break;
+        case ADM_CMD_FSTOP_KB:
+            handle_cmd_stop_kb(client_fd, datasize,1);
             break;
         case ADM_CMD_START_KB:
             handle_cmd_start_kb(client_fd, datasize);
             break;
         case ADM_CMD_STOP_KB_ALL:
-            handle_cmd_stop_kb_all(client_fd);
+            handle_cmd_stop_kb_all(client_fd,0);
+            break;
+        case ADM_CMD_FSTOP_KB_ALL:
+            handle_cmd_stop_kb_all(client_fd,1);
             break;
         case ADM_CMD_START_KB_ALL:
-            handle_cmd_start_kb_all(client_fd);
+            handle_cmd_start_kb_all(client_fd, 0);
             break;
         case ADM_CMD_DELETE_KB:
             handle_cmd_delete_kb(client_fd, datasize);

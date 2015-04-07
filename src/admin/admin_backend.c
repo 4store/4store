@@ -41,6 +41,15 @@
 #include "admin_common.h"
 #include "admin_backend.h"
 
+
+static int find_pid(pid_t pid) {
+    int rv = kill(pid, 0);
+    if (rv == -1 && errno == ESRCH) {
+        return 0;
+    }
+    return 1;
+}
+
 /* Read runtime.info and metadata.nt to fill in info for a kb.
  * Leave ipaddr unset, caller can set if needed.
  *
@@ -269,12 +278,35 @@ fsa_kb_info *fsab_get_local_kb_info_all(int *err)
     return first_ki;
 }
 
+
+int force_kill(pid_t pid, int *err) {
+
+    /* poll for few seconds until process is dead */
+    long int nanosecs = 50000000L * 20; /* 1s */
+    struct timespec req = {0, nanosecs};
+
+    int rv = kill(pid, SIGKILL);
+    if (rv != 0) {
+        *err = ADM_ERR_SEE_ERRNO;
+        return -1;
+    }
+    nanosleep(&req, NULL);
+    if (!find_pid(pid)) {
+        return 0;
+    }
+    return -1;
+}
+
 /* return 0 on success, -1 otherwise, and sets err */
-int fsab_stop_local_kb(const unsigned char *kb_name, int *err)
+int fsab_stop_local_kb(const unsigned char *kb_name,int force, int *err)
 {
     fs_error(LOG_DEBUG, "stopping kb '%s'", kb_name);
 
     fsa_kb_info *ki = fsab_get_local_kb_info(kb_name, err);
+    if (force && ki->status == KB_STATUS_INCONSISTENT) {
+        return force_kill(-1 * ki->pidg, err);
+    }
+
     if (ki == NULL) {
         return -1;
     }
@@ -317,6 +349,7 @@ int fsab_stop_local_kb(const unsigned char *kb_name, int *err)
     }
 
     /* send sigterm to 4s-backend process, returns 0 or -1, sets errno  */
+    pid_t pidg = getpgid(pid);
     int rv = kill(pid, SIGTERM);
     if (rv != 0) {
         *err = ADM_ERR_SEE_ERRNO;
@@ -339,7 +372,13 @@ int fsab_stop_local_kb(const unsigned char *kb_name, int *err)
 
         n_tries -= 1;
     }
-
+    if (force) {
+        if (find_pid(pid)) {
+            force_kill(-1 * pidg,err);
+            *err = ADM_ERR_KB_STATUS_STOPPED;
+            return 0;
+        }
+    }
     *err = ADM_ERR_KILL_FAILED;
     return -1;
 }
@@ -501,7 +540,7 @@ int fsab_delete_local_kb(const unsigned char *kb_name, int *exit_val,
     /* if kb exists, attempt to stop it unless it is definitely stopped */
     if (ki->status != KB_STATUS_STOPPED) {
         /* ignore errors, we're deleting store anyway */
-        fsab_stop_local_kb(kb_name, err);
+        fsab_stop_local_kb(kb_name, 1, err);
     }
     fsa_kb_info_free(ki);
 
@@ -534,7 +573,7 @@ int fsab_create_local_kb(const fsa_kb_setup_args *ksargs, int *exit_val,
         }
         else {
             /* ok to overwrite, so stop first, ignoring errors */
-            fsab_stop_local_kb(ksargs->name, err);
+            fsab_stop_local_kb(ksargs->name, 1, err);
         }
     }
 

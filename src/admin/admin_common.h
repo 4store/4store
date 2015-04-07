@@ -38,6 +38,8 @@
 #define ADM_RSP_DELETE_KB      18
 #define ADM_CMD_CREATE_KB      19
 #define ADM_RSP_CREATE_KB      20
+#define ADM_CMD_FSTOP_KB       21
+#define ADM_CMD_FSTOP_KB_ALL   22
 #define ADM_RSP_EXPECT_N_KB   252
 #define ADM_RSP_EXPECT_N      253
 #define ADM_RSP_ABORT_EXPECT  254
@@ -65,6 +67,7 @@
 #define KB_STATUS_RUNNING 1
 #define KB_STATUS_STOPPED 2
 #define KB_STATUS_UNKNOWN 3
+#define KB_STATUS_INCONSISTENT 4
 
 /* Default port for 4s-boss - currently FS_DEFAULT_PORT-1 */
 #define FS_ADMIND_PORT 6733
@@ -98,6 +101,7 @@ typedef struct _fsa_kb_info {
     unsigned char *name;
     unsigned char *ipaddr;
     uint32_t pid;
+    uint32_t pidg;
     uint16_t port;
     uint8_t status;
     uint16_t num_segments;

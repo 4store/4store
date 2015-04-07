@@ -273,16 +273,18 @@ int fsap_decode_rsp_expect_n_kb(const unsigned char *buf, int *kb_name_len)
     return (int)n_messages;
 }
 
-unsigned char *fsap_encode_cmd_stop_kb_all(int *len)
+unsigned char *fsap_encode_cmd_stop_kb_all(int *len, int force)
 {
     *len = ADM_HEADER_LEN;
-    return fsap_encode_cmd_no_params(ADM_CMD_STOP_KB_ALL);
+    int cmd = force ? ADM_CMD_FSTOP_KB_ALL : ADM_CMD_STOP_KB_ALL;
+    return fsap_encode_cmd_no_params(cmd);
 }
 
-unsigned char *fsap_encode_cmd_stop_kb(const unsigned char *kb_name, int *len)
+unsigned char *fsap_encode_cmd_stop_kb(const unsigned char *kb_name, int *len,int force)
 {
     int data_len = strlen((char *)kb_name);
-    unsigned char *buf = init_packet(ADM_CMD_STOP_KB, data_len);
+    int cmd = force ? ADM_CMD_FSTOP_KB : ADM_CMD_STOP_KB;
+    unsigned char *buf = init_packet(cmd, data_len);
     unsigned char *p = buf;
     p += ADM_HEADER_LEN; /* move to start of data section */
 

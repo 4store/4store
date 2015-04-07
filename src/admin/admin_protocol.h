@@ -26,9 +26,9 @@ unsigned char *fsap_encode_rsp_get_kb_info_all(const fsa_kb_info *ki,
 fsa_kb_info *fsap_decode_rsp_get_kb_info_all(const unsigned char *buf);
 
 /* stop kbs */
-unsigned char *fsap_encode_cmd_stop_kb_all(int *len);
+unsigned char *fsap_encode_cmd_stop_kb_all(int *len,int force);
 unsigned char *fsap_encode_cmd_stop_kb(const unsigned char *kb_name,
-                                       int *len);
+                                       int *len, int force);
 unsigned char *fsap_encode_rsp_stop_kb(int retval,
                                        const unsigned char *kb_name,
                                        const unsigned char *msg,

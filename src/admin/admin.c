@@ -65,6 +65,7 @@
 static int help_flag = 0;
 static int version_flag = 0;
 static int verbosity = 0;
+static int force = 0;
 
 /* indexes into argv for start of command, and start of command arguments */
 static int cmd_index = -1;
@@ -627,6 +628,7 @@ static int parse_cmdline_opts(int argc)
         {"debug",       no_argument,        &debug_flag,    1},
         {"version",     no_argument,        &version_flag,  1},
         {"config-file", required_argument,  NULL,           'c'},
+        {"force",       no_argument,        &force, 1},
         {NULL,          0,                  NULL,           0}
     };
 
@@ -769,7 +771,7 @@ static int start_or_stop_stores(int action)
         if (all) {
             /* start/stop all kbs */
             if (action == STOP_STORE) {
-                cmd = fsap_encode_cmd_stop_kb_all(&len);
+                cmd = fsap_encode_cmd_stop_kb_all(&len,force);
             }
             else if (action == START_STORE) {
                 cmd = fsap_encode_cmd_start_kb_all(&len);
@@ -945,7 +947,7 @@ static int start_or_stop_stores(int action)
                 /* send start/stop command for each kb */
                 if (action == STOP_STORE) {
                     cmd = fsap_encode_cmd_stop_kb((unsigned char *)argv[i],
-                                                  &len);
+                                                  &len,force);
                 }
                 else if (action == START_STORE) {
                     cmd = fsap_encode_cmd_start_kb((unsigned char *)argv[i],
