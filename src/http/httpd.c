@@ -100,9 +100,24 @@ static void fs_free_global_elements() {
   }
 }
 
+static const gchar * get_http_log_dir(void)
+{
+    static gchar * _fs_log_root = NULL;
+    const char *env_setting;
+    if(NULL == _fs_log_root) {
+        env_setting = getenv(FS_HTTP_LOG_ENV_VAR);
+        if(env_setting) {
+            _fs_log_root = g_strdup((const gchar *)env_setting);
+        } else {
+            _fs_log_root = strdup((const gchar *)FS_HTTP_LOG);
+        }
+    }
+    return _fs_log_root;
+}
+
 static void query_log_open (const char *kb_name)
 {
-  char *filename = g_strdup_printf(FS_HTTP_LOG "/query-%s.log", kb_name);
+  char *filename = g_strdup_printf("%s/query-%s.log", get_http_log_dir(), kb_name);
 
   ql_file= fopen(filename, "a");
   if (ql_file) {

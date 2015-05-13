@@ -48,6 +48,7 @@
 #define FS_CONFIG_FILE              "@FS_CONFIG_FILE@"
 
 #define FS_HTTP_LOG		    "@FS_HTTP_LOG@"
+#define FS_HTTP_LOG_ENV_VAR	    "FS_HTTP_LOG"
 
 #define FS_SKOLEM_PREFIX "@FS_SKOLEM_PREFIX@"
 #define FS_SKOLEMIZE     @FS_SKOLEMIZE@
