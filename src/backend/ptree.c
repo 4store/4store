@@ -136,7 +136,7 @@ node *node_ref(fs_ptree *pt, nodeid n)
 
         return NULL;
     }
-    uint32_t offset = n & 0x7ffffff;
+    uint32_t offset = n & 0x7fffffffU;
     if (offset == 0 || offset > pt->header->node_base) {
         fs_error(LOG_ERR, "node 0x%x out of range [1,%d]", offset, pt->header->node_base);
 

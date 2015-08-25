@@ -15,7 +15,7 @@
 #define FS_INDEX_BRANCHES (1<<FS_INDEX_BRANCH_BITS)
 
 #define FS_TREE_NODE(x) ((x) | 0x80000000)
-#define FS_TREE_OFFSET(x) ((x) & 0x7fffffff)
+#define FS_TREE_OFFSET(x) ((x) & 0x7fffffffU)
 
 #define FS_TREE_BLACKLISTED  FS_TREE_NODE(1)
 #define FS_TREE_LONG_INDEX   FS_TREE_NODE(2)
