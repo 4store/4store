@@ -374,7 +374,7 @@ fs_value fs_expression_eval(fs_query *q, int row, int block, rasqal_expression *
         return fn_strbefore(q, fs_expression_eval(q, row, block, e->arg1),
                                fs_expression_eval(q, row, block, e->arg2));
     case RASQAL_EXPR_STRAFTER:
-        return fn_strbefore(q, fs_expression_eval(q, row, block, e->arg1),
+        return fn_strafter(q, fs_expression_eval(q, row, block, e->arg1),
                                fs_expression_eval(q, row, block, e->arg2));
     case RASQAL_EXPR_REPLACE:
         return fs_value_error(FS_ERROR_INVALID_TYPE, "fn:replace not yet implemented");
