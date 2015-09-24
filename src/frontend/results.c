@@ -3100,7 +3100,6 @@ int fs_sort_column(fs_query *q, fs_binding *b, int col, int **sorted)
     }
 
     /* store strings that will strcmp into the correct order */
-    fs_error(LOG_ERR,"ORDERING?");
     GHashTable *rl = g_hash_table_new_full(fs_rid_hash, fs_rid_equal, g_free, NULL);
     for (int s=0; s<q->segments; s++) {
         for (int i=0; i<rv[s]->length; i++) {
