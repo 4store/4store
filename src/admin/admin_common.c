@@ -25,7 +25,7 @@
 #include <stdio.h>
 #include <sys/types.h>
 #include <sys/socket.h>
-#if defined(__OpenBSD__)
+#if defined(__OpenBSD__) || defined(__FreeBSD__)
 # include <netinet/in.h>
 #endif
 #include <arpa/inet.h>
