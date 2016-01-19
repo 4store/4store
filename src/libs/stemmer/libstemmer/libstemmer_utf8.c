@@ -45,7 +45,10 @@ sb_stemmer_new(const char * algorithm, const char * charenc)
     for (module = modules; module->name != 0; module++) {
 	if (strcmp(module->name, algorithm) == 0 && module->enc == enc) break;
     }
-    if (module->name == NULL) return NULL;
+    if (module->name == NULL){
+    	free(stemmer);
+    	return NULL;	
+    } 
     
     stemmer->create = module->create;
     stemmer->close = module->close;
