@@ -169,7 +169,7 @@ fs_rhash *fs_rhash_open_filename(const char *filename, int flags)
     rh->flags = flags;
     if (rh->fd == -1) {
         fs_error(LOG_ERR, "cannot open rhash file '%s': %s", filename, strerror(errno));
-
+        free(rh);
         return NULL;
     }
     rh->z_buffer_size = 1024;
