@@ -2095,7 +2095,7 @@ static int umac_verify(void)
     }
     printf("Done.\n");
     umac_delete(ctx);
-
+    free(data_ptr);
     return return_value;
 }
 
