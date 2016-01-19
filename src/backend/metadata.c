@@ -77,14 +77,14 @@ fs_metadata *fs_metadata_open(const char *kb)
     if ((fd = open(m->uri + 7, FS_O_NOATIME | O_CREAT, FS_FILE_MODE)) == -1) {
         fs_error(LOG_CRIT, "failed to touch metadata file %s: %s",
             m->uri, strerror(errno));
-
+        free(m);
         return NULL;
     }
     close(fd);
     m->rw = raptor_new_world();
     if (!m->rw) {
         fs_error(LOG_CRIT, "failed to initialise raptor");
-
+        free(m);
         return NULL;
     }
     raptor_parser *rdf_parser = raptor_new_parser(m->rw, "turtle");
