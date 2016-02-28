@@ -18,11 +18,11 @@
  *  Copyright (C) 2006 Steve Harris for Garlik
  */
 
-#define _XOPEN_SOURCE
+#define _GNU_SOURCE
+
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
-#define __USE_MISC
 #include <time.h>
 
 #include "filter.h"
