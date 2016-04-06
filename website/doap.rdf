@@ -1,0 +1,40 @@
+<Project xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#" xmlns="http://usefulinc.com/ns/doap#" xmlns:foaf="http://xmlns.com/foaf/0.1/" xmlns:admin="http://webns.net/mvcb/" rdf:about="http://4store.org/#sw">
+ <name>4store</name>
+ <shortname>4store</shortname>
+ <shortdesc>RDF/SPARQL store</shortdesc>
+ <description>A scalable, cluster-capable RDF/SPARQL store written in C, designed for UNIX-like operating systems.</description>
+ <homepage rdf:resource="http://4store.org/" />
+ <download-page rdf:resource="http://4store.org/download/" />
+ <os>Linux</os>
+ <os>Mac OS X</os>
+ <os>UNIX</os>
+ <programming-language>C</programming-language>
+ <license rdf:resource="http://usefulinc.com/doap/licenses/gpl" />
+ <maintainer>
+  <foaf:Person>
+     <foaf:name>Steve Harris</foaf:name>
+     <foaf:homepage rdf:resource="http://steve.harris.name/"/>
+     <foaf:mbox_sha1sum>26a374ad4de937252c044f7dd45aa48ecbdb4f16</foaf:mbox_sha1sum>
+  </foaf:Person>
+ </maintainer>
+ <developer>
+  <foaf:Person>
+     <foaf:name>Nick Lamb</foaf:name>
+     <foaf:homepage rdf:resource="http://tlrmx.org/"/>
+     <foaf:mbox_sha1sum>e602382c17fcef66132630ca26476e427b1c33fe</foaf:mbox_sha1sum>
+  </foaf:Person>
+ </developer>
+ <helper>
+  <foaf:Person>
+     <foaf:name>Mischa Tuffield</foaf:name>
+     <foaf:homepage rdf:resource="http://mmt.me.uk/"/>
+     <foaf:mbox_sha1sum>01561a512d2a2e067b70ad9d0ea8b28d73cd9ed7</foaf:mbox_sha1sum>
+  </foaf:Person>
+ </helper>
+ <repository>
+   <GitRepository>
+     <browse rdf:resource='https://github.com/garlik/4store/' />
+     <location rdf:resource='https://github.com/garlik/4store.git' />
+   </GitRepository>
+ </repository> 
+</Project>

@@ -1,0 +1,249 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  
+  
+
+  
+
+
+  
+
+  <head>
+    <title>
+      TracTicketsCustomFields – 4store
+    </title>
+        <link rel="search" href="/trac/search" />
+        <link rel="help" href="/trac/wiki/TracGuide" />
+        <link rel="alternate" href="/trac/wiki/TracTicketsCustomFields?format=txt" type="text/x-trac-wiki" title="Plain Text" />
+        <link rel="start" href="/trac/wiki" />
+        <link rel="stylesheet" href="/trac/chrome/common/css/trac.css" type="text/css" /><link rel="stylesheet" href="/trac/chrome/common/css/wiki.css" type="text/css" />
+        <link rel="shortcut icon" href="/images/favico.png" type="image/png" />
+        <link rel="icon" href="/images/favico.png" type="image/png" />
+      <link type="application/opensearchdescription+xml" rel="search" href="/trac/search/opensearch" title="Search 4store" />
+    <script type="text/javascript" src="/trac/chrome/common/js/jquery.js"></script><script type="text/javascript" src="/trac/chrome/common/js/trac.js"></script><script type="text/javascript" src="/trac/chrome/common/js/search.js"></script>
+    <!--[if lt IE 7]>
+    <script type="text/javascript" src="/trac/chrome/common/js/ie_pre7_hacks.js"></script>
+    <![endif]-->
+    <script type="text/javascript">
+      jQuery(document).ready(function($) {
+        $("#content").find("h1,h2,h3,h4,h5,h6").addAnchor("Link to this section");
+      });
+    </script>
+    <link rel="stylesheet" type="text/css" href="/style/main.css" />
+  </head>
+  <body>
+    <div id="container">
+    <div id="siteheader">
+    </div>
+    <div id="banner">
+      <div id="header">
+        <a id="logo" href="http://4store.org/"><img src="/images/4store.png" alt="4store" height="48" width="143" /></a>
+      </div>
+      <form id="search" action="/trac/search" method="get">
+        <div>
+          <label for="proj-search">Search:</label>
+          <input type="text" id="proj-search" name="q" size="18" value="" />
+          <input type="submit" value="Search" />
+        </div>
+      </form>
+      <div id="metanav" class="nav">
+    <ul>
+      <li class="first"><a href="/trac/login">Login</a></li><li><a href="/trac/prefs">Preferences</a></li><li><a href="/trac/wiki/TracGuide">Help/Guide</a></li><li class="last"><a href="/trac/about">About Trac</a></li>
+    </ul>
+  </div>
+    </div>
+    <div id="mainnav" class="nav">
+    <ul>
+      <li class="first active"><a href="/trac/wiki">Wiki</a></li><li><a href="/trac/timeline">Timeline</a></li><li><a href="/trac/roadmap">Roadmap</a></li><li><a href="/trac/report">View Tickets</a></li><li class="last"><a href="/trac/search">Search</a></li>
+    </ul>
+  </div>
+    <div id="main">
+      <div id="ctxtnav" class="nav">
+        <h2>Context Navigation</h2>
+          <ul>
+              <li class="first"><a href="/trac/wiki/WikiStart">Start Page</a></li><li><a href="/trac/wiki/TitleIndex">Index</a></li><li><a href="/trac/wiki/TracTicketsCustomFields?action=history">History</a></li><li class="last"><a href="/trac/wiki/TracTicketsCustomFields?action=diff&amp;version=1">Last Change</a></li>
+          </ul>
+        <hr />
+      </div>
+    <div id="content" class="wiki">
+      <div class="wikipage searchable">
+        
+          <h1 id="CustomTicketFields">Custom Ticket Fields</h1>
+<p>
+Trac supports adding custom, user-defined fields to the ticket module. Using custom fields, you can add typed, site-specific properties to tickets.
+</p>
+<h2 id="Configuration">Configuration</h2>
+<p>
+Configuring custom ticket fields is done in the <a class="wiki" href="/trac/wiki/TracIni">trac.ini</a> file. All field definitions should be under a section named <tt>[ticket-custom]</tt>.
+</p>
+<p>
+The syntax of each field definition is:
+</p>
+<pre class="wiki"> FIELD_NAME = TYPE
+ (FIELD_NAME.OPTION = VALUE)
+ ...
+</pre><p>
+The example below should help to explain the syntax.
+</p>
+<h3 id="AvailableFieldTypesandOptions">Available Field Types and Options</h3>
+<ul><li><strong>text</strong>: A simple (one line) text field.
+<ul><li>label: Descriptive label.
+</li><li>value: Default value.
+</li><li>order: Sort order placement. (Determines relative placement in forms with respect to other custom fields.)
+</li><li>format: Either <tt>plain</tt> for plain text or <tt>wiki</tt> to interpret the content as <a class="wiki" href="/trac/wiki/WikiFormatting">WikiFormatting</a>. (<i>since 0.11.3</i>)
+</li></ul></li><li><strong>checkbox</strong>: A boolean value check box.
+<ul><li>label: Descriptive label.
+</li><li>value: Default value (0 or 1).
+</li><li>order: Sort order placement.
+</li></ul></li><li><strong>select</strong>: Drop-down select box. Uses a list of values.
+<ul><li>label: Descriptive label.
+</li><li>options: List of values, separated by <strong>|</strong> (vertical pipe).
+</li><li>value: Default value (one of the values from options).
+</li><li>order: Sort order placement.
+</li></ul></li><li><strong>radio</strong>: Radio buttons. Essentially the same as <strong>select</strong>.
+<ul><li>label: Descriptive label.
+</li><li>options: List of values, separated by <strong>|</strong> (vertical pipe).
+</li><li>value: Default value (one of the values from options).
+</li><li>order: Sort order placement.
+</li></ul></li><li><strong>textarea</strong>: Multi-line text area.
+<ul><li>label: Descriptive label.
+</li><li>value: Default text.
+</li><li>cols: Width in columns.
+</li><li>rows: Height in lines.
+</li><li>order: Sort order placement.
+</li><li>format: Either <tt>plain</tt> for plain text or <tt>wiki</tt> to interpret the content as <a class="wiki" href="/trac/wiki/WikiFormatting">WikiFormatting</a>. (<i>since 0.11.3</i>)
+</li></ul></li></ul><h3 id="SampleConfig">Sample Config</h3>
+<pre class="wiki">[ticket-custom]
+
+test_one = text
+test_one.label = Just a text box
+
+test_two = text
+test_two.label = Another text-box
+test_two.value = Default [mailto:joe@nospam.com owner]
+test_two.format = wiki
+
+test_three = checkbox
+test_three.label = Some checkbox
+test_three.value = 1
+
+test_four = select
+test_four.label = My selectbox
+test_four.options = one|two|third option|four
+test_four.value = two
+
+test_five = radio
+test_five.label = Radio buttons are fun
+test_five.options = uno|dos|tres|cuatro|cinco
+test_five.value = dos
+
+test_six = textarea
+test_six.label = This is a large textarea
+test_six.value = Default text
+test_six.cols = 60
+test_six.rows = 30
+</pre><p>
+<i>Note: To make entering an option for a <tt>select</tt> type field optional, specify a leading <tt>|</tt> in the <tt>fieldname.options</tt> option.</i>
+</p>
+<h3 id="ReportsInvolvingCustomFields">Reports Involving Custom Fields</h3>
+<p>
+Custom ticket fields are stored in the <tt>ticket_custom</tt> table, not in the <tt>ticket</tt> table. So to display the values from custom fields in a report, you will need a join on the 2 tables. Let's use an example with a custom ticket field called <tt>progress</tt>.
+</p>
+<div class="code"><pre>SELECT p.value AS __color__,
+   id AS ticket, summary, owner, c.value AS progress
+  FROM ticket t, enum p, ticket_custom c
+  WHERE status IN ('assigned') AND t.id = c.ticket AND c.name = 'progress'
+AND p.name = t.priority AND p.type = 'priority'
+  ORDER BY p.value
+</pre></div><p>
+<strong>Note</strong> that this will only show tickets that have progress set in them, which is <strong>not the same as showing all tickets</strong>. If you created this custom ticket field <i>after</i> you have already created some tickets, they will not have that field defined, and thus they will never show up on this ticket query. If you go back and modify those tickets, the field will be defined, and they will appear in the query. If that's all you want, you're set.
+</p>
+<p>
+However, if you want to show all ticket entries (with progress defined and without), you need to use a <tt>JOIN</tt> for every custom field that is in the query.
+</p>
+<div class="code"><pre>SELECT p.value AS __color__,
+   id AS ticket, summary, component, version, milestone, severity,
+   (CASE status WHEN 'assigned' THEN owner||' *' ELSE owner END) AS owner,
+   time AS created,
+   changetime AS _changetime, description AS _description,
+   reporter AS _reporter,
+  (CASE WHEN c.value = '0' THEN 'None' ELSE c.value END) AS progress
+  FROM ticket t
+     LEFT OUTER JOIN ticket_custom c ON (t.id = c.ticket AND c.name = 'progress')
+     JOIN enum p ON p.name = t.priority AND p.type='priority'
+  WHERE status IN ('new', 'assigned', 'reopened')
+  ORDER BY p.value, milestone, severity, time
+</pre></div><p>
+Note in particular the <tt>LEFT OUTER JOIN</tt> statement here.
+</p>
+<h3 id="Updatingthedatabase">Updating the database</h3>
+<p>
+As noted above, any tickets created before a custom field has been defined will not have a value for that field. Here's a bit of SQL (tested with SQLite) that you can run directly on the Trac database to set an initial value for custom ticket fields. Inserts the default value of 'None' into a custom field called 'request_source' for all tickets that have no existing value:
+</p>
+<div class="code"><pre>INSERT INTO ticket_custom
+   (ticket, name, value)
+   SELECT 
+      id AS ticket,
+      'request_source' AS name,
+      'None' AS value
+   FROM ticket 
+   WHERE id NOT IN (
+      SELECT ticket FROM ticket_custom
+   );
+</pre></div><p>
+If you added multiple custom fields at different points in time, you should be more specific in the subquery on table <tt>ticket</tt> by adding the exact custom field name to the query:
+</p>
+<div class="code"><pre>INSERT INTO ticket_custom
+   (ticket, name, value)
+   SELECT 
+      id AS ticket,
+      'request_source' AS name,
+      'None' AS value
+   FROM ticket 
+   WHERE id NOT IN (
+      SELECT ticket FROM ticket_custom WHERE name = 'request_source'
+   );
+</pre></div><hr />
+<p>
+See also: <a class="wiki" href="/trac/wiki/TracTickets">TracTickets</a>, <a class="wiki" href="/trac/wiki/TracIni">TracIni</a>
+</p>
+
+        
+        
+      </div>
+    </div>
+    <div id="altlinks">
+      <h3>Download in other formats:</h3>
+      <ul>
+        <li class="last first">
+          <a rel="nofollow" href="/trac/wiki/TracTicketsCustomFields?format=txt">Plain Text</a>
+        </li>
+      </ul>
+    </div>
+    </div>
+    <div id="footer" lang="en" xml:lang="en"><hr />
+      <a id="tracpowered" href="http://trac.edgewall.org/"><img src="/trac/chrome/common/trac_logo_mini.png" height="30" width="107" alt="Trac Powered" /></a>
+      <p class="left">
+        Powered by <a href="/trac/about"><strong>Trac 0.11.4</strong></a><br />
+        By <a href="http://www.edgewall.org/">Edgewall Software</a>.
+      </p>
+      <p class="right">Visit the Trac open source project at<br /><a href="http://trac.edgewall.org/">http://trac.edgewall.org/</a></p>
+    </div>
+    <div id="footer">
+	<div id="copyright">Copyright © Garlik 2009</div>
+		<div id="garlik_logo">
+	<a href="http://www.garlik.com/" rel="external" title="Click here to visit the Garlik homepage"><img src="/images/garlik.gif" alt="powered by Garlik" /></a>
+	</div>
+	<div id="foot_nav">
+	<ul>
+			<li><a href="/about" title="About" id="about">About</a></li>
+			<li><a href="/faqs" title="FAQs" id="faqs">FAQs</a></li>
+			<li><a href="/support" title="Install" id="support">Support</a></li>
+			<li><a href="/developers" title="Developers" id="developers">Developers</a></li>
+			<li><a href="/projects" title="Projects" id="projetcs">Projects</a></li>
+	</ul>
+	</div>
+    </div>
+    </div>
+  </body>
+</html>

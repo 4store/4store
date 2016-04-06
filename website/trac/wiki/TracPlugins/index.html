@@ -1,0 +1,330 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  
+  
+
+  
+
+
+  <head>
+    <title>
+      TracPlugins – 4store
+    </title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <!--[if IE]><script type="text/javascript">
+      if (/^#__msie303:/.test(window.location.hash))
+        window.location.replace(window.location.hash.replace(/^#__msie303:/, '#'));
+    </script><![endif]-->
+        <link rel="search" href="/trac/search" />
+        <link rel="help" href="/trac/wiki/TracGuide" />
+        <link rel="alternate" href="/trac/wiki/TracPlugins?format=txt" type="text/x-trac-wiki" title="Plain Text" />
+        <link rel="start" href="/trac/wiki" />
+        <link rel="stylesheet" href="/trac/chrome/common/css/trac.css" type="text/css" /><link rel="stylesheet" href="/trac/chrome/common/css/wiki.css" type="text/css" />
+        <link rel="shortcut icon" href="/images/favico.png" type="image/png" />
+        <link rel="icon" href="/images/favico.png" type="image/png" />
+      <link type="application/opensearchdescription+xml" rel="search" href="/trac/search/opensearch" title="Search 4store" />
+    <script type="text/javascript" src="/trac/chrome/common/js/jquery.js"></script><script type="text/javascript" src="/trac/chrome/common/js/babel.js"></script><script type="text/javascript" src="/trac/chrome/common/js/messages/en_US.js"></script><script type="text/javascript" src="/trac/chrome/common/js/trac.js"></script><script type="text/javascript" src="/trac/chrome/common/js/search.js"></script><script type="text/javascript" src="/trac/chrome/common/js/folding.js"></script>
+    <!--[if lt IE 7]>
+    <script type="text/javascript" src="/trac/chrome/common/js/ie_pre7_hacks.js"></script>
+    <![endif]-->
+    <meta name="ROBOTS" content="NOINDEX, NOFOLLOW" />
+    <script type="text/javascript">
+      jQuery(document).ready(function($) {
+        $("#content").find("h1,h2,h3,h4,h5,h6").addAnchor(_("Link to this section"));
+        $("#content").find(".wikianchor").each(function() {
+          $(this).addAnchor(babel.format(_("Link to #%(id)s"), {id: $(this).attr('id')}));
+        });
+        $(".foldable").enableFolding(true, true);
+      });
+    </script>
+    <link rel="stylesheet" type="text/css" href="/style/main.css" />
+  </head>
+  <body>
+    <div id="container">
+    <div id="siteheader">
+    </div>
+    <div id="banner">
+      <div id="header">
+        <a id="logo" href="http://4store.org/"><img src="/images/4store.png" alt="4store" height="48" width="143" /></a>
+      </div>
+      <form id="search" action="/trac/search" method="get">
+        <div>
+          <label for="proj-search">Search:</label>
+          <input type="text" id="proj-search" name="q" size="18" value="" />
+          <input type="submit" value="Search" />
+        </div>
+      </form>
+      <div id="metanav" class="nav">
+    <ul>
+      <li class="first"><a href="/trac/login">Login</a></li><li><a href="/trac/prefs">Preferences</a></li><li><a href="/trac/wiki/TracGuide">Help/Guide</a></li><li class="last"><a href="/trac/about">About Trac</a></li>
+    </ul>
+  </div>
+    </div>
+    <div id="mainnav" class="nav">
+    <ul>
+      <li class="first active"><a href="/trac/wiki">Wiki</a></li><li><a href="/trac/timeline">Timeline</a></li><li><a href="/trac/roadmap">Roadmap</a></li><li><a href="/trac/report">View Tickets</a></li><li class="last"><a href="/trac/search">Search</a></li>
+    </ul>
+  </div>
+    <div id="main">
+      <div id="pagepath" class="noprint">
+  <a class="pathentry first" title="View WikiStart" href="/trac/wiki">wiki:</a><a class="pathentry" href="/trac/wiki/TracPlugins" title="View TracPlugins">TracPlugins</a>
+</div>
+      <div id="ctxtnav" class="nav">
+        <h2>Context Navigation</h2>
+          <ul>
+              <li class="first"><a href="/trac/wiki/WikiStart">Start Page</a></li><li><a href="/trac/wiki/TitleIndex">Index</a></li><li class="last"><a href="/trac/wiki/TracPlugins?action=history">History</a></li>
+          </ul>
+        <hr />
+      </div>
+    <div id="content" class="wiki">
+      <div class="wikipage searchable">
+        
+          
+          <div class="trac-modifiedby">
+            <span><a href="/trac/wiki/TracPlugins?action=diff&amp;version=2" title="Version 2 by trac">Last modified</a> <a class="timeline" href="/trac/timeline?from=2011-12-01T17%3A47%3A14Z&amp;precision=second" title="2011-12-01T17:47:14Z in Timeline">4 years</a> ago</span>
+            <span class="trac-print">Last modified on 01/12/11 17:47:14</span>
+          </div>
+          <div id="wikipage"><h1 id="TracPlugins">Trac Plugins</h1>
+<p>
+</p><div class="wiki-toc"><h4>Table of Contents</h4><ul><li class="False"><a class="False" href="/trac/wiki/TracGuide">Index</a></li><li class="False"><a class="False" href="/trac/wiki/TracInstall">Installation</a></li><li class="False"><a class="False" href="/trac/wiki/TracInterfaceCustomization">Customization</a></li><li class="active"><a class="False" href="/trac/wiki/TracPlugins">Plugins</a></li><li class="False"><a class="False" href="/trac/wiki/TracUpgrade">Upgrading</a></li><li class="False"><a class="False" href="/trac/wiki/TracIni">Configuration</a></li><li class="False"><a class="False" href="/trac/wiki/TracAdmin">Administration</a></li><li class="False"><a class="False" href="/trac/wiki/TracBackup">Backup</a></li><li class="False"><a class="False" href="/trac/wiki/TracLogging">Logging</a></li><li class="False"><a class="False" href="/trac/wiki/TracPermissions">Permissions</a></li><li class="False"><a class="False" href="/trac/wiki/TracWiki">The Wiki</a></li><li class="False"><a class="False" href="/trac/wiki/WikiFormatting">Wiki Formatting</a></li><li class="False"><a class="False" href="/trac/wiki/TracTimeline">Timeline</a></li><li class="False"><a class="False" href="/trac/wiki/TracBrowser">Repository Browser</a></li><li class="False"><a class="False" href="/trac/wiki/TracRevisionLog">Revision Log</a></li><li class="False"><a class="False" href="/trac/wiki/TracChangeset">Changesets</a></li><li class="False"><a class="False" href="/trac/wiki/TracTickets">Tickets</a></li><li class="False"><a class="False" href="/trac/wiki/TracWorkflow">Workflow</a></li><li class="False"><a class="False" href="/trac/wiki/TracRoadmap">Roadmap</a></li><li class="False"><a class="False" href="/trac/wiki/TracQuery">Ticket Queries</a></li><li class="False"><a class="False" href="/trac/wiki/TracReports">Reports</a></li><li class="False"><a class="False" href="/trac/wiki/TracRss">RSS Support</a></li><li class="False"><a class="False" href="/trac/wiki/TracNotification">Notification</a></li></ul></div><p>
+</p>
+<p>
+Trac is extensible with <a class="ext-link" href="http://trac.edgewall.org/intertrac/PluginList" title="PluginList in Trac project trac"><span class="icon">​</span>plugins</a> since version 0.9. The plugin functionality is based on the <a class="ext-link" href="http://trac.edgewall.org/intertrac/TracDev/ComponentArchitecture" title="TracDev/ComponentArchitecture in Trac project trac"><span class="icon">​</span>component architecture</a> with peculiarities described at <a class="missing wiki">plugin development?</a> page.
+</p>
+<h2 id="Plugindiscovery">Plugin discovery</h2>
+<p>
+From the user point of view a Plugin is either standalone .py file or an .egg package. Trac looks for Plugins in a global shared plugins directory (see <a class="wiki" href="/trac/wiki/TracIni#GlobalConfiguration">Global Configuration</a>), or in a local <a class="wiki" href="/trac/wiki/TracEnvironment">TracEnvironment</a>, in its <tt>plugins</tt> directory.
+Except for the later case, the components defined in a plugin should be explicitly enabled in the <a class="wiki" href="/trac/wiki/TracIni#components-section"> [components] </a> section of the trac.ini file.
+</p>
+<h2 id="RequirementsforTraceggs">Requirements for Trac eggs</h2>
+<p>
+To use egg based plugins in Trac, you need to have <a class="ext-link" href="http://peak.telecommunity.com/DevCenter/setuptools"><span class="icon">​</span>setuptools</a> (version 0.6) installed.
+</p>
+<p>
+To install <tt>setuptools</tt>, download the bootstrap module <a class="ext-link" href="http://peak.telecommunity.com/dist/ez_setup.py"><span class="icon">​</span>ez_setup.py</a> and execute it as follows:
+</p>
+<pre class="wiki">$ python ez_setup.py
+</pre><p>
+If the <tt>ez_setup.py</tt> script fails to install the setuptools release, you can download it from <a class="ext-link" href="http://www.python.org/pypi/setuptools"><span class="icon">​</span>PyPI</a> and install it manually.
+</p>
+<p>
+Plugins can also consist of a single <tt>.py</tt> file dropped into either the environment or the shared plugins directory.
+</p>
+<h2 id="InstallingaTracPlugin">Installing a Trac Plugin</h2>
+<h3 id="ForaSingleProject">For a Single Project</h3>
+<p>
+Plugins are packaged as <a class="ext-link" href="http://peak.telecommunity.com/DevCenter/PythonEggs"><span class="icon">​</span>Python eggs</a>. That means they are ZIP archives with the file extension <tt>.egg</tt>. 
+</p>
+<p>
+If you have downloaded a source distribution of a plugin, and want to build the <tt>.egg</tt> file, follow this instruction:
+</p>
+<ul><li>Unpack the source. It should provide a setup.py. 
+</li><li>Run:
+<pre class="wiki">$ python setup.py bdist_egg
+</pre></li></ul><p>
+Then you will have a *.egg file. Examine the output of running python to find where this was created.
+</p>
+<p>
+Once you have the plugin archive, you need to copy it into the <tt>plugins</tt> directory of the <a class="wiki" href="/trac/wiki/TracEnvironment">project environment</a>. Also, make sure that the web server has sufficient permissions to read the plugin egg. Then, restart the web server (this requirement was not previously mentioned in this document, but in my tests it began working only after I did so).
+</p>
+<p>
+To uninstall a plugin installed this way, remove the egg from <tt>plugins</tt> directory and restart web server.
+</p>
+<p>
+Note that the Python version that the egg is built with must
+match the Python version with which Trac is run.  If for
+instance you are running Trac under Python 2.5, but have
+upgraded your standalone Python to 2.6, the eggs won't be
+recognized.
+</p>
+<p>
+Note also that in a multi-project setup, a pool of Python interpreter instances will be dynamically allocated to projects based on need, and since plugins occupy a place in Python's module system, the first version of any given plugin to be loaded will be used for all the projects. In other words, you cannot use different versions of a single plugin in two projects of a multi-project setup. It may be safer to install plugins for all projects (see below) and then enable them selectively on a project-by-project basis.
+</p>
+<h3 id="ForAllProjects">For All Projects</h3>
+<h4 id="Withan.eggfile">With an .egg file</h4>
+<p>
+Some plugins (such as <a class="ext-link" href="http://trac.edgewall.org/intertrac/SpamFilter" title="SpamFilter in Trac project trac"><span class="icon">​</span>SpamFilter</a>) are downloadable as a <tt>.egg</tt> file which can be installed with the <tt>easy_install</tt> program:
+</p>
+<pre class="wiki">easy_install TracSpamFilter
+</pre><p>
+If <tt>easy_install</tt> is not on your system see the Requirements section above to install it.  Windows users will need to add the <tt>Scripts</tt> directory of their Python installation (for example, <tt>C:\Python24\Scripts</tt>) to their <tt>PATH</tt> environment variable (see <a class="ext-link" href="http://peak.telecommunity.com/DevCenter/EasyInstall#windows-notes"><span class="icon">​</span>easy_install Windows notes</a> for more information).
+</p>
+<p>
+If Trac reports permission errors after installing a zipped egg and you would rather not bother providing a egg cache directory writable by the web server, you can get around it by simply unzipping the egg. Just pass <tt>--always-unzip</tt> to <tt>easy_install</tt>:
+</p>
+<pre class="wiki">easy_install --always-unzip TracSpamFilter-0.4.1_r10106-py2.6.egg
+</pre><p>
+You should end up with a directory having the same name as the zipped egg (complete with <tt>.egg</tt> extension) and containing its uncompressed contents.
+</p>
+<p>
+Trac also searches for plugins installed in the shared plugins directory <em>(since 0.10)</em>, see <a class="wiki" href="/trac/wiki/TracIni#GlobalConfiguration">TracIni#GlobalConfiguration</a>. This is a convenient way to share the installation of plugins across several but not all environments.
+</p>
+<h4 id="Fromsource">From source</h4>
+<p>
+<tt>easy_install</tt> makes installing from source a snap. Just give it the URL to either a Subversion repository or a tarball/zip of the source:
+</p>
+<pre class="wiki">easy_install http://svn.edgewall.com/repos/trac/plugins/0.12/spam-filter-captcha
+</pre><h4 id="Enablingtheplugin">Enabling the plugin</h4>
+<p>
+Unlike plugins installed per-environment, you'll have to explicitly enable globally installed plugins via <a class="wiki" href="/trac/wiki/TracIni">trac.ini</a>. This also applies to plugins installed in shared plugins directory, i.e. the path specified in the <tt>[inherit] plugins_dir</tt> configuration option. 
+</p>
+<p>
+This is done in the <tt>[components]</tt> section of the configuration file, for example:
+</p>
+<pre class="wiki">[components]
+tracspamfilter.* = enabled
+</pre><p>
+The name of the option is the Python package of the plugin. This should be specified in the documentation of the plugin, but can also be easily discovered by looking at the source (look for a top-level directory that contains a file named <tt>__init__.py</tt>.)
+</p>
+<p>
+Note: After installing the plugin, you need to restart your web server.
+</p>
+<h4 id="Uninstalling">Uninstalling</h4>
+<p>
+<tt>easy_install</tt> or <tt>python setup.py</tt> does not have an uninstall feature. Hower, it is usually quite trivial to remove a globally installed egg and reference:
+</p>
+<ol><li>Do <tt>easy_install -m [plugin name]</tt> to remove references from <tt>$PYTHONLIB/site-packages/easy-install.pth</tt> when the plugin installed by setuptools.
+</li><li>Delete executables from <tt>/usr/bin</tt>, <tt>/usr/local/bin</tt> or <tt>C:\\Python*\Scripts</tt>. For search what executables are there, you may refer to <tt>[console-script]</tt> section of <tt>setup.py</tt>.
+</li><li>Delete the .egg file or folder from where it is installed, usually inside <tt>$PYTHONLIB/site-packages/</tt>.
+</li><li>Restart web server.
+</li></ol><p>
+If you are uncertain about the location of the egg, here is a small tip to help locate an egg (or any package) - replace <tt>myplugin</tt> with whatever namespace the plugin uses (as used when enabling the plugin):
+</p>
+<pre class="wiki">&gt;&gt;&gt; import myplugin
+&gt;&gt;&gt; print myplugin.__file__
+/opt/local/python24/lib/site-packages/myplugin-0.4.2-py2.4.egg/myplugin/__init__.pyc
+</pre><h2 id="SettingupthePluginCache">Setting up the Plugin Cache</h2>
+<p>
+Some plugins will need to be extracted by the Python eggs runtime (<tt>pkg_resources</tt>), so that their contents are actual files on the file system. The directory in which they are extracted defaults to '.python-eggs' in the home directory of the current user, which may or may not be a problem. You can however override the default location using the <tt>PYTHON_EGG_CACHE</tt> environment variable.
+</p>
+<p>
+To do this from the Apache configuration, use the <tt>SetEnv</tt> directive as follows:
+</p>
+<pre class="wiki">SetEnv PYTHON_EGG_CACHE /path/to/dir
+</pre><p>
+This works whether you are using the <a class="wiki" href="/trac/wiki/TracCgi">CGI</a> or the <a class="wiki" href="/trac/wiki/TracModPython">mod_python</a> front-end. Put this directive next to where you set the path to the <a class="wiki" href="/trac/wiki/TracEnvironment">Trac environment</a>, i.e. in the same <tt>&lt;Location&gt;</tt> block.
+</p>
+<p>
+For example (for CGI):
+</p>
+<pre class="wiki"> &lt;Location /trac&gt;
+   SetEnv TRAC_ENV /path/to/projenv
+   SetEnv PYTHON_EGG_CACHE /path/to/dir
+ &lt;/Location&gt;
+</pre><p>
+or (for mod_python):
+</p>
+<pre class="wiki"> &lt;Location /trac&gt;
+   SetHandler mod_python
+   ...
+   SetEnv PYTHON_EGG_CACHE /path/to/dir
+ &lt;/Location&gt;
+</pre><blockquote>
+<p>
+<em>Note: SetEnv requires the <tt>mod_env</tt> module which needs to be activated for Apache. In this case the SetEnv directive can also be used in the <tt>mod_python</tt> Location block.</em>
+</p>
+</blockquote>
+<p>
+For <a class="wiki" href="/trac/wiki/TracFastCgi">FastCGI</a>, you'll need to <tt>-initial-env</tt> option, or whatever is provided by your web server for setting environment variables. 
+</p>
+<blockquote>
+<p>
+<em>Note: that if you already use -initial-env to set the project directory for either a single project or parent you will need to add an additional -initial-env directive to the FastCgiConfig directive. I.e.
+</em></p>
+</blockquote>
+<pre class="wiki">FastCgiConfig -initial-env TRAC_ENV=/var/lib/trac -initial-env PYTHON_EGG_CACHE=/var/lib/trac/plugin-cache
+</pre><h3 id="Abouthookscripts">About hook scripts</h3>
+<p>
+If you have set up some subversion hook scripts that call the Trac engine - such as the post-commit hook script provided in the <tt>/contrib</tt> directory - make sure you define the <tt>PYTHON_EGG_CACHE</tt> environment variable within these scripts as well.
+</p>
+<h2 id="Troubleshooting">Troubleshooting</h2>
+<h3 id="Issetuptoolsproperlyinstalled">Is setuptools properly installed?</h3>
+<p>
+Try this from the command line:
+</p>
+<pre class="wiki">$ python -c "import pkg_resources"
+</pre><p>
+If you get <strong>no output</strong>, setuptools <strong>is</strong> installed. Otherwise, you'll need to install it before plugins will work in Trac.
+</p>
+<h3 id="DidyougetthecorrectversionofthePythonegg">Did you get the correct version of the Python egg?</h3>
+<p>
+Python eggs have the Python version encoded in their filename. For example, <tt>MyPlugin-1.0-py2.5.egg</tt> is an egg for Python 2.5, and will <strong>not</strong> be loaded if you're running a different Python version (such as 2.4 or 2.6).
+</p>
+<p>
+Also, verify that the egg file you downloaded is indeed a ZIP archive. If you downloaded it from a Trac site, chances are you downloaded the HTML preview page instead.
+</p>
+<h3 id="Isthepluginenabled">Is the plugin enabled?</h3>
+<p>
+If you install a plugin globally (i.e. <em>not</em> inside the <tt>plugins</tt> directory of the Trac project environment) you will have to explicitly enable it in <a class="wiki" href="/trac/wiki/TracIni">trac.ini</a>. Make sure that:
+</p>
+<ul><li>you actually added the necessary line(s) to the <tt>[components]</tt> section
+</li><li>the package/module names are correct
+</li><li>the value is “enabled", not e.g. “enable”
+</li></ul><h3 id="Checkthepermissionsontheeggfile">Check the permissions on the egg file</h3>
+<p>
+Trac must be able to read the file. 
+</p>
+<h3 id="Checkthelogfiles">Check the log files</h3>
+<p>
+Enable <a class="wiki" href="/trac/wiki/TracLogging">logging</a> and set the log level to <tt>DEBUG</tt>, then watch the log file for messages about loading plugins.
+</p>
+<h3 id="Verifyyouhaveproperpermissions">Verify you have proper permissions</h3>
+<p>
+Some plugins require you have special permissions in order to use them. <a class="ext-link" href="http://trac.edgewall.org/intertrac/WebAdmin" title="WebAdmin in Trac project trac"><span class="icon">​</span>WebAdmin</a>, for example, requires the user to have TRAC_ADMIN permissions for it to show up on the navigation bar.
+</p>
+<h3 id="Isthewrongversionofthepluginloading">Is the wrong version of the plugin loading?</h3>
+<p>
+If you put your plugins inside plugins directories, and certainly if you have more than one project, you need to make sure that the correct version of the plugin is loading. Here are some basic rules:
+</p>
+<ul><li>Only one version of the plugin can be loaded for each running Trac server (ie. each Python process). The Python namespaces and module list will be shared, and it cannot handle duplicates. Whether a plugin is <tt>enabled</tt> or <tt>disabled</tt> makes no difference.
+</li><li>A globally installed plugin (typically <tt>setup.py install</tt>) will override any version in global or project plugins directories. A plugin from the global plugins directory will be located before any project plugins directory.
+</li><li>If your Trac server hosts more than one project (as with <tt>TRAC_ENV_PARENT_DIR</tt> setups), then having two versions of a plugin in two different projects will give uncertain results. Only one of them will load, and the one loaded will be shared by both projects. Trac will load the first found - basically from the project that receives the first request.
+</li><li>Having more than one version listed inside Python site-packages is fine (ie. installed with <tt>setup.py install</tt>) - setuptools will make sure you get the version installed most recently. However, don't store more than one version inside a global or project plugins directory - neither version number nor installed date will matter at all. There is no way to determine which one will be located first when Trac searches the directory for plugins.
+</li></ul><h3 id="Ifalloftheabovefailed">If all of the above failed</h3>
+<p>
+OK, so the logs don't mention plugins, the egg is readable, the python version is correct <em>and</em> the egg has been installed globally (and is enabled in the trac.ini) and it still doesn't work or give any error messages or any other indication as to why? Hop on the <a class="ext-link" href="http://trac.edgewall.org/intertrac/IrcChannel" title="IrcChannel in Trac project trac"><span class="icon">​</span>IrcChannel</a> and ask away.
+</p>
+<hr />
+<p>
+See also <a class="wiki" href="/trac/wiki/TracGuide">TracGuide</a>, <a class="ext-link" href="http://trac.edgewall.org/intertrac/PluginList" title="PluginList in Trac project trac"><span class="icon">​</span>plugin list</a>, <a class="ext-link" href="http://trac.edgewall.org/intertrac/TracDev/ComponentArchitecture" title="TracDev/ComponentArchitecture in Trac project trac"><span class="icon">​</span>component architecture</a>
+</p>
+</div>
+        
+        
+      </div>
+      
+
+    </div>
+    <div id="altlinks">
+      <h3>Download in other formats:</h3>
+      <ul>
+        <li class="last first">
+          <a rel="nofollow" href="/trac/wiki/TracPlugins?format=txt">Plain Text</a>
+        </li>
+      </ul>
+    </div>
+    </div>
+    <div id="footer" lang="en" xml:lang="en"><hr />
+      <a id="tracpowered" href="http://trac.edgewall.org/"><img src="/trac/chrome/common/trac_logo_mini.png" height="30" width="107" alt="Trac Powered" /></a>
+      <p class="left">Powered by <a href="/trac/about"><strong>Trac 0.12.4</strong></a><br />
+        By <a href="http://www.edgewall.org/">Edgewall Software</a>.</p>
+      <p class="right">Visit the Trac open source project at<br /><a href="http://trac.edgewall.org/">http://trac.edgewall.org/</a></p>
+    </div>
+    <div id="footer">
+	<div id="copyright">Copyright © Garlik 2009</div>
+		<div id="garlik_logo">
+	<a href="http://www.garlik.com/" rel="external" title="Click here to visit the Garlik homepage"><img src="/images/garlik.gif" alt="powered by Garlik" /></a>
+	</div>
+	<div id="foot_nav">
+	<ul>
+			<li><a href="/about" title="About" id="about">About</a></li>
+			<li><a href="/faqs" title="FAQs" id="faqs">FAQs</a></li>
+			<li><a href="/support" title="Install" id="support">Support</a></li>
+			<li><a href="/developers" title="Developers" id="developers">Developers</a></li>
+			<li><a href="/projects" title="Projects" id="projetcs">Projects</a></li>
+	</ul>
+	</div>
+    </div>
+    </div>
+  </body>
+</html>

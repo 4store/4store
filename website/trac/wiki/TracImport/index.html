@@ -1,0 +1,235 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  
+  
+
+  
+
+
+  <head>
+    <title>
+      TracImport – 4store
+    </title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <!--[if IE]><script type="text/javascript">
+      if (/^#__msie303:/.test(window.location.hash))
+        window.location.replace(window.location.hash.replace(/^#__msie303:/, '#'));
+    </script><![endif]-->
+        <link rel="search" href="/trac/search" />
+        <link rel="help" href="/trac/wiki/TracGuide" />
+        <link rel="alternate" href="/trac/wiki/TracImport?format=txt" type="text/x-trac-wiki" title="Plain Text" />
+        <link rel="start" href="/trac/wiki" />
+        <link rel="stylesheet" href="/trac/chrome/common/css/trac.css" type="text/css" /><link rel="stylesheet" href="/trac/chrome/common/css/wiki.css" type="text/css" />
+        <link rel="shortcut icon" href="/images/favico.png" type="image/png" />
+        <link rel="icon" href="/images/favico.png" type="image/png" />
+      <link type="application/opensearchdescription+xml" rel="search" href="/trac/search/opensearch" title="Search 4store" />
+    <script type="text/javascript" src="/trac/chrome/common/js/jquery.js"></script><script type="text/javascript" src="/trac/chrome/common/js/babel.js"></script><script type="text/javascript" src="/trac/chrome/common/js/messages/en_US.js"></script><script type="text/javascript" src="/trac/chrome/common/js/trac.js"></script><script type="text/javascript" src="/trac/chrome/common/js/search.js"></script><script type="text/javascript" src="/trac/chrome/common/js/folding.js"></script>
+    <!--[if lt IE 7]>
+    <script type="text/javascript" src="/trac/chrome/common/js/ie_pre7_hacks.js"></script>
+    <![endif]-->
+    <meta name="ROBOTS" content="NOINDEX, NOFOLLOW" />
+    <script type="text/javascript">
+      jQuery(document).ready(function($) {
+        $("#content").find("h1,h2,h3,h4,h5,h6").addAnchor(_("Link to this section"));
+        $("#content").find(".wikianchor").each(function() {
+          $(this).addAnchor(babel.format(_("Link to #%(id)s"), {id: $(this).attr('id')}));
+        });
+        $(".foldable").enableFolding(true, true);
+      });
+    </script>
+    <link rel="stylesheet" type="text/css" href="/style/main.css" />
+  </head>
+  <body>
+    <div id="container">
+    <div id="siteheader">
+    </div>
+    <div id="banner">
+      <div id="header">
+        <a id="logo" href="http://4store.org/"><img src="/images/4store.png" alt="4store" height="48" width="143" /></a>
+      </div>
+      <form id="search" action="/trac/search" method="get">
+        <div>
+          <label for="proj-search">Search:</label>
+          <input type="text" id="proj-search" name="q" size="18" value="" />
+          <input type="submit" value="Search" />
+        </div>
+      </form>
+      <div id="metanav" class="nav">
+    <ul>
+      <li class="first"><a href="/trac/login">Login</a></li><li><a href="/trac/prefs">Preferences</a></li><li><a href="/trac/wiki/TracGuide">Help/Guide</a></li><li class="last"><a href="/trac/about">About Trac</a></li>
+    </ul>
+  </div>
+    </div>
+    <div id="mainnav" class="nav">
+    <ul>
+      <li class="first active"><a href="/trac/wiki">Wiki</a></li><li><a href="/trac/timeline">Timeline</a></li><li><a href="/trac/roadmap">Roadmap</a></li><li><a href="/trac/report">View Tickets</a></li><li class="last"><a href="/trac/search">Search</a></li>
+    </ul>
+  </div>
+    <div id="main">
+      <div id="pagepath" class="noprint">
+  <a class="pathentry first" title="View WikiStart" href="/trac/wiki">wiki:</a><a class="pathentry" href="/trac/wiki/TracImport" title="View TracImport">TracImport</a>
+</div>
+      <div id="ctxtnav" class="nav">
+        <h2>Context Navigation</h2>
+          <ul>
+              <li class="first"><a href="/trac/wiki/WikiStart">Start Page</a></li><li><a href="/trac/wiki/TitleIndex">Index</a></li><li class="last"><a href="/trac/wiki/TracImport?action=history">History</a></li>
+          </ul>
+        <hr />
+      </div>
+    <div id="content" class="wiki">
+      <div class="wikipage searchable">
+        
+          
+          <div class="trac-modifiedby">
+            <span><a href="/trac/wiki/TracImport?action=diff&amp;version=2" title="Version 2 by trac">Last modified</a> <a class="timeline" href="/trac/timeline?from=2011-12-01T17%3A47%3A14Z&amp;precision=second" title="2011-12-01T17:47:14Z in Timeline">4 years</a> ago</span>
+            <span class="trac-print">Last modified on 01/12/11 17:47:14</span>
+          </div>
+          <div id="wikipage"><h1 id="Importingticketdata">Importing ticket data</h1>
+<h2 id="Bugzilla">Bugzilla</h2>
+<p>
+Ticket data can be imported from Bugzilla using the <a class="ext-link" href="http://trac.edgewall.org/browser/trunk/contrib/bugzilla2trac.py"><span class="icon">​</span>bugzilla2trac.py</a> script, available in the contrib/ directory of the Trac distribution.
+</p>
+<pre class="wiki">$ bugzilla2trac.py
+bugzilla2trac - Imports a bug database from Bugzilla into Trac.
+
+Usage: bugzilla2trac.py [options]
+
+Available Options:
+  --db &lt;MySQL dbname&gt;              - Bugzilla's database
+  --tracenv /path/to/trac/env      - full path to Trac db environment
+  -h | --host &lt;MySQL hostname&gt;     - Bugzilla's DNS host name
+  -u | --user &lt;MySQL username&gt;     - effective Bugzilla's database user
+  -p | --passwd &lt;MySQL password&gt;   - Bugzilla's user password
+  -c | --clean                     - remove current Trac tickets before importing
+  --help | help                    - this help info
+
+Additional configuration options can be defined directly in the script.
+</pre><p>
+Currently, the following data is imported from Bugzilla:
+</p>
+<ul><li>bugs
+</li><li>bug activity (field changes)
+</li><li>bug attachments
+</li><li>user names and passwords (put into a htpasswd file)
+</li></ul><p>
+The script provides a number of features to ease the conversion, such as:
+</p>
+<ul><li>PRODUCT_KEYWORDS:  Trac doesn't have the concept of products, so the script provides the ability to attach a ticket keyword instead.
+</li></ul><ul><li>IGNORE_COMMENTS:  Don't import Bugzilla comments that match a certain regexp.
+</li></ul><ul><li>STATUS_KEYWORDS:  Attach ticket keywords for the Bugzilla statuses not available in Trac.  By default, the 'VERIFIED' and 'RELEASED' Bugzilla statuses are translated into Trac keywords.
+</li></ul><p>
+For more details on the available options, see the configuration section at the top of the script.
+</p>
+<h2 id="Sourceforge">Sourceforge</h2>
+<p>
+Ticket data can be imported from Sourceforge using the <a class="ext-link" href="http://trac.edgewall.org/browser/trunk/contrib/sourceforge2trac.py"><span class="icon">​</span>sourceforge2trac.py</a> script, available in the contrib/ directory of the Trac distribution.
+</p>
+<p>
+See #Trac3521 for an updated sourceforge2trac script.
+</p>
+<h2 id="Mantis">Mantis</h2>
+<p>
+The mantis2trac script now lives at <a class="ext-link" href="http://trac-hacks.org/wiki/MantisImportScript"><span class="icon">​</span>http://trac-hacks.org/wiki/MantisImportScript</a>. You can always get the latest version from <a class="ext-link" href="http://trac-hacks.org/changeset/latest/mantisimportscript?old_path=/&amp;filename=mantisimportscript&amp;format=zip"><span class="icon">​</span>http://trac-hacks.org/changeset/latest/mantisimportscript?old_path=/&amp;filename=mantisimportscript&amp;format=zip</a>
+</p>
+<p>
+Mantis bugs can be imported using the attached script.
+</p>
+<p>
+Currently, the following data is imported from Mantis:
+</p>
+<ul><li>bugs
+</li><li>bug comments
+</li><li>bug activity (field changes)
+</li><li>attachments (as long as the files live in the mantis db, not on the filesystem) 
+</li></ul><p>
+If you use the script, please read the NOTES section (at the top of the file) and make sure you adjust the config parameters for your environment.
+</p>
+<p>
+mantis2trac.py has the same parameters as the bugzilla2trac.py script:
+</p>
+<pre class="wiki">mantis2trac - Imports a bug database from Mantis into Trac.
+
+Usage: mantis2trac.py [options] 
+
+Available Options:
+  --db &lt;MySQL dbname&gt;              - Mantis database
+  --tracenv /path/to/trac/env      - Full path to Trac db environment
+  -h | --host &lt;MySQL hostname&gt;     - Mantis DNS host name
+  -u | --user &lt;MySQL username&gt;     - Effective Mantis database user
+  -p | --passwd &lt;MySQL password&gt;   - Mantis database user password
+  -c | --clean                     - Remove current Trac tickets before importing
+  --help | help                    - This help info
+
+Additional configuration options can be defined directly in the script.
+</pre><h2 id="Jira">Jira</h2>
+<p>
+The <a class="ext-link" href="http://trac-hacks.org/wiki/JiraToTracIntegration"><span class="icon">​</span>Jira2Trac plugin</a> provides you with tools to import Atlassian Jira backup files into Trac.
+</p>
+<p>
+The plugin consists of a Python 3.1 commandline tool that:
+</p>
+<ul><li>Parses the Jira backup XML file
+</li><li>Sends the imported Jira data and attachments to Trac using the <a class="ext-link" href="http://trac-hacks.org/wiki/XmlRpcPlugin"><span class="icon">​</span>XmlRpcPlugin</a>
+</li><li>Generates a htpasswd file containing the imported Jira users and their SHA-512 base64 encoded passwords
+</li></ul><h2 id="Other">Other</h2>
+<p>
+Since trac uses a SQL database to store the data, you can import from other systems by examining the database tables. Just go into <a class="ext-link" href="http://www.sqlite.org/sqlite.html"><span class="icon">​</span>sqlite</a> command line to look at the tables and import into them from your application.
+</p>
+<h3 id="Usingacommadelimitedfile-CSV">Using a comma delimited file - CSV</h3>
+<p>
+See <a class="ext-link" href="http://trac.edgewall.org/attachment/wiki/TracSynchronize/csv2trac.2.py"><span class="icon">​</span>http://trac.edgewall.org/attachment/wiki/TracSynchronize/csv2trac.2.py</a> for details.  This approach is particularly useful if one needs to enter a large number of tickets by hand. (note that the ticket type type field, (task etc...) is also needed for this script to work with more recent Trac releases)
+Comments on script: The script has an error on line 168, ('Ticket' needs to be 'ticket').  Also, the listed values for severity and priority are swapped. 
+</p>
+<h3 id="UsinganExcel.xlsorcommadelimitedfile.csv">Using an Excel (.xls) or comma delimited file (.csv)</h3>
+<p>
+This plugin <a class="ext-link" href="http://trac-hacks.org/wiki/TicketImportPlugin"><span class="icon">​</span>http://trac-hacks.org/wiki/TicketImportPlugin</a> lets you import into Trac a series of tickets from a CSV file or (if the xlrd library is installed) from an Excel file.
+</p>
+<p>
+You can also use it to modify tickets in batch, by saving a report as CSV, editing the CSV file, and re-importing the tickets.
+</p>
+<p>
+This plugin is very useful when starting a new project: you can import a list of requirements that may have come from meeting notes, list of features, other ticketing systems... It's also great to review the tickets off-line, or to do massive changes to tickets.
+</p>
+<p>
+Based on the ticket id (or, if no id exists, on the summary) in the imported file, tickets are either created or updated. 
+</p>
+</div>
+        
+        
+      </div>
+      
+
+    </div>
+    <div id="altlinks">
+      <h3>Download in other formats:</h3>
+      <ul>
+        <li class="last first">
+          <a rel="nofollow" href="/trac/wiki/TracImport?format=txt">Plain Text</a>
+        </li>
+      </ul>
+    </div>
+    </div>
+    <div id="footer" lang="en" xml:lang="en"><hr />
+      <a id="tracpowered" href="http://trac.edgewall.org/"><img src="/trac/chrome/common/trac_logo_mini.png" height="30" width="107" alt="Trac Powered" /></a>
+      <p class="left">Powered by <a href="/trac/about"><strong>Trac 0.12.4</strong></a><br />
+        By <a href="http://www.edgewall.org/">Edgewall Software</a>.</p>
+      <p class="right">Visit the Trac open source project at<br /><a href="http://trac.edgewall.org/">http://trac.edgewall.org/</a></p>
+    </div>
+    <div id="footer">
+	<div id="copyright">Copyright © Garlik 2009</div>
+		<div id="garlik_logo">
+	<a href="http://www.garlik.com/" rel="external" title="Click here to visit the Garlik homepage"><img src="/images/garlik.gif" alt="powered by Garlik" /></a>
+	</div>
+	<div id="foot_nav">
+	<ul>
+			<li><a href="/about" title="About" id="about">About</a></li>
+			<li><a href="/faqs" title="FAQs" id="faqs">FAQs</a></li>
+			<li><a href="/support" title="Install" id="support">Support</a></li>
+			<li><a href="/developers" title="Developers" id="developers">Developers</a></li>
+			<li><a href="/projects" title="Projects" id="projetcs">Projects</a></li>
+	</ul>
+	</div>
+    </div>
+    </div>
+  </body>
+</html>

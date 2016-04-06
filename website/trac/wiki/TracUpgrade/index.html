@@ -1,0 +1,295 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  
+  
+
+  
+
+
+  <head>
+    <title>
+      TracUpgrade – 4store
+    </title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <!--[if IE]><script type="text/javascript">
+      if (/^#__msie303:/.test(window.location.hash))
+        window.location.replace(window.location.hash.replace(/^#__msie303:/, '#'));
+    </script><![endif]-->
+        <link rel="search" href="/trac/search" />
+        <link rel="help" href="/trac/wiki/TracGuide" />
+        <link rel="alternate" href="/trac/wiki/TracUpgrade?format=txt" type="text/x-trac-wiki" title="Plain Text" />
+        <link rel="start" href="/trac/wiki" />
+        <link rel="stylesheet" href="/trac/chrome/common/css/trac.css" type="text/css" /><link rel="stylesheet" href="/trac/chrome/common/css/wiki.css" type="text/css" />
+        <link rel="shortcut icon" href="/images/favico.png" type="image/png" />
+        <link rel="icon" href="/images/favico.png" type="image/png" />
+      <link type="application/opensearchdescription+xml" rel="search" href="/trac/search/opensearch" title="Search 4store" />
+    <script type="text/javascript" src="/trac/chrome/common/js/jquery.js"></script><script type="text/javascript" src="/trac/chrome/common/js/babel.js"></script><script type="text/javascript" src="/trac/chrome/common/js/messages/en_US.js"></script><script type="text/javascript" src="/trac/chrome/common/js/trac.js"></script><script type="text/javascript" src="/trac/chrome/common/js/search.js"></script><script type="text/javascript" src="/trac/chrome/common/js/folding.js"></script>
+    <!--[if lt IE 7]>
+    <script type="text/javascript" src="/trac/chrome/common/js/ie_pre7_hacks.js"></script>
+    <![endif]-->
+    <meta name="ROBOTS" content="NOINDEX, NOFOLLOW" />
+    <script type="text/javascript">
+      jQuery(document).ready(function($) {
+        $("#content").find("h1,h2,h3,h4,h5,h6").addAnchor(_("Link to this section"));
+        $("#content").find(".wikianchor").each(function() {
+          $(this).addAnchor(babel.format(_("Link to #%(id)s"), {id: $(this).attr('id')}));
+        });
+        $(".foldable").enableFolding(true, true);
+      });
+    </script>
+    <link rel="stylesheet" type="text/css" href="/style/main.css" />
+  </head>
+  <body>
+    <div id="container">
+    <div id="siteheader">
+    </div>
+    <div id="banner">
+      <div id="header">
+        <a id="logo" href="http://4store.org/"><img src="/images/4store.png" alt="4store" height="48" width="143" /></a>
+      </div>
+      <form id="search" action="/trac/search" method="get">
+        <div>
+          <label for="proj-search">Search:</label>
+          <input type="text" id="proj-search" name="q" size="18" value="" />
+          <input type="submit" value="Search" />
+        </div>
+      </form>
+      <div id="metanav" class="nav">
+    <ul>
+      <li class="first"><a href="/trac/login">Login</a></li><li><a href="/trac/prefs">Preferences</a></li><li><a href="/trac/wiki/TracGuide">Help/Guide</a></li><li class="last"><a href="/trac/about">About Trac</a></li>
+    </ul>
+  </div>
+    </div>
+    <div id="mainnav" class="nav">
+    <ul>
+      <li class="first active"><a href="/trac/wiki">Wiki</a></li><li><a href="/trac/timeline">Timeline</a></li><li><a href="/trac/roadmap">Roadmap</a></li><li><a href="/trac/report">View Tickets</a></li><li class="last"><a href="/trac/search">Search</a></li>
+    </ul>
+  </div>
+    <div id="main">
+      <div id="pagepath" class="noprint">
+  <a class="pathentry first" title="View WikiStart" href="/trac/wiki">wiki:</a><a class="pathentry" href="/trac/wiki/TracUpgrade" title="View TracUpgrade">TracUpgrade</a>
+</div>
+      <div id="ctxtnav" class="nav">
+        <h2>Context Navigation</h2>
+          <ul>
+              <li class="first"><a href="/trac/wiki/WikiStart">Start Page</a></li><li><a href="/trac/wiki/TitleIndex">Index</a></li><li class="last"><a href="/trac/wiki/TracUpgrade?action=history">History</a></li>
+          </ul>
+        <hr />
+      </div>
+    <div id="content" class="wiki">
+      <div class="wikipage searchable">
+        
+          
+          <div class="trac-modifiedby">
+            <span><a href="/trac/wiki/TracUpgrade?action=diff&amp;version=2" title="Version 2 by trac">Last modified</a> <a class="timeline" href="/trac/timeline?from=2011-12-01T17%3A47%3A14Z&amp;precision=second" title="2011-12-01T17:47:14Z in Timeline">4 years</a> ago</span>
+            <span class="trac-print">Last modified on 01/12/11 17:47:14</span>
+          </div>
+          <div id="wikipage"><h1 id="UpgradeInstructions">Upgrade Instructions</h1>
+<p>
+</p><div class="wiki-toc"><h4>Table of Contents</h4><ul><li class="False"><a class="False" href="/trac/wiki/TracGuide">Index</a></li><li class="False"><a class="False" href="/trac/wiki/TracInstall">Installation</a></li><li class="False"><a class="False" href="/trac/wiki/TracInterfaceCustomization">Customization</a></li><li class="False"><a class="False" href="/trac/wiki/TracPlugins">Plugins</a></li><li class="active"><a class="False" href="/trac/wiki/TracUpgrade">Upgrading</a></li><li class="False"><a class="False" href="/trac/wiki/TracIni">Configuration</a></li><li class="False"><a class="False" href="/trac/wiki/TracAdmin">Administration</a></li><li class="False"><a class="False" href="/trac/wiki/TracBackup">Backup</a></li><li class="False"><a class="False" href="/trac/wiki/TracLogging">Logging</a></li><li class="False"><a class="False" href="/trac/wiki/TracPermissions">Permissions</a></li><li class="False"><a class="False" href="/trac/wiki/TracWiki">The Wiki</a></li><li class="False"><a class="False" href="/trac/wiki/WikiFormatting">Wiki Formatting</a></li><li class="False"><a class="False" href="/trac/wiki/TracTimeline">Timeline</a></li><li class="False"><a class="False" href="/trac/wiki/TracBrowser">Repository Browser</a></li><li class="False"><a class="False" href="/trac/wiki/TracRevisionLog">Revision Log</a></li><li class="False"><a class="False" href="/trac/wiki/TracChangeset">Changesets</a></li><li class="False"><a class="False" href="/trac/wiki/TracTickets">Tickets</a></li><li class="False"><a class="False" href="/trac/wiki/TracWorkflow">Workflow</a></li><li class="False"><a class="False" href="/trac/wiki/TracRoadmap">Roadmap</a></li><li class="False"><a class="False" href="/trac/wiki/TracQuery">Ticket Queries</a></li><li class="False"><a class="False" href="/trac/wiki/TracReports">Reports</a></li><li class="False"><a class="False" href="/trac/wiki/TracRss">RSS Support</a></li><li class="False"><a class="False" href="/trac/wiki/TracNotification">Notification</a></li></ul></div><p>
+</p>
+<h2 id="Instructions">Instructions</h2>
+<p>
+Typically, there are seven steps involved in upgrading to a newer version of Trac:
+</p>
+<h3 id="UpdatetheTracCode">1. Update the Trac Code</h3>
+<p>
+Get the new version as described in <a class="wiki" href="/trac/wiki/TracInstall">TracInstall</a>, or your operating system specific procedure.
+</p>
+<p>
+If you already have a 0.11 version of Trac installed via <tt>easy_install</tt>, it might be easiest to also use <tt>easy_install</tt> to upgrade your Trac installation:
+</p>
+<pre class="wiki"># easy_install --upgrade Trac==0.12
+</pre><p>
+If you do a manual (not operating system-specific) upgrade, you should also stop any running Trac servers before the installation. Doing "hot" upgrades is not advised, especially on Windows (<a class="ext-link" href="http://trac.edgewall.org/intertrac/%237265" title="#7265 in Trac project trac"><span class="icon">​</span>#7265</a>).
+</p>
+<p>
+You may also want to remove the pre-existing Trac code by deleting the <tt>trac</tt> directory from the Python <tt>lib/site-packages</tt> directory, or remove Trac <tt>.egg</tt> files from former versions.
+The location of the site-packages directory depends on the operating system and the location in which Python was installed. However, the following locations are typical:
+</p>
+<ul><li>on Linux: <tt>/usr/lib/python2.X/site-packages</tt>
+</li><li>on Windows: <tt>C:\Python2.X\lib\site-packages</tt>
+</li><li>on MacOSX: <tt>/Library/Python/2.X/site-packages</tt>
+</li></ul><p>
+You may also want to remove the Trac <tt>cgi-bin</tt>, <tt>htdocs</tt>, <tt>templates</tt> and <tt>wiki-default</tt> directories that are commonly found in a directory called <tt>share/trac</tt>. (The exact location depends on your platform.)
+</p>
+<p>
+This cleanup is not mandatory, but makes it easier to troubleshoot issues later on, as you won't waste your time looking at code or templates from a previous release that are not being used anymore... As usual, make a backup before actually deleting things.
+</p>
+<h3 id="UpgradetheTracEnvironment">2. Upgrade the Trac Environment</h3>
+<p>
+Environment upgrades are not necessary for minor version releases unless otherwise noted. 
+</p>
+<p>
+After restarting, Trac should show the instances which need a manual upgrade via the automated upgrade scripts to ease the pain. These scripts are run via <a class="wiki" href="/trac/wiki/TracAdmin">trac-admin</a>:
+</p>
+<pre class="wiki">trac-admin /path/to/projenv upgrade
+</pre><p>
+This command will do nothing if the environment is already up-to-date.
+</p>
+<p>
+Note that a backup of your database will be performed automatically prior to the upgrade. 
+This feature is relatively new for the PostgreSQL or MySQL database backends, so if it fails, you will have to backup the database manually. Then, to perform the actual upgrade, run:
+</p>
+<pre class="wiki">trac-admin /path/to/projenv upgrade --no-backup
+</pre><h3 id="UpdatetheTracDocumentation">3. Update the Trac Documentation</h3>
+<p>
+Every <a class="wiki" href="/trac/wiki/TracEnvironment">Trac environment</a> includes a copy of the Trac documentation for the installed version. As you probably want to keep the included documentation in sync with the installed version of Trac, <a class="wiki" href="/trac/wiki/TracAdmin">trac-admin</a> provides a command to upgrade the documentation:
+</p>
+<pre class="wiki">trac-admin /path/to/projenv wiki upgrade
+</pre><p>
+Note that this procedure will leave your <tt>WikiStart</tt> page intact.
+</p>
+<h3 id="a4.ResynchronizetheTracEnvironmentAgainsttheSourceCodeRepository">4. Resynchronize the Trac Environment Against the Source Code Repository</h3>
+<p>
+Each <a class="wiki" href="/trac/wiki/TracEnvironment">Trac environment</a> must be resynchronized against the source code repository in order to avoid errors such as "<a class="ext-link" href="http://trac.edgewall.org/ticket/6120"><span class="icon">​</span>No changeset ??? in the repository</a>" while browsing the source through the Trac interface:
+</p>
+<pre class="wiki">trac-admin /path/to/projenv repository resync '*'
+</pre><h3 id="a5.Refreshstaticresources">5. Refresh static resources</h3>
+<p>
+If you have set up a web server to give out static resources directly (accessed using the <tt>/chrome/</tt> URL) then you will need to refresh them using the same command:
+</p>
+<pre class="wiki">trac-admin /path/to/env deploy /deploy/path
+</pre><p>
+this will extract static resources and CGI scripts (<tt>trac.wsgi</tt>, etc) from new Trac version and its plugins into <tt>/deploy/path</tt>.
+</p>
+<p>
+Some web browsers cache CSS and Javascript files persistently, so you may need to instruct your users to manually erase the contents of their browser's cache.
+</p>
+<h3 id="a6.StepsspecifictoagivenTracversion">6. Steps specific to a given Trac version</h3>
+<h4 id="UpgradingfromTrac0.11toTrac0.12">Upgrading from Trac 0.11 to Trac 0.12</h4>
+<h5 id="Python2.3nolongersupported">Python 2.3 no longer supported</h5>
+<p>
+The minimum supported version of python is now 2.4
+</p>
+<h5 id="SQLitev3.xrequired">SQLite v3.x required</h5>
+<p>
+SQLite v2.x is no longer supported. If you still use a Trac database of this format, you'll need to convert it to SQLite v3.x first. See <a class="ext-link" href="http://trac.edgewall.org/intertrac/PySqlite%23UpgradingSQLitefrom2.xto3.x" title="PySqlite#UpgradingSQLitefrom2.xto3.x in Trac project trac"><span class="icon">​</span>PySqlite#UpgradingSQLitefrom2.xto3.x</a> for details.
+</p>
+<h5 id="PySqlite2required"><a class="missing wiki">PySqlite?</a> 2 required</h5>
+<p>
+<a class="missing wiki">PySqlite?</a> 1.1.x is no longer supported. Please install 2.5.5 or later if possible (see <a class="wiki" href="/trac/wiki/TracUpgrade#Tracdatabaseupgrade">Trac database upgrade</a> below).
+</p>
+<h5 id="MultipleRepositorySupport">Multiple Repository Support</h5>
+<p>
+The latest version includes support for multiple repositories. If you plan to add more repositories to your Trac instance, please refer to <a class="wiki" href="/trac/wiki/TracRepositoryAdmin#Migration">TracRepositoryAdmin#Migration</a>.
+</p>
+<p>
+This may be of interest to users with only one repository, since there's now a way to avoid the potentially costly resync check at every request.
+</p>
+<h5 id="Improvedrepositorysynchronization">Improved repository synchronization</h5>
+<p>
+In addition to supporting multiple repositories, there is now a more efficient method for synchronizing Trac and your repositories.
+</p>
+<p>
+While you can keep the same synchronization as in 0.11 adding the post-commit hook as outlined in <a class="wiki" href="/trac/wiki/TracRepositoryAdmin#Synchronization">TracRepositoryAdmin#Synchronization</a> and <a class="wiki" href="/trac/wiki/TracRepositoryAdmin#ExplicitSync">TracRepositoryAdmin#ExplicitSync</a> will allow more efficient synchronization and is more or less required for multiple repositories.
+</p>
+<p>
+Note that if you were using the <tt>trac-post-commit-hook</tt>, <em>you're strongly advised to upgrade it</em> to the new hook documented in the above references, as the old hook will not work with anything else than the default repository and even for this case, it won't trigger the appropriate notifications.
+</p>
+<h5 id="Authzpermissionchecking">Authz permission checking</h5>
+<p>
+The authz permission checking has been migrated to a fine-grained permission policy. If you use authz permissions (aka <tt>[trac] authz_file</tt> and <tt>authz_module_name</tt>), you must add <tt>AuthzSourcePolicy</tt> in front of your permission policies in <tt>[trac] permission_policies</tt>. You must also remove <tt>BROWSER_VIEW</tt>, <tt>CHANGESET_VIEW</tt>, <tt>FILE_VIEW</tt> and <tt>LOG_VIEW</tt> from your global permissions (with <tt>trac-admin $ENV permission remove</tt> or the "Permissions" admin panel).
+</p>
+<h4 id="UpgradingfromTrac0.10toTrac0.11">Upgrading from Trac 0.10 to Trac 0.11</h4>
+<h5 id="SiteTemplatesandStyles">Site Templates and Styles</h5>
+<p>
+The templating engine has changed in 0.11 to Genshi, please look at <a class="wiki" href="/trac/wiki/TracInterfaceCustomization">TracInterfaceCustomization</a> for more information.
+</p>
+<p>
+If you are using custom CSS styles or modified templates in the <tt>templates</tt> directory of the <a class="wiki" href="/trac/wiki/TracEnvironment">TracEnvironment</a>, you will need to convert them to the Genshi way of doing things. To continue to use your style sheet, follow the instructions at <a class="wiki" href="/trac/wiki/TracInterfaceCustomization#SiteAppearance">TracInterfaceCustomization#SiteAppearance</a>.
+</p>
+<h5 id="TracMacrosPlugins">Trac Macros, Plugins</h5>
+<p>
+The Trac macros will need to be adapted, as the old-style wiki-macros are not supported anymore (due to the drop of <a class="ext-link" href="http://trac.edgewall.org/intertrac/ClearSilver" title="ClearSilver in Trac project trac"><span class="icon">​</span>ClearSilver</a> and the HDF); they need to be converted to the new-style macros, see <a class="wiki" href="/trac/wiki/WikiMacros">WikiMacros</a>. When they are converted to the new style, they need to be placed into the plugins directory instead and not wiki-macros, which is no longer scanned for macros or plugins.
+</p>
+<h5 id="ForFCGIWSGICGIusers">For FCGI/WSGI/CGI users</h5>
+<p>
+For those who run Trac under the CGI environment, run this command in order to obtain the trac.*gi file:
+</p>
+<pre class="wiki">trac-admin /path/to/env deploy /deploy/directory/path
+</pre><p>
+This will create a deploy directory with the following two subdirectories: <tt>cgi-bin</tt> and <tt>htdocs</tt>. Then update your Apache configuration file <tt>httpd.conf</tt> with this new <tt>trac.cgi</tt> location and <tt>htdocs</tt> location.
+</p>
+<h5 id="WebAdminpluginintegrated">Web Admin plugin integrated</h5>
+<p>
+If you had the webadmin plugin installed, you can uninstall it as it is part of the Trac code base since 0.11.
+</p>
+<h3 id="RestarttheWebServer">7. Restart the Web Server</h3>
+<p>
+If you are not running <a class="wiki" href="/trac/wiki/TracCgi">CGI</a>, reload the new Trac code by restarting your web server.
+</p>
+<h2 id="KnownIssues">Known Issues</h2>
+<h3 id="parentdir">parent dir</h3>
+<p>
+If you use a trac parent env configuration and one of the plugins in one child does not work, none of the children work.
+</p>
+<h3 id="WikiUpgrade">Wiki Upgrade</h3>
+<p>
+<tt>trac-admin</tt> will not delete or remove default wiki pages that were present in a previous version but are no longer in the new version.
+</p>
+<h3 id="Tracdatabaseupgrade">Trac database upgrade</h3>
+<p>
+A known issue in some versions of <a class="missing wiki">PySqlite?</a> (2.5.2-2.5.4) prevents the trac-admin upgrade script from successfully upgrading the database format. It is advised to use either a newer or older version of the sqlite python bindings to avoid this error. For more details see ticket <a class="ext-link" href="http://trac.edgewall.org/intertrac/%239434" title="#9434 in Trac project trac"><span class="icon">​</span>#9434</a>.
+</p>
+<h2 id="UpgradingPython">Upgrading Python</h2>
+<p>
+Upgrading Python to a newer version will require reinstallation of Python packages: Trac of course; also <a class="ext-link" href="http://pypi.python.org/pypi/setuptools"><span class="icon">​</span>easy_install</a>, if you've been using that.  Assuming you're using Subversion, you'll also need to upgrade the Python bindings for svn.
+</p>
+<h3 id="WindowsandPython2.6">Windows and Python 2.6</h3>
+<p>
+If you've been using CollabNet's Subversion package, you may need to uninstall that in favor of <a class="ext-link" href="http://alagazam.net/"><span class="icon">​</span>Algazam</a>, which has the Python bindings readily available (see <a class="missing wiki">TracSubversion?</a>).  The good news is, that works with no tweaking.
+</p>
+<h2 id="ChangingDatabaseBackend">Changing Database Backend</h2>
+<h3 id="SQLitetoPostgreSQL">SQLite to PostgreSQL</h3>
+<p>
+The <a class="ext-link" href="http://trac-hacks.org/wiki/SqliteToPgScript"><span class="icon">​</span>sqlite2pg</a> script on <a class="ext-link" href="http://trac-hacks.org"><span class="icon">​</span>trac-hacks.org</a> has been written to assist in migrating a SQLite database to a PostgreSQL database
+</p>
+<h2 id="OlderVersions">Older Versions</h2>
+<p>
+For upgrades from versions older than Trac 0.10, refer first to <a class="ext-link" href="http://trac.edgewall.org/intertrac/wiki%3A0.10/TracUpgrade%23SpecificVersions" title="wiki:0.10/TracUpgrade#SpecificVersions in Trac project trac"><span class="icon">​</span>wiki:0.10/TracUpgrade#SpecificVersions</a>.
+</p>
+<hr />
+<p>
+See also: <a class="wiki" href="/trac/wiki/TracGuide">TracGuide</a>, <a class="wiki" href="/trac/wiki/TracInstall">TracInstall</a>
+</p>
+</div>
+        
+        
+      </div>
+      
+
+    </div>
+    <div id="altlinks">
+      <h3>Download in other formats:</h3>
+      <ul>
+        <li class="last first">
+          <a rel="nofollow" href="/trac/wiki/TracUpgrade?format=txt">Plain Text</a>
+        </li>
+      </ul>
+    </div>
+    </div>
+    <div id="footer" lang="en" xml:lang="en"><hr />
+      <a id="tracpowered" href="http://trac.edgewall.org/"><img src="/trac/chrome/common/trac_logo_mini.png" height="30" width="107" alt="Trac Powered" /></a>
+      <p class="left">Powered by <a href="/trac/about"><strong>Trac 0.12.4</strong></a><br />
+        By <a href="http://www.edgewall.org/">Edgewall Software</a>.</p>
+      <p class="right">Visit the Trac open source project at<br /><a href="http://trac.edgewall.org/">http://trac.edgewall.org/</a></p>
+    </div>
+    <div id="footer">
+	<div id="copyright">Copyright © Garlik 2009</div>
+		<div id="garlik_logo">
+	<a href="http://www.garlik.com/" rel="external" title="Click here to visit the Garlik homepage"><img src="/images/garlik.gif" alt="powered by Garlik" /></a>
+	</div>
+	<div id="foot_nav">
+	<ul>
+			<li><a href="/about" title="About" id="about">About</a></li>
+			<li><a href="/faqs" title="FAQs" id="faqs">FAQs</a></li>
+			<li><a href="/support" title="Install" id="support">Support</a></li>
+			<li><a href="/developers" title="Developers" id="developers">Developers</a></li>
+			<li><a href="/projects" title="Projects" id="projetcs">Projects</a></li>
+	</ul>
+	</div>
+    </div>
+    </div>
+  </body>
+</html>
