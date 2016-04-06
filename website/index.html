@@ -1,0 +1,106 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML+RDFa 1.0//EN" "http://www.w3.org/MarkUp/DTD/xhtml-rdfa-1.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" version="XHTML+RDFa 1.0" xml:lang="en">
+<head><link rel="meta" type="application/rdf+xml" title="RDF data for 4store" href="/doap.rdf" /><link rel="meta" type="text/turtle" title="RDF data for 4store" href="/doap.ttl" />	<meta http-equiv="Content-Type" content="application/xhtml+xml; charset=UTF-8" />
+	<meta name="keywords" content="4store, database, RDF, Semantic Web, Web, SPARQL, RDQL, storage" />
+	
+	<title>4store - Scalable RDF storage</title>
+	<link rel="shortcut icon" href="/images/favicon.png" type="image/png" />
+	<link href="/style/main.css" rel="stylesheet" type="text/css" media="all" />
+<meta name="description" content="4store, a fast, scalable clustered RDF database" />
+</head>
+		<body onload="MM_preloadImages('/images/buttons/btn-signin-over.png', '/images/buttons/btn-signin-down.png');externalLinks();fixPNGs();" class="body_class">	
+		<div id="container">
+	<div class="header"><a href="http://4store.org/"><img src="/images/4store.png" alt="4store"/></a></div>
+
+	<div id="leftCol">
+	<h1>4store, an efficient, scalable and stable RDF database</h1>
+	<p>4store was designed by Steve Harris and developed at <a href="http://www.garlik.com/">Garlik</a> to underpin their Semantic Web applications. It has been providing the base platform for around 3 years. At times holding and running queries over databases of 15<abbr title="Giga Triples (billion triples)">GT</abbr>, supporting a Web application used by thousands of people.</p>
+        <div style="float: left; width: 50%; margin-right: 10px; padding-top: 4ex;">
+	  <h2>Setup</h2>
+	  <ul>
+<li><a href="/trac/wiki/OperatingSystem">Operating system</a></li>
+<li><a href="/trac/wiki/Download">Download</a></li>
+<li><a href="/trac/wiki/Install">Install</a></li>
+<li><a href="/trac/wiki/Tuning">Tuning</a></li>
+	  </ul>
+	</div>
+        <div style="float:left; padding-top: 4ex">
+	  <h2>Using</h2>
+	  <ul>
+<li><a href="/trac/wiki/CreateDatabase">Create database</a></li>
+<li><a href="/trac/wiki/ImportData">Import data</a></li>
+<li><a href="/trac/wiki/Query">Query</a></li>
+<li><a href="/trac/wiki/SparqlServer">SPARQL server</a></li>
+<li><a href="/trac/wiki/BackupRestore">Backup/restore</a></li>
+<li><a href="/trac/wiki/ClientLibraries">Client libraries</a></li>
+	  </ul>
+	</div>
+        </div>
+	
+	<div id="rightCol">
+	<dl>
+	  <dt>What makes 4store special?</dt>
+	  <dd>Read about some of the <a href="/about">features of 4store</a>.</dd>
+	  <dt>Download</dt>
+	  <dd>Go to the <a href="/trac/wiki/Download">download section</a>.</dd>
+	  <dt>Documentation</dt>
+	  <dd>Read some <a href="/trac/wiki/Documentation">documentation</a> covering how to setup and use 4store.</dd>
+	  <dt>4store in Use</dt>
+	  <dd>Read about some <a href="/projects">projects that use 4store</a>.</dd>
+	  <dt>Contact Us</dt>
+	  <dd>We'd really appreciate feedback on 4store, and there are a variety of ways to <a href="/contact">contact us</a>.</dd>
+	</dl>
+	</div>
+		
+		<!-- footer -->
+	<div id="footer" class="clearfix">
+
+			
+	<div id="copyright">Copyright &#169; Garlik 2009</div>	
+		<div id="garlik_logo">
+	<a href="http://www.garlik.com/" rel="external" title="Click here to visit the Garlik homepage"><img src="/images/garlik.gif" alt="powered by Garlik"/></a>
+	</div>
+	<div id="foot_nav">
+	<ul>
+			<li><a href="/" title="home">Home</a></li>
+			<li><a href="/about" title="About">About</a></li>
+			<li><a href="/faqs" title="FAQs">FAQs</a></li>
+			<li><a href="/support" title="Install">Support</a></li>
+			<li><a href="/developers" title="Developers">Developers</a></li>
+			<li><a href="/projects" title="Projects">Projects</a></li>
+	</ul>
+	</div>
+	</div><!-- /footer -->
+	</div>
+<div xmlns="http://www.w3.org/1999/xhtml"
+  xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+  xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+  xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
+  xmlns:gr="http://purl.org/goodrelations/v1#"
+  xmlns:foaf="http://xmlns.com/foaf/0.1/"
+  xmlns:vcard="http://www.w3.org/2006/vcard/ns#">
+ 
+  <div typeof="gr:BusinessEntity" about="#garlik">
+    <div property="gr:legalName" content="Garlik Ltd."></div>
+    <div property="vcard:tel" content="+442084398200"></div>
+    <div rel="vcard:adr">
+      <div typeof="vcard:Address">
+        <div property="vcard:country-name" content="UK"></div>
+        <div property="vcard:locality" content="London"></div>
+        <div property="vcard:postal-code" content="TW10 6AW"></div>
+        <div property="vcard:street-address" content="1-3 Halford Road"></div>
+      </div>
+    </div>
+    <div rel="foaf:depiction" resource="http://garlik.com/img/common/headerLogo.gif"></div>
+    <div rel="foaf:page" resource="http://www.garlik.com/"></div>
+  </div>
+  <div typeof="gr:Offering" about="#fourstore">
+    <div rev="gr:offers" resource="#garlik"></div>
+    <div property="rdfs:label" content="4store" xml:lang="en"></div>
+    <div property="rdfs:comment" content="An efficient, scalable, and secure RDF/SPARQL store." xml:lang="en"></div>
+    <div rel="gr:hasBusinessFunction" resource="http://purl.org/goodrelations/v1#Sell"></div>
+    <div rel="foaf:page" resource="http://4store.org/"></div>
+  </div>
+</div>
+</body>
+</html>

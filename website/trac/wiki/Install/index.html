@@ -1,0 +1,205 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  
+  
+
+  
+
+
+  <head>
+    <title>
+      Install – 4store
+    </title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <!--[if IE]><script type="text/javascript">
+      if (/^#__msie303:/.test(window.location.hash))
+        window.location.replace(window.location.hash.replace(/^#__msie303:/, '#'));
+    </script><![endif]-->
+        <link rel="search" href="/trac/search" />
+        <link rel="help" href="/trac/wiki/TracGuide" />
+        <link rel="alternate" href="/trac/wiki/Install?format=txt" type="text/x-trac-wiki" title="Plain Text" />
+        <link rel="start" href="/trac/wiki" />
+        <link rel="stylesheet" href="/trac/chrome/common/css/trac.css" type="text/css" /><link rel="stylesheet" href="/trac/chrome/common/css/wiki.css" type="text/css" />
+        <link rel="shortcut icon" href="/images/favico.png" type="image/png" />
+        <link rel="icon" href="/images/favico.png" type="image/png" />
+      <link type="application/opensearchdescription+xml" rel="search" href="/trac/search/opensearch" title="Search 4store" />
+    <script type="text/javascript" src="/trac/chrome/common/js/jquery.js"></script><script type="text/javascript" src="/trac/chrome/common/js/babel.js"></script><script type="text/javascript" src="/trac/chrome/common/js/messages/en_US.js"></script><script type="text/javascript" src="/trac/chrome/common/js/trac.js"></script><script type="text/javascript" src="/trac/chrome/common/js/search.js"></script><script type="text/javascript" src="/trac/chrome/common/js/folding.js"></script>
+    <!--[if lt IE 7]>
+    <script type="text/javascript" src="/trac/chrome/common/js/ie_pre7_hacks.js"></script>
+    <![endif]-->
+    <script type="text/javascript">
+      jQuery(document).ready(function($) {
+        $("#content").find("h1,h2,h3,h4,h5,h6").addAnchor(_("Link to this section"));
+        $("#content").find(".wikianchor").each(function() {
+          $(this).addAnchor(babel.format(_("Link to #%(id)s"), {id: $(this).attr('id')}));
+        });
+        $(".foldable").enableFolding(true, true);
+      });
+    </script>
+    <link rel="stylesheet" type="text/css" href="/style/main.css" />
+  </head>
+  <body>
+    <div id="container">
+    <div id="siteheader">
+    </div>
+    <div id="banner">
+      <div id="header">
+        <a id="logo" href="http://4store.org/"><img src="/images/4store.png" alt="4store" height="48" width="143" /></a>
+      </div>
+      <form id="search" action="/trac/search" method="get">
+        <div>
+          <label for="proj-search">Search:</label>
+          <input type="text" id="proj-search" name="q" size="18" value="" />
+          <input type="submit" value="Search" />
+        </div>
+      </form>
+      <div id="metanav" class="nav">
+    <ul>
+      <li class="first"><a href="/trac/login">Login</a></li><li><a href="/trac/prefs">Preferences</a></li><li><a href="/trac/wiki/TracGuide">Help/Guide</a></li><li class="last"><a href="/trac/about">About Trac</a></li>
+    </ul>
+  </div>
+    </div>
+    <div id="mainnav" class="nav">
+    <ul>
+      <li class="first active"><a href="/trac/wiki">Wiki</a></li><li><a href="/trac/timeline">Timeline</a></li><li><a href="/trac/roadmap">Roadmap</a></li><li><a href="/trac/report">View Tickets</a></li><li class="last"><a href="/trac/search">Search</a></li>
+    </ul>
+  </div>
+    <div id="main">
+      <div id="pagepath" class="noprint">
+  <a class="pathentry first" title="View WikiStart" href="/trac/wiki">wiki:</a><a class="pathentry" href="/trac/wiki/Install" title="View Install">Install</a>
+</div>
+      <div id="ctxtnav" class="nav">
+        <h2>Context Navigation</h2>
+          <ul>
+              <li class="first"><a href="/trac/wiki/WikiStart">Start Page</a></li><li><a href="/trac/wiki/TitleIndex">Index</a></li><li class="last"><a href="/trac/wiki/Install?action=history">History</a></li>
+          </ul>
+        <hr />
+      </div>
+    <div id="content" class="wiki">
+      <div class="wikipage searchable">
+        
+          
+          <div class="trac-modifiedby">
+            <span><a href="/trac/wiki/Install?action=diff&amp;version=13" title="Version 13 by swh">Last modified</a> <a class="timeline" href="/trac/timeline?from=2011-01-11T14%3A03%3A34Z&amp;precision=second" title="2011-01-11T14:03:34Z in Timeline">5 years</a> ago</span>
+            <span class="trac-print">Last modified on 11/01/11 14:03:34</span>
+          </div>
+          <div id="wikipage"><h1 id="BuildandInstall">Build and Install</h1>
+<h2 id="SingleMachine">Single Machine</h2>
+<p>
+Once you have <a class="wiki" href="/trac/wiki/Download">downloaded</a> 4store you need to build it from source.
+</p>
+<h3 id="Preparation">Preparation</h3>
+<p>
+First of all make sure that your machine is configured to look for libraries in <tt>/usr/local/lib</tt> and/or <tt>/usr/local/lib64</tt>. On many systems this can be done by creating a file called <tt>/etc/ld.so.conf.d/local.conf</tt> containing those two paths, one per line, and then running <tt>/sbin/ldconfig</tt> as root.
+</p>
+<p>
+Once you have done that you should check that you $PKG_CONFIG_PATH environment variable include the correct paths for local installed packages (assuming that your distributor does not package recent enough versions of raptor and rasqal). $PKG_CONFIG_PATH should typically contain something like:
+</p>
+<pre class="wiki">/usr/lib64/pkgconfig:/usr/share/pkgconfig:/usr/local/lib64/pkgconfig:/usr/local/share/pkgconfig
+</pre><p>
+Make sure you have the <a class="wiki" href="/trac/wiki/Dependencies">dependencies</a> installed.
+</p>
+<h3 id="Building">Building</h3>
+<p>
+From Tarballs
+</p>
+<ul><li>untar the .tar.gz file with <tt>tar xvfz 4store-&lt;version&gt;.tar.gz</tt>
+</li><li>cd into the 4store-&lt;version&gt; directory
+</li><li>run <tt>./configure</tt>
+</li><li>run <tt>make</tt>
+</li></ul><p>
+From Git
+</p>
+<ul><li>cd into the directory that git cloned.
+</li><li>run <tt>sh autogen.sh</tt>
+</li><li>then follow the instruation as for the tarball.
+</li></ul><p>
+Note: you may require extra dependencies to install via this route.
+</p>
+<h3 id="Testing">Testing</h3>
+<p>
+<em>N.B.</em> if this is the first time you've installed 4store on this machine, you'll need to run make install before you can run make test, to create the directory <tt>/var/lib/4store/</tt> with the correct permissions.
+</p>
+<p>
+If you wish to test the build you can run
+</p>
+<p>
+<tt> make test </tt>
+</p>
+<p>
+This will take a few minutes, it imports some data and runs test SPARQL queries over it.
+</p>
+<p>
+If you see <tt>count</tt> and <tt>union-nobind</tt> fail, that will be because you don't have LAQRS support enabled.
+</p>
+<h3 id="SoftwareInstallation">Software Installation</h3>
+<p>
+Once this has completed you should be able to run <tt>make install</tt> as root, to install the software.
+</p>
+<p>
+Congratulations! You have installed 4store.
+</p>
+<h3 id="Storage">Storage</h3>
+<p>
+By default 4store stores its databases in /var/lib/4store/. You can change this directory using the ./configure argument --with-storage-path=...
+</p>
+<p>
+Running <tt>make install</tt> will create this directory and set the permissions on it. 
+</p>
+<p>
+4store does not gracefully handle running out of disk space, you will lose the new data if you try to import when there's no free disk space. By default it will not allow imports if there is less that 1% of disk space free. This can be altered with the <tt>FS_DISK_LIMIT</tt> environment variable.
+</p>
+<hr />
+<h2 id="Cluster">Cluster</h2>
+<p>
+If you want to install 4store on a cluster then you can just repeat the operations for a single machine for every node on the cluster, but for large clusters that's very time consuming.
+</p>
+<p>
+Alternatively you can export /usr/local of the master node to the storage nodes, it requires some work to setup, but makes deploying new versions of 4store very easy.
+</p>
+<p>
+You could also package up 4store and other non-OS provided libraries as system packages and deploy them automatically across the cluster.
+</p>
+<p>
+These methods are a bit too complex to describe here, but they will be documented in the future, or you can <a href="/support">ask for help</a>.
+</p>
+</div>
+        
+        
+      </div>
+      
+
+    </div>
+    <div id="altlinks">
+      <h3>Download in other formats:</h3>
+      <ul>
+        <li class="last first">
+          <a rel="nofollow" href="/trac/wiki/Install?format=txt">Plain Text</a>
+        </li>
+      </ul>
+    </div>
+    </div>
+    <div id="footer" lang="en" xml:lang="en"><hr />
+      <a id="tracpowered" href="http://trac.edgewall.org/"><img src="/trac/chrome/common/trac_logo_mini.png" height="30" width="107" alt="Trac Powered" /></a>
+      <p class="left">Powered by <a href="/trac/about"><strong>Trac 0.12.4</strong></a><br />
+        By <a href="http://www.edgewall.org/">Edgewall Software</a>.</p>
+      <p class="right">Visit the Trac open source project at<br /><a href="http://trac.edgewall.org/">http://trac.edgewall.org/</a></p>
+    </div>
+    <div id="footer">
+	<div id="copyright">Copyright © Garlik 2009</div>
+		<div id="garlik_logo">
+	<a href="http://www.garlik.com/" rel="external" title="Click here to visit the Garlik homepage"><img src="/images/garlik.gif" alt="powered by Garlik" /></a>
+	</div>
+	<div id="foot_nav">
+	<ul>
+			<li><a href="/about" title="About" id="about">About</a></li>
+			<li><a href="/faqs" title="FAQs" id="faqs">FAQs</a></li>
+			<li><a href="/support" title="Install" id="support">Support</a></li>
+			<li><a href="/developers" title="Developers" id="developers">Developers</a></li>
+			<li><a href="/projects" title="Projects" id="projetcs">Projects</a></li>
+	</ul>
+	</div>
+    </div>
+    </div>
+  </body>
+</html>

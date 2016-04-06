@@ -1,0 +1,451 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  
+  
+
+  
+
+
+  
+
+  <head>
+    <title>
+      WikiMacros – 4store
+    </title>
+        <link rel="search" href="/trac/search" />
+        <link rel="help" href="/trac/wiki/TracGuide" />
+        <link rel="alternate" href="/trac/wiki/WikiMacros?format=txt" type="text/x-trac-wiki" title="Plain Text" />
+        <link rel="start" href="/trac/wiki" />
+        <link rel="stylesheet" href="/trac/chrome/common/css/trac.css" type="text/css" /><link rel="stylesheet" href="/trac/chrome/common/css/wiki.css" type="text/css" />
+        <link rel="shortcut icon" href="/images/favico.png" type="image/png" />
+        <link rel="icon" href="/images/favico.png" type="image/png" />
+      <link type="application/opensearchdescription+xml" rel="search" href="/trac/search/opensearch" title="Search 4store" />
+    <script type="text/javascript" src="/trac/chrome/common/js/jquery.js"></script><script type="text/javascript" src="/trac/chrome/common/js/trac.js"></script><script type="text/javascript" src="/trac/chrome/common/js/search.js"></script>
+    <!--[if lt IE 7]>
+    <script type="text/javascript" src="/trac/chrome/common/js/ie_pre7_hacks.js"></script>
+    <![endif]-->
+    <script type="text/javascript">
+      jQuery(document).ready(function($) {
+        $("#content").find("h1,h2,h3,h4,h5,h6").addAnchor("Link to this section");
+      });
+    </script>
+    <link rel="stylesheet" type="text/css" href="/style/main.css" />
+  </head>
+  <body>
+    <div id="container">
+    <div id="siteheader">
+    </div>
+    <div id="banner">
+      <div id="header">
+        <a id="logo" href="http://4store.org/"><img src="/images/4store.png" alt="4store" height="48" width="143" /></a>
+      </div>
+      <form id="search" action="/trac/search" method="get">
+        <div>
+          <label for="proj-search">Search:</label>
+          <input type="text" id="proj-search" name="q" size="18" value="" />
+          <input type="submit" value="Search" />
+        </div>
+      </form>
+      <div id="metanav" class="nav">
+    <ul>
+      <li class="first"><a href="/trac/login">Login</a></li><li><a href="/trac/prefs">Preferences</a></li><li><a href="/trac/wiki/TracGuide">Help/Guide</a></li><li class="last"><a href="/trac/about">About Trac</a></li>
+    </ul>
+  </div>
+    </div>
+    <div id="mainnav" class="nav">
+    <ul>
+      <li class="first active"><a href="/trac/wiki">Wiki</a></li><li><a href="/trac/timeline">Timeline</a></li><li><a href="/trac/roadmap">Roadmap</a></li><li><a href="/trac/report">View Tickets</a></li><li class="last"><a href="/trac/search">Search</a></li>
+    </ul>
+  </div>
+    <div id="main">
+      <div id="ctxtnav" class="nav">
+        <h2>Context Navigation</h2>
+          <ul>
+              <li class="first"><a href="/trac/wiki/WikiStart">Start Page</a></li><li><a href="/trac/wiki/TitleIndex">Index</a></li><li><a href="/trac/wiki/WikiMacros?action=history">History</a></li><li class="last"><a href="/trac/wiki/WikiMacros?action=diff&amp;version=1">Last Change</a></li>
+          </ul>
+        <hr />
+      </div>
+    <div id="content" class="wiki">
+      <div class="wikipage searchable">
+        
+          <h1 id="TracMacros">Trac Macros</h1>
+<p>
+</p><div class="wiki-toc"><ol><li><a href="#TracMacros">Trac Macros</a><ol><li><a href="#UsingMacros">Using Macros</a><ol><li><a href="#Example">Example</a></li></ol></li><li>
+<a href="#AvailableMacros">Available Macros</a></li><li>
+<a href="#Macrosfromaroundtheworld">Macros from around the world</a></li><li>
+<a href="#DevelopingCustomMacros">Developing Custom Macros</a></li><li>
+<a href="#Implementation">Implementation</a><ol><li><a href="#Macrowithoutarguments">Macro without arguments</a></li><li>
+<a href="#Macrowitharguments">Macro with arguments</a></li><li>
+<a href="#expand_macrodetails"><tt>expand_macro</tt> details</a></li></ol></li></ol></li></ol></div><p>
+</p>
+<p>
+Trac macros are plugins to extend the Trac engine with custom 'functions' written in Python. A macro inserts dynamic HTML data in any context supporting <a class="wiki" href="/trac/wiki/WikiFormatting">WikiFormatting</a>.
+</p>
+<p>
+Another kind of macros are <a class="wiki" href="/trac/wiki/WikiProcessors">WikiProcessors</a>. They typically deal with alternate markup formats and representation of larger blocks of information (like source code highlighting).
+</p>
+<h2 id="UsingMacros">Using Macros</h2>
+<p>
+Macro calls are enclosed in two <i>square brackets</i>. Like Python functions, macros can also have arguments, a comma separated list within parentheses. 
+</p>
+<p>
+Trac macros can also be written as <a class="wiki" href="/trac/wiki/TracPlugins">TracPlugins</a>. This gives them some capabilities that macros do not have, such as being able to directly access the HTTP request.
+</p>
+<h3 id="Example">Example</h3>
+<p>
+A list of 3 most recently changed wiki pages starting with 'Trac':
+</p>
+<pre class="wiki"> [[RecentChanges(Trac,3)]]
+</pre><p>
+Display:
+</p>
+<blockquote>
+<p>
+</p><div><h3>07/07/09</h3><ul><li><a href="/trac/wiki/TracAccessibility">TracAccessibility</a> </li><li><a href="/trac/wiki/TracAdmin">TracAdmin</a> </li><li><a href="/trac/wiki/TracBackup">TracBackup</a> </li></ul></div><p>
+</p>
+</blockquote>
+<h2 id="AvailableMacros">Available Macros</h2>
+<p>
+<i>Note that the following list will only contain the macro documentation if you've not enabled <tt>-OO</tt> optimizations, or not set the <tt>PythonOptimize</tt> option for <a class="wiki" href="/trac/wiki/TracModPython">mod_python</a>.</i>
+</p>
+<p>
+<dl><dt id="InterTrac-macro"><code>[[InterTrac]]</code></dt><dd><p>
+Provide a list of known <a class="wiki" href="/trac/wiki/InterTrac">InterTrac</a> prefixes.
+</p>
+</dd><dt id="TitleIndex-macro"><code>[[TitleIndex]]</code></dt><dd><p>
+Inserts an alphabetic list of all wiki pages into the output.
+</p>
+<p>
+Accepts a prefix string as parameter: if provided, only pages with names
+that start with the prefix are included in the resulting list. If this
+parameter is omitted, all pages are listed.
+</p>
+<p>
+Alternate <tt>format</tt> and <tt>depth</tt> can be specified:
+</p>
+<ul><li><tt>format=group</tt>: The list of page will be structured in groups
+according to common prefix. This format also supports a <tt>min=n</tt>
+argument, where <tt>n</tt> is the minimal number of pages for a group.
+</li><li><tt>depth=n</tt>: limit the depth of the pages to list. If set to 0,
+only toplevel pages will be shown, if set to 1, only immediate
+children pages will be shown, etc. If not set, or set to -1,
+all pages in the hierarchy will be shown.
+</li></ul></dd><dt id="RecentChanges-macro"><code>[[RecentChanges]]</code></dt><dd><p>
+Lists all pages that have recently been modified, grouping them by the
+day they were last modified.
+</p>
+<p>
+This macro accepts two parameters. The first is a prefix string: if
+provided, only pages with names that start with the prefix are included in
+the resulting list. If this parameter is omitted, all pages are listed.
+</p>
+<p>
+The second parameter is a number for limiting the number of pages returned.
+For example, specifying a limit of 5 will result in only the five most
+recently changed pages to be included in the list.
+</p>
+</dd><dt id="PageOutline-macro"><code>[[PageOutline]]</code></dt><dd><p>
+Displays a structural outline of the current wiki page, each item in the
+outline being a link to the corresponding heading.
+</p>
+<p>
+This macro accepts three optional parameters:
+</p>
+<ul><li>The first is a number or range that allows configuring the minimum and
+maximum level of headings that should be included in the outline. For
+example, specifying "1" here will result in only the top-level headings
+being included in the outline. Specifying "2-3" will make the outline
+include all headings of level 2 and 3, as a nested list. The default is
+to include all heading levels.
+</li><li>The second parameter can be used to specify a custom title (the default
+is no title).
+</li><li>The third parameter selects the style of the outline. This can be
+either <tt>inline</tt> or <tt>pullout</tt> (the latter being the default). The <tt>inline</tt>
+style renders the outline as normal part of the content, while <tt>pullout</tt>
+causes the outline to be rendered in a box that is by default floated to
+the right side of the other content.
+</li></ul></dd><dt id="Image-macro"><code>[[Image]]</code></dt><dd><p>
+Embed an image in wiki-formatted text.
+</p>
+<p>
+The first argument is the file specification. The file specification may
+reference attachments in three ways:
+</p>
+<ul><li><tt>module:id:file</tt>, where module can be either <strong>wiki</strong> or <strong>ticket</strong>,
+to refer to the attachment named <i>file</i> of the specified wiki page or
+ticket.
+</li><li><tt>id:file</tt>: same as above, but id is either a ticket shorthand or a Wiki
+page name.
+</li><li><tt>file</tt> to refer to a local attachment named 'file'. This only works from
+within that wiki page or a ticket.
+</li></ul><p>
+Also, the file specification may refer to repository files, using the
+<tt>source:file</tt> syntax (<tt>source:file@rev</tt> works also).
+</p>
+<p>
+Files can also be accessed with a direct URLs; <tt>/file</tt> for a
+project-relative, <tt>//file</tt> for a server-relative, or <tt>http://server/file</tt>
+for absolute location of the file.
+</p>
+<p>
+The remaining arguments are optional and allow configuring the attributes
+and style of the rendered <tt>&lt;img&gt;</tt> element:
+</p>
+<ul><li>digits and unit are interpreted as the size (ex. 120, 25%)
+for the image
+</li><li><tt>right</tt>, <tt>left</tt>, <tt>top</tt> or <tt>bottom</tt> are interpreted as the alignment for
+the image
+</li><li><tt>link=some TracLinks...</tt> replaces the link to the image source by the
+one specified using a <a class="wiki" href="/trac/wiki/TracLinks">TracLinks</a>. If no value is specified, the link is
+simply removed.
+</li><li><tt>nolink</tt> means without link to image source (deprecated, use <tt>link=</tt>)
+</li><li><tt>key=value</tt> style are interpreted as HTML attributes or CSS style
+indications for the image. Valid keys are:
+<ul><li>align, border, width, height, alt, title, longdesc, class, id
+and usemap
+</li><li><tt>border</tt> can only be a number
+</li></ul></li></ul><p>
+Examples:
+</p>
+<pre class="wiki">    [[Image(photo.jpg)]]                           # simplest
+    [[Image(photo.jpg, 120px)]]                    # with image width size
+    [[Image(photo.jpg, right)]]                    # aligned by keyword
+    [[Image(photo.jpg, nolink)]]                   # without link to source
+    [[Image(photo.jpg, align=right)]]              # aligned by attribute
+</pre><p>
+You can use image from other page, other ticket or other module.
+</p>
+<pre class="wiki">    [[Image(OtherPage:foo.bmp)]]    # if current module is wiki
+    [[Image(base/sub:bar.bmp)]]     # from hierarchical wiki page
+    [[Image(#3:baz.bmp)]]           # if in a ticket, point to #3
+    [[Image(ticket:36:boo.jpg)]]
+    [[Image(source:/images/bee.jpg)]] # straight from the repository!
+    [[Image(htdocs:foo/bar.png)]]   # image file in project htdocs dir.
+</pre><p>
+<i>Adapted from the Image.py macro created by Shun-ichi Goto
+&lt;gotoh@…&gt;</i>
+</p>
+</dd><dt id="MacroList-macro"><code>[[MacroList]]</code></dt><dd><p>
+Displays a list of all installed Wiki macros, including documentation if
+available.
+</p>
+<p>
+Optionally, the name of a specific macro can be provided as an argument. In
+that case, only the documentation for that macro will be rendered.
+</p>
+<p>
+Note that this macro will not be able to display the documentation of
+macros if the <tt>PythonOptimize</tt> option is enabled for mod_python!
+</p>
+</dd><dt id="TracIni-macro"><code>[[TracIni]]</code></dt><dd><p>
+Produce documentation for Trac configuration file.
+</p>
+<p>
+Typically, this will be used in the <a class="wiki" href="/trac/wiki/TracIni">TracIni</a> page.
+Optional arguments are a configuration section filter,
+and a configuration option name filter: only the configuration
+options whose section and name start with the filters are output.
+</p>
+</dd><dt id="TracGuideToc-macro"><code>[[TracGuideToc]]</code></dt><dd><p>
+This macro shows a quick and dirty way to make a table-of-contents
+for a set of wiki pages.
+</p>
+</dd><dt id="TicketQuery-macro"><code>[[TicketQuery]]</code></dt><dd><p>
+Macro that lists tickets that match certain criteria.
+</p>
+<p>
+This macro accepts a comma-separated list of keyed parameters,
+in the form "key=value".
+</p>
+<p>
+If the key is the name of a field, the value must use the syntax 
+of a filter specifier as defined in <a class="wiki" href="/trac/wiki/TracQuery#QueryLanguage">TracQuery#QueryLanguage</a>.
+Note that this is <i>not</i> the same as the simplified URL syntax 
+used for <tt>query:</tt> links starting with a <tt>?</tt> character.
+</p>
+<p>
+In addition to filters, several other named parameters can be used
+to control how the results are presented. All of them are optional.
+</p>
+<p>
+The <tt>format</tt> parameter determines how the list of tickets is
+presented: 
+</p>
+<ul><li><strong>list</strong> -- the default presentation is to list the ticket ID next
+to the summary, with each ticket on a separate line.
+</li><li><strong>compact</strong> -- the tickets are presented as a comma-separated
+list of ticket IDs. 
+</li><li><strong>count</strong> -- only the count of matching tickets is displayed
+</li><li><strong>table</strong>  -- a view similar to the custom query view (but without
+the controls)
+</li></ul><p>
+The <tt>max</tt> parameter can be used to limit the number of tickets shown
+(defaults to <strong>0</strong>, i.e. no maximum).
+</p>
+<p>
+The <tt>order</tt> parameter sets the field used for ordering tickets
+(defaults to <strong>id</strong>).
+</p>
+<p>
+The <tt>desc</tt> parameter indicates whether the order of the tickets
+should be reversed (defaults to <strong>false</strong>).
+</p>
+<p>
+The <tt>group</tt> parameter sets the field used for grouping tickets
+(defaults to not being set).
+</p>
+<p>
+The <tt>groupdesc</tt> parameter indicates whether the natural display
+order of the groups should be reversed (defaults to <strong>false</strong>).
+</p>
+<p>
+The <tt>verbose</tt> parameter can be set to a true value in order to
+get the description for the listed tickets. For <strong>table</strong> format only.
+<i>deprecated in favor of the <tt>rows</tt> parameter</i>
+</p>
+<p>
+The <tt>rows</tt> parameter can be used to specify which field(s) should 
+be viewed as a row, e.g. <tt>rows=description|summary</tt>
+</p>
+<p>
+For compatibility with Trac 0.10, if there's a second positional parameter
+given to the macro, it will be used to specify the <tt>format</tt>.
+Also, using "&amp;" as a field separator still works but is deprecated.
+</p>
+</dd><dt id="TracAdminHelp-macro"><code>[[TracAdminHelp]]</code></dt><dd><p>
+Displays help for trac-admin commands.
+</p>
+<p>
+Examples:
+</p>
+<pre class="wiki">[[TracAdminHelp]]               # all commands
+[[TracAdminHelp(wiki)]]         # all wiki commands
+[[TracAdminHelp(wiki export)]]  # the "wiki export" command
+[[TracAdminHelp(upgrade)]]      # the upgrade command
+</pre></dd></dl>
+</p>
+<h2 id="Macrosfromaroundtheworld">Macros from around the world</h2>
+<p>
+The <a class="ext-link" href="http://trac-hacks.org/"><span class="icon"> </span>Trac Hacks</a> site provides a wide collection of macros and other Trac <a class="wiki" href="/trac/wiki/TracPlugins">plugins</a> contributed by the Trac community. If you're looking for new macros, or have written one that you'd like to share with the world, please don't hesitate to visit that site.
+</p>
+<h2 id="DevelopingCustomMacros">Developing Custom Macros</h2>
+<p>
+Macros, like Trac itself, are written in the <a class="ext-link" href="http://python.org/"><span class="icon"> </span>Python programming language</a>.
+</p>
+<p>
+For more information about developing macros, see the <a class="ext-link" href="http://trac.edgewall.org/intertrac/TracDev" title="TracDev in Trac project trac"><span class="icon"> </span>development resources</a> on the main project site.
+</p>
+<h2 id="Implementation">Implementation</h2>
+<p>
+Here are 2 simple examples showing how to create a Macro with Trac 0.11. 
+</p>
+<p>
+Also, have a look at <a class="ext-link" href="http://trac.edgewall.org/intertrac/source%3Atags/trac-0.11/sample-plugins/Timestamp.py" title="source:tags/trac-0.11/sample-plugins/Timestamp.py in Trac project trac"><span class="icon"> </span>Timestamp.py</a> for an example that shows the difference between old style and new style macros and at the <a class="ext-link" href="http://trac.edgewall.org/intertrac/source%3Atags/trac-0.11/wiki-macros/README" title="source:tags/trac-0.11/wiki-macros/README in Trac project trac"><span class="icon"> </span>macros/README</a> which provides a little more insight about the transition.
+</p>
+<h3 id="Macrowithoutarguments">Macro without arguments</h3>
+<p>
+It should be saved as <tt>TimeStamp.py</tt> as Trac will use the module name as the Macro name
+</p>
+<div class="code"><pre>from datetime import datetime
+# Note: since Trac 0.11, datetime objects are used internally
+
+from genshi.builder import tag
+
+from trac.util.datefmt import format_datetime, utc
+from trac.wiki.macros import WikiMacroBase
+
+class TimeStampMacro(WikiMacroBase):
+    """Inserts the current time (in seconds) into the wiki page."""
+
+    revision = "$Rev$"
+    url = "$URL$"
+
+    def expand_macro(self, formatter, name, args):
+        t = datetime.now(utc)
+        return tag.b(format_datetime(t, '%c'))
+</pre></div><h3 id="Macrowitharguments">Macro with arguments</h3>
+<p>
+It should be saved as <tt>HelloWorld.py</tt> (in the plugins/ directory) as Trac will use the module name as the Macro name
+</p>
+<div class="code"><pre>from trac.wiki.macros import WikiMacroBase
+
+class HelloWorldMacro(WikiMacroBase):
+    """Simple HelloWorld macro.
+
+    Note that the name of the class is meaningful:
+     - it must end with "Macro"
+     - what comes before "Macro" ends up being the macro name
+
+    The documentation of the class (i.e. what you're reading)
+    will become the documentation of the macro, as shown by
+    the !MacroList macro (usually used in the WikiMacros page).
+    """
+
+    revision = "$Rev$"
+    url = "$URL$"
+
+    def expand_macro(self, formatter, name, args):
+        """Return some output that will be displayed in the Wiki content.
+
+        `name` is the actual name of the macro (no surprise, here it'll be
+        `'HelloWorld'`),
+        `args` is the text enclosed in parenthesis at the call of the macro.
+          Note that if there are ''no'' parenthesis (like in, e.g.
+          [[HelloWorld]]), then `args` is `None`.
+        """
+        return 'Hello World, args = ' + unicode(args)
+    
+    # Note that there's no need to HTML escape the returned data,
+    # as the template engine (Genshi) will do it for us.
+</pre></div><h3 id="expand_macrodetails"><tt>expand_macro</tt> details</h3>
+<p>
+<tt>expand_macro</tt> should return either a simple Python string which will be interpreted as HTML, or preferably a Markup object (use <tt>from trac.util.html import Markup</tt>).  <tt>Markup(string)</tt> just annotates the string so the renderer will render the HTML string as-is with no escaping. You will also need to import Formatter using <tt>from trac.wiki import Formatter</tt>.
+</p>
+<p>
+If your macro creates wiki markup instead of HTML, you can convert it to HTML like this:
+</p>
+<div class="code"><pre>  text = "whatever wiki markup you want, even containing other macros"
+  # Convert Wiki markup to HTML, new style
+  out = StringIO()
+  Formatter(self.env, formatter.context).format(text, out)
+  return Markup(out.getvalue())
+</pre></div>
+        
+        
+      </div>
+    </div>
+    <div id="altlinks">
+      <h3>Download in other formats:</h3>
+      <ul>
+        <li class="last first">
+          <a rel="nofollow" href="/trac/wiki/WikiMacros?format=txt">Plain Text</a>
+        </li>
+      </ul>
+    </div>
+    </div>
+    <div id="footer" lang="en" xml:lang="en"><hr />
+      <a id="tracpowered" href="http://trac.edgewall.org/"><img src="/trac/chrome/common/trac_logo_mini.png" height="30" width="107" alt="Trac Powered" /></a>
+      <p class="left">
+        Powered by <a href="/trac/about"><strong>Trac 0.11.4</strong></a><br />
+        By <a href="http://www.edgewall.org/">Edgewall Software</a>.
+      </p>
+      <p class="right">Visit the Trac open source project at<br /><a href="http://trac.edgewall.org/">http://trac.edgewall.org/</a></p>
+    </div>
+    <div id="footer">
+	<div id="copyright">Copyright © Garlik 2009</div>
+		<div id="garlik_logo">
+	<a href="http://www.garlik.com/" rel="external" title="Click here to visit the Garlik homepage"><img src="/images/garlik.gif" alt="powered by Garlik" /></a>
+	</div>
+	<div id="foot_nav">
+	<ul>
+			<li><a href="/about" title="About" id="about">About</a></li>
+			<li><a href="/faqs" title="FAQs" id="faqs">FAQs</a></li>
+			<li><a href="/support" title="Install" id="support">Support</a></li>
+			<li><a href="/developers" title="Developers" id="developers">Developers</a></li>
+			<li><a href="/projects" title="Projects" id="projetcs">Projects</a></li>
+	</ul>
+	</div>
+    </div>
+    </div>
+  </body>
+</html>

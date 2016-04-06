@@ -1,0 +1,190 @@
+html,body,div,dl,dt,dd,xxxh1,h2,h3,h4,h5,h6,pre,form,fieldset,input,textarea,p,blockquote,th,td{margin:0;padding:0;}table{border-collapse:collapse;border-spacing:0;}fieldset,img{border:0;}address,caption,cite,code,dfn,em,strong,th,var{font-style:normal;font-weight:normal;}caption,th {text-align:left;}
+//h1,h2,h3,h4,h5{border:0;}
+
+.clearfix:after {
+   content: "."; 
+   display: block; 
+   height: 0; 
+   clear: both; 
+   visibility: hidden;
+}
+
+body {
+	background-color: #fff;
+	font: 12px/18px Helvetica, sans-serif;
+	color: #232F33;
+}
+
+a {
+	text-decoration: none;
+	color: #D54672;
+	cursor: pointer;
+}
+
+a:hover {	
+	color: #CF0072;
+	text-decoration: underline;
+}
+
+p {
+	padding-top: 1ex;
+}
+
+h1 {	
+	font-family: Corbel, Helvetica, sans-serif;
+	font-size: 24px;
+	line-height: 28px;
+	font-weight: 500;
+	padding-top: 0.5ex;
+	margin-bottom: 0.5ex;
+	color: #98D555;
+}
+
+h2 {
+	font-family: Corbel, Helvetica, sans-serif;
+	padding-top: 1.5ex;
+	padding-bottom: 0.5ex;
+	font-size: 20px;
+	line-height: 22px;
+	text-align: left;
+	font-weight: 500;
+	color: #98D555;
+}
+
+h3 {
+	font-family: Corbel, Helvetica, sans-serif;
+	padding-top: 1.5ex;
+	padding-bottom: 0.5ex;
+	font-size: 16px;
+	line-height: 18px;
+	text-align: left;
+	font-weight: 500;
+	color: #98D555;
+}
+
+dt {
+	font-family: Corbel, Helvetica, sans-serif;
+	color: #98D555;
+	font-weight: bold;
+	font-size: 14px;
+	padding-top: 1ex;
+}
+
+dd {
+	padding-left: 2ex;
+	padding-top: 1ex;
+	padding-bottom: 1ex;
+}
+
+ul {
+	padding-left: 2ex;
+}
+
+li {
+	list-style: square inside;
+	border-left: 1ex;
+}
+
+#container {
+	position: relative;
+	width: 850px;
+	margin: 0px auto;
+}
+
+.hide {
+	display: none;
+}
+
+.clear{
+	clear: both;
+	line-height: 0;
+	height: 0;
+}
+
+#leftCol {
+	overflow: hidden;
+	float: left;
+	width: 60%;
+}
+
+#rightCol {
+	padding-left: 15px;
+	margin-top: 25px;
+	float: right;
+	width: 38%;
+	height: 385px;
+}
+
+.profile_page #rightCol {
+	height: 500px;
+}
+
+.form_error {
+	color: #CD1843;
+}
+
+
+
+/* = Header Section
+============================================================================ */
+
+.header {
+	padding-top: 16px;
+	padding-bottom: 16px;
+	border-bottom: 1px solid #DFE4E6;
+	overflow: hidden;
+}
+
+.header img {
+	padding: 0px;
+	margin: 0px;
+}			
+
+
+div.leftCol {
+	margin-top: 10px;
+}
+
+#footer {
+	top: 20px;
+	border-top: 1px solid #DFE4E6;
+	width: 100%;
+	position: relative;
+	clear: both;
+	bottom: 20px;
+}
+
+#footer #foot_nav {
+	margin: auto;
+	position: relative;
+	width: 40%;
+}
+#footer #foot_nav ul {
+	width: 100%;
+	list-style-type: none;
+}
+#footer #garlik_logo {
+	float: right;
+	position: relative;
+	padding-top: 5px;
+}
+#footer #foot_nav ul {
+	margin: 0;
+	padding: 0;
+}
+#footer #foot_nav li {
+	width: 100%;
+	margin: auto;
+	padding: 0px;
+	padding-left: 15px;
+	text-align: left;
+	display: inline;
+	font: 10px/11px Helvetica, sans-serif;	
+}
+#footer #copyright {
+	top: 5px;
+	position: relative;
+	float: left;
+	color: #525D66;
+	font: 10px/11px Helvetica, sans-serif;
+}

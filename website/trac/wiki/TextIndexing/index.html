@@ -1,0 +1,210 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  
+  
+
+  
+
+
+  <head>
+    <title>
+      TextIndexing – 4store
+    </title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <!--[if IE]><script type="text/javascript">
+      if (/^#__msie303:/.test(window.location.hash))
+        window.location.replace(window.location.hash.replace(/^#__msie303:/, '#'));
+    </script><![endif]-->
+        <link rel="search" href="/trac/search" />
+        <link rel="help" href="/trac/wiki/TracGuide" />
+        <link rel="alternate" href="/trac/wiki/TextIndexing?format=txt" type="text/x-trac-wiki" title="Plain Text" />
+        <link rel="start" href="/trac/wiki" />
+        <link rel="stylesheet" href="/trac/chrome/common/css/trac.css" type="text/css" /><link rel="stylesheet" href="/trac/chrome/common/css/wiki.css" type="text/css" />
+        <link rel="shortcut icon" href="/images/favico.png" type="image/png" />
+        <link rel="icon" href="/images/favico.png" type="image/png" />
+      <link type="application/opensearchdescription+xml" rel="search" href="/trac/search/opensearch" title="Search 4store" />
+    <script type="text/javascript" src="/trac/chrome/common/js/jquery.js"></script><script type="text/javascript" src="/trac/chrome/common/js/babel.js"></script><script type="text/javascript" src="/trac/chrome/common/js/messages/en_US.js"></script><script type="text/javascript" src="/trac/chrome/common/js/trac.js"></script><script type="text/javascript" src="/trac/chrome/common/js/search.js"></script><script type="text/javascript" src="/trac/chrome/common/js/folding.js"></script>
+    <!--[if lt IE 7]>
+    <script type="text/javascript" src="/trac/chrome/common/js/ie_pre7_hacks.js"></script>
+    <![endif]-->
+    <script type="text/javascript">
+      jQuery(document).ready(function($) {
+        $("#content").find("h1,h2,h3,h4,h5,h6").addAnchor(_("Link to this section"));
+        $("#content").find(".wikianchor").each(function() {
+          $(this).addAnchor(babel.format(_("Link to #%(id)s"), {id: $(this).attr('id')}));
+        });
+        $(".foldable").enableFolding(true, true);
+      });
+    </script>
+    <link rel="stylesheet" type="text/css" href="/style/main.css" />
+  </head>
+  <body>
+    <div id="container">
+    <div id="siteheader">
+    </div>
+    <div id="banner">
+      <div id="header">
+        <a id="logo" href="http://4store.org/"><img src="/images/4store.png" alt="4store" height="48" width="143" /></a>
+      </div>
+      <form id="search" action="/trac/search" method="get">
+        <div>
+          <label for="proj-search">Search:</label>
+          <input type="text" id="proj-search" name="q" size="18" value="" />
+          <input type="submit" value="Search" />
+        </div>
+      </form>
+      <div id="metanav" class="nav">
+    <ul>
+      <li class="first"><a href="/trac/login">Login</a></li><li><a href="/trac/prefs">Preferences</a></li><li><a href="/trac/wiki/TracGuide">Help/Guide</a></li><li class="last"><a href="/trac/about">About Trac</a></li>
+    </ul>
+  </div>
+    </div>
+    <div id="mainnav" class="nav">
+    <ul>
+      <li class="first active"><a href="/trac/wiki">Wiki</a></li><li><a href="/trac/timeline">Timeline</a></li><li><a href="/trac/roadmap">Roadmap</a></li><li><a href="/trac/report">View Tickets</a></li><li class="last"><a href="/trac/search">Search</a></li>
+    </ul>
+  </div>
+    <div id="main">
+      <div id="pagepath" class="noprint">
+  <a class="pathentry first" title="View WikiStart" href="/trac/wiki">wiki:</a><a class="pathentry" href="/trac/wiki/TextIndexing" title="View TextIndexing">TextIndexing</a>
+</div>
+      <div id="ctxtnav" class="nav">
+        <h2>Context Navigation</h2>
+          <ul>
+              <li class="first"><a href="/trac/wiki/WikiStart">Start Page</a></li><li><a href="/trac/wiki/TitleIndex">Index</a></li><li class="last"><a href="/trac/wiki/TextIndexing?action=history">History</a></li>
+          </ul>
+        <hr />
+      </div>
+    <div id="content" class="wiki">
+      <div class="wikipage searchable">
+        
+          
+          <div class="trac-modifiedby">
+            <span><a href="/trac/wiki/TextIndexing?action=diff&amp;version=5" title="Version 5 by swh">Last modified</a> <a class="timeline" href="/trac/timeline?from=2011-02-21T10%3A51%3A15Z&amp;precision=second" title="2011-02-21T10:51:15Z in Timeline">5 years</a> ago</span>
+            <span class="trac-print">Last modified on 21/02/11 10:51:15</span>
+          </div>
+          <div id="wikipage"><h1 id="TextIndexing">Text Indexing</h1>
+<h2 id="Support">Support</h2>
+<p>
+Support for text indexing has been available since 1.0.4. It's been reasonably well tested, and is used in production in a few systems, but there may well be bugs remaining.
+</p>
+<h2 id="Algorithms">Algorithms</h2>
+<p>
+There are three indexing algoithms available ini this feature, tokenising, double metaphones, and stemming.
+</p>
+<p>
+Tokenising just breaks up strings into word tokens, so "Foo bar, baz" generates "foo", "bar", "baz".
+</p>
+<p>
+Double metaphones calculates between one and two metaphones for each word, so "Foo bar, baz" generates "F", "PR", "PS".
+</p>
+<p>
+Stemming removes suffices (plurals etc.) from the words, so "Foos, bar, baz's" generates "foo", "bar", baz".
+</p>
+<h2 id="Configuration">Configuration</h2>
+<p>
+In order to configure the text indexing, write triples to a graph called &lt;system:config&gt;, eg like <tt>4s-import $KB -m system:config path/to/config/file.ttl</tt>.
+</p>
+<p>
+An example config is:
+</p>
+<pre class="wiki">@prefix rdfs: &lt;http://www.w3.org/2000/01/rdf-schema#&gt; .
+@prefix text: &lt;http://4store.org/fulltext#&gt; .
+@prefix ex: &lt;http://example.org/text#&gt; .
+
+rdfs:label text:index text:dmetaphone .
+ex:token text:index text:token .
+ex:stem text:index text:stem .
+</pre><p>
+This means that objects of the predicate rdfs:label will be indexed with double metaphones, objects of ex:token will be indexed with plain text (lowercase) tokens and ex:stem will be stemmed.
+</p>
+<p>
+You can pick what language's stemming algorithm is used with language tags, e.g.:
+</p>
+<pre class="wiki">&lt;&gt; ex:stem "Alle Menschen sind frei und gleich an Würde und Rechten geboren. Sie sind mit Vernunft und Gewissen begabt und sollen einander im Geist der Brüderlichkeit begegnen."@de .
+</pre><p>
+will be stemmed using a German stemming algorithm.
+</p>
+<p>
+Some examples of the text indexing, and how to query it are shown here: <a class="ext-link" href="http://theno23.livejournal.com/17658.html"><span class="icon">​</span>http://theno23.livejournal.com/17658.html</a>
+</p>
+<h2 id="Example">Example</h2>
+<p>
+With the config file above, and the following data:
+</p>
+<pre class="wiki">@prefix rdfs: &lt;http://www.w3.org/2000/01/rdf-schema#&gt; .
+@prefix text: &lt;http://4store.org/fulltext#&gt; .
+@prefix ex: &lt;http://example.org/text#&gt; .
+
+&lt;a&gt; rdfs:label "foo bar, baz" .
+&lt;b&gt; ex:token "Foo bar, baz" .
+&lt;c&gt; ex:stem "Foos, bar, baz's" .
+</pre><p>
+You will get the these triples.
+</p>
+<pre class="wiki">&lt;a&gt; rdfs:label "foo bar, baz" ;
+    text:dmetaphone "F", "PR", "PS" .
+&lt;b&gt; ex:token "Foo bar, baz" ;
+    text:token "bar", "baz", "foo" .
+&lt;c&gt; ex:stem "Foos, bar, baz's" ;
+    text:stem "bar", "baz", "foo" .
+</pre><p>
+If you want to query it, you can use a query like:
+</p>
+<pre class="wiki">PREFIX rdfs: &lt;http://www.w3.org/2000/01/rdf-schema#&gt;
+PREFIX text: &lt;http://4store.org/fulltext#&gt;
+SELECT ?x ?string
+WHERE {
+  ?x text:dmetaphone "PS" ;
+     rdfs:label ?string .
+}
+</pre><p>
+Note: "PS" is the metaphone for "baz".
+</p>
+<p>
+Which will give:
+</p>
+<table class="wiki">
+<tr><td> <strong>?x</strong> </td><td> <strong>?string</strong> 
+</td></tr><tr><td> &lt;a&gt; </td><td> "foo bar, baz" 
+</td></tr></table>
+</div>
+        
+        
+      </div>
+      
+
+    </div>
+    <div id="altlinks">
+      <h3>Download in other formats:</h3>
+      <ul>
+        <li class="last first">
+          <a rel="nofollow" href="/trac/wiki/TextIndexing?format=txt">Plain Text</a>
+        </li>
+      </ul>
+    </div>
+    </div>
+    <div id="footer" lang="en" xml:lang="en"><hr />
+      <a id="tracpowered" href="http://trac.edgewall.org/"><img src="/trac/chrome/common/trac_logo_mini.png" height="30" width="107" alt="Trac Powered" /></a>
+      <p class="left">Powered by <a href="/trac/about"><strong>Trac 0.12.4</strong></a><br />
+        By <a href="http://www.edgewall.org/">Edgewall Software</a>.</p>
+      <p class="right">Visit the Trac open source project at<br /><a href="http://trac.edgewall.org/">http://trac.edgewall.org/</a></p>
+    </div>
+    <div id="footer">
+	<div id="copyright">Copyright © Garlik 2009</div>
+		<div id="garlik_logo">
+	<a href="http://www.garlik.com/" rel="external" title="Click here to visit the Garlik homepage"><img src="/images/garlik.gif" alt="powered by Garlik" /></a>
+	</div>
+	<div id="foot_nav">
+	<ul>
+			<li><a href="/about" title="About" id="about">About</a></li>
+			<li><a href="/faqs" title="FAQs" id="faqs">FAQs</a></li>
+			<li><a href="/support" title="Install" id="support">Support</a></li>
+			<li><a href="/developers" title="Developers" id="developers">Developers</a></li>
+			<li><a href="/projects" title="Projects" id="projetcs">Projects</a></li>
+	</ul>
+	</div>
+    </div>
+    </div>
+  </body>
+</html>

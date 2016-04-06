@@ -1,0 +1,205 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  
+  
+
+  
+
+
+  <head>
+    <title>
+      Tuning – 4store
+    </title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <!--[if IE]><script type="text/javascript">
+      if (/^#__msie303:/.test(window.location.hash))
+        window.location.replace(window.location.hash.replace(/^#__msie303:/, '#'));
+    </script><![endif]-->
+        <link rel="search" href="/trac/search" />
+        <link rel="help" href="/trac/wiki/TracGuide" />
+        <link rel="alternate" href="/trac/wiki/Tuning?format=txt" type="text/x-trac-wiki" title="Plain Text" />
+        <link rel="start" href="/trac/wiki" />
+        <link rel="stylesheet" href="/trac/chrome/common/css/trac.css" type="text/css" /><link rel="stylesheet" href="/trac/chrome/common/css/wiki.css" type="text/css" />
+        <link rel="shortcut icon" href="/images/favico.png" type="image/png" />
+        <link rel="icon" href="/images/favico.png" type="image/png" />
+      <link type="application/opensearchdescription+xml" rel="search" href="/trac/search/opensearch" title="Search 4store" />
+    <script type="text/javascript" src="/trac/chrome/common/js/jquery.js"></script><script type="text/javascript" src="/trac/chrome/common/js/babel.js"></script><script type="text/javascript" src="/trac/chrome/common/js/messages/en_US.js"></script><script type="text/javascript" src="/trac/chrome/common/js/trac.js"></script><script type="text/javascript" src="/trac/chrome/common/js/search.js"></script><script type="text/javascript" src="/trac/chrome/common/js/folding.js"></script>
+    <!--[if lt IE 7]>
+    <script type="text/javascript" src="/trac/chrome/common/js/ie_pre7_hacks.js"></script>
+    <![endif]-->
+    <script type="text/javascript">
+      jQuery(document).ready(function($) {
+        $("#content").find("h1,h2,h3,h4,h5,h6").addAnchor(_("Link to this section"));
+        $("#content").find(".wikianchor").each(function() {
+          $(this).addAnchor(babel.format(_("Link to #%(id)s"), {id: $(this).attr('id')}));
+        });
+        $(".foldable").enableFolding(true, true);
+      });
+    </script>
+    <link rel="stylesheet" type="text/css" href="/style/main.css" />
+  </head>
+  <body>
+    <div id="container">
+    <div id="siteheader">
+    </div>
+    <div id="banner">
+      <div id="header">
+        <a id="logo" href="http://4store.org/"><img src="/images/4store.png" alt="4store" height="48" width="143" /></a>
+      </div>
+      <form id="search" action="/trac/search" method="get">
+        <div>
+          <label for="proj-search">Search:</label>
+          <input type="text" id="proj-search" name="q" size="18" value="" />
+          <input type="submit" value="Search" />
+        </div>
+      </form>
+      <div id="metanav" class="nav">
+    <ul>
+      <li class="first"><a href="/trac/login">Login</a></li><li><a href="/trac/prefs">Preferences</a></li><li><a href="/trac/wiki/TracGuide">Help/Guide</a></li><li class="last"><a href="/trac/about">About Trac</a></li>
+    </ul>
+  </div>
+    </div>
+    <div id="mainnav" class="nav">
+    <ul>
+      <li class="first active"><a href="/trac/wiki">Wiki</a></li><li><a href="/trac/timeline">Timeline</a></li><li><a href="/trac/roadmap">Roadmap</a></li><li><a href="/trac/report">View Tickets</a></li><li class="last"><a href="/trac/search">Search</a></li>
+    </ul>
+  </div>
+    <div id="main">
+      <div id="pagepath" class="noprint">
+  <a class="pathentry first" title="View WikiStart" href="/trac/wiki">wiki:</a><a class="pathentry" href="/trac/wiki/Tuning" title="View Tuning">Tuning</a>
+</div>
+      <div id="ctxtnav" class="nav">
+        <h2>Context Navigation</h2>
+          <ul>
+              <li class="first"><a href="/trac/wiki/WikiStart">Start Page</a></li><li><a href="/trac/wiki/TitleIndex">Index</a></li><li class="last"><a href="/trac/wiki/Tuning?action=history">History</a></li>
+          </ul>
+        <hr />
+      </div>
+    <div id="content" class="wiki">
+      <div class="wikipage searchable">
+        
+          
+          <div class="trac-modifiedby">
+            <span><a href="/trac/wiki/Tuning?action=diff&amp;version=7" title="Version 7 by swh">Last modified</a> <a class="timeline" href="/trac/timeline?from=2011-02-21T14%3A29%3A08Z&amp;precision=second" title="2011-02-21T14:29:08Z in Timeline">5 years</a> ago</span>
+            <span class="trac-print">Last modified on 21/02/11 14:29:08</span>
+          </div>
+          <div id="wikipage"><h1 id="Tuning4store">Tuning 4store</h1>
+<p>
+This page is only really relevant to advanced users who are trying to seqeeze more performance out of their 4store setups. Out of the box, without any tuning 4store should be pretty fast, but there are things you can do to get more out of your hardware.
+</p>
+<h2 id="Kernel">Kernel</h2>
+<p>
+By default the linux kernel is tuned to push mapped blocks out to disk much more quickly than is ideal for 4store. You can add the following to <tt>/etc/sysctl.conf</tt>:
+</p>
+<pre class="wiki">vm.flush_mmap_pages = 0
+vm.dirty_ratio = 90
+vm.dirty_writeback_centisecs = 60000
+</pre><p>
+After making this change you have to reboot for them to take effect.
+</p>
+<p>
+These changes are appropriate for CentOS/RHEL 5 systems, and other kernels of the same vintage (2.6.18). Newer kernels are more efficient, but we don't have appropriate sysctl settings for newer kernels yet. If you have some please contribute them.
+</p>
+<h2 id="Segmentation">Segmentation</h2>
+<p>
+Currently 4store only supports numbers of segments that are powers-of-two. This limitation is mostly historical, and could be removed in a future version, but would require extensive testing.
+</p>
+<p>
+The main user-tunable value in 4store is the choice of number of segments. We recommend a <em>maximum</em> of one per core in the storage nodes. Do not include hyperthreads in your core count.
+</p>
+<p>
+For example if you have a cluster with four storage nodes, each with four cores, then the maximum recommended number of segments would be sixteen.
+</p>
+<p>
+However, it's generally advisible not to go for more than four segments per node, as the IO susbsystem is unlikely to be able to keep up. With current machines with 8, 16, or more cores irt's best to say at around half the number of cores, unless the node has very fast storage.
+</p>
+<p>
+It's often worth experiementing with this value to get the best performance, as it can make a radical difference, and the balance between import and query performance can vary a lot with the types of queries, and data.
+</p>
+<p>
+Segmentation is set by the <tt>4s-backend-setup</tt> or <tt>4s-cluster-create</tt> commands. The default for single machine setups is two segments, and the default for clusters is thirtytwo.
+</p>
+<pre class="wiki">$ 4s-backend-setup KB --segments 4
+</pre><p>
+or
+</p>
+<pre class="wiki">$ 4s-cluster-create KB --segments 16
+</pre><h2 id="Storage">Storage</h2>
+<h3 id="Disks">Disks</h3>
+<p>
+4store is primarily designed to be run with all it's indexes in RAM, however if that's impractical then we strongly advise you to use SSDs, or at least RAID volumes of 15k SAS disks. Note, that SSDs are much more cost efficient relative to the performance of fast disks.
+</p>
+<p>
+If you're using disks then RAID 0, 10, 5, or 6 is appropriate for the index storage.
+</p>
+<p>
+The indexes are kept in <tt>/var/lib/4store/</tt> so mounting as RAID valume as that directory, or symlinking it onto a RAID volume will work fine.
+</p>
+<p>
+You can also stripe the data as per SSDs, below. We don't current;y know how much performance advantage there is over RAID volumes.
+</p>
+<h3 id="SSDs">SSDs</h3>
+<p>
+If you're using SSDs then it's far better to use 4store's internal sotrage striping. Unforunately there's no tools to make this easy, but within the <tt>/var/lib/4store/</tt> directory there's a sub directory for each KB, and directories within that for each segment, named like <tt>0002</tt>. Symlinking these segment directories to separate volumes will increase the performance much more than using RAID over SSDs.
+</p>
+<p>
+Given a machine, "node0", running a KB "kb" with two SSDs, mounted on <tt>/srv/ssd0</tt> and <tt>/src/ssd1</tt>, and four segments per node, this can be done as follows.
+</p>
+<p>
+N.B. the cluster/store must be stopped with <tt>4s-cluster-stop kb</tt> or <tt>4s-backend-stop kb</tt> as appropriate.
+</p>
+<pre class="wiki">$ ssh node0
+$ cd /var/lib/4store/kb
+$ mkdir /srv/ssd0/kb
+$ mv 0000 /srv/ssd0/kb/
+$ ln -s /srv/ssd0/kb/0000 .
+$ mkdir /srv/ssd1/kb
+$ mv 0003 /srv/ssd1/kb/
+$ ln -s /srv/ssd1/kb/0003 .
+</pre><p>
+Note that the ID numbers of the segment will depend on the number of nodes, segments, and whether replication is enabled.
+</p>
+<h2 id="Replication">Replication</h2>
+<p>
+Enabling replication will reduce the import performance, but will not have a significant affect on query performance. For situations where speed is ctricial it's better to replicate the entire cluster, and load balance between them.
+</p>
+</div>
+        
+        
+      </div>
+      
+
+    </div>
+    <div id="altlinks">
+      <h3>Download in other formats:</h3>
+      <ul>
+        <li class="last first">
+          <a rel="nofollow" href="/trac/wiki/Tuning?format=txt">Plain Text</a>
+        </li>
+      </ul>
+    </div>
+    </div>
+    <div id="footer" lang="en" xml:lang="en"><hr />
+      <a id="tracpowered" href="http://trac.edgewall.org/"><img src="/trac/chrome/common/trac_logo_mini.png" height="30" width="107" alt="Trac Powered" /></a>
+      <p class="left">Powered by <a href="/trac/about"><strong>Trac 0.12.4</strong></a><br />
+        By <a href="http://www.edgewall.org/">Edgewall Software</a>.</p>
+      <p class="right">Visit the Trac open source project at<br /><a href="http://trac.edgewall.org/">http://trac.edgewall.org/</a></p>
+    </div>
+    <div id="footer">
+	<div id="copyright">Copyright © Garlik 2009</div>
+		<div id="garlik_logo">
+	<a href="http://www.garlik.com/" rel="external" title="Click here to visit the Garlik homepage"><img src="/images/garlik.gif" alt="powered by Garlik" /></a>
+	</div>
+	<div id="foot_nav">
+	<ul>
+			<li><a href="/about" title="About" id="about">About</a></li>
+			<li><a href="/faqs" title="FAQs" id="faqs">FAQs</a></li>
+			<li><a href="/support" title="Install" id="support">Support</a></li>
+			<li><a href="/developers" title="Developers" id="developers">Developers</a></li>
+			<li><a href="/projects" title="Projects" id="projetcs">Projects</a></li>
+	</ul>
+	</div>
+    </div>
+    </div>
+  </body>
+</html>

@@ -1,0 +1,163 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  
+  
+
+  
+
+
+  <head>
+    <title>
+      ImportData – 4store
+    </title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <!--[if IE]><script type="text/javascript">
+      if (/^#__msie303:/.test(window.location.hash))
+        window.location.replace(window.location.hash.replace(/^#__msie303:/, '#'));
+    </script><![endif]-->
+        <link rel="search" href="/trac/search" />
+        <link rel="help" href="/trac/wiki/TracGuide" />
+        <link rel="alternate" href="/trac/wiki/ImportData?format=txt" type="text/x-trac-wiki" title="Plain Text" />
+        <link rel="start" href="/trac/wiki" />
+        <link rel="stylesheet" href="/trac/chrome/common/css/trac.css" type="text/css" /><link rel="stylesheet" href="/trac/chrome/common/css/wiki.css" type="text/css" />
+        <link rel="shortcut icon" href="/images/favico.png" type="image/png" />
+        <link rel="icon" href="/images/favico.png" type="image/png" />
+      <link type="application/opensearchdescription+xml" rel="search" href="/trac/search/opensearch" title="Search 4store" />
+    <script type="text/javascript" src="/trac/chrome/common/js/jquery.js"></script><script type="text/javascript" src="/trac/chrome/common/js/babel.js"></script><script type="text/javascript" src="/trac/chrome/common/js/messages/en_US.js"></script><script type="text/javascript" src="/trac/chrome/common/js/trac.js"></script><script type="text/javascript" src="/trac/chrome/common/js/search.js"></script><script type="text/javascript" src="/trac/chrome/common/js/folding.js"></script>
+    <!--[if lt IE 7]>
+    <script type="text/javascript" src="/trac/chrome/common/js/ie_pre7_hacks.js"></script>
+    <![endif]-->
+    <script type="text/javascript">
+      jQuery(document).ready(function($) {
+        $("#content").find("h1,h2,h3,h4,h5,h6").addAnchor(_("Link to this section"));
+        $("#content").find(".wikianchor").each(function() {
+          $(this).addAnchor(babel.format(_("Link to #%(id)s"), {id: $(this).attr('id')}));
+        });
+        $(".foldable").enableFolding(true, true);
+      });
+    </script>
+    <link rel="stylesheet" type="text/css" href="/style/main.css" />
+  </head>
+  <body>
+    <div id="container">
+    <div id="siteheader">
+    </div>
+    <div id="banner">
+      <div id="header">
+        <a id="logo" href="http://4store.org/"><img src="/images/4store.png" alt="4store" height="48" width="143" /></a>
+      </div>
+      <form id="search" action="/trac/search" method="get">
+        <div>
+          <label for="proj-search">Search:</label>
+          <input type="text" id="proj-search" name="q" size="18" value="" />
+          <input type="submit" value="Search" />
+        </div>
+      </form>
+      <div id="metanav" class="nav">
+    <ul>
+      <li class="first"><a href="/trac/login">Login</a></li><li><a href="/trac/prefs">Preferences</a></li><li><a href="/trac/wiki/TracGuide">Help/Guide</a></li><li class="last"><a href="/trac/about">About Trac</a></li>
+    </ul>
+  </div>
+    </div>
+    <div id="mainnav" class="nav">
+    <ul>
+      <li class="first active"><a href="/trac/wiki">Wiki</a></li><li><a href="/trac/timeline">Timeline</a></li><li><a href="/trac/roadmap">Roadmap</a></li><li><a href="/trac/report">View Tickets</a></li><li class="last"><a href="/trac/search">Search</a></li>
+    </ul>
+  </div>
+    <div id="main">
+      <div id="pagepath" class="noprint">
+  <a class="pathentry first" title="View WikiStart" href="/trac/wiki">wiki:</a><a class="pathentry" href="/trac/wiki/ImportData" title="View ImportData">ImportData</a>
+</div>
+      <div id="ctxtnav" class="nav">
+        <h2>Context Navigation</h2>
+          <ul>
+              <li class="first"><a href="/trac/wiki/WikiStart">Start Page</a></li><li><a href="/trac/wiki/TitleIndex">Index</a></li><li class="last"><a href="/trac/wiki/ImportData?action=history">History</a></li>
+          </ul>
+        <hr />
+      </div>
+    <div id="content" class="wiki">
+      <div class="wikipage searchable">
+        
+          
+          <div class="trac-modifiedby">
+            <span><a href="/trac/wiki/ImportData?action=diff&amp;version=6" title="Version 6 by swh">Last modified</a> <a class="timeline" href="/trac/timeline?from=2013-08-01T09%3A52%3A42%2B01%3A00&amp;precision=second" title="2013-08-01T09:52:42+01:00 in Timeline">2 years</a> ago</span>
+            <span class="trac-print">Last modified on 01/08/13 09:52:42</span>
+          </div>
+          <div id="wikipage"><table class="wiki">
+<tr><td> Note: this command, and any other commands that connect to the backend will not work if the HTTP server (4s-httpd) is connected to the backend, see <a class="wiki" href="/trac/wiki/SparqlServer">SparqlServer</a> for alternative ways to import data over HTTP. 
+</td></tr></table>
+<p>
+<tt> </tt>
+</p>
+<p>
+The most basic import command specifies only the name of the database to which RDF data is being imported and the name of the file to import.
+</p>
+<pre class="wiki">4s-import demo icecreams.rdf
+</pre><h3 id="Verbosity">Verbosity</h3>
+<p>
+4store's import command produces no output by default unless something goes wrong. If you'd like more verbose feedback on how the import is progressing, or just some reassurance that it's doing something at all, try
+</p>
+<pre class="wiki">4s-import -v demo icecream.rdf
+</pre><h3 id="Multiplefiles">Multiple files</h3>
+<p>
+It is faster to import several files at the same time with a single command. This amortises the database connection setup time over all the imports, for small files it's a significant difference.
+</p>
+<pre class="wiki">4s-import demo starters.rdf mains.rdf desserts.rdf
+</pre><h3 id="RDFformats">RDF formats</h3>
+<p>
+There are many RDF formats. The import parser will try to guess which format your file is in if you don't specify. If you need to override the guess, or if you're certain you know the format for all the files being imported you can specify it with the --format flag.
+</p>
+<pre class="wiki">4s-import demo --format ntriples starters mains desserts
+</pre><h3 id="ModelURIs">Model URIs</h3>
+<p>
+4store's model URIs map to SPARQL graphs. If you import data from a format such as TriG with explicitly named graphs this is handled for you. Otherwise you may need to specify which model the imported data is for.
+</p>
+<p>
+By default the name of your imported model (SPARQL graph) in 4store will be a file: URI derived from the import filename. You can use the --model flag to override this with any other URI.
+</p>
+<pre class="wiki">4s-import demo --model http://example.com/schema schema.rdf --model http://example.com/data data.ttl
+</pre><h3 id="Addingdata">Adding data</h3>
+<p>
+Ordinarily importing RDF to a model replaces any previous contents of that model, by using the --add flag this behaviour is overridden and any triples which were previously in the model are retained.
+</p>
+<pre class="wiki">4s-import demo --add --model http:/example.com/data moredata.ttl
+</pre></div>
+        
+        
+      </div>
+      
+
+    </div>
+    <div id="altlinks">
+      <h3>Download in other formats:</h3>
+      <ul>
+        <li class="last first">
+          <a rel="nofollow" href="/trac/wiki/ImportData?format=txt">Plain Text</a>
+        </li>
+      </ul>
+    </div>
+    </div>
+    <div id="footer" lang="en" xml:lang="en"><hr />
+      <a id="tracpowered" href="http://trac.edgewall.org/"><img src="/trac/chrome/common/trac_logo_mini.png" height="30" width="107" alt="Trac Powered" /></a>
+      <p class="left">Powered by <a href="/trac/about"><strong>Trac 0.12.4</strong></a><br />
+        By <a href="http://www.edgewall.org/">Edgewall Software</a>.</p>
+      <p class="right">Visit the Trac open source project at<br /><a href="http://trac.edgewall.org/">http://trac.edgewall.org/</a></p>
+    </div>
+    <div id="footer">
+	<div id="copyright">Copyright © Garlik 2009</div>
+		<div id="garlik_logo">
+	<a href="http://www.garlik.com/" rel="external" title="Click here to visit the Garlik homepage"><img src="/images/garlik.gif" alt="powered by Garlik" /></a>
+	</div>
+	<div id="foot_nav">
+	<ul>
+			<li><a href="/about" title="About" id="about">About</a></li>
+			<li><a href="/faqs" title="FAQs" id="faqs">FAQs</a></li>
+			<li><a href="/support" title="Install" id="support">Support</a></li>
+			<li><a href="/developers" title="Developers" id="developers">Developers</a></li>
+			<li><a href="/projects" title="Projects" id="projetcs">Projects</a></li>
+	</ul>
+	</div>
+    </div>
+    </div>
+  </body>
+</html>

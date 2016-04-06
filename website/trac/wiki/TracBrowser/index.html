@@ -1,0 +1,223 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  
+  
+
+  
+
+
+  <head>
+    <title>
+      TracBrowser – 4store
+    </title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <!--[if IE]><script type="text/javascript">
+      if (/^#__msie303:/.test(window.location.hash))
+        window.location.replace(window.location.hash.replace(/^#__msie303:/, '#'));
+    </script><![endif]-->
+        <link rel="search" href="/trac/search" />
+        <link rel="help" href="/trac/wiki/TracGuide" />
+        <link rel="alternate" href="/trac/wiki/TracBrowser?format=txt" type="text/x-trac-wiki" title="Plain Text" />
+        <link rel="start" href="/trac/wiki" />
+        <link rel="stylesheet" href="/trac/chrome/common/css/trac.css" type="text/css" /><link rel="stylesheet" href="/trac/chrome/common/css/wiki.css" type="text/css" />
+        <link rel="shortcut icon" href="/images/favico.png" type="image/png" />
+        <link rel="icon" href="/images/favico.png" type="image/png" />
+      <link type="application/opensearchdescription+xml" rel="search" href="/trac/search/opensearch" title="Search 4store" />
+    <script type="text/javascript" src="/trac/chrome/common/js/jquery.js"></script><script type="text/javascript" src="/trac/chrome/common/js/babel.js"></script><script type="text/javascript" src="/trac/chrome/common/js/messages/en_US.js"></script><script type="text/javascript" src="/trac/chrome/common/js/trac.js"></script><script type="text/javascript" src="/trac/chrome/common/js/search.js"></script><script type="text/javascript" src="/trac/chrome/common/js/folding.js"></script>
+    <!--[if lt IE 7]>
+    <script type="text/javascript" src="/trac/chrome/common/js/ie_pre7_hacks.js"></script>
+    <![endif]-->
+    <meta name="ROBOTS" content="NOINDEX, NOFOLLOW" />
+    <script type="text/javascript">
+      jQuery(document).ready(function($) {
+        $("#content").find("h1,h2,h3,h4,h5,h6").addAnchor(_("Link to this section"));
+        $("#content").find(".wikianchor").each(function() {
+          $(this).addAnchor(babel.format(_("Link to #%(id)s"), {id: $(this).attr('id')}));
+        });
+        $(".foldable").enableFolding(true, true);
+      });
+    </script>
+    <link rel="stylesheet" type="text/css" href="/style/main.css" />
+  </head>
+  <body>
+    <div id="container">
+    <div id="siteheader">
+    </div>
+    <div id="banner">
+      <div id="header">
+        <a id="logo" href="http://4store.org/"><img src="/images/4store.png" alt="4store" height="48" width="143" /></a>
+      </div>
+      <form id="search" action="/trac/search" method="get">
+        <div>
+          <label for="proj-search">Search:</label>
+          <input type="text" id="proj-search" name="q" size="18" value="" />
+          <input type="submit" value="Search" />
+        </div>
+      </form>
+      <div id="metanav" class="nav">
+    <ul>
+      <li class="first"><a href="/trac/login">Login</a></li><li><a href="/trac/prefs">Preferences</a></li><li><a href="/trac/wiki/TracGuide">Help/Guide</a></li><li class="last"><a href="/trac/about">About Trac</a></li>
+    </ul>
+  </div>
+    </div>
+    <div id="mainnav" class="nav">
+    <ul>
+      <li class="first active"><a href="/trac/wiki">Wiki</a></li><li><a href="/trac/timeline">Timeline</a></li><li><a href="/trac/roadmap">Roadmap</a></li><li><a href="/trac/report">View Tickets</a></li><li class="last"><a href="/trac/search">Search</a></li>
+    </ul>
+  </div>
+    <div id="main">
+      <div id="pagepath" class="noprint">
+  <a class="pathentry first" title="View WikiStart" href="/trac/wiki">wiki:</a><a class="pathentry" href="/trac/wiki/TracBrowser" title="View TracBrowser">TracBrowser</a>
+</div>
+      <div id="ctxtnav" class="nav">
+        <h2>Context Navigation</h2>
+          <ul>
+              <li class="first"><a href="/trac/wiki/WikiStart">Start Page</a></li><li><a href="/trac/wiki/TitleIndex">Index</a></li><li class="last"><a href="/trac/wiki/TracBrowser?action=history">History</a></li>
+          </ul>
+        <hr />
+      </div>
+    <div id="content" class="wiki">
+      <div class="wikipage searchable">
+        
+          
+          <div class="trac-modifiedby">
+            <span><a href="/trac/wiki/TracBrowser?action=diff&amp;version=2" title="Version 2 by trac">Last modified</a> <a class="timeline" href="/trac/timeline?from=2011-12-01T17%3A47%3A14Z&amp;precision=second" title="2011-12-01T17:47:14Z in Timeline">4 years</a> ago</span>
+            <span class="trac-print">Last modified on 01/12/11 17:47:14</span>
+          </div>
+          <div id="wikipage"><h1 id="TheTracRepositoryBrowser">The Trac Repository Browser</h1>
+<p>
+</p><div class="wiki-toc"><h4>Table of Contents</h4><ul><li class="False"><a class="False" href="/trac/wiki/TracGuide">Index</a></li><li class="False"><a class="False" href="/trac/wiki/TracInstall">Installation</a></li><li class="False"><a class="False" href="/trac/wiki/TracInterfaceCustomization">Customization</a></li><li class="False"><a class="False" href="/trac/wiki/TracPlugins">Plugins</a></li><li class="False"><a class="False" href="/trac/wiki/TracUpgrade">Upgrading</a></li><li class="False"><a class="False" href="/trac/wiki/TracIni">Configuration</a></li><li class="False"><a class="False" href="/trac/wiki/TracAdmin">Administration</a></li><li class="False"><a class="False" href="/trac/wiki/TracBackup">Backup</a></li><li class="False"><a class="False" href="/trac/wiki/TracLogging">Logging</a></li><li class="False"><a class="False" href="/trac/wiki/TracPermissions">Permissions</a></li><li class="False"><a class="False" href="/trac/wiki/TracWiki">The Wiki</a></li><li class="False"><a class="False" href="/trac/wiki/WikiFormatting">Wiki Formatting</a></li><li class="False"><a class="False" href="/trac/wiki/TracTimeline">Timeline</a></li><li class="active"><a class="False" href="/trac/wiki/TracBrowser">Repository Browser</a></li><li class="False"><a class="False" href="/trac/wiki/TracRevisionLog">Revision Log</a></li><li class="False"><a class="False" href="/trac/wiki/TracChangeset">Changesets</a></li><li class="False"><a class="False" href="/trac/wiki/TracTickets">Tickets</a></li><li class="False"><a class="False" href="/trac/wiki/TracWorkflow">Workflow</a></li><li class="False"><a class="False" href="/trac/wiki/TracRoadmap">Roadmap</a></li><li class="False"><a class="False" href="/trac/wiki/TracQuery">Ticket Queries</a></li><li class="False"><a class="False" href="/trac/wiki/TracReports">Reports</a></li><li class="False"><a class="False" href="/trac/wiki/TracRss">RSS Support</a></li><li class="False"><a class="False" href="/trac/wiki/TracNotification">Notification</a></li></ul></div><p>
+</p>
+<p>
+The Trac repository browser can be used to browse specific revisions of directories 
+and files stored in the repositories associated with the Trac environment.
+</p>
+<p>
+<em>(since 0.12)</em>: 
+At the top-level of the repository browser is the <strong>Repository Index</strong>, 
+listing all the configured repositories. 
+Each repository has a name which is used as a path prefix in a 
+"virtual" file hierarchy encompassing all the available repositories.
+If a default repository has been configured, its top-level files and directories 
+are also listed, in a <strong>Default Repository</strong> section placed before the 
+repository index. If the default repository is the only repository associated 
+with the Trac environment the <strong>Repository Index</strong> will be omitted <sup><a class="wiki" href="/trac/wiki/TracBrowser#note-multirepos">(1)</a></sup>.
+</p>
+<p>
+Directory entries are displayed in a list with sortable columns. The list 
+entries can be sorted by <em>Name</em>, <em>Size</em>, <em>Age</em> or <em>Author</em> by clicking on the column
+headers. The sort order can be reversed by clicking on a given column
+header again.
+</p>
+<p>
+The browser can be used to navigate through the directory structure 
+by clicking on the directory names. 
+Clicking on a file name will show the contents of the file. 
+Clicking on the revision number of a file or directory will take 
+you to the <a class="wiki" href="/trac/wiki/TracRevisionLog">TracRevisionLog</a> for that file.
+Note that there's also a <em>Revision Log</em> navigation link that will do the 
+same for the path currently being examined.
+Clicking on the <em>diff</em> icon after revision number will display the changes made 
+to the files modified in that revision.
+Clicking on the <em>Age</em> of the file - will take you to that changeset in the timeline.
+</p>
+<p>
+It's also possible to browse directories or files as they were in history,
+at any given repository revision. The default behavior is to display the
+latest revision but another revision number can easily be selected using
+the <em>View revision</em> input field at the top of the page.
+</p>
+<p>
+The color bar next to the <em>Age</em> column gives a visual indication of the age
+of the last change to a file or directory, following the convention that
+<strong><span style="color:#88f">blue</span></strong> is oldest and <strong><span style="color:#f88">red</span></strong>
+is newest, but this can be <a class="wiki" href="/trac/wiki/TracIni#browser-section">configured</a>.
+</p>
+<p>
+At the top of the browser page, there's a <em>Visit</em> drop-down menu which you can use 
+to select some interesting places in the repository, for example branches or tags. 
+This is sometimes referred to as the <em>browser quickjump</em> facility.
+The precise meaning and content of this menu depends on your repository backend.
+For Subversion, this list contains by default the top-level trunk directory 
+and sub-directories of the top-level branches and tags directories 
+(<tt>/trunk</tt>, <tt>/branches/*</tt>, and <tt>/tags/*</tt>).  This can be <a class="wiki" href="/trac/wiki/TracIni#svn-section">configured</a> 
+for more advanced cases.
+</p>
+<p>
+If you're using a Javascript enabled browser, you'll be able to expand and 
+collapse directories in-place by clicking on the arrow head at the right side of a 
+directory. Alternatively, the <a class="ext-link" href="http://trac.edgewall.org/intertrac/TracKeys" title="TracKeys in Trac project trac"><span class="icon">​</span>keyboard</a> can also be used for this: 
+</p>
+<ul><li>use <tt>'j'</tt> and <tt>'k'</tt> to select the next or previous entry, starting with the first
+</li><li><tt>'o'</tt> (open) to toggle between expanded and collapsed state of the selected 
+directory or for visiting the selected file 
+</li><li><tt>'v'</tt> (view, visit) and <tt>'&lt;Enter&gt;'</tt>, same as above
+</li><li><tt>'r'</tt> can be used to force the reload of an already expanded directory
+</li><li><tt>'A'</tt> can be used to directly visit a file in annotate (blame) mode
+</li><li><tt>'L'</tt> to view the log for the selected entry
+</li></ul><p>
+If no row has been selected using <tt>'j'</tt> or <tt>'k'</tt> these keys will operate on the entry under the mouse .
+</p>
+<p>
+For the Subversion backend, some advanced additional features are available:
+</p>
+<ul><li>The <tt>svn:needs-lock</tt> property will be displayed
+</li><li>Support for the <tt>svn:mergeinfo</tt> property showing the merged and eligible information
+</li><li>Support for browsing the <tt>svn:externals</tt> property 
+(which can be <a class="wiki" href="/trac/wiki/TracIni#svn:externals-section">configured</a>)
+</li><li>The <tt>svn:mime-type</tt> property is used to select the syntax highlighter for rendering 
+the file. For example, setting <tt>svn:mime-type</tt> to <tt>text/html</tt> will ensure the file is 
+highlighted as HTML, regardless of the file extension. It also allows selecting the character 
+encoding used in the file content. For example, if the file content is encoded in UTF-8, 
+set <tt>svn:mime-type</tt> to <tt>text/html;charset=utf-8</tt>. The <tt>charset=</tt> specification overrides the 
+default encoding defined in the <tt>default_charset</tt> option of the <tt>[trac]</tt> section 
+of <a class="wiki" href="/trac/wiki/TracIni#trac-section">trac.ini</a>.
+</li></ul><hr />
+<div style="font-size:85%" class="wikipage"><p>
+<span class="wikianchor" id="note-multirepos">(1)</span> -  This means that after upgrading a single-repository Trac of version 
+0.11 (or below) to a multi-repository Trac (0.12), the repository browser will look and feel 
+the same, that single repository becoming automatically the "default" repository.
+</p>
+</div><p>
+See also: <a class="wiki" href="/trac/wiki/TracGuide">TracGuide</a>, <a class="wiki" href="/trac/wiki/TracChangeset">TracChangeset</a>, <a class="wiki" href="/trac/wiki/TracFineGrainedPermissions">TracFineGrainedPermissions</a>
+</p>
+</div>
+        
+        
+      </div>
+      
+
+    </div>
+    <div id="altlinks">
+      <h3>Download in other formats:</h3>
+      <ul>
+        <li class="last first">
+          <a rel="nofollow" href="/trac/wiki/TracBrowser?format=txt">Plain Text</a>
+        </li>
+      </ul>
+    </div>
+    </div>
+    <div id="footer" lang="en" xml:lang="en"><hr />
+      <a id="tracpowered" href="http://trac.edgewall.org/"><img src="/trac/chrome/common/trac_logo_mini.png" height="30" width="107" alt="Trac Powered" /></a>
+      <p class="left">Powered by <a href="/trac/about"><strong>Trac 0.12.4</strong></a><br />
+        By <a href="http://www.edgewall.org/">Edgewall Software</a>.</p>
+      <p class="right">Visit the Trac open source project at<br /><a href="http://trac.edgewall.org/">http://trac.edgewall.org/</a></p>
+    </div>
+    <div id="footer">
+	<div id="copyright">Copyright © Garlik 2009</div>
+		<div id="garlik_logo">
+	<a href="http://www.garlik.com/" rel="external" title="Click here to visit the Garlik homepage"><img src="/images/garlik.gif" alt="powered by Garlik" /></a>
+	</div>
+	<div id="foot_nav">
+	<ul>
+			<li><a href="/about" title="About" id="about">About</a></li>
+			<li><a href="/faqs" title="FAQs" id="faqs">FAQs</a></li>
+			<li><a href="/support" title="Install" id="support">Support</a></li>
+			<li><a href="/developers" title="Developers" id="developers">Developers</a></li>
+			<li><a href="/projects" title="Projects" id="projetcs">Projects</a></li>
+	</ul>
+	</div>
+    </div>
+    </div>
+  </body>
+</html>

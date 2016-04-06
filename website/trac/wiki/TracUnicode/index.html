@@ -1,0 +1,261 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  
+  
+
+  
+
+
+  
+
+  <head>
+    <title>
+      TracUnicode – 4store
+    </title>
+        <link rel="search" href="/trac/search" />
+        <link rel="help" href="/trac/wiki/TracGuide" />
+        <link rel="alternate" href="/trac/wiki/TracUnicode?format=txt" type="text/x-trac-wiki" title="Plain Text" />
+        <link rel="start" href="/trac/wiki" />
+        <link rel="stylesheet" href="/trac/chrome/common/css/trac.css" type="text/css" /><link rel="stylesheet" href="/trac/chrome/common/css/wiki.css" type="text/css" />
+        <link rel="shortcut icon" href="/images/favico.png" type="image/png" />
+        <link rel="icon" href="/images/favico.png" type="image/png" />
+      <link type="application/opensearchdescription+xml" rel="search" href="/trac/search/opensearch" title="Search 4store" />
+    <script type="text/javascript" src="/trac/chrome/common/js/jquery.js"></script><script type="text/javascript" src="/trac/chrome/common/js/trac.js"></script><script type="text/javascript" src="/trac/chrome/common/js/search.js"></script>
+    <!--[if lt IE 7]>
+    <script type="text/javascript" src="/trac/chrome/common/js/ie_pre7_hacks.js"></script>
+    <![endif]-->
+    <script type="text/javascript">
+      jQuery(document).ready(function($) {
+        $("#content").find("h1,h2,h3,h4,h5,h6").addAnchor("Link to this section");
+      });
+    </script>
+    <link rel="stylesheet" type="text/css" href="/style/main.css" />
+  </head>
+  <body>
+    <div id="container">
+    <div id="siteheader">
+    </div>
+    <div id="banner">
+      <div id="header">
+        <a id="logo" href="http://4store.org/"><img src="/images/4store.png" alt="4store" height="48" width="143" /></a>
+      </div>
+      <form id="search" action="/trac/search" method="get">
+        <div>
+          <label for="proj-search">Search:</label>
+          <input type="text" id="proj-search" name="q" size="18" value="" />
+          <input type="submit" value="Search" />
+        </div>
+      </form>
+      <div id="metanav" class="nav">
+    <ul>
+      <li class="first"><a href="/trac/login">Login</a></li><li><a href="/trac/prefs">Preferences</a></li><li><a href="/trac/wiki/TracGuide">Help/Guide</a></li><li class="last"><a href="/trac/about">About Trac</a></li>
+    </ul>
+  </div>
+    </div>
+    <div id="mainnav" class="nav">
+    <ul>
+      <li class="first active"><a href="/trac/wiki">Wiki</a></li><li><a href="/trac/timeline">Timeline</a></li><li><a href="/trac/roadmap">Roadmap</a></li><li><a href="/trac/report">View Tickets</a></li><li class="last"><a href="/trac/search">Search</a></li>
+    </ul>
+  </div>
+    <div id="main">
+      <div id="ctxtnav" class="nav">
+        <h2>Context Navigation</h2>
+          <ul>
+              <li class="first"><a href="/trac/wiki/WikiStart">Start Page</a></li><li><a href="/trac/wiki/TitleIndex">Index</a></li><li><a href="/trac/wiki/TracUnicode?action=history">History</a></li><li class="last"><a href="/trac/wiki/TracUnicode?action=diff&amp;version=1">Last Change</a></li>
+          </ul>
+        <hr />
+      </div>
+    <div id="content" class="wiki">
+      <div class="wikipage searchable">
+        
+          <h1 id="UnicodeSupportinTrac">Unicode Support in Trac</h1>
+<p>
+</p><div class="wiki-toc"><h4>Table of Contents</h4><ul><li class="False"><a class="False" href="/trac/wiki/TracGuide">Index</a></li><li class="False"><a class="False" href="/trac/wiki/TracInstall">Installation</a></li><li class="False"><a class="False" href="/trac/wiki/TracInterfaceCustomization">Customization</a></li><li class="False"><a class="False" href="/trac/wiki/TracPlugins">Plugins</a></li><li class="False"><a class="False" href="/trac/wiki/TracUpgrade">Upgrading</a></li><li class="False"><a class="False" href="/trac/wiki/TracIni">Configuration</a></li><li class="False"><a class="False" href="/trac/wiki/TracAdmin">Administration</a></li><li class="False"><a class="False" href="/trac/wiki/TracBackup">Backup</a></li><li class="False"><a class="False" href="/trac/wiki/TracLogging">Logging</a></li><li class="False"><a class="False" href="/trac/wiki/TracPermissions">Permissions</a></li><li class="False"><a class="False" href="/trac/wiki/TracWiki">The Wiki</a></li><li class="False"><a class="False" href="/trac/wiki/WikiFormatting">Wiki Formatting</a></li><li class="False"><a class="False" href="/trac/wiki/TracTimeline">Timeline</a></li><li class="False"><a class="False" href="/trac/wiki/TracBrowser">Repository Browser</a></li><li class="False"><a class="False" href="/trac/wiki/TracRevisionLog">Revision Log</a></li><li class="False"><a class="False" href="/trac/wiki/TracChangeset">Changesets</a></li><li class="False"><a class="False" href="/trac/wiki/TracTickets">Tickets</a></li><li class="False"><a class="False" href="/trac/wiki/TracWorkflow">Workflow</a></li><li class="False"><a class="False" href="/trac/wiki/TracRoadmap">Roadmap</a></li><li class="False"><a class="False" href="/trac/wiki/TracQuery">Ticket Queries</a></li><li class="False"><a class="False" href="/trac/wiki/TracReports">Reports</a></li><li class="False"><a class="False" href="/trac/wiki/TracRss">RSS Support</a></li><li class="False"><a class="False" href="/trac/wiki/TracNotification">Notification</a></li></ul></div><p>
+</p>
+<p>
+Trac stores all text using UTF-8 encoding, including text in tickets and wiki pages. Internal processing of text uses true Unicode representations.
+</p>
+<p>
+As such, it supports most (all?) commonly used character encodings.
+</p>
+<p>
+If your encoding is not UTF-8, you can use <a class="wiki" href="/trac/wiki/TracModPython">mod_python</a> to handle it.  For example, if your local encoding is gbk, you can set 
+</p>
+<blockquote>
+<p>
+default_charset = gbk
+</p>
+</blockquote>
+<p>
+in trac.ini.
+</p>
+<p>
+You also must make sure that your <a class="ext-link" href="http://trac.edgewall.org/intertrac/DatabaseBackend" title="DatabaseBackend in Trac project trac"><span class="icon"> </span>database backend</a> stores its data in UTF-8; otherwise strange things will happen.
+</p>
+<p>
+To convert your database to UTF-8, the easiest way is to dump the database, convert the dump into UTF-8 and then import the converted dump back into the database.<br />
+You can use <a class="ext-link" href="http://www.gnu.org/software/libiconv/documentation/libiconv/iconv.1.html"><span class="icon"> </span>iconv</a> to convert the dump.
+</p>
+<h2 id="Examples">Examples</h2>
+<h3 id="Arabic">Arabic</h3>
+<p>
+تراك يقوم بحفظ كل الكلمات باستخدام صيغة UTF-8، بما في ذلك الكلمات المستخدمة في صفحات  التيكت والويكي.
+</p>
+<h3 id="Bulgarian">Bulgarian</h3>
+<p>
+Българският език работи ли?
+</p>
+<h3 id="Česky">Česky</h3>
+<p>
+Čeština v kódování UTF-8, žádný problém.
+</p>
+<h3 id="Chinese">Chinese</h3>
+<p>
+Traditional: 繁體中文, 漢字測試; Simplified: 简体中文，汉字测试
+</p>
+<h3 id="Croatian">Croatian</h3>
+<p>
+Ako podržava srpski i slovenski mora podržavati i Hrvatski - čćžšđ ČĆŽŠĐ 
+</p>
+<h3 id="English">English</h3>
+<p>
+Yes indeed, Trac supports English. Fully.
+</p>
+<h3 id="Français">Français</h3>
+<p>
+Il est possible d'écrire en Français : à, ç, û, ...
+</p>
+<h3 id="German">German</h3>
+<p>
+Trac-Wiki muß auch deutsche Umlaute richtig anzeigen: ö, ä, ü, Ä, Ö, Ü; und das scharfe ß
+</p>
+<h3 id="Greek">Greek</h3>
+<p>
+Τα Ελληνικά υποστηρίζονται επαρκώς επίσης.
+</p>
+<h3 id="Hebrew">Hebrew</h3>
+<p>
+אני יכול לאכול זכוכית וזה לא מזיק לי
+</p>
+<h3 id="Hindi">Hindi</h3>
+<p>
+अब हिन्दी में।
+</p>
+<h3 id="Hungarian">Hungarian</h3>
+<p>
+Árvíztűrő tükörfúrógép
+</p>
+<h3 id="Icelandic">Icelandic</h3>
+<p>
+Ævar sagði við ömmu sína: Sjáðu hvað ég er stór!
+</p>
+<h3 id="Japanese">Japanese</h3>
+<p>
+漢字 ひらがな カタカナ ﾊﾝｶｸｶﾅ 日本語試験
+</p>
+<h3 id="Korean">Korean</h3>
+<p>
+이번에는 한글로 써보겠습니다. 잘 보이나요? 한글
+</p>
+<h3 id="Latvian">Latvian</h3>
+<p>
+Latviešu valoda arī strādā!
+</p>
+<h3 id="Lithuanian">Lithuanian</h3>
+<p>
+Sudalyvaukime ir mes. Ar veikia lietuviškos raidės? ąčęėįšųūž ĄČĘĖĮŠŲŪŽ Žinoma, kad veikia :)
+Kas tie mes?
+</p>
+<h3 id="PersianFarsi">Persian (Farsi)</h3>
+<p>
+این یک متن فارسی است ولی امکان نوشتن مستقیم فارسی نیست چون حالت متن از راست به چپ و جود ندارد برای فارسی نوشتن باید از HTML استفاده کنید.
+</p>
+<div dir="rtl">
+</div><p>
+این نمونه یک متن از راست به چپ فارسی است که در HTML نوشته شده تا اعداد 12345 و حروف لاتین ABCDEF در محل خودشان نمایش داده شوند.
+</p>
+
+<h3 id="Polish">Polish</h3>
+<p>
+Pchnąć w tę łódź jeża lub osiem skrzyń fig; Nocna gżegżółka zawsze dzienną przekuka.
+</p>
+<h3 id="Portuguese">Portuguese</h3>
+<p>
+É possível guardar caracteres especias da língua portuguesa, incluindo o símbolo da moeda européia '€', trema 'ü', crase 'à', agudos 'áéíóú', circunflexos 'âêô', til 'ãõ', cedilha 'ç', ordinais 'ªº', grau '°¹²³'.
+</p>
+<h3 id="Russian">Russian</h3>
+<p>
+Проверка русского языка: кажется работает... И буква "ё" есть...
+</p>
+<h3 id="Serbian">Serbian</h3>
+<p>
+Podržan, uprkos činjenici da se za njegovo pisanje koriste чак два алфабета.
+</p>
+<h3 id="Slovenian">Slovenian</h3>
+<p>
+Ta suhi škafec pušča vodo že od nekdaj!
+</p>
+<h3 id="Spanish">Spanish</h3>
+<p>
+Esto es un pequeño texto en Español, donde el veloz murciélago hindú comía cardlllo y kiwi
+</p>
+<h3 id="Swedish">Swedish</h3>
+<p>
+Räven raskar över isen med luva på.
+</p>
+<h3 id="Thai">Thai</h3>
+<p>
+Trac แสดงภาษาไทยได้อย่างถูกต้อง!
+</p>
+<h3 id="Ukrainian">Ukrainian</h3>
+<p>
+Перевірка української мови...
+</p>
+<h3 id="Urdu">Urdu</h3>
+<p>
+ٹریک اردو بھی سپورٹ کرتا ہے۔
+</p>
+<h3 id="Vietnamese">Vietnamese</h3>
+<p>
+Viết tiếng Việt cũng được. Nhưng search từ tiếng Việt thì không bôi vàng được. (Keyword(s) in Vietnamese search result can not be hightlighted !!!!).
+</p>
+
+        
+        
+      </div>
+    </div>
+    <div id="altlinks">
+      <h3>Download in other formats:</h3>
+      <ul>
+        <li class="last first">
+          <a rel="nofollow" href="/trac/wiki/TracUnicode?format=txt">Plain Text</a>
+        </li>
+      </ul>
+    </div>
+    </div>
+    <div id="footer" lang="en" xml:lang="en"><hr />
+      <a id="tracpowered" href="http://trac.edgewall.org/"><img src="/trac/chrome/common/trac_logo_mini.png" height="30" width="107" alt="Trac Powered" /></a>
+      <p class="left">
+        Powered by <a href="/trac/about"><strong>Trac 0.11.4</strong></a><br />
+        By <a href="http://www.edgewall.org/">Edgewall Software</a>.
+      </p>
+      <p class="right">Visit the Trac open source project at<br /><a href="http://trac.edgewall.org/">http://trac.edgewall.org/</a></p>
+    </div>
+    <div id="footer">
+	<div id="copyright">Copyright © Garlik 2009</div>
+		<div id="garlik_logo">
+	<a href="http://www.garlik.com/" rel="external" title="Click here to visit the Garlik homepage"><img src="/images/garlik.gif" alt="powered by Garlik" /></a>
+	</div>
+	<div id="foot_nav">
+	<ul>
+			<li><a href="/about" title="About" id="about">About</a></li>
+			<li><a href="/faqs" title="FAQs" id="faqs">FAQs</a></li>
+			<li><a href="/support" title="Install" id="support">Support</a></li>
+			<li><a href="/developers" title="Developers" id="developers">Developers</a></li>
+			<li><a href="/projects" title="Projects" id="projetcs">Projects</a></li>
+	</ul>
+	</div>
+    </div>
+    </div>
+  </body>
+</html>
