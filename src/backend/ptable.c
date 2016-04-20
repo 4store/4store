@@ -134,11 +134,13 @@ fs_ptable *fs_ptable_open_filename(const char *fname, int flags)
 
     if (sizeof(struct ptable_header) != 512) {
         fs_error(LOG_CRIT, "ptable header size not 512 bytes");
+        free(pt);
         return NULL;
     }
     pt->fd = open(fname, FS_O_NOATIME | flags, FS_FILE_MODE);
     if (pt->fd == -1) {
         fs_error(LOG_CRIT, "failed to open ptable %s: %s", fname, strerror(errno));
+        free(pt);
         return NULL;
     }
     pt->filename = g_strdup(fname);

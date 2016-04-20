@@ -3169,7 +3169,7 @@ int fs_sort_column(fs_query *q, fs_binding *b, int col, int **sorted)
         if (!sort) {
             /* this shouldn't happen, but just incase */
             fs_error(LOG_ERR, "cannot get sortable string for %016llx", rid);
-
+            free(sortable);
             return 1;
         }
         sortable[row].str = sort;

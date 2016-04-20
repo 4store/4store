@@ -89,13 +89,13 @@ fs_backend *fs_backend_init(const char *db_name, int flags)
     ret->md = fs_metadata_open(db_name);
     if (!ret->md) {
 	fs_error(LOG_CRIT, "cannot read metadata file for kb %s", db_name);
-
+	free(ret);
 	return NULL;
     }
 
     if (!fs_metadata_get_string(ret->md, FS_MD_NAME, NULL)) {
 	fs_error(LOG_ERR, "no value for KB name in metadata, does KB exist?");
-
+	free(ret);
 	return NULL;
     }
 
@@ -103,20 +103,20 @@ fs_backend *fs_backend_init(const char *db_name, int flags)
     if (strcmp(hashfunc, FS_HASH)) {
 	fs_error(LOG_ERR, "stored hash function does not match server's hash function");
 	fs_error(LOG_ERR, "rebuild code with correct function or replace store");
-
+	free(ret);
 	return NULL;
     }
 
     const char *store_type = fs_metadata_get_string(ret->md, FS_MD_STORE, "semi-native");
     if (strcmp(store_type, "native")) {
 	fs_error(LOG_ERR, "tried to open %s store with native backend", store_type);
-
+	free(ret);
 	return NULL;
     }
 
     if (strcmp(fs_metadata_get_string(ret->md, FS_MD_NAME, "-no-match-"), db_name)) {
 	fs_error(LOG_CRIT, "metadata and opened KB name don't match %s / %s", db_name, fs_metadata_get_string(ret->md, FS_MD_NAME, "-no-match-"));
-
+	free(ret);
 	return NULL;
     }
 
@@ -124,13 +124,13 @@ fs_backend *fs_backend_init(const char *db_name, int flags)
     const int version = fs_metadata_get_int(ret->md, FS_MD_VERSION, 0);
     if (version == -1) {
 	fs_error(LOG_CRIT, "cannot find number of segments in KB %s", db_name);
-
+	free(ret);
 	return NULL;
     }
     if (version > FS_CURRENT_TABLE_VERSION ||
         version < FS_EARLIEST_TABLE_VERSION) {
 	fs_error(LOG_ERR, "wrong table metadata version in KB %s", db_name);
-
+	free(ret);
 	return NULL;
     }
 

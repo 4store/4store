@@ -100,7 +100,7 @@ fs_mhash *fs_mhash_open_filename(const char *filename, int flags)
     mh->flags = flags;
     if (mh->fd == -1) {
         fs_error(LOG_ERR, "cannot open mhash file '%s': %s", filename, strerror(errno));
-
+        free(mh);
         return NULL;
     }
     mh->filename = g_strdup(filename);

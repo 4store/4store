@@ -40,7 +40,10 @@ sb_stemmer_new(const char * algorithm, const char * charenc)
 	    (struct sb_stemmer *) malloc(sizeof(struct sb_stemmer));
     if (stemmer == NULL) return NULL;
     enc = sb_getenc(charenc);
-    if (enc == ENC_UNKNOWN) return NULL;
+    if (enc == ENC_UNKNOWN){ 
+    	free(stemmer);
+    	return NULL;
+    }
 
     for (module = modules; module->name != 0; module++) {
 	if (strcmp(module->name, algorithm) == 0 && module->enc == enc) break;

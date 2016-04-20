@@ -103,7 +103,7 @@ fs_chain *fs_chain_open_filename(const char *fname, int flags)
     bc->fd = open(fname, FS_O_NOATIME | flags, FS_FILE_MODE);
     if (bc->fd == -1) {
         fs_error(LOG_CRIT, "failed to open chain %s: %s", fname, strerror(errno));
-
+        free(bc);
         return NULL;
     }
     bc->filename = g_strdup(fname);
@@ -117,7 +117,7 @@ fs_chain *fs_chain_open_filename(const char *fname, int flags)
     }
     if (header.id != CHAIN_ID) {
         fs_error(LOG_CRIT, "%s does not look like a chain file", bc->filename);
-
+        free(bc);
         return NULL;
     }
     if (map_bc(bc, header.length, header.size)) {

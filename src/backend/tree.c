@@ -192,6 +192,7 @@ fs_tree *fs_tree_open_filename(fs_backend *be, const char *name, const char *fil
     int fd = open(filename, FS_O_NOATIME | O_RDWR | flags, FS_FILE_MODE);
     if (fd == -1) {
         fs_error(LOG_ERR, "failed to open tree file '%s': %s", filename, strerror(errno));
+        free(t);
         return NULL;
     }
     t->filename = (char *)filename;
@@ -214,13 +215,13 @@ fs_tree *fs_tree_open_filename(fs_backend *be, const char *name, const char *fil
     if (header.id != TREE_ID) {
         fs_error(LOG_ERR, "'%s' does not appear to be a valid treefile", filename);
         close(fd);
-
+        free(t);
         return NULL;
     }
     t->bc = fs_chain_open_filename(header.chainfile, flags);
     if (!t->bc) {
         fs_error(LOG_CRIT, "failed to open chain file '%s'", header.chainfile);
-
+        free(t);
         return NULL;
     }
 

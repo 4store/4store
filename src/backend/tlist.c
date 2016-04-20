@@ -130,7 +130,7 @@ fs_tlist *fs_tlist_open_filename(const char *filename, int flags)
         if (length == HEADER && header.id != TLIST_ID) {
             fs_error(LOG_ERR, "“%s” does not appear to be a tlist", filename);
             close(l->fd);
-
+            free(l);
             return NULL;
         }
         l->offset = header.length;
@@ -141,7 +141,7 @@ fs_tlist *fs_tlist_open_filename(const char *filename, int flags)
     if ((flags & (O_WRONLY | O_RDWR)) && flock(l->fd, LOCK_EX) == -1) {
         fs_error(LOG_ERR, "failed to open list: %s, cannot get lock: %s", filename, strerror(errno));
         close(l->fd);
-
+        free(l);
         return NULL;
     }
     write_header(l);
@@ -150,7 +150,7 @@ fs_tlist *fs_tlist_open_filename(const char *filename, int flags)
     if (l->fd == -1) {
         fs_error(LOG_CRIT, "failed to open list %s: %s", filename,
                 strerror(errno));
-
+        free(l);
         return NULL;
     }
 
