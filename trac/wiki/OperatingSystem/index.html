@@ -1,0 +1,149 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  
+  
+
+  
+
+
+  <head>
+    <title>
+      OperatingSystem – 4store
+    </title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <!--[if IE]><script type="text/javascript">
+      if (/^#__msie303:/.test(window.location.hash))
+        window.location.replace(window.location.hash.replace(/^#__msie303:/, '#'));
+    </script><![endif]-->
+        <link rel="search" href="/trac/search" />
+        <link rel="help" href="/trac/wiki/TracGuide" />
+        <link rel="alternate" href="/trac/wiki/OperatingSystem?format=txt" type="text/x-trac-wiki" title="Plain Text" />
+        <link rel="start" href="/trac/wiki" />
+        <link rel="stylesheet" href="/trac/chrome/common/css/trac.css" type="text/css" /><link rel="stylesheet" href="/trac/chrome/common/css/wiki.css" type="text/css" />
+        <link rel="shortcut icon" href="/images/favico.png" type="image/png" />
+        <link rel="icon" href="/images/favico.png" type="image/png" />
+      <link type="application/opensearchdescription+xml" rel="search" href="/trac/search/opensearch" title="Search 4store" />
+    <script type="text/javascript" src="/trac/chrome/common/js/jquery.js"></script><script type="text/javascript" src="/trac/chrome/common/js/babel.js"></script><script type="text/javascript" src="/trac/chrome/common/js/messages/en_US.js"></script><script type="text/javascript" src="/trac/chrome/common/js/trac.js"></script><script type="text/javascript" src="/trac/chrome/common/js/search.js"></script><script type="text/javascript" src="/trac/chrome/common/js/folding.js"></script>
+    <!--[if lt IE 7]>
+    <script type="text/javascript" src="/trac/chrome/common/js/ie_pre7_hacks.js"></script>
+    <![endif]-->
+    <script type="text/javascript">
+      jQuery(document).ready(function($) {
+        $("#content").find("h1,h2,h3,h4,h5,h6").addAnchor(_("Link to this section"));
+        $("#content").find(".wikianchor").each(function() {
+          $(this).addAnchor(babel.format(_("Link to #%(id)s"), {id: $(this).attr('id')}));
+        });
+        $(".foldable").enableFolding(true, true);
+      });
+    </script>
+    <link rel="stylesheet" type="text/css" href="/style/main.css" />
+  </head>
+  <body>
+    <div id="container">
+    <div id="siteheader">
+    </div>
+    <div id="banner">
+      <div id="header">
+        <a id="logo" href="http://4store.org/"><img src="/images/4store.png" alt="4store" height="48" width="143" /></a>
+      </div>
+      <form id="search" action="/trac/search" method="get">
+        <div>
+          <label for="proj-search">Search:</label>
+          <input type="text" id="proj-search" name="q" size="18" value="" />
+          <input type="submit" value="Search" />
+        </div>
+      </form>
+      <div id="metanav" class="nav">
+    <ul>
+      <li class="first"><a href="/trac/login">Login</a></li><li><a href="/trac/prefs">Preferences</a></li><li><a href="/trac/wiki/TracGuide">Help/Guide</a></li><li class="last"><a href="/trac/about">About Trac</a></li>
+    </ul>
+  </div>
+    </div>
+    <div id="mainnav" class="nav">
+    <ul>
+      <li class="first active"><a href="/trac/wiki">Wiki</a></li><li><a href="/trac/timeline">Timeline</a></li><li><a href="/trac/roadmap">Roadmap</a></li><li><a href="/trac/report">View Tickets</a></li><li class="last"><a href="/trac/search">Search</a></li>
+    </ul>
+  </div>
+    <div id="main">
+      <div id="pagepath" class="noprint">
+  <a class="pathentry first" title="View WikiStart" href="/trac/wiki">wiki:</a><a class="pathentry" href="/trac/wiki/OperatingSystem" title="View OperatingSystem">OperatingSystem</a>
+</div>
+      <div id="ctxtnav" class="nav">
+        <h2>Context Navigation</h2>
+          <ul>
+              <li class="first"><a href="/trac/wiki/WikiStart">Start Page</a></li><li><a href="/trac/wiki/TitleIndex">Index</a></li><li class="last"><a href="/trac/wiki/OperatingSystem?action=history">History</a></li>
+          </ul>
+        <hr />
+      </div>
+    <div id="content" class="wiki">
+      <div class="wikipage searchable">
+        
+          
+          <div class="trac-modifiedby">
+            <span><a href="/trac/wiki/OperatingSystem?action=diff&amp;version=6" title="Version 6 by swh">Last modified</a> <a class="timeline" href="/trac/timeline?from=2011-10-11T13%3A39%3A21%2B01%3A00&amp;precision=second" title="2011-10-11T13:39:21+01:00 in Timeline">4 years</a> ago</span>
+            <span class="trac-print">Last modified on 11/10/11 13:39:21</span>
+          </div>
+          <div id="wikipage"><h1 id="OperatingSystems">Operating Systems</h1>
+<h2 id="Platform">Platform</h2>
+<p>
+4store ideally requires 64bit CPUs. It can be run with small databases on 32bit CPUs, but that is in no way supported. It's only been used recently on little-endian (Intel and AMD type CPUs), but in the past it has been run on PowerPC without problems.
+</p>
+<p>
+Optimum price/performance can be got with clusters of machines with large amounts of RAM. 32GB per node or more is typical currently. In production we tend to use clusters of 5 or 9 machines. Ideal configurations are one master node with a power-of-two number of storage nodes. Any number of storage nodes can be used, but 2<sup>n</sup>+1 should be avoided for performance reasons.
+</p>
+<h2 id="Distribution">Distribution</h2>
+<p>
+Our productions systems all run on the 64bit versions of <a class="ext-link" href="http://www.centos.org/"><span class="icon">​</span>CentOS 5 or 6</a>, but any 64-bit Linux distribution should be OK.
+</p>
+<p>
+The software can be compiled, and works on Mac OS 10.4+ with fink or ports. There are also a <a href="/download/macosx">Mac application</a> which make installing 4store easy.
+</p>
+<p>
+4store is known to run well on FreeBSD, and there's <a class="ext-link" href="http://www.freebsd.org/cgi/query-pr.cgi?pr=161441"><span class="icon">​</span>a port in progress</a>.
+</p>
+<p>
+It should be portable to other UNIX-like systems, with a little effort, though this has not been attempted.
+</p>
+<p>
+We have never attempted to build it on Windows, a port would probably be a significant effort.
+</p>
+</div>
+        
+        
+      </div>
+      
+
+    </div>
+    <div id="altlinks">
+      <h3>Download in other formats:</h3>
+      <ul>
+        <li class="last first">
+          <a rel="nofollow" href="/trac/wiki/OperatingSystem?format=txt">Plain Text</a>
+        </li>
+      </ul>
+    </div>
+    </div>
+    <div id="footer" lang="en" xml:lang="en"><hr />
+      <a id="tracpowered" href="http://trac.edgewall.org/"><img src="/trac/chrome/common/trac_logo_mini.png" height="30" width="107" alt="Trac Powered" /></a>
+      <p class="left">Powered by <a href="/trac/about"><strong>Trac 0.12.4</strong></a><br />
+        By <a href="http://www.edgewall.org/">Edgewall Software</a>.</p>
+      <p class="right">Visit the Trac open source project at<br /><a href="http://trac.edgewall.org/">http://trac.edgewall.org/</a></p>
+    </div>
+    <div id="footer">
+	<div id="copyright">Copyright © Garlik 2009</div>
+		<div id="garlik_logo">
+	<a href="http://www.garlik.com/" rel="external" title="Click here to visit the Garlik homepage"><img src="/images/garlik.gif" alt="powered by Garlik" /></a>
+	</div>
+	<div id="foot_nav">
+	<ul>
+			<li><a href="/about" title="About" id="about">About</a></li>
+			<li><a href="/faqs" title="FAQs" id="faqs">FAQs</a></li>
+			<li><a href="/support" title="Install" id="support">Support</a></li>
+			<li><a href="/developers" title="Developers" id="developers">Developers</a></li>
+			<li><a href="/projects" title="Projects" id="projetcs">Projects</a></li>
+	</ul>
+	</div>
+    </div>
+    </div>
+  </body>
+</html>

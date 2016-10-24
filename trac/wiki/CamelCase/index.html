@@ -1,0 +1,136 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  
+  
+
+  
+
+
+  
+
+  <head>
+    <title>
+      CamelCase – 4store
+    </title>
+        <link rel="search" href="/trac/search" />
+        <link rel="help" href="/trac/wiki/TracGuide" />
+        <link rel="alternate" href="/trac/wiki/CamelCase?format=txt" type="text/x-trac-wiki" title="Plain Text" />
+        <link rel="start" href="/trac/wiki" />
+        <link rel="stylesheet" href="/trac/chrome/common/css/trac.css" type="text/css" /><link rel="stylesheet" href="/trac/chrome/common/css/wiki.css" type="text/css" />
+        <link rel="shortcut icon" href="/images/favico.png" type="image/png" />
+        <link rel="icon" href="/images/favico.png" type="image/png" />
+      <link type="application/opensearchdescription+xml" rel="search" href="/trac/search/opensearch" title="Search 4store" />
+    <script type="text/javascript" src="/trac/chrome/common/js/jquery.js"></script><script type="text/javascript" src="/trac/chrome/common/js/trac.js"></script><script type="text/javascript" src="/trac/chrome/common/js/search.js"></script>
+    <!--[if lt IE 7]>
+    <script type="text/javascript" src="/trac/chrome/common/js/ie_pre7_hacks.js"></script>
+    <![endif]-->
+    <script type="text/javascript">
+      jQuery(document).ready(function($) {
+        $("#content").find("h1,h2,h3,h4,h5,h6").addAnchor("Link to this section");
+      });
+    </script>
+    <link rel="stylesheet" type="text/css" href="/style/main.css" />
+  </head>
+  <body>
+    <div id="container">
+    <div id="siteheader">
+    </div>
+    <div id="banner">
+      <div id="header">
+        <a id="logo" href="http://4store.org/"><img src="/images/4store.png" alt="4store" height="48" width="143" /></a>
+      </div>
+      <form id="search" action="/trac/search" method="get">
+        <div>
+          <label for="proj-search">Search:</label>
+          <input type="text" id="proj-search" name="q" size="18" value="" />
+          <input type="submit" value="Search" />
+        </div>
+      </form>
+      <div id="metanav" class="nav">
+    <ul>
+      <li class="first"><a href="/trac/login">Login</a></li><li><a href="/trac/prefs">Preferences</a></li><li><a href="/trac/wiki/TracGuide">Help/Guide</a></li><li class="last"><a href="/trac/about">About Trac</a></li>
+    </ul>
+  </div>
+    </div>
+    <div id="mainnav" class="nav">
+    <ul>
+      <li class="first active"><a href="/trac/wiki">Wiki</a></li><li><a href="/trac/timeline">Timeline</a></li><li><a href="/trac/roadmap">Roadmap</a></li><li><a href="/trac/report">View Tickets</a></li><li class="last"><a href="/trac/search">Search</a></li>
+    </ul>
+  </div>
+    <div id="main">
+      <div id="ctxtnav" class="nav">
+        <h2>Context Navigation</h2>
+          <ul>
+              <li class="first"><a href="/trac/wiki/WikiStart">Start Page</a></li><li><a href="/trac/wiki/TitleIndex">Index</a></li><li><a href="/trac/wiki/CamelCase?action=history">History</a></li><li class="last"><a href="/trac/wiki/CamelCase?action=diff&amp;version=1">Last Change</a></li>
+          </ul>
+        <hr />
+      </div>
+    <div id="content" class="wiki">
+      <div class="wikipage searchable">
+        
+          <h1 id="CamelCase">CamelCase</h1>
+<p>
+New words created by smashing together capitalized words.
+</p>
+<p>
+<a class="wiki" href="/trac/wiki/CamelCase">CamelCase</a> is the original wiki convention for creating hyperlinks, with the additional requirement that the capitals are followed by a lower-case letter; hence “AlabamA” and “ABc” will not be links.
+</p>
+<h2 id="CustomizingtheWikibehavior">Customizing the Wiki behavior</h2>
+<p>
+Some people dislike linking by <a class="wiki" href="/trac/wiki/CamelCase">CamelCase</a>.  While Trac remains faithful to the original Wiki style, it provides a number of ways to accomodate users with different preferences:
+</p>
+<ul><li>There's an option (<tt>ignore_missing_pages</tt> in <tt>[wiki]</tt>) to simply ignore links to missing pages when the link is written using the <a class="wiki" href="/trac/wiki/CamelCase">CamelCase</a> style, instead of that word being replaced by a gray link followed by a question mark.<br />
+That can be useful when <a class="wiki" href="/trac/wiki/CamelCase">CamelCase</a> style is used to name code artifacts like class names and there's no corresponding page for them.
+</li><li>There's an option (<tt>split_page_names</tt> in <tt>[wiki]</tt>) to automatically insert space characters between the words of a <a class="wiki" href="/trac/wiki/CamelCase">CamelCase</a> link when rendering the link.
+</li><li>Creation of explicit Wiki links is also easy, see <a class="wiki" href="/trac/wiki/WikiPageNames">WikiPageNames</a> for details.
+</li><li>In addition, Wiki formatting can be disabled completely in some places (e.g. when rendering commit log messages)
+</li></ul><p>
+See <a class="wiki" href="/trac/wiki/TracIni">TracIni</a> for more information on the available options.
+</p>
+<h2 id="MoreinformationonCamelCase">More information on CamelCase</h2>
+<ul><li><a class="ext-link" href="http://c2.com/cgi/wiki?WikiCase"><span class="icon"> </span>http://c2.com/cgi/wiki?WikiCase</a>
+</li><li><a class="ext-link" href="http://en.wikipedia.org/wiki/CamelCase"><span class="icon"> </span>http://en.wikipedia.org/wiki/CamelCase</a>
+</li></ul><hr />
+<p>
+See also: <a class="wiki" href="/trac/wiki/WikiPageNames">WikiPageNames</a>, <a class="wiki" href="/trac/wiki/WikiNewPage">WikiNewPage</a>, <a class="wiki" href="/trac/wiki/WikiFormatting">WikiFormatting</a>, <a class="wiki" href="/trac/wiki/TracWiki">TracWiki</a>
+</p>
+
+        
+        
+      </div>
+    </div>
+    <div id="altlinks">
+      <h3>Download in other formats:</h3>
+      <ul>
+        <li class="last first">
+          <a rel="nofollow" href="/trac/wiki/CamelCase?format=txt">Plain Text</a>
+        </li>
+      </ul>
+    </div>
+    </div>
+    <div id="footer" lang="en" xml:lang="en"><hr />
+      <a id="tracpowered" href="http://trac.edgewall.org/"><img src="/trac/chrome/common/trac_logo_mini.png" height="30" width="107" alt="Trac Powered" /></a>
+      <p class="left">
+        Powered by <a href="/trac/about"><strong>Trac 0.11.4</strong></a><br />
+        By <a href="http://www.edgewall.org/">Edgewall Software</a>.
+      </p>
+      <p class="right">Visit the Trac open source project at<br /><a href="http://trac.edgewall.org/">http://trac.edgewall.org/</a></p>
+    </div>
+    <div id="footer">
+	<div id="copyright">Copyright © Garlik 2009</div>
+		<div id="garlik_logo">
+	<a href="http://www.garlik.com/" rel="external" title="Click here to visit the Garlik homepage"><img src="/images/garlik.gif" alt="powered by Garlik" /></a>
+	</div>
+	<div id="foot_nav">
+	<ul>
+			<li><a href="/about" title="About" id="about">About</a></li>
+			<li><a href="/faqs" title="FAQs" id="faqs">FAQs</a></li>
+			<li><a href="/support" title="Install" id="support">Support</a></li>
+			<li><a href="/developers" title="Developers" id="developers">Developers</a></li>
+			<li><a href="/projects" title="Projects" id="projetcs">Projects</a></li>
+	</ul>
+	</div>
+    </div>
+    </div>
+  </body>
+</html>

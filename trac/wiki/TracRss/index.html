@@ -1,0 +1,172 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  
+  
+
+  
+
+
+  <head>
+    <title>
+      TracRss – 4store
+    </title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <!--[if IE]><script type="text/javascript">
+      if (/^#__msie303:/.test(window.location.hash))
+        window.location.replace(window.location.hash.replace(/^#__msie303:/, '#'));
+    </script><![endif]-->
+        <link rel="search" href="/trac/search" />
+        <link rel="help" href="/trac/wiki/TracGuide" />
+        <link rel="alternate" href="/trac/wiki/TracRss?format=txt" type="text/x-trac-wiki" title="Plain Text" />
+        <link rel="start" href="/trac/wiki" />
+        <link rel="stylesheet" href="/trac/chrome/common/css/trac.css" type="text/css" /><link rel="stylesheet" href="/trac/chrome/common/css/wiki.css" type="text/css" />
+        <link rel="shortcut icon" href="/images/favico.png" type="image/png" />
+        <link rel="icon" href="/images/favico.png" type="image/png" />
+      <link type="application/opensearchdescription+xml" rel="search" href="/trac/search/opensearch" title="Search 4store" />
+    <script type="text/javascript" src="/trac/chrome/common/js/jquery.js"></script><script type="text/javascript" src="/trac/chrome/common/js/babel.js"></script><script type="text/javascript" src="/trac/chrome/common/js/messages/en_US.js"></script><script type="text/javascript" src="/trac/chrome/common/js/trac.js"></script><script type="text/javascript" src="/trac/chrome/common/js/search.js"></script><script type="text/javascript" src="/trac/chrome/common/js/folding.js"></script>
+    <!--[if lt IE 7]>
+    <script type="text/javascript" src="/trac/chrome/common/js/ie_pre7_hacks.js"></script>
+    <![endif]-->
+    <meta name="ROBOTS" content="NOINDEX, NOFOLLOW" />
+    <script type="text/javascript">
+      jQuery(document).ready(function($) {
+        $("#content").find("h1,h2,h3,h4,h5,h6").addAnchor(_("Link to this section"));
+        $("#content").find(".wikianchor").each(function() {
+          $(this).addAnchor(babel.format(_("Link to #%(id)s"), {id: $(this).attr('id')}));
+        });
+        $(".foldable").enableFolding(true, true);
+      });
+    </script>
+    <link rel="stylesheet" type="text/css" href="/style/main.css" />
+  </head>
+  <body>
+    <div id="container">
+    <div id="siteheader">
+    </div>
+    <div id="banner">
+      <div id="header">
+        <a id="logo" href="http://4store.org/"><img src="/images/4store.png" alt="4store" height="48" width="143" /></a>
+      </div>
+      <form id="search" action="/trac/search" method="get">
+        <div>
+          <label for="proj-search">Search:</label>
+          <input type="text" id="proj-search" name="q" size="18" value="" />
+          <input type="submit" value="Search" />
+        </div>
+      </form>
+      <div id="metanav" class="nav">
+    <ul>
+      <li class="first"><a href="/trac/login">Login</a></li><li><a href="/trac/prefs">Preferences</a></li><li><a href="/trac/wiki/TracGuide">Help/Guide</a></li><li class="last"><a href="/trac/about">About Trac</a></li>
+    </ul>
+  </div>
+    </div>
+    <div id="mainnav" class="nav">
+    <ul>
+      <li class="first active"><a href="/trac/wiki">Wiki</a></li><li><a href="/trac/timeline">Timeline</a></li><li><a href="/trac/roadmap">Roadmap</a></li><li><a href="/trac/report">View Tickets</a></li><li class="last"><a href="/trac/search">Search</a></li>
+    </ul>
+  </div>
+    <div id="main">
+      <div id="pagepath" class="noprint">
+  <a class="pathentry first" title="View WikiStart" href="/trac/wiki">wiki:</a><a class="pathentry" href="/trac/wiki/TracRss" title="View TracRss">TracRss</a>
+</div>
+      <div id="ctxtnav" class="nav">
+        <h2>Context Navigation</h2>
+          <ul>
+              <li class="first"><a href="/trac/wiki/WikiStart">Start Page</a></li><li><a href="/trac/wiki/TitleIndex">Index</a></li><li class="last"><a href="/trac/wiki/TracRss?action=history">History</a></li>
+          </ul>
+        <hr />
+      </div>
+    <div id="content" class="wiki">
+      <div class="wikipage searchable">
+        
+          
+          <div class="trac-modifiedby">
+            <span><a href="/trac/wiki/TracRss?action=diff&amp;version=2" title="Version 2 by trac">Last modified</a> <a class="timeline" href="/trac/timeline?from=2011-12-01T17%3A47%3A14Z&amp;precision=second" title="2011-12-01T17:47:14Z in Timeline">4 years</a> ago</span>
+            <span class="trac-print">Last modified on 01/12/11 17:47:14</span>
+          </div>
+          <div id="wikipage"><h1 id="UsingRSSwithTrac">Using RSS with Trac</h1>
+<p>
+</p><div class="wiki-toc"><h4>Table of Contents</h4><ul><li class="False"><a class="False" href="/trac/wiki/TracGuide">Index</a></li><li class="False"><a class="False" href="/trac/wiki/TracInstall">Installation</a></li><li class="False"><a class="False" href="/trac/wiki/TracInterfaceCustomization">Customization</a></li><li class="False"><a class="False" href="/trac/wiki/TracPlugins">Plugins</a></li><li class="False"><a class="False" href="/trac/wiki/TracUpgrade">Upgrading</a></li><li class="False"><a class="False" href="/trac/wiki/TracIni">Configuration</a></li><li class="False"><a class="False" href="/trac/wiki/TracAdmin">Administration</a></li><li class="False"><a class="False" href="/trac/wiki/TracBackup">Backup</a></li><li class="False"><a class="False" href="/trac/wiki/TracLogging">Logging</a></li><li class="False"><a class="False" href="/trac/wiki/TracPermissions">Permissions</a></li><li class="False"><a class="False" href="/trac/wiki/TracWiki">The Wiki</a></li><li class="False"><a class="False" href="/trac/wiki/WikiFormatting">Wiki Formatting</a></li><li class="False"><a class="False" href="/trac/wiki/TracTimeline">Timeline</a></li><li class="False"><a class="False" href="/trac/wiki/TracBrowser">Repository Browser</a></li><li class="False"><a class="False" href="/trac/wiki/TracRevisionLog">Revision Log</a></li><li class="False"><a class="False" href="/trac/wiki/TracChangeset">Changesets</a></li><li class="False"><a class="False" href="/trac/wiki/TracTickets">Tickets</a></li><li class="False"><a class="False" href="/trac/wiki/TracWorkflow">Workflow</a></li><li class="False"><a class="False" href="/trac/wiki/TracRoadmap">Roadmap</a></li><li class="False"><a class="False" href="/trac/wiki/TracQuery">Ticket Queries</a></li><li class="False"><a class="False" href="/trac/wiki/TracReports">Reports</a></li><li class="active"><a class="False" href="/trac/wiki/TracRss">RSS Support</a></li><li class="False"><a class="False" href="/trac/wiki/TracNotification">Notification</a></li></ul></div><p>
+</p>
+<p>
+Several of the Trac modules support content syndication using the RSS (Really Simple Syndication) XML format.
+Using the RSS subscription feature in Trac, you can easily monitor progress of the project, a set of issues or even changes to a single file.
+</p>
+<p>
+Trac supports RSS feeds in:
+</p>
+<ul><li><a class="wiki" href="/trac/wiki/TracTimeline">TracTimeline</a> —  Use the RSS feed to <strong>subscribe to project events</strong>.<br />Monitor overall project progress in your favorite RSS reader.
+</li><li><a class="wiki" href="/trac/wiki/TracTickets">TracTickets</a>, <a class="wiki" href="/trac/wiki/TracReports">TracReports</a>, and <a class="wiki" href="/trac/wiki/TracQuery">TracQuery</a> — Allows syndication of report and ticket query results.<br />Be notified about important and relevant issue tickets.
+</li><li><a class="wiki" href="/trac/wiki/TracBrowser">TracBrowser</a> and <a class="wiki" href="/trac/wiki/TracRevisionLog">TracRevisionLog</a> — Syndication of file changes.<br />Stay up to date with changes to a specific file or directory.
+</li></ul><h2 id="HowtoaccessRSSdata">How to access RSS data</h2>
+<p>
+Anywhere in Trac where RSS is available, you should find a small orange <strong>XML</strong> icon, typically placed at the bottom of the page. Clicking the icon will access the RSS feed for that specific resource.
+</p>
+<p>
+<strong>Note:</strong> Different modules provide different data in their RSS feeds. Usually, the syndicated information corresponds to the current view. For example, if you click the RSS link on a report page, the feed will be based on that report. It might be explained by thinking of the RSS feeds as an <em>alternate view of the data currently displayed</em>.
+</p>
+<h2 id="Links">Links</h2>
+<ul><li><em>Specifications:</em>
+<ul><li><a class="ext-link" href="http://blogs.law.harvard.edu/tech/rss"><span class="icon">​</span>http://blogs.law.harvard.edu/tech/rss</a> — RSS 2.0 Specification
+</li></ul></li></ul><ul><li><em>Multi-platform RSS readers:</em>
+<ul><li><a class="ext-link" href="http://www.rssowl.org/"><span class="icon">​</span>http://www.rssowl.org/</a> — Open source, Eclipse-based, RSS reader for Linux, Mac and Windows systems that supports https and authenticated feeds.
+</li></ul></li></ul><ul><li><em>Linux/BSD/*n*x systems:</em>
+<ul><li><a class="ext-link" href="http://pim.kde.org/users.php"><span class="icon">​</span>http://pim.kde.org/users.php</a> — <a class="ext-link" href="http://kde.org"><span class="icon">​</span>KDE</a> RSS Reader for Linux/BSD/*n*x systems
+</li><li><a class="ext-link" href="http://liferea.sourceforge.net/"><span class="icon">​</span>http://liferea.sourceforge.net/</a> — Open source GTK2 RSS Reader for Linux
+</li><li><a class="ext-link" href="http://akregator.sourceforge.net/"><span class="icon">​</span>http://akregator.sourceforge.net/</a> — Open source KDE RSS Reader (part of KDE-PIM)
+</li></ul></li></ul><ul><li><em>Mac OS X systems:</em>
+<ul><li><a class="ext-link" href="http://ranchero.com/netnewswire/"><span class="icon">​</span>http://ranchero.com/netnewswire/</a> — An excellent RSS reader for Mac OS X (has both free and pay versions)
+</li><li><a class="ext-link" href="http://www.utsire.com/shrook/"><span class="icon">​</span>http://www.utsire.com/shrook/</a> — An RSS reader for Max OS X that supports https (even with self signed certificates) and authenticated feeds.
+</li><li><a class="ext-link" href="http://vienna-rss.sourceforge.net/"><span class="icon">​</span>http://vienna-rss.sourceforge.net/</a> — Open source Feed Reader for Mac OS X with smart folders support
+</li><li><a class="ext-link" href="http://www.mesadynamics.com/Tickershock.html"><span class="icon">​</span>http://www.mesadynamics.com/Tickershock.html</a> — Non-intrusive "news ticker" style RSS reader for Mac OS X
+</li></ul></li></ul><ul><li><em>Windows systems:</em>
+<ul><li><a class="ext-link" href="http://www.rssreader.com/"><span class="icon">​</span>http://www.rssreader.com/</a> — Free and powerful RSS Reader for Windows
+</li><li><a class="ext-link" href="http://www.sharpreader.net/"><span class="icon">​</span>http://www.sharpreader.net/</a> — A free RSS Reader written in .NET for Windows
+</li></ul></li></ul><ul><li><em>Firefox:</em>
+<ul><li><a class="ext-link" href="http://www.mozilla.org/products/firefox/"><span class="icon">​</span>http://www.mozilla.org/products/firefox/</a> — Mozilla Firefox supports <a class="ext-link" href="http://www.mozilla.org/products/firefox/live-bookmarks.html"><span class="icon">​</span>live bookmarks</a> using RSS
+</li><li><a class="ext-link" href="http://sage.mozdev.org"><span class="icon">​</span>http://sage.mozdev.org</a> — Sage RSS and Atom feed aggregator for Mozilla Firefox
+</li><li><a class="ext-link" href="http://www.wizzrss.com/Welcome.php"><span class="icon">​</span>http://www.wizzrss.com/Welcome.php</a> — WizzRSS Feed Reader for Firefox
+</li></ul></li></ul><hr />
+<p>
+See also: <a class="wiki" href="/trac/wiki/TracGuide">TracGuide</a>, <a class="wiki" href="/trac/wiki/TracTimeline">TracTimeline</a>, <a class="wiki" href="/trac/wiki/TracReports">TracReports</a>, <a class="wiki" href="/trac/wiki/TracBrowser">TracBrowser</a>
+</p>
+</div>
+        
+        
+      </div>
+      
+
+    </div>
+    <div id="altlinks">
+      <h3>Download in other formats:</h3>
+      <ul>
+        <li class="last first">
+          <a rel="nofollow" href="/trac/wiki/TracRss?format=txt">Plain Text</a>
+        </li>
+      </ul>
+    </div>
+    </div>
+    <div id="footer" lang="en" xml:lang="en"><hr />
+      <a id="tracpowered" href="http://trac.edgewall.org/"><img src="/trac/chrome/common/trac_logo_mini.png" height="30" width="107" alt="Trac Powered" /></a>
+      <p class="left">Powered by <a href="/trac/about"><strong>Trac 0.12.4</strong></a><br />
+        By <a href="http://www.edgewall.org/">Edgewall Software</a>.</p>
+      <p class="right">Visit the Trac open source project at<br /><a href="http://trac.edgewall.org/">http://trac.edgewall.org/</a></p>
+    </div>
+    <div id="footer">
+	<div id="copyright">Copyright © Garlik 2009</div>
+		<div id="garlik_logo">
+	<a href="http://www.garlik.com/" rel="external" title="Click here to visit the Garlik homepage"><img src="/images/garlik.gif" alt="powered by Garlik" /></a>
+	</div>
+	<div id="foot_nav">
+	<ul>
+			<li><a href="/about" title="About" id="about">About</a></li>
+			<li><a href="/faqs" title="FAQs" id="faqs">FAQs</a></li>
+			<li><a href="/support" title="Install" id="support">Support</a></li>
+			<li><a href="/developers" title="Developers" id="developers">Developers</a></li>
+			<li><a href="/projects" title="Projects" id="projetcs">Projects</a></li>
+	</ul>
+	</div>
+    </div>
+    </div>
+  </body>
+</html>

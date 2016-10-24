@@ -1,0 +1,183 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  
+  
+
+  
+
+
+  
+
+  <head>
+    <title>
+      InterMapTxt – 4store
+    </title>
+        <link rel="search" href="/trac/search" />
+        <link rel="help" href="/trac/wiki/TracGuide" />
+        <link rel="alternate" href="/trac/wiki/InterMapTxt?format=txt" type="text/x-trac-wiki" title="Plain Text" />
+        <link rel="start" href="/trac/wiki" />
+        <link rel="stylesheet" href="/trac/chrome/common/css/trac.css" type="text/css" /><link rel="stylesheet" href="/trac/chrome/common/css/wiki.css" type="text/css" />
+        <link rel="shortcut icon" href="/images/favico.png" type="image/png" />
+        <link rel="icon" href="/images/favico.png" type="image/png" />
+      <link type="application/opensearchdescription+xml" rel="search" href="/trac/search/opensearch" title="Search 4store" />
+    <script type="text/javascript" src="/trac/chrome/common/js/jquery.js"></script><script type="text/javascript" src="/trac/chrome/common/js/trac.js"></script><script type="text/javascript" src="/trac/chrome/common/js/search.js"></script>
+    <!--[if lt IE 7]>
+    <script type="text/javascript" src="/trac/chrome/common/js/ie_pre7_hacks.js"></script>
+    <![endif]-->
+    <script type="text/javascript">
+      jQuery(document).ready(function($) {
+        $("#content").find("h1,h2,h3,h4,h5,h6").addAnchor("Link to this section");
+      });
+    </script>
+    <link rel="stylesheet" type="text/css" href="/style/main.css" />
+  </head>
+  <body>
+    <div id="container">
+    <div id="siteheader">
+    </div>
+    <div id="banner">
+      <div id="header">
+        <a id="logo" href="http://4store.org/"><img src="/images/4store.png" alt="4store" height="48" width="143" /></a>
+      </div>
+      <form id="search" action="/trac/search" method="get">
+        <div>
+          <label for="proj-search">Search:</label>
+          <input type="text" id="proj-search" name="q" size="18" value="" />
+          <input type="submit" value="Search" />
+        </div>
+      </form>
+      <div id="metanav" class="nav">
+    <ul>
+      <li class="first"><a href="/trac/login">Login</a></li><li><a href="/trac/prefs">Preferences</a></li><li><a href="/trac/wiki/TracGuide">Help/Guide</a></li><li class="last"><a href="/trac/about">About Trac</a></li>
+    </ul>
+  </div>
+    </div>
+    <div id="mainnav" class="nav">
+    <ul>
+      <li class="first active"><a href="/trac/wiki">Wiki</a></li><li><a href="/trac/timeline">Timeline</a></li><li><a href="/trac/roadmap">Roadmap</a></li><li><a href="/trac/report">View Tickets</a></li><li class="last"><a href="/trac/search">Search</a></li>
+    </ul>
+  </div>
+    <div id="main">
+      <div id="ctxtnav" class="nav">
+        <h2>Context Navigation</h2>
+          <ul>
+              <li class="first"><a href="/trac/wiki/WikiStart">Start Page</a></li><li><a href="/trac/wiki/TitleIndex">Index</a></li><li><a href="/trac/wiki/InterMapTxt?action=history">History</a></li><li class="last"><a href="/trac/wiki/InterMapTxt?action=diff&amp;version=1">Last Change</a></li>
+          </ul>
+        <hr />
+      </div>
+    <div id="content" class="wiki">
+      <div class="wikipage searchable">
+        
+          <h1 id="InterMapTxt"><a class="wiki" href="/trac/wiki/InterMapTxt">InterMapTxt</a></h1>
+<h2 id="ThisistheplacefordefiningInterWikiprefixes">This is the place for defining <a class="wiki" href="/trac/wiki/InterWiki">InterWiki</a> prefixes</h2>
+<p>
+This page was modelled after the <a class="ext-link" href="http://www.usemod.com/cgi-bin/mb.pl?InterMapTxt" title="InterMapTxt in MeatBall"><span class="icon"> </span>MeatBall:InterMapTxt</a> page.
+In addition, an optional comment is allowed after the mapping.
+</p>
+<p>
+This page is interpreted in a special way by Trac, in order to support
+InterWiki links in a flexible and dynamic way.
+</p>
+<p>
+The code block after the first line separator in this page
+will be interpreted as a list of InterWiki specifications:
+</p>
+<pre class="wiki">prefix &lt;space&gt; URL [&lt;space&gt; # comment]
+</pre><p>
+By using <tt>$1</tt>, <tt>$2</tt>, etc. within the URL, it is possible to create 
+<a class="wiki" href="/trac/wiki/InterWiki">InterWiki</a> links which support multiple arguments, e.g. Trac:ticket:40.
+The URL itself can be optionally followed by a comment, 
+which will subsequently be used for decorating the links 
+using that prefix.
+</p>
+<p>
+New InterWiki links can be created by adding to that list, in real time.
+Note however that <i>deletions</i> are also taken into account immediately,
+so it may be better to use comments for disabling prefixes.
+</p>
+<p>
+Also note that InterWiki prefixes are case insensitive.
+</p>
+<h2 id="ListofActivePrefixes">List of Active Prefixes</h2>
+<p>
+</p><table class="wiki interwiki"><tr><th><em>Prefix</em></th><th><em>Site</em></th></tr><tr><td><a href="http://www.acronymfinder.com/af-query.asp?String=exact&amp;Acronym=RecentChanges">Acronym</a></td><td><a href="http://www.acronymfinder.com/af-query.asp?String=exact&amp;Acronym=">http://www.acronymfinder.com/af-query.asp?String=exact&amp;Acronym=</a></td></tr><tr><td><a href="http://c2.com/cgi/wiki?FindPage&amp;value=RecentChanges">C2find</a></td><td><a href="http://c2.com/cgi/wiki?FindPage&amp;value=">http://c2.com/cgi/wiki?FindPage&amp;value=</a></td></tr><tr><td><a href="http://c2.com/cgi/wiki?RecentChanges">c2Wiki</a></td><td><a href="http://c2.com/cgi/wiki?">http://c2.com/cgi/wiki?</a></td></tr><tr><td><a href="http://www.google.com/search?q=cache:RecentChanges">Cache</a></td><td><a href="http://www.google.com/search?q=cache:">http://www.google.com/search?q=cache:</a></td></tr><tr><td><a href="http://cheeseshop.python.org/pypi/RecentChanges">CheeseShop</a></td><td><a href="http://cheeseshop.python.org/pypi/">Python Package $1 from the Cheese Shop</a></td></tr><tr><td><a href="http://search.cpan.org/perldoc?RecentChanges">CPAN</a></td><td><a href="http://search.cpan.org/perldoc?">http://search.cpan.org/perldoc?</a></td></tr><tr><td><a href="http://bugs.debian.org/RecentChanges">DebianBug</a></td><td><a href="http://bugs.debian.org/">http://bugs.debian.org/</a></td></tr><tr><td><a href="http://packages.debian.org/RecentChanges">DebianPackage</a></td><td><a href="http://packages.debian.org/">http://packages.debian.org/</a></td></tr><tr><td><a href="http://www.dict.org/bin/Dict?Database=*&amp;Form=Dict1&amp;Strategy=*&amp;Query=RecentChanges">Dictionary</a></td><td><a href="http://www.dict.org/bin/Dict?Database=*&amp;Form=Dict1&amp;Strategy=*&amp;Query=">http://www.dict.org/bin/Dict?Database=*&amp;Form=Dict1&amp;Strategy=*&amp;Query=</a></td></tr><tr><td><a href="http://www.google.com/search?q=RecentChanges">Google</a></td><td><a href="http://www.google.com/search?q=">http://www.google.com/search?q=</a></td></tr><tr><td><a href="http://groups.google.com/group/RecentChanges/msg/">GoogleGroups</a></td><td><a href="http://groups.google.com/group/$1/msg/$2">Message $2 in $1 Google Group</a></td></tr><tr><td><a href="http://en.wikipedia.org/wiki/ISO_RecentChanges">ISO</a></td><td><a href="http://en.wikipedia.org/wiki/ISO_">ISO Standard $1 in Wikipedia</a></td></tr><tr><td><a href="http://downlode.org/perl/jargon-redirect.cgi?term=RecentChanges">JargonFile</a></td><td><a href="http://downlode.org/perl/jargon-redirect.cgi?term=">http://downlode.org/perl/jargon-redirect.cgi?term=</a></td></tr><tr><td><a href="http://www.usemod.com/cgi-bin/mb.pl?RecentChanges">MeatBall</a></td><td><a href="http://www.usemod.com/cgi-bin/mb.pl?">http://www.usemod.com/cgi-bin/mb.pl?</a></td></tr><tr><td><a href="http://www.selenic.com/mercurial/wiki/index.cgi/RecentChanges">Mercurial</a></td><td><a href="http://www.selenic.com/mercurial/wiki/index.cgi/">the wiki for the Mercurial distributed SCM</a></td></tr><tr><td><a href="http://sunir.org/apps/meta.pl?RecentChanges">MetaWiki</a></td><td><a href="http://sunir.org/apps/meta.pl?">http://sunir.org/apps/meta.pl?</a></td></tr><tr><td><a href="http://meta.wikipedia.org/wiki/RecentChanges">MetaWikiPedia</a></td><td><a href="http://meta.wikipedia.org/wiki/">http://meta.wikipedia.org/wiki/</a></td></tr><tr><td><a href="http://issues.apache.org/jira/browse/MODPYTHON-RecentChanges">MODPYTHON</a></td><td><a href="http://issues.apache.org/jira/browse/MODPYTHON-">Issue $1 in mod_python's JIRA instance</a></td></tr><tr><td><a href="http://moinmoin.wikiwikiweb.de/RecentChanges">MoinMoin</a></td><td><a href="http://moinmoin.wikiwikiweb.de/">http://moinmoin.wikiwikiweb.de/</a></td></tr><tr><td><a href="http://bugs.mysql.com/bug.php?id=RecentChanges">mysql-bugs</a></td><td><a href="http://bugs.mysql.com/bug.php?id=">Bug #$1 in MySQL's bug database</a></td></tr><tr><td><a href="http://peak.telecommunity.com/DevCenter/RecentChanges">peak</a></td><td><a href="http://peak.telecommunity.com/DevCenter/">$1 in Python Enterprise Application Kit's Wiki</a></td></tr><tr><td><a href="http://www.python.org/peps/pep-RecentChanges.html">PEP</a></td><td><a href="http://www.python.org/peps/pep-$1.html">Python Enhancement Proposal</a></td></tr><tr><td><a href="http://bugs.python.org/issueRecentChanges">PythonBug</a></td><td><a href="http://bugs.python.org/issue$1">Python Issue #$1</a></td></tr><tr><td><a href="http://tools.ietf.org/html/rfcRecentChanges">RFC</a></td><td><a href="http://tools.ietf.org/html/rfc$1">IETF's RFC $1</a></td></tr><tr><td><a href="http://www.sqlite.org/cvstrac/wiki?p=RecentChanges">SQLite</a></td><td><a href="http://www.sqlite.org/cvstrac/wiki?p=">http://www.sqlite.org/cvstrac/wiki?p=</a></td></tr><tr><td><a href="http://www.orcaware.com/svn/wiki/RecentChanges">SvnWiki</a></td><td><a href="http://www.orcaware.com/svn/wiki/">Subversion Wiki</a></td></tr><tr><td><a href="http://thread.gmane.org/gmane.comp.version-control.subversion.trac.devel/RecentChanges">trac-dev</a></td><td><a href="http://thread.gmane.org/gmane.comp.version-control.subversion.trac.devel/">Message $1 in Trac Development Mailing List</a></td></tr><tr><td><a href="http://thread.gmane.org/gmane.comp.version-control.subversion.trac.general/RecentChanges">Trac-ML</a></td><td><a href="http://thread.gmane.org/gmane.comp.version-control.subversion.trac.general/">Message $1 in Trac Mailing List</a></td></tr><tr><td><a href="http://www.whois.sc/RecentChanges">WhoIs</a></td><td><a href="http://www.whois.sc/">http://www.whois.sc/</a></td></tr><tr><td><a href="http://clublet.com/c/c/why?RecentChanges">Why</a></td><td><a href="http://clublet.com/c/c/why?">http://clublet.com/c/c/why?</a></td></tr><tr><td><a href="http://en.wikipedia.org/wiki/RecentChanges">WikiPedia</a></td><td><a href="http://en.wikipedia.org/wiki/">http://en.wikipedia.org/wiki/</a></td></tr></table><p>
+</p>
+<hr />
+<h2 id="PrefixDefinitions">Prefix Definitions</h2>
+<pre class="wiki">PEP     http://www.python.org/peps/pep-$1.html                                       # Python Enhancement Proposal 
+PythonBug http://bugs.python.org/issue$1                                             # Python Issue #$1
+Trac-ML  http://thread.gmane.org/gmane.comp.version-control.subversion.trac.general/ # Message $1 in Trac Mailing List
+trac-dev http://thread.gmane.org/gmane.comp.version-control.subversion.trac.devel/   # Message $1 in Trac Development Mailing List
+
+Mercurial http://www.selenic.com/mercurial/wiki/index.cgi/ # the wiki for the Mercurial distributed SCM
+RFC       http://tools.ietf.org/html/rfc$1 # IETF's RFC $1
+ISO       http://en.wikipedia.org/wiki/ISO_ # ISO Standard $1 in Wikipedia
+
+CheeseShop  http://cheeseshop.python.org/pypi/  # Python Package $1 from the Cheese Shop
+SQLite      http://www.sqlite.org/cvstrac/wiki?p= 
+mysql-bugs  http://bugs.mysql.com/bug.php?id=  # Bug #$1 in MySQL's bug database
+peak        http://peak.telecommunity.com/DevCenter/ # $1 in Python Enterprise Application Kit's Wiki
+MODPYTHON   http://issues.apache.org/jira/browse/MODPYTHON- # Issue $1 in mod_python's JIRA instance
+SvnWiki     http://www.orcaware.com/svn/wiki/ # Subversion Wiki
+
+#
+# A arbitrary pick of InterWiki prefixes...
+#
+Acronym          http://www.acronymfinder.com/af-query.asp?String=exact&amp;Acronym=
+C2find           http://c2.com/cgi/wiki?FindPage&amp;value=
+Cache            http://www.google.com/search?q=cache:
+CPAN             http://search.cpan.org/perldoc?
+DebianBug        http://bugs.debian.org/
+DebianPackage    http://packages.debian.org/
+Dictionary       http://www.dict.org/bin/Dict?Database=*&amp;Form=Dict1&amp;Strategy=*&amp;Query=
+Google           http://www.google.com/search?q=
+GoogleGroups     http://groups.google.com/group/$1/msg/$2        # Message $2 in $1 Google Group
+JargonFile       http://downlode.org/perl/jargon-redirect.cgi?term=
+MeatBall         http://www.usemod.com/cgi-bin/mb.pl?
+MetaWiki         http://sunir.org/apps/meta.pl?
+MetaWikiPedia    http://meta.wikipedia.org/wiki/
+MoinMoin         http://moinmoin.wikiwikiweb.de/
+WhoIs            http://www.whois.sc/
+Why              http://clublet.com/c/c/why?
+c2Wiki             http://c2.com/cgi/wiki?
+WikiPedia        http://en.wikipedia.org/wiki/
+</pre>
+        
+        
+      </div>
+    </div>
+    <div id="altlinks">
+      <h3>Download in other formats:</h3>
+      <ul>
+        <li class="last first">
+          <a rel="nofollow" href="/trac/wiki/InterMapTxt?format=txt">Plain Text</a>
+        </li>
+      </ul>
+    </div>
+    </div>
+    <div id="footer" lang="en" xml:lang="en"><hr />
+      <a id="tracpowered" href="http://trac.edgewall.org/"><img src="/trac/chrome/common/trac_logo_mini.png" height="30" width="107" alt="Trac Powered" /></a>
+      <p class="left">
+        Powered by <a href="/trac/about"><strong>Trac 0.11.4</strong></a><br />
+        By <a href="http://www.edgewall.org/">Edgewall Software</a>.
+      </p>
+      <p class="right">Visit the Trac open source project at<br /><a href="http://trac.edgewall.org/">http://trac.edgewall.org/</a></p>
+    </div>
+    <div id="footer">
+	<div id="copyright">Copyright © Garlik 2009</div>
+		<div id="garlik_logo">
+	<a href="http://www.garlik.com/" rel="external" title="Click here to visit the Garlik homepage"><img src="/images/garlik.gif" alt="powered by Garlik" /></a>
+	</div>
+	<div id="foot_nav">
+	<ul>
+			<li><a href="/about" title="About" id="about">About</a></li>
+			<li><a href="/faqs" title="FAQs" id="faqs">FAQs</a></li>
+			<li><a href="/support" title="Install" id="support">Support</a></li>
+			<li><a href="/developers" title="Developers" id="developers">Developers</a></li>
+			<li><a href="/projects" title="Projects" id="projetcs">Projects</a></li>
+	</ul>
+	</div>
+    </div>
+    </div>
+  </body>
+</html>

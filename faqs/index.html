@@ -1,0 +1,78 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>	<meta http-equiv="Content-Type" content="application/xhtml+xml; charset=UTF-8" />
+	<meta name="keywords" content="4store, database, RDF, Semantic Web, Web, SPARQL, RDQL, storage" />
+	
+	<title>4store - FAQs</title>
+	<link rel="shortcut icon" href="/images/favicon.png" type="image/png" />
+	<link href="/style/main.css" rel="stylesheet" type="text/css" media="all" />
+  <meta name="description" content=
+  "4store is a fast, scalable clustered RDF database">
+</head>
+		<body onload="MM_preloadImages('/images/buttons/btn-signin-over.png', '/images/buttons/btn-signin-down.png');externalLinks();fixPNGs();" class="body_class">	
+	  <div id="container">
+    <div class="header"><a href="http://4store.org/"><img src="/images/4store.png" alt="4store"/></a></div>
+    <div id="leftCol">
+      <h1>Frequently Asked Questions</h1>
+      <p>A bit bare at the moment, but we'll update this based on <a href="/support">mailing list and IRC conversations</a>.</p>
+      <dl>
+        <a name="f7bfdfd9" href="#f7bfdfd9"><dt>Q: Why use 4store?</dt></a>
+	<dd>There are many other <a href="/trac/wiki/RdfStores">RDF stores</a> available, but 4store is one of the
+few that has been proven in a secure, production enterprise environment. It
+occupies the “Big Dumb Triplestore” space, with few features, but good
+performance, and being very simple to use, once installed.</dd>
+	<dd>4store was designed to handle loads of 1<abbr title="Giga Triple (billion triple)">GT</abbr> and up, stored on small clusters of generic multi-core 64bit x86 servers, but is also capable of handling smaller datasets running on a single server.</dd>
+        <a name="7f21f7b2" href="#7f21f7b2"><dt>Q: How many triples can 4store hold?</dt></a>
+	<dd>It really depends on how complex the data is, and how fast you want it to be.</dd>
+	<dd>In Garlik, the largest production system we've run is a cluster of 9 machines, with 8GB of RAM each, holding 15GT in total. At that size performance isn't at it's peak, but it was more than adequate for our application. With more RAM it would have run at full speed.</dd>
+	<dd>Due to the storage algorithms used there is the possibility of hash collisions are large sizes, the risk becomes significiant as the number of unique resources (c.f. 4s-size) approaches 10 billion, this is typically around the 50-70GT mark.</dd>
+        <a name="ed0404b1" href="#ed0404b1"><dt>Q: Why did Garlik decide to release 4store under an Open Source licence?</dt></a>
+	<dd>Though still very capable, 4store is no longer Garlik's primary RDF store. It still works well in scales up to around 10 billion triples, and has a sophisitacted query optimiser by SPARQL standards. We would like to make RDF deployments in large organisations and coporate environments easier, so to that end we decided to release 4store under the GPL licence.</dd>
+	<dd>The replacement for 4store is called <a href="/trac/wiki/5store">5store</a>, it's not available under a open source licence, but we are willing to commercially licence it to 3rd parties.</dd>
+        <a name="d9f6076d" href="#d9f6076d"><dt>Q: What software do I need?</dt></a>
+	<dd>It's easiest to install on Linux systems, we recommend CentOS 5 or
+newer, RedHat Enterprise 5+, or Fedora Core. But it's known to work fine on
+Ubuntu, Debian and Gentoo distributions. We only have experience of running it on RedHat derived
+systems though.</dd>
+	 <dd>Other than things provided by the OS (Ubuntu has Raptor and Rasqal as debs), you'll need Dave Beckett's <a href="http://librdf.org/raptor/">Raptor</a> and <a href="http://librdf.org/rasqal/">Rasqal</a> libraries.</dd>
+        <a name="0e9b6f07" href="#0e9b6f07"><dt>Q: I get “ld: duplicate symbol _g_bit_nth_lsf” when trying to build backend.o and server.o on Mac OS X</dt></a>
+        <dd>This is due to a bug in GLib, you can fix it by replacing the block of macros that refer to <tt>G_INLINE_FUNC</tt> with:</dd>
+	<dd><tt>#define G_INLINE_FUNC static inline</tt></dd>
+        <dd>in .../glib-2.0/glib/gutils.h</dd>
+        <a name="21773cb7" href="#21773cb7"><dt>Q: My build fails with a compiler error concerning the symbol 'wrong_glib_headers' e.g.  results.c:27: error: size of array ‘wrong_glib_headers’ is too large</dt></a>
+	<dd>This indicates that you are trying to use the 32-bit glib2 headers to compile 4store against 64-bit libraries. Check that you have the 64-bit development package for glib2 installed, and that your PKG_CONFIG_PATH is set appropriately.</dd>
+      </dl>
+    </div>
+    <div id="rightCol">
+      <h2>Table of Contents</h2>
+<ul>
+<li><a href="#f7bfdfd9">Why use 4store?</li>
+<li><a href="#7f21f7b2">How many triples can 4store hold?</li>
+<li><a href="#ed0404b1">Why did Garlik decide to release 4store under an Open Source licence?</li>
+<li><a href="#d9f6076d">What software do I need?</li>
+<li><a href="#0e9b6f07">I get “ld: duplicate symbol _g_bit_nth_lsf” when trying to build backend.o and server.o on Mac OS X</li>
+<li><a href="#21773cb7">My build fails with a compiler error concerning the symbol 'wrong_glib_headers' e.g.  results.c:27: error: size of array ‘wrong_glib_headers’ is too large</li>
+</ul>
+    </div>
+    	<!-- footer -->
+	<div id="footer" class="clearfix">
+
+			
+	<div id="copyright">Copyright &#169; Garlik 2009</div>	
+		<div id="garlik_logo">
+	<a href="http://www.garlik.com/" rel="external" title="Click here to visit the Garlik homepage"><img src="/images/garlik.gif" alt="powered by Garlik"/></a>
+	</div>
+	<div id="foot_nav">
+	<ul>
+			<li><a href="/" title="home">Home</a></li>
+			<li><a href="/about" title="About">About</a></li>
+			<li><a href="/faqs" title="FAQs">FAQs</a></li>
+			<li><a href="/support" title="Install">Support</a></li>
+			<li><a href="/developers" title="Developers">Developers</a></li>
+			<li><a href="/projects" title="Projects">Projects</a></li>
+	</ul>
+	</div>
+	</div><!-- /footer -->
+  </div>
+</body>
+</html>

@@ -1,0 +1,167 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  
+  
+
+  
+
+
+  <head>
+    <title>
+      GraphAccessControl – 4store
+    </title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <!--[if IE]><script type="text/javascript">
+      if (/^#__msie303:/.test(window.location.hash))
+        window.location.replace(window.location.hash.replace(/^#__msie303:/, '#'));
+    </script><![endif]-->
+        <link rel="search" href="/trac/search" />
+        <link rel="help" href="/trac/wiki/TracGuide" />
+        <link rel="alternate" href="/trac/wiki/GraphAccessControl?format=txt" type="text/x-trac-wiki" title="Plain Text" />
+        <link rel="start" href="/trac/wiki" />
+        <link rel="stylesheet" href="/trac/chrome/common/css/trac.css" type="text/css" /><link rel="stylesheet" href="/trac/chrome/common/css/wiki.css" type="text/css" />
+        <link rel="shortcut icon" href="/images/favico.png" type="image/png" />
+        <link rel="icon" href="/images/favico.png" type="image/png" />
+      <link type="application/opensearchdescription+xml" rel="search" href="/trac/search/opensearch" title="Search 4store" />
+    <script type="text/javascript" src="/trac/chrome/common/js/jquery.js"></script><script type="text/javascript" src="/trac/chrome/common/js/babel.js"></script><script type="text/javascript" src="/trac/chrome/common/js/messages/en_US.js"></script><script type="text/javascript" src="/trac/chrome/common/js/trac.js"></script><script type="text/javascript" src="/trac/chrome/common/js/search.js"></script><script type="text/javascript" src="/trac/chrome/common/js/folding.js"></script>
+    <!--[if lt IE 7]>
+    <script type="text/javascript" src="/trac/chrome/common/js/ie_pre7_hacks.js"></script>
+    <![endif]-->
+    <script type="text/javascript">
+      jQuery(document).ready(function($) {
+        $("#content").find("h1,h2,h3,h4,h5,h6").addAnchor(_("Link to this section"));
+        $("#content").find(".wikianchor").each(function() {
+          $(this).addAnchor(babel.format(_("Link to #%(id)s"), {id: $(this).attr('id')}));
+        });
+        $(".foldable").enableFolding(true, true);
+      });
+    </script>
+    <link rel="stylesheet" type="text/css" href="/style/main.css" />
+  </head>
+  <body>
+    <div id="container">
+    <div id="siteheader">
+    </div>
+    <div id="banner">
+      <div id="header">
+        <a id="logo" href="http://4store.org/"><img src="/images/4store.png" alt="4store" height="48" width="143" /></a>
+      </div>
+      <form id="search" action="/trac/search" method="get">
+        <div>
+          <label for="proj-search">Search:</label>
+          <input type="text" id="proj-search" name="q" size="18" value="" />
+          <input type="submit" value="Search" />
+        </div>
+      </form>
+      <div id="metanav" class="nav">
+    <ul>
+      <li class="first"><a href="/trac/login">Login</a></li><li><a href="/trac/prefs">Preferences</a></li><li><a href="/trac/wiki/TracGuide">Help/Guide</a></li><li class="last"><a href="/trac/about">About Trac</a></li>
+    </ul>
+  </div>
+    </div>
+    <div id="mainnav" class="nav">
+    <ul>
+      <li class="first active"><a href="/trac/wiki">Wiki</a></li><li><a href="/trac/timeline">Timeline</a></li><li><a href="/trac/roadmap">Roadmap</a></li><li><a href="/trac/report">View Tickets</a></li><li class="last"><a href="/trac/search">Search</a></li>
+    </ul>
+  </div>
+    <div id="main">
+      <div id="pagepath" class="noprint">
+  <a class="pathentry first" title="View WikiStart" href="/trac/wiki">wiki:</a><a class="pathentry" href="/trac/wiki/GraphAccessControl" title="View GraphAccessControl">GraphAccessControl</a>
+</div>
+      <div id="ctxtnav" class="nav">
+        <h2>Context Navigation</h2>
+          <ul>
+              <li class="first"><a href="/trac/wiki/WikiStart">Start Page</a></li><li><a href="/trac/wiki/TitleIndex">Index</a></li><li class="last"><a href="/trac/wiki/GraphAccessControl?action=history">History</a></li>
+          </ul>
+        <hr />
+      </div>
+    <div id="content" class="wiki">
+      <div class="wikipage searchable">
+        
+          
+          <div class="trac-modifiedby">
+            <span><a href="/trac/wiki/GraphAccessControl?action=diff&amp;version=4" title="Version 4 by ms8">Last modified</a> <a class="timeline" href="/trac/timeline?from=2012-07-10T00%3A01%3A42%2B01%3A00&amp;precision=second" title="2012-07-10T00:01:42+01:00 in Timeline">3 years</a> ago</span>
+            <span class="trac-print">Last modified on 10/07/12 00:01:42</span>
+          </div>
+          <div id="wikipage"><h2 id="GraphAccessControl">Graph Access Control</h2>
+<p>
+This feature, new in 1.1.5, implements access control at the graph level. Clients are identified via a CGI parameter in the HTTP query call. The name of this parameter is 'apikey'. If a user is not granted access to a set of graphs, those graphs will not be used by the query engine to answer SPARQL queries. It is like if the query was running in a KB where these graphs did not exist.
+</p>
+<p>
+NOTE: 4store does not authenticate tuples of the form (API key value, password); if this is required it should be implemented at a proxy level. 
+</p>
+<h2 id="EnableAccessControl">Enable Access Control</h2>
+<p>
+The option '-A' in 4s-httpd enables access control in the 4store SPARQL server.
+</p>
+<pre class="wiki">4s-httpd -p 8000 -A demo
+</pre><h2 id="GrantAccess">Grant Access</h2>
+<p>
+By default all graphs, except &lt;system:config&gt;, are accesible to all API key values. The mechanism to grant/deny access to graphs is reversed. Once we assign one API key to a graph that graph becomes private and the only calls that can access it are the ones with that API key. Multiple API keys can be assigned to the same graph.
+</p>
+<p>
+The following SPARQL query would link &lt;graph:x&gt; and &lt;graph:y&gt; with two and one api key respectively.
+</p>
+<pre class="wiki">INSERT DATA { GRAPH &lt;system:config&gt; { 
+&lt;graph:x&gt; &lt;http://4store.org/acl#onlyAccessBy&gt; "user1","user2" . 
+&lt;graph:y&gt; &lt;http://4store.org/acl#onlyAccessBy&gt; "user1" . 
+} }
+</pre><p>
+Similarly, SPARQL deletes work on &lt;system:config&gt; to remove access to graphs.
+</p>
+<h2 id="ChangeAdminUser">Change Admin User</h2>
+<p>
+The permissions to access private graphs are establish in the system configuration graph &lt;system:config&gt;.  By default the only apikey that can access &lt;system:config&gt;, when access control is enabled, is '4sadminuser'. This can be changed with the following SPARQL insert:
+</p>
+<pre class="wiki">INSERT DATA { GRAPH &lt;system:config&gt; { 
+[] &lt;http://4store.org/acl#admin&gt; "manuelso". } }
+</pre><p>
+With access control enabled only admin users can query and modify &lt;system:config&gt;. To reset the admin user when the current admin user has been lost, just start 4s-httpd without the -A option and run the queries over the &lt;system:config&gt; graph. 
+</p>
+<h2 id="Examples">Examples</h2>
+<p>
+Easy to follow examples can be found in the tests:
+</p>
+<p>
+<a class="ext-link" href="https://github.com/garlik/4store/tree/master/tests/httpd-extras/scripts"><span class="icon">​</span>https://github.com/garlik/4store/tree/master/tests/httpd-extras/scripts</a>
+</p>
+</div>
+        
+        
+      </div>
+      
+
+    </div>
+    <div id="altlinks">
+      <h3>Download in other formats:</h3>
+      <ul>
+        <li class="last first">
+          <a rel="nofollow" href="/trac/wiki/GraphAccessControl?format=txt">Plain Text</a>
+        </li>
+      </ul>
+    </div>
+    </div>
+    <div id="footer" lang="en" xml:lang="en"><hr />
+      <a id="tracpowered" href="http://trac.edgewall.org/"><img src="/trac/chrome/common/trac_logo_mini.png" height="30" width="107" alt="Trac Powered" /></a>
+      <p class="left">Powered by <a href="/trac/about"><strong>Trac 0.12.4</strong></a><br />
+        By <a href="http://www.edgewall.org/">Edgewall Software</a>.</p>
+      <p class="right">Visit the Trac open source project at<br /><a href="http://trac.edgewall.org/">http://trac.edgewall.org/</a></p>
+    </div>
+    <div id="footer">
+	<div id="copyright">Copyright © Garlik 2009</div>
+		<div id="garlik_logo">
+	<a href="http://www.garlik.com/" rel="external" title="Click here to visit the Garlik homepage"><img src="/images/garlik.gif" alt="powered by Garlik" /></a>
+	</div>
+	<div id="foot_nav">
+	<ul>
+			<li><a href="/about" title="About" id="about">About</a></li>
+			<li><a href="/faqs" title="FAQs" id="faqs">FAQs</a></li>
+			<li><a href="/support" title="Install" id="support">Support</a></li>
+			<li><a href="/developers" title="Developers" id="developers">Developers</a></li>
+			<li><a href="/projects" title="Projects" id="projetcs">Projects</a></li>
+	</ul>
+	</div>
+    </div>
+    </div>
+  </body>
+</html>

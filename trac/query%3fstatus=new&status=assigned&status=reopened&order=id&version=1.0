@@ -1,0 +1,502 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  
+  
+
+  
+
+
+  <head>
+    <title>
+      Custom Query – 4store
+    </title>
+        <link rel="search" href="/trac/search" />
+        <link rel="help" href="/trac/wiki/TracGuide" />
+        <link rel="alternate" href="/trac/query?status=new&amp;status=assigned&amp;status=reopened&amp;format=rss&amp;order=id&amp;version=1.0" type="application/rss+xml" class="rss" title="RSS Feed" /><link rel="alternate" href="/trac/query?status=new&amp;status=assigned&amp;status=reopened&amp;format=csv&amp;order=id&amp;version=1.0" type="text/csv" class="csv" title="Comma-delimited Text" /><link rel="alternate" href="/trac/query?status=new&amp;status=assigned&amp;status=reopened&amp;format=tab&amp;order=id&amp;version=1.0" type="text/tab-separated-values" class="tab" title="Tab-delimited Text" />
+        <link rel="start" href="/trac/wiki" />
+        <link rel="stylesheet" href="/trac/chrome/common/css/trac.css" type="text/css" /><link rel="stylesheet" href="/trac/chrome/common/css/report.css" type="text/css" />
+        <link rel="shortcut icon" href="/images/favico.png" type="image/png" />
+        <link rel="icon" href="/images/favico.png" type="image/png" />
+      <link type="application/opensearchdescription+xml" rel="search" href="/trac/search/opensearch" title="Search 4store" />
+    <script type="text/javascript" src="/trac/chrome/common/js/jquery.js"></script><script type="text/javascript" src="/trac/chrome/common/js/trac.js"></script><script type="text/javascript" src="/trac/chrome/common/js/search.js"></script><script type="text/javascript" src="/trac/chrome/common/js/query.js"></script>
+    <!--[if lt IE 7]>
+    <script type="text/javascript" src="/trac/chrome/common/js/ie_pre7_hacks.js"></script>
+    <![endif]-->
+    <script type="text/javascript" src="/trac/chrome/common/js/folding.js"></script><script type="text/javascript">
+      jQuery(document).ready(function($) {
+        $("#group").change(function() {
+          $("#groupdesc").enable(this.selectedIndex != 0)
+        }).change();
+        $("fieldset legend.foldable").enableFolding(false);
+        /* Hide the filters for saved queries. */
+        if ( window.location.href.search(/[?&amp;]report=[0-9]+/) != -1 )
+          $("#filters").toggleClass("collapsed");
+        /* Hide the columns by default. */
+        $("#columns").toggleClass("collapsed");
+      });
+    </script>
+    <link rel="stylesheet" type="text/css" href="/style/main.css" />
+  </head>
+  <body>
+    <div id="container">
+    <div id="siteheader">
+    </div>
+    <div id="banner">
+      <div id="header">
+        <a id="logo" href="http://4store.org/"><img src="/images/4store.png" alt="4store" height="48" width="143" /></a>
+      </div>
+      <form id="search" action="/trac/search" method="get">
+        <div>
+          <label for="proj-search">Search:</label>
+          <input type="text" id="proj-search" name="q" size="18" value="" />
+          <input type="submit" value="Search" />
+        </div>
+      </form>
+      <div id="metanav" class="nav">
+    <ul>
+      <li class="first"><a href="/trac/login">Login</a></li><li><a href="/trac/prefs">Preferences</a></li><li><a href="/trac/wiki/TracGuide">Help/Guide</a></li><li class="last"><a href="/trac/about">About Trac</a></li>
+    </ul>
+  </div>
+    </div>
+    <div id="mainnav" class="nav">
+    <ul>
+      <li class="first"><a href="/trac/wiki">Wiki</a></li><li><a href="/trac/timeline">Timeline</a></li><li><a href="/trac/roadmap">Roadmap</a></li><li class="active"><a href="/trac/report">View Tickets</a></li><li class="last"><a href="/trac/search">Search</a></li>
+    </ul>
+  </div>
+    <div id="main">
+      <div id="ctxtnav" class="nav">
+        <h2>Context Navigation</h2>
+          <ul>
+              <li class="first"><a href="/trac/report">Available Reports</a></li><li class="last">Custom Query</li>
+          </ul>
+        <hr />
+      </div>
+    <div id="content" class="query">
+      <h1>Custom Query
+      <span class="numrows">(4 matches)</span>
+    </h1>
+      <form id="query" method="post" action="/trac/query"><div><input type="hidden" name="__FORM_TOKEN" value="4923261989f8890121a559a0" /></div>
+        <fieldset id="filters">
+          <legend class="foldable">Filters</legend>
+          <table summary="Query filters">
+            <tbody>
+              <tr style="height: 1px"><td colspan="4"></td></tr>
+            </tbody>
+                <tbody>
+                    <tr class="status">
+                          <th scope="row"><label>Status</label></th>
+                      <td class="filter" colspan="2">
+                            <input type="checkbox" id="status_accepted" name="status" value="accepted" />
+                            <label for="status_accepted">accepted</label>
+                            <input type="checkbox" id="status_assigned" name="status" value="assigned" checked="checked" />
+                            <label for="status_assigned">assigned</label>
+                            <input type="checkbox" id="status_closed" name="status" value="closed" />
+                            <label for="status_closed">closed</label>
+                            <input type="checkbox" id="status_new" name="status" value="new" checked="checked" />
+                            <label for="status_new">new</label>
+                            <input type="checkbox" id="status_reopened" name="status" value="reopened" checked="checked" />
+                            <label for="status_reopened">reopened</label>
+                      </td>
+                      <td class="actions"><input type="submit" name="rm_filter_status" value="-" /></td>
+                    </tr>
+                </tbody>
+                <tbody>
+                    <tr class="version">
+                          <th scope="row"><label>Version</label></th>
+                          <td class="mode">
+                            <select name="version_mode">
+                              <option value="" selected="selected">is
+                              </option><option value="!">is not
+                              </option>
+                            </select>
+                          </td>
+                      <td class="filter">
+                          <select name="version">
+                            <option></option>
+                            <option selected="selected">1.0
+                            </option>
+                          </select>
+                      </td>
+                      <td class="actions"><input type="submit" name="rm_filter_version_0" value="-" /></td>
+                    </tr>
+                </tbody>
+            <tbody>
+              <tr class="actions">
+                <td class="actions" colspan="4" style="text-align: right">
+                  <label for="add_filter">Add filter</label> 
+                  <select name="add_filter" id="add_filter">
+                    <option></option>
+                    <option value="cc">
+                      Cc
+                    </option><option value="component">
+                      Component
+                    </option><option value="description">
+                      Description
+                    </option><option value="keywords">
+                      Keywords
+                    </option><option value="milestone">
+                      Milestone
+                    </option><option value="owner">
+                      Owner
+                    </option><option value="priority">
+                      Priority
+                    </option><option value="reporter">
+                      Reporter
+                    </option><option value="resolution">
+                      Resolution
+                    </option><option value="status" disabled="disabled">
+                      Status
+                    </option><option value="summary">
+                      Summary
+                    </option><option value="type">
+                      Type
+                    </option><option value="version">
+                      Version
+                    </option>
+                  </select>
+                  <input type="submit" name="add" value="+" />
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </fieldset>
+        <fieldset id="columns">
+          <legend class="foldable">Columns</legend>
+          <div>
+              <label>
+                <input type="checkbox" name="col" value="summary" checked="checked" />
+                Summary
+              </label>
+              <label>
+                <input type="checkbox" name="col" value="version" />
+                Version
+              </label>
+              <label>
+                <input type="checkbox" name="col" value="status" checked="checked" />
+                Status
+              </label>
+              <label>
+                <input type="checkbox" name="col" value="owner" checked="checked" />
+                Owner
+              </label>
+              <label>
+                <input type="checkbox" name="col" value="type" checked="checked" />
+                Type
+              </label>
+              <label>
+                <input type="checkbox" name="col" value="priority" checked="checked" />
+                Priority
+              </label>
+              <label>
+                <input type="checkbox" name="col" value="milestone" checked="checked" />
+                Milestone
+              </label>
+              <label>
+                <input type="checkbox" name="col" value="component" />
+                Component
+              </label>
+              <label>
+                <input type="checkbox" name="col" value="resolution" />
+                Resolution
+              </label>
+              <label>
+                <input type="checkbox" name="col" value="reporter" />
+                Reporter
+              </label>
+              <label>
+                <input type="checkbox" name="col" value="keywords" />
+                Keywords
+              </label>
+              <label>
+                <input type="checkbox" name="col" value="cc" />
+                Cc
+              </label>
+              <label>
+                <input type="checkbox" name="col" value="time" />
+                Created
+              </label>
+              <label>
+                <input type="checkbox" name="col" value="changetime" />
+                Modified
+              </label>
+          </div>
+        </fieldset>
+        <p class="option">
+          <label for="group">Group results by</label>
+          <select name="group" id="group">
+            <option></option>
+              <option value="component">Component</option>
+              <option value="milestone">Milestone</option>
+              <option value="owner">Owner</option>
+              <option value="priority">Priority</option>
+              <option value="reporter">Reporter</option>
+              <option value="resolution">Resolution</option>
+              <option value="status">Status</option>
+              <option value="type">Type</option>
+              <option value="version">Version</option>
+          </select>
+          <input type="checkbox" name="groupdesc" id="groupdesc" />
+          <label for="groupdesc">descending</label>
+        </p>
+        <p class="option">
+          Show under each result:
+            <label><input type="checkbox" name="row" value="description" />
+            Description</label>
+        </p>
+        <p class="option">
+          <label for="max">Max items per page</label>
+          <input type="text" name="max" id="max" size="10" value="100" />
+        </p>
+        <div class="buttons">
+          <input type="hidden" name="order" value="id" />
+          <input type="submit" name="update" value="Update" />
+        </div>
+        <hr />
+      </form>
+      <script type="text/javascript">
+        var properties={
+          status: { type: "radio", label: "Status"
+          , options: [
+            "accepted",
+            "assigned",
+            "closed",
+            "new",
+            "reopened"
+            ]
+          },
+          description: { type: "textarea", label: "Description"
+          },
+          reporter: { type: "text", label: "Reporter"
+          },
+          cc: { type: "text", label: "Cc"
+          },
+          resolution: { type: "radio", label: "Resolution"
+          , options: [
+            "fixed",
+            "invalid",
+            "wontfix",
+            "duplicate",
+            "worksforme"
+            ]
+          },
+          component: { type: "select", label: "Component"
+          , options: [
+            "Networking",
+            "Protocol",
+            "Query engine",
+            "SPARQL Server",
+            "Unknown"
+            ]
+          },
+          summary: { type: "text", label: "Summary"
+          },
+          priority: { type: "select", label: "Priority"
+          , options: [
+            "blocker",
+            "critical",
+            "major",
+            "minor",
+            "trivial"
+            ]
+          },
+          keywords: { type: "text", label: "Keywords"
+          },
+          version: { type: "select", label: "Version"
+          , options: [
+            "1.0"
+            ]
+          },
+          milestone: { type: "select", label: "Milestone"
+          , options: [
+            "Public release"
+            ]
+          },
+          owner: { type: "text", label: "Owner"
+          },
+          type: { type: "select", label: "Type"
+          , options: [
+            "defect",
+            "enhancement",
+            "task"
+            ]
+          }
+        };
+        var modes = {
+          text: [
+            {text: "contains", value: "~"},
+            {text: "doesn\'t contain", value: "!~"},
+            {text: "begins with", value: "^"},
+            {text: "ends with", value: "$"},
+            {text: "is", value: ""},
+            {text: "is not", value: "!"}
+            ],
+          select: [
+            {text: "is", value: ""},
+            {text: "is not", value: "!"}
+            ],
+          textarea: [
+            {text: "contains", value: "~"},
+            {text: "doesn\'t contain", value: "!~"}
+            ]
+        };
+        initializeFilters();
+      </script>
+      <div>
+  
+
+  
+    <table class="listing tickets">
+      <thead>
+        <tr>
+          <th class="id asc">
+            <a title="Sort by Ticket (descending)" href="/trac/query?status=new&amp;status=assigned&amp;status=reopened&amp;order=id&amp;version=1.0&amp;desc=1">Ticket</a>
+          </th><th class="summary">
+            <a title="Sort by Summary" href="/trac/query?status=new&amp;status=assigned&amp;status=reopened&amp;order=summary&amp;version=1.0">Summary</a>
+          </th><th class="status">
+            <a title="Sort by Status" href="/trac/query?status=new&amp;status=assigned&amp;status=reopened&amp;order=status&amp;version=1.0">Status</a>
+          </th><th class="owner">
+            <a title="Sort by Owner" href="/trac/query?status=new&amp;status=assigned&amp;status=reopened&amp;order=owner&amp;version=1.0">Owner</a>
+          </th><th class="type">
+            <a title="Sort by Type" href="/trac/query?status=new&amp;status=assigned&amp;status=reopened&amp;order=type&amp;version=1.0">Type</a>
+          </th><th class="priority">
+            <a title="Sort by Priority" href="/trac/query?status=new&amp;status=assigned&amp;status=reopened&amp;order=priority&amp;version=1.0">Priority</a>
+          </th><th class="milestone">
+            <a title="Sort by Milestone" href="/trac/query?status=new&amp;status=assigned&amp;status=reopened&amp;order=milestone&amp;version=1.0">Milestone</a>
+          </th>
+        </tr>
+      </thead>
+      <tbody>
+              <tr class="even prio3">
+                    <td class="id"><a href="/trac/ticket/4" title="View ticket">#4</a></td>
+                    <td class="summary">
+                      <a href="/trac/ticket/4" title="View ticket">4store.org doesn't explain how to shut down http/sparql server</a>
+                    </td>
+                    <td class="status">
+                      new
+                    </td>
+                    <td class="owner">
+                      --
+                    </td>
+                    <td class="type">
+                      task
+                    </td>
+                    <td class="priority">
+                      major
+                    </td>
+                    <td class="milestone">
+                      <a title="View milestone" href="/trac/milestone/"></a>
+                    </td>
+              </tr>
+              <tr class="odd prio3">
+                    <td class="id"><a href="/trac/ticket/77" title="View ticket">#77</a></td>
+                    <td class="summary">
+                      <a href="/trac/ticket/77" title="View ticket">Bind cache/ASK bug</a>
+                    </td>
+                    <td class="status">
+                      new
+                    </td>
+                    <td class="owner">
+                      swh
+                    </td>
+                    <td class="type">
+                      defect
+                    </td>
+                    <td class="priority">
+                      major
+                    </td>
+                    <td class="milestone">
+                      <a title="View milestone" href="/trac/milestone/"></a>
+                    </td>
+              </tr>
+              <tr class="even prio3">
+                    <td class="id"><a href="/trac/ticket/102" title="View ticket">#102</a></td>
+                    <td class="summary">
+                      <a href="/trac/ticket/102" title="View ticket">Optimisation for freetext search using regexs</a>
+                    </td>
+                    <td class="status">
+                      new
+                    </td>
+                    <td class="owner">
+                      --
+                    </td>
+                    <td class="type">
+                      enhancement
+                    </td>
+                    <td class="priority">
+                      major
+                    </td>
+                    <td class="milestone">
+                      <a title="View milestone" href="/trac/milestone/"></a>
+                    </td>
+              </tr>
+              <tr class="odd prio3">
+                    <td class="id"><a href="/trac/ticket/134" title="View ticket">#134</a></td>
+                    <td class="summary">
+                      <a href="/trac/ticket/134" title="View ticket">HTTP server returns 200 even when there's an error</a>
+                    </td>
+                    <td class="status">
+                      new
+                    </td>
+                    <td class="owner">
+                      njl
+                    </td>
+                    <td class="type">
+                      defect
+                    </td>
+                    <td class="priority">
+                      major
+                    </td>
+                    <td class="milestone">
+                      <a title="View milestone" href="/trac/milestone/"></a>
+                    </td>
+              </tr>
+      </tbody>
+    </table>
+  
+</div>
+      <div class="buttons">
+      </div>
+      <div id="help">
+        <strong>Note:</strong> See <a href="/trac/wiki/TracQuery">TracQuery</a>
+        for help on using queries.
+      </div>
+    </div>
+    <div id="altlinks">
+      <h3>Download in other formats:</h3>
+      <ul>
+        <li class="first">
+          <a rel="nofollow" href="/trac/query?status=new&amp;status=assigned&amp;status=reopened&amp;format=rss&amp;order=id&amp;version=1.0" class="rss">RSS Feed</a>
+        </li><li>
+          <a rel="nofollow" href="/trac/query?status=new&amp;status=assigned&amp;status=reopened&amp;format=csv&amp;order=id&amp;version=1.0" class="csv">Comma-delimited Text</a>
+        </li><li class="last">
+          <a rel="nofollow" href="/trac/query?status=new&amp;status=assigned&amp;status=reopened&amp;format=tab&amp;order=id&amp;version=1.0" class="tab">Tab-delimited Text</a>
+        </li>
+      </ul>
+    </div>
+    </div>
+    <div id="footer" lang="en" xml:lang="en"><hr />
+      <a id="tracpowered" href="http://trac.edgewall.org/"><img src="/trac/chrome/common/trac_logo_mini.png" height="30" width="107" alt="Trac Powered" /></a>
+      <p class="left">
+        Powered by <a href="/trac/about"><strong>Trac 0.11.4</strong></a><br />
+        By <a href="http://www.edgewall.org/">Edgewall Software</a>.
+      </p>
+      <p class="right">Visit the Trac open source project at<br /><a href="http://trac.edgewall.org/">http://trac.edgewall.org/</a></p>
+    </div>
+    <div id="footer">
+	<div id="copyright">Copyright © Garlik 2009</div>
+		<div id="garlik_logo">
+	<a href="http://www.garlik.com/" rel="external" title="Click here to visit the Garlik homepage"><img src="/images/garlik.gif" alt="powered by Garlik" /></a>
+	</div>
+	<div id="foot_nav">
+	<ul>
+			<li><a href="/about" title="About" id="about">About</a></li>
+			<li><a href="/faqs" title="FAQs" id="faqs">FAQs</a></li>
+			<li><a href="/support" title="Install" id="support">Support</a></li>
+			<li><a href="/developers" title="Developers" id="developers">Developers</a></li>
+			<li><a href="/projects" title="Projects" id="projetcs">Projects</a></li>
+	</ul>
+	</div>
+    </div>
+    </div>
+  </body>
+</html>

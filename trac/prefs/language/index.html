@@ -1,0 +1,129 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  
+  
+  
+
+  
+
+
+
+  <head>
+    <title>
+      Preferences: Language – 4store
+    </title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <!--[if IE]><script type="text/javascript">
+      if (/^#__msie303:/.test(window.location.hash))
+        window.location.replace(window.location.hash.replace(/^#__msie303:/, '#'));
+    </script><![endif]-->
+        <link rel="search" href="/trac/search" />
+        <link rel="help" href="/trac/wiki/TracGuide" />
+        <link rel="start" href="/trac/wiki" />
+        <link rel="stylesheet" href="/trac/chrome/common/css/trac.css" type="text/css" /><link rel="stylesheet" href="/trac/chrome/common/css/prefs.css" type="text/css" />
+        <link rel="shortcut icon" href="/images/favico.png" type="image/png" />
+        <link rel="icon" href="/images/favico.png" type="image/png" />
+      <link type="application/opensearchdescription+xml" rel="search" href="/trac/search/opensearch" title="Search 4store" />
+    <script type="text/javascript" src="/trac/chrome/common/js/jquery.js"></script><script type="text/javascript" src="/trac/chrome/common/js/babel.js"></script><script type="text/javascript" src="/trac/chrome/common/js/messages/en_US.js"></script><script type="text/javascript" src="/trac/chrome/common/js/trac.js"></script><script type="text/javascript" src="/trac/chrome/common/js/search.js"></script>
+    <!--[if lt IE 7]>
+    <script type="text/javascript" src="/trac/chrome/common/js/ie_pre7_hacks.js"></script>
+    <![endif]-->
+    <link rel="stylesheet" type="text/css" href="/style/main.css" />
+  </head>
+  <body>
+    <div id="container">
+    <div id="siteheader">
+    </div>
+    <div id="banner">
+      <div id="header">
+        <a id="logo" href="http://4store.org/"><img src="/images/4store.png" alt="4store" height="48" width="143" /></a>
+      </div>
+      <form id="search" action="/trac/search" method="get">
+        <div>
+          <label for="proj-search">Search:</label>
+          <input type="text" id="proj-search" name="q" size="18" value="" />
+          <input type="submit" value="Search" />
+        </div>
+      </form>
+      <div id="metanav" class="nav">
+    <ul>
+      <li class="first"><a href="/trac/login">Login</a></li><li class="active"><a href="/trac/prefs">Preferences</a></li><li><a href="/trac/wiki/TracGuide">Help/Guide</a></li><li class="last"><a href="/trac/about">About Trac</a></li>
+    </ul>
+  </div>
+    </div>
+    <div id="mainnav" class="nav">
+    <ul>
+      <li class="first"><a href="/trac/wiki">Wiki</a></li><li><a href="/trac/timeline">Timeline</a></li><li><a href="/trac/roadmap">Roadmap</a></li><li><a href="/trac/report">View Tickets</a></li><li class="last"><a href="/trac/search">Search</a></li>
+    </ul>
+  </div>
+    <div id="main">
+      <div id="ctxtnav" class="nav">
+        <h2>Context Navigation</h2>
+        <hr />
+      </div>
+    <div id="content" class="prefs">
+      <h1>Preferences</h1>
+      <p>This page lets you customize your personal settings for this site.
+      These settings are stored on the server and are identified by a session
+      key stored in a browser cookie. That cookie allows your settings to be
+      restored on subsequent visits.</p>
+      <ul id="tabs">
+        <li>
+          <a href="/trac/prefs">General</a>
+        </li><li id="tab_advanced">
+          <a href="/trac/prefs/advanced">Advanced</a>
+        </li><li id="tab_datetime">
+          <a href="/trac/prefs/datetime">Date &amp; Time</a>
+        </li><li id="tab_keybindings">
+          <a href="/trac/prefs/keybindings">Keyboard Shortcuts</a>
+        </li><li class="active" id="tab_language">
+          Language
+        </li>
+      </ul>
+      <div id="tabcontent">
+        <form id="userprefs" action="" method="post"><div><input type="hidden" name="__FORM_TOKEN" value="e464c7f52f94432c5670fc1c" /></div>
+    <div class="field">
+      <label>Language:
+        <select name="language">
+          <option value="">default language</option>
+          <option value="ca">català</option><option value="cs">čeština</option><option value="de">Deutsch</option><option value="en-GB">English (United Kingdom)</option><option value="en-US">English (United States)</option><option value="eo">esperanto</option><option value="es">español</option><option value="es-AR">español (Argentina)</option><option value="et">eesti</option><option value="fi">suomi</option><option value="fr">français</option><option value="gl">galego</option><option value="he">עברית</option><option value="hu">magyar</option><option value="hy">Հայերէն</option><option value="it">italiano</option><option value="ja">日本語</option><option value="ko">한국어</option><option value="nb">norsk bokmål</option><option value="nl">Nederlands</option><option value="pl">polski</option><option value="pt">português</option><option value="pt-BR">português (Brasil)</option><option value="ro">română</option><option value="ru">русский</option><option value="sl">slovenščina</option><option value="sv">svenska</option><option value="tr">Türkçe</option><option value="uk">українська</option><option value="zh-CN">中文 (中国)</option><option value="zh-TW">中文 (台湾)</option>
+        </select>
+      </label>
+      <p class="hint">Configuring your language will result in all text
+      displayed on this site to use your language instead of that of the
+      server.</p>
+      <p class="hint">The 'default language' option uses the browser's
+        language negotiation feature to select the appropriate language.</p>
+    </div>
+          <div class="buttons">
+            <input type="hidden" name="action" value="save" />
+            <input type="submit" value="Save changes" />
+          </div>
+        </form>
+      </div>
+    </div>
+    </div>
+    <div id="footer" lang="en" xml:lang="en"><hr />
+      <a id="tracpowered" href="http://trac.edgewall.org/"><img src="/trac/chrome/common/trac_logo_mini.png" height="30" width="107" alt="Trac Powered" /></a>
+      <p class="left">Powered by <a href="/trac/about"><strong>Trac 0.12.4</strong></a><br />
+        By <a href="http://www.edgewall.org/">Edgewall Software</a>.</p>
+      <p class="right">Visit the Trac open source project at<br /><a href="http://trac.edgewall.org/">http://trac.edgewall.org/</a></p>
+    </div>
+    <div id="footer">
+	<div id="copyright">Copyright © Garlik 2009</div>
+		<div id="garlik_logo">
+	<a href="http://www.garlik.com/" rel="external" title="Click here to visit the Garlik homepage"><img src="/images/garlik.gif" alt="powered by Garlik" /></a>
+	</div>
+	<div id="foot_nav">
+	<ul>
+			<li><a href="/about" title="About" id="about">About</a></li>
+			<li><a href="/faqs" title="FAQs" id="faqs">FAQs</a></li>
+			<li><a href="/support" title="Install" id="support">Support</a></li>
+			<li><a href="/developers" title="Developers" id="developers">Developers</a></li>
+			<li><a href="/projects" title="Projects" id="projetcs">Projects</a></li>
+	</ul>
+	</div>
+    </div>
+    </div>
+  </body>
+</html>

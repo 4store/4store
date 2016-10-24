@@ -1,0 +1,101 @@
+<?xml version="1.0"?>
+<rss xmlns:dc="http://purl.org/dc/elements/1.1/" version="2.0">
+  
+
+  <channel>
+    <title>4store: Ticket Query</title>
+    <link>http://4store.org/trac/query?status=new&amp;status=assigned&amp;status=reopened&amp;version=1.0&amp;row=description</link>
+    <description>The 4store RDF database.</description>
+    <language>en-US</language>
+    <image>
+      <title>4store</title>
+      <url>/images/4store.png</url>
+      <link>http://4store.org/trac/query?status=new&amp;status=assigned&amp;status=reopened&amp;version=1.0&amp;row=description</link>
+    </image>
+    <generator>Trac 0.11.4</generator>
+    <item>
+        <link>http://4store.org/trac/ticket/77</link>
+        <guid isPermaLink="false">http://4store.org/trac/ticket/77</guid>
+        <title>#77: Bind cache/ASK bug</title>
+        <pubDate>Thu, 17 Sep 2009 11:47:52 GMT</pubDate>
+          <dc:creator>swh</dc:creator>
+        <description>&lt;p&gt;
+"We seemed to encountered a bug when using ASK. So if we do something
+like this:
+&lt;/p&gt;
+&lt;p&gt;
+ASK WHERE {?o &amp;lt;&lt;a class="ext-link" href="http://prop"&gt;&lt;span class="icon"&gt; &lt;/span&gt;http://prop&lt;/a&gt;&amp;gt; &amp;lt;&lt;a class="ext-link" href="http://other"&gt;&lt;span class="icon"&gt; &lt;/span&gt;http://other&lt;/a&gt; property url&amp;gt;}
+&lt;/p&gt;
+&lt;p&gt;
+and the result that we expect is false. The first time the query is
+executed after starting 4store, false is returned. All subsequent
+times true is returned."
+&lt;/p&gt;
+&lt;p&gt;
+From Paul.
+&lt;/p&gt;
+</description>
+        <category>Results</category>
+        <comments>http://4store.org/trac/ticket/77#changelog</comments>
+    </item><item>
+        <link>http://4store.org/trac/ticket/134</link>
+        <guid isPermaLink="false">http://4store.org/trac/ticket/134</guid>
+        <title>#134: HTTP server returns 200 even when there's an error</title>
+        <pubDate>Fri, 23 Oct 2009 08:40:33 GMT</pubDate>
+          <dc:creator>swh</dc:creator>
+        <description>&lt;p&gt;
+&lt;a class="ext-link" href="http://twitter.com/Phocion/status/5074461889"&gt;&lt;span class="icon"&gt; &lt;/span&gt;http://twitter.com/Phocion/status/5074461889&lt;/a&gt;
+&lt;/p&gt;
+&lt;p&gt;
+Not verified.
+&lt;/p&gt;
+</description>
+        <category>Results</category>
+        <comments>http://4store.org/trac/ticket/134#changelog</comments>
+    </item><item>
+        <link>http://4store.org/trac/ticket/102</link>
+        <guid isPermaLink="false">http://4store.org/trac/ticket/102</guid>
+        <title>#102: Optimisation for freetext search using regexs</title>
+        <pubDate>Wed, 23 Sep 2009 12:02:23 GMT</pubDate>
+          <dc:creator>kjetil@…</dc:creator>
+        <description>&lt;p&gt;
+I advocated strongly freetext as a deliverable for the SPARQL WG, but there wasn't enough consensus to get it in. Also, my requirements were pretty simple, and did not require the full XPath/XQuery requirements that many others have. I summarised my requirements in the following advocacy
+message:
+&lt;/p&gt;
+&lt;p&gt;
+&lt;a class="ext-link" href="http://lists.w3.org/Archives/Public/public-rdf-dawg/2009AprJun/0174.html"&gt;&lt;span class="icon"&gt; &lt;/span&gt;http://lists.w3.org/Archives/Public/public-rdf-dawg/2009AprJun/0174.html&lt;/a&gt;
+&lt;/p&gt;
+&lt;p&gt;
+The WG (amongst them, a certain 4store developer :-) ) noted that these requirements could be met by transforming the search string to a regular expression in the application layer. Indeed it can. However, no engines are optimized for this and it can potential be
+much slower than the built-in free text index.
+&lt;/p&gt;
+&lt;p&gt;
+My feature request is thus that the engine optimizes for certain regular expressions
+&lt;/p&gt;
+&lt;p&gt;
+If the user search term is "dahut", then the regular expression boils down to
+&lt;/p&gt;
+&lt;p&gt;
+\bdahut\S*
+&lt;/p&gt;
+&lt;p&gt;
+I hope this is doable.
+&lt;/p&gt;
+</description>
+        <category>Results</category>
+        <comments>http://4store.org/trac/ticket/102#changelog</comments>
+    </item><item>
+        <link>http://4store.org/trac/ticket/4</link>
+        <guid isPermaLink="false">http://4store.org/trac/ticket/4</guid>
+        <title>#4: 4store.org doesn't explain how to shut down http/sparql server</title>
+        <pubDate>Tue, 18 Aug 2009 09:54:53 GMT</pubDate>
+          <dc:creator>anonymous</dc:creator>
+        <description>&lt;p&gt;
+Is it harmless to kill the httpd server? is there a more graceful way?
+&lt;/p&gt;
+</description>
+        <category>Results</category>
+        <comments>http://4store.org/trac/ticket/4#changelog</comments>
+    </item>
+ </channel>
+</rss>

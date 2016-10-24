@@ -1,0 +1,37 @@
+@prefix : <http://usefulinc.com/ns/doap#> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+
+[]
+    a :Project;
+    :name "4store";
+    :shortname "4store";
+    :shortdesc "RDF/SPARQL store";
+    :description "A scalable, cluster-capable RDF/SPARQL store written in C, designed for UNIX-like operating systems.";
+    :homepage <http://4store.org/>;
+    :download-page <http://4store.org/download/>;
+    :os "Linux", "Mac OS X", "UNIX";
+    :programming-language "C";
+    :license <http://usefulinc.com/doap/licenses/gpl>;
+    :maintainer [
+        a foaf:Person;
+        foaf:name "Steve Harris";
+        foaf:homepage <http://steve.harris.name/>;
+        foaf:mbox_sha1sum "26a374ad4de937252c044f7dd45aa48ecbdb4f16"
+    ];
+    :developer [
+        a foaf:Person;
+        foaf:name "Nick Lamb";
+        foaf:homepage <http://tlrmx.org/>;
+        foaf:mbox_sha1sum "e602382c17fcef66132630ca26476e427b1c33fe"
+    ];
+    :helper [
+        a foaf:Person;
+        foaf:name "Mischa Tuffield";
+        foaf:homepage <http://mmt.me.uk/>;
+        foaf:mbox_sha1sum "01561a512d2a2e067b70ad9d0ea8b28d73cd9ed7"
+    ];
+    :repository [
+        a :GitRepository;
+        :browse <https://github.com/garlik/4store/>;
+        :location <https://github.com/garlik/4store.git>
+    ] .

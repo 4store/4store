@@ -1,0 +1,309 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  
+  
+
+  
+
+
+  
+
+  <head>
+    <title>
+      TracStandalone – 4store
+    </title>
+        <link rel="search" href="/trac/search" />
+        <link rel="help" href="/trac/wiki/TracGuide" />
+        <link rel="alternate" href="/trac/wiki/TracStandalone?format=txt" type="text/x-trac-wiki" title="Plain Text" />
+        <link rel="start" href="/trac/wiki" />
+        <link rel="stylesheet" href="/trac/chrome/common/css/trac.css" type="text/css" /><link rel="stylesheet" href="/trac/chrome/common/css/wiki.css" type="text/css" />
+        <link rel="shortcut icon" href="/images/favico.png" type="image/png" />
+        <link rel="icon" href="/images/favico.png" type="image/png" />
+      <link type="application/opensearchdescription+xml" rel="search" href="/trac/search/opensearch" title="Search 4store" />
+    <script type="text/javascript" src="/trac/chrome/common/js/jquery.js"></script><script type="text/javascript" src="/trac/chrome/common/js/trac.js"></script><script type="text/javascript" src="/trac/chrome/common/js/search.js"></script>
+    <!--[if lt IE 7]>
+    <script type="text/javascript" src="/trac/chrome/common/js/ie_pre7_hacks.js"></script>
+    <![endif]-->
+    <script type="text/javascript">
+      jQuery(document).ready(function($) {
+        $("#content").find("h1,h2,h3,h4,h5,h6").addAnchor("Link to this section");
+      });
+    </script>
+    <link rel="stylesheet" type="text/css" href="/style/main.css" />
+  </head>
+  <body>
+    <div id="container">
+    <div id="siteheader">
+    </div>
+    <div id="banner">
+      <div id="header">
+        <a id="logo" href="http://4store.org/"><img src="/images/4store.png" alt="4store" height="48" width="143" /></a>
+      </div>
+      <form id="search" action="/trac/search" method="get">
+        <div>
+          <label for="proj-search">Search:</label>
+          <input type="text" id="proj-search" name="q" size="18" value="" />
+          <input type="submit" value="Search" />
+        </div>
+      </form>
+      <div id="metanav" class="nav">
+    <ul>
+      <li class="first"><a href="/trac/login">Login</a></li><li><a href="/trac/prefs">Preferences</a></li><li><a href="/trac/wiki/TracGuide">Help/Guide</a></li><li class="last"><a href="/trac/about">About Trac</a></li>
+    </ul>
+  </div>
+    </div>
+    <div id="mainnav" class="nav">
+    <ul>
+      <li class="first active"><a href="/trac/wiki">Wiki</a></li><li><a href="/trac/timeline">Timeline</a></li><li><a href="/trac/roadmap">Roadmap</a></li><li><a href="/trac/report">View Tickets</a></li><li class="last"><a href="/trac/search">Search</a></li>
+    </ul>
+  </div>
+    <div id="main">
+      <div id="ctxtnav" class="nav">
+        <h2>Context Navigation</h2>
+          <ul>
+              <li class="first"><a href="/trac/wiki/WikiStart">Start Page</a></li><li><a href="/trac/wiki/TitleIndex">Index</a></li><li><a href="/trac/wiki/TracStandalone?action=history">History</a></li><li class="last"><a href="/trac/wiki/TracStandalone?action=diff&amp;version=1">Last Change</a></li>
+          </ul>
+        <hr />
+      </div>
+    <div id="content" class="wiki">
+      <div class="wikipage searchable">
+        
+          <h1 id="Tracd">Tracd</h1>
+<p>
+Tracd is a lightweight standalone Trac web server. In most cases it's easier to setup and runs faster than the <a class="wiki" href="/trac/wiki/TracCgi">CGI script</a>.
+</p>
+<h2 id="Pros">Pros</h2>
+<ul><li>Fewer dependencies: You don't need to install apache or any other web-server.
+</li><li>Fast: Should be almost as fast as the <a class="wiki" href="/trac/wiki/TracModPython">mod_python</a> version (and much faster than the <a class="wiki" href="/trac/wiki/TracCgi">CGI</a>).
+</li><li>Automatic reloading: For development, Tracd can be used in <i>auto_reload</i> mode, which will automatically restart the server whenever you make a change to the code (in Trac itself or in a plugin).
+</li></ul><h2 id="Cons">Cons</h2>
+<ul><li>Fewer features: Tracd implements a very simple web-server and is not as configurable or as scalable as Apache HTTPD.
+</li><li>No native HTTPS support: <a class="ext-link" href="http://www.rickk.com/sslwrap/"><span class="icon"> </span>sslwrap</a> can be used instead,
+or <a class="ext-link" href="http://trac.edgewall.org/wiki/STunnelTracd"><span class="icon"> </span>stunnel -- a tutorial on how to use stunnel with tracd</a> or Apache with mod_proxy.
+</li></ul><h2 id="Usageexamples">Usage examples</h2>
+<p>
+A single project on port 8080. (<a class="ext-link" href="http://localhost:8080/"><span class="icon"> </span>http://localhost:8080/</a>)
+</p>
+<pre class="wiki"> $ tracd -p 8080 /path/to/project
+</pre><p>
+Stricly speaking this will make your Trac accessible to everybody from your network rather than <i>localhost only</i>. To truly limit it use <i>--hostname</i> option.
+</p>
+<pre class="wiki"> $ tracd --hostname=localhost -p 8080 /path/to/project
+</pre><p>
+With more than one project. (<a class="ext-link" href="http://localhost:8080/project1/"><span class="icon"> </span>http://localhost:8080/project1/</a> and <a class="ext-link" href="http://localhost:8080/project2/"><span class="icon"> </span>http://localhost:8080/project2/</a>)
+</p>
+<pre class="wiki"> $ tracd -p 8080 /path/to/project1 /path/to/project2
+</pre><p>
+You can't have the last portion of the path identical between the projects since Trac uses that name to keep the URLs of the
+different projects unique. So if you use <tt>/project1/path/to</tt> and <tt>/project2/path/to</tt>, you will only see the second project.
+</p>
+<p>
+An alternative way to serve multiple projects is to specify a parent directory in which each subdirectory is a Trac project, using the <tt>-e</tt> option. The example above could be rewritten:
+</p>
+<pre class="wiki"> $ tracd -p 8080 -e /path/to
+</pre><p>
+To exit the server on Windows, be sure to use <tt>CTRL-BREAK</tt> -- using <tt>CTRL-C</tt> will leave a Python process running in the background.
+</p>
+<h2 id="InstallingasaWindowsService">Installing as a Windows Service</h2>
+<p>
+To install as a Windows service, get the <a class="ext-link" href="http://www.google.com/search?q=srvany.exe"><span class="icon"> </span>SRVANY</a> utility and run:
+</p>
+<pre class="wiki"> C:\path\to\instsrv.exe tracd C:\path\to\srvany.exe
+ reg add HKLM\SYSTEM\CurrentControlSet\Services\tracd\Parameters /v Application /d "\"C:\path\to\python.exe\" \"C:\path\to\python\scripts\tracd-script.py\" &lt;your tracd parameters&gt;"
+ net start tracd
+</pre><p>
+<strong>DO NOT</strong> use <tt>tracd.exe</tt>.  Instead register <tt>python.exe</tt> directly with <tt>tracd-script.py</tt> as a parameter.  If you use <tt>tracd.exe</tt>, it will spawn the python process without SRVANY's knowledge.  This python process will survive a <tt>net stop tracd</tt>.
+</p>
+<p>
+If you want tracd to start automatically when you boot Windows, do:
+</p>
+<pre class="wiki"> sc config tracd start= auto
+</pre><p>
+The spacing here is important.
+</p>
+<h2 id="UsingAuthentication">Using Authentication</h2>
+<p>
+Using tracd with Apache .htpasswd files:
+</p>
+<p>
+To create a .htpasswd file using htpasswd:
+</p>
+<pre class="wiki">sudo htpasswd -c /path/to/env/.htpasswd username
+</pre><p>
+then for additional users:
+</p>
+<pre class="wiki">sudo htpasswd /path/to/env/.htpasswd username2
+</pre><p>
+then for starting the tracd:
+</p>
+<pre class="wiki">tracd -p 8080 --basic-auth=environmentname,/fullpath/environmentname/.htpasswd,/fullpath/environmentname /fullpath/environmentname
+</pre><p>
+Tracd provides support for both Basic and Digest authentication. The default is to use Digest; to use Basic authentication, replace <tt>--auth</tt> with <tt>--basic-auth</tt> in the examples below. (You must still specify a dialogic "realm", which can be an empty string by trailing the BASICAUTH with a comma.)
+</p>
+<blockquote>
+<p>
+<i>Support for Basic authentication was added in version 0.9.</i>
+</p>
+</blockquote>
+<p>
+The general format for using authentication is:
+</p>
+<pre class="wiki"> $ tracd -p port --auth=base_project_dir,password_file_path,realm project_path
+</pre><p>
+where:
+</p>
+<ul><li><strong>base_project_dir</strong> is the base directory of the project; note: this doesn't refer to the project name, and it is case-sensitive even for windows environments
+</li><li><strong>password_file_path</strong> path of the password file
+</li><li><strong>realm</strong> realm
+</li><li><strong>project_path</strong> path of the project
+</li></ul><p>
+Example:
+</p>
+<pre class="wiki"> $ tracd -p 8080 \
+   --auth=project1,/path/to/users.htdigest,mycompany.com /path/to/project1
+</pre><p>
+Of course, the digest file can be be shared so that it is used for more than one project:
+</p>
+<pre class="wiki"> $ tracd -p 8080 \
+   --auth=project1,/path/to/users.htdigest,mycompany.com \
+   --auth=project2,/path/to/users.htdigest,mycompany.com \
+   /path/to/project1 /path/to/project2
+</pre><p>
+Another way to share the digest file is to specify "*"
+for the project name:
+</p>
+<pre class="wiki"> $ tracd -p 8080 \
+   --auth="*",/path/to/users.htdigest,mycompany.com \
+   /path/to/project1 /path/to/project2
+</pre><p>
+If using the <tt>-s</tt> parameter for serving a Trac environment from the root of a domain, one must use <tt>*</tt> for the project name
+</p>
+<h2 id="Howtosetupanhtdigestpasswordfile">How to set up an htdigest password file</h2>
+<p>
+If you have Apache available, you can use the htdigest command to generate the password file. Type 'htdigest' to get some usage instructions, or read <a class="ext-link" href="http://httpd.apache.org/docs/2.0/programs/htdigest.html"><span class="icon"> </span>this page</a> from the Apache manual to get precise instructions.  You'll be prompted for a password to enter for each user that you create.  For the name of the password file, you can use whatever you like, but if you use something like <tt>users.htdigest</tt> it will remind you what the file contains. As a suggestion, put it in your &lt;projectname&gt;/conf folder along with the <a class="wiki" href="/trac/wiki/TracIni">trac.ini</a> file.
+</p>
+<p>
+Note that you can start tracd without the --auth argument, but if you click on the <i>Login</i> link you will get an error.
+</p>
+<h2 id="GeneratingPasswordsWithoutApache">Generating Passwords Without Apache</h2>
+<p>
+If you don't have Apache available, you can use this simple Python script to generate your passwords:
+</p>
+<div class="code"><pre>from optparse import OptionParser
+# The md5 module is deprecated in Python 2.5
+try:
+    from hashlib import md5
+except ImportError:
+    from md5 import md5
+realm = 'trac'
+
+# build the options
+usage = "usage: %prog [options]"
+parser = OptionParser(usage=usage)
+parser.add_option("-u", "--username",action="store", dest="username", type = "string",
+                  help="the username for whom to generate a password")
+parser.add_option("-p", "--password",action="store", dest="password", type = "string",
+                  help="the password to use")
+parser.add_option("-r", "--realm",action="store", dest="realm", type = "string",
+                  help="the realm in which to create the digest")
+(options, args) = parser.parse_args()
+
+# check options
+if (options.username is None) or (options.password is None):
+   parser.error("You must supply both the username and password")
+if (options.realm is not None):
+   realm = options.realm
+   
+# Generate the string to enter into the htdigest file
+kd = lambda x: md5(':'.join(x)).hexdigest()
+print ':'.join((options.username, realm, kd([options.username, realm, options.password])))
+</pre></div><p>
+Note: If you use the above script you must use the --auth option to tracd, not --basic-auth, and you must set the realm in the --auth value to 'trac' (without the quotes). Example usage (assuming you saved the script as trac-digest.py):
+</p>
+<pre class="wiki">python trac-digest.py -u username -p password &gt;&gt; c:\digest.txt
+tracd --port 8000 --auth=proj_name,c:\digest.txt,trac c:\path\to\proj_name
+</pre><p>
+Note: If you would like to use --basic-auth you need to use htpasswd tool from apache server to generate .htpasswd file. The remaining part is similar but make sure to use empty realm (i.e. coma after path). When using on Windows make sure to use -m option for it (did not tested it on *nix, so not sure if that is the case there).  If you do not have Apache, <a class="ext-link" href="http://trac.edgewall.org/intertrac/source%3A/tags/trac-0.11b2/contrib/htpasswd.py" title="source:/tags/trac-0.11b2/contrib/htpasswd.py in Trac project trac"><span class="icon"> </span>htpasswd.py</a> may help.  (Note that it requires a <tt>crypt</tt> or <tt>fcrypt</tt> module; see the source comments for details.)
+</p>
+<p>
+It is possible to use md5sum utility to generate digest-password file using such method:
+</p>
+<pre class="wiki"> $ printf "${user}:trac:${password}" | md5sum - &gt;&gt;user.htdigest
+</pre><p>
+and manually delete " -" from the end and add "${user}:trac:" to the start of line from 'to-file'.
+</p>
+<h2 id="Tips">Tips</h2>
+<h3 id="Servingstaticcontent">Serving static content</h3>
+<p>
+If <tt>tracd</tt> is the only webserver used for the project, 
+it can also be used to distribute static content 
+(tarballs, Doxygen documentation, etc.)
+</p>
+<p>
+This static content should be put in the <tt>$TRAC_ENV/htdocs</tt> folder,
+and is accessed by URLs like <tt>&lt;project_URL&gt;/chrome/site/...</tt>.
+</p>
+<p>
+Example: given a <tt>$TRAC_ENV/htdocs/software-0.1.tar.gz</tt> file,
+the corresponding relative URL would be <tt>/&lt;project_name&gt;/chrome/site/software-0.1.tar.gz</tt>, 
+which in turn can be written using the relative link syntax
+in the Wiki: <tt>[/&lt;project_name&gt;/chrome/site/software-0.1.tar.gz]</tt> 
+</p>
+<p>
+The development version of Trac supports a new <tt>htdocs:</tt> <a class="wiki" href="/trac/wiki/TracLinks">TracLinks</a> 
+syntax for the above. With this, the example link above can be written simply 
+<tt>htdocs:software-0.1.tar.gz</tt>. 
+</p>
+<h3 id="Usingapacherewriterules">Using apache rewrite rules</h3>
+<p>
+In some situations when you choose to use tracd behind apache, you might experience issues with redirects, like being redirected to URLs with the wrong host or protocol. In this case (and only in this case), setting the <tt>[trac] use_base_url_for_redirect</tt> to <tt>true</tt> can help, as this will force Trac to use the value of <tt>[trac] base_url</tt> for doing the redirects.
+</p>
+<h3 id="Servingadifferentbasepaththan">Serving a different base path than /</h3>
+<p>
+Tracd supports serving projects with different base urls than /&lt;project&gt;. The parameter name to change this is
+</p>
+<pre class="wiki"> $ tracd --base-path=/some/path
+</pre><hr />
+<p>
+See also: <a class="wiki" href="/trac/wiki/TracInstall">TracInstall</a>, <a class="wiki" href="/trac/wiki/TracCgi">TracCgi</a>, <a class="wiki" href="/trac/wiki/TracModPython">TracModPython</a>, <a class="wiki" href="/trac/wiki/TracGuide">TracGuide</a>, <a class="ext-link" href="http://trac.edgewall.org/intertrac/TracOnWindowsStandalone%3Fversion%3D13%23RunningTracdasservice" title="TracOnWindowsStandalone?version=13#RunningTracdasservice in Trac project trac"><span class="icon"> </span>Running tracd.exe as a Windows service</a>
+</p>
+
+        
+        
+      </div>
+    </div>
+    <div id="altlinks">
+      <h3>Download in other formats:</h3>
+      <ul>
+        <li class="last first">
+          <a rel="nofollow" href="/trac/wiki/TracStandalone?format=txt">Plain Text</a>
+        </li>
+      </ul>
+    </div>
+    </div>
+    <div id="footer" lang="en" xml:lang="en"><hr />
+      <a id="tracpowered" href="http://trac.edgewall.org/"><img src="/trac/chrome/common/trac_logo_mini.png" height="30" width="107" alt="Trac Powered" /></a>
+      <p class="left">
+        Powered by <a href="/trac/about"><strong>Trac 0.11.4</strong></a><br />
+        By <a href="http://www.edgewall.org/">Edgewall Software</a>.
+      </p>
+      <p class="right">Visit the Trac open source project at<br /><a href="http://trac.edgewall.org/">http://trac.edgewall.org/</a></p>
+    </div>
+    <div id="footer">
+	<div id="copyright">Copyright © Garlik 2009</div>
+		<div id="garlik_logo">
+	<a href="http://www.garlik.com/" rel="external" title="Click here to visit the Garlik homepage"><img src="/images/garlik.gif" alt="powered by Garlik" /></a>
+	</div>
+	<div id="foot_nav">
+	<ul>
+			<li><a href="/about" title="About" id="about">About</a></li>
+			<li><a href="/faqs" title="FAQs" id="faqs">FAQs</a></li>
+			<li><a href="/support" title="Install" id="support">Support</a></li>
+			<li><a href="/developers" title="Developers" id="developers">Developers</a></li>
+			<li><a href="/projects" title="Projects" id="projetcs">Projects</a></li>
+	</ul>
+	</div>
+    </div>
+    </div>
+  </body>
+</html>
