@@ -1,0 +1,279 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  
+  
+
+  
+
+
+  
+
+  <head>
+    <title>
+      TracCgi – 4store
+    </title>
+        <link rel="search" href="/trac/search" />
+        <link rel="help" href="/trac/wiki/TracGuide" />
+        <link rel="alternate" href="/trac/wiki/TracCgi?format=txt" type="text/x-trac-wiki" title="Plain Text" />
+        <link rel="start" href="/trac/wiki" />
+        <link rel="stylesheet" href="/trac/chrome/common/css/trac.css" type="text/css" /><link rel="stylesheet" href="/trac/chrome/common/css/wiki.css" type="text/css" />
+        <link rel="shortcut icon" href="/images/favico.png" type="image/png" />
+        <link rel="icon" href="/images/favico.png" type="image/png" />
+      <link type="application/opensearchdescription+xml" rel="search" href="/trac/search/opensearch" title="Search 4store" />
+    <script type="text/javascript" src="/trac/chrome/common/js/jquery.js"></script><script type="text/javascript" src="/trac/chrome/common/js/trac.js"></script><script type="text/javascript" src="/trac/chrome/common/js/search.js"></script>
+    <!--[if lt IE 7]>
+    <script type="text/javascript" src="/trac/chrome/common/js/ie_pre7_hacks.js"></script>
+    <![endif]-->
+    <script type="text/javascript">
+      jQuery(document).ready(function($) {
+        $("#content").find("h1,h2,h3,h4,h5,h6").addAnchor("Link to this section");
+      });
+    </script>
+    <link rel="stylesheet" type="text/css" href="/style/main.css" />
+  </head>
+  <body>
+    <div id="container">
+    <div id="siteheader">
+    </div>
+    <div id="banner">
+      <div id="header">
+        <a id="logo" href="http://4store.org/"><img src="/images/4store.png" alt="4store" height="48" width="143" /></a>
+      </div>
+      <form id="search" action="/trac/search" method="get">
+        <div>
+          <label for="proj-search">Search:</label>
+          <input type="text" id="proj-search" name="q" size="18" value="" />
+          <input type="submit" value="Search" />
+        </div>
+      </form>
+      <div id="metanav" class="nav">
+    <ul>
+      <li class="first"><a href="/trac/login">Login</a></li><li><a href="/trac/prefs">Preferences</a></li><li><a href="/trac/wiki/TracGuide">Help/Guide</a></li><li class="last"><a href="/trac/about">About Trac</a></li>
+    </ul>
+  </div>
+    </div>
+    <div id="mainnav" class="nav">
+    <ul>
+      <li class="first active"><a href="/trac/wiki">Wiki</a></li><li><a href="/trac/timeline">Timeline</a></li><li><a href="/trac/roadmap">Roadmap</a></li><li><a href="/trac/report">View Tickets</a></li><li class="last"><a href="/trac/search">Search</a></li>
+    </ul>
+  </div>
+    <div id="main">
+      <div id="ctxtnav" class="nav">
+        <h2>Context Navigation</h2>
+          <ul>
+              <li class="first"><a href="/trac/wiki/WikiStart">Start Page</a></li><li><a href="/trac/wiki/TitleIndex">Index</a></li><li><a href="/trac/wiki/TracCgi?action=history">History</a></li><li class="last"><a href="/trac/wiki/TracCgi?action=diff&amp;version=1">Last Change</a></li>
+          </ul>
+        <hr />
+      </div>
+    <div id="content" class="wiki">
+      <div class="wikipage searchable">
+        
+          <h1 id="InstallingTracasCGI">Installing Trac as CGI</h1>
+<p>
+To install Trac as a CGI script, you need to make the <tt>trac.cgi</tt> executable as a CGI by your web server.
+</p>
+<div class="important"><blockquote>
+<p>
+<i>Please note that using Trac via CGI is significantly slower than any other deployment method, such as <a class="wiki" href="/trac/wiki/TracModPython">mod_python</a> or <a class="wiki" href="/trac/wiki/TracFastCgi">FastCGI</a> or even <a class="ext-link" href="http://trac.edgewall.org/intertrac/TracOnWindowsIisAjp" title="TracOnWindowsIisAjp in Trac project trac"><span class="icon"> </span>IIS/AJP</a> on Windows.</i>
+</p>
+</blockquote>
+</div><p>
+If you're using <a class="ext-link" href="http://httpd.apache.org/"><span class="icon"> </span>Apache HTTPD</a>, there are a couple ways to do that:
+</p>
+<ol><li>Use a <tt>ScriptAlias</tt> to map a URL to the <tt>trac.cgi</tt> script
+</li><li>Copy the <tt>trac.cgi</tt> file into the directory for CGI executables used by your web server (commonly named <tt>cgi-bin</tt>). A word of warning, copying the file directly from the repository onto a windows server 2003 machine created difficulties. Rather create a new text file and cut and copy the text into the newly created file. You can also create a symbolic link, but in that case make sure that the <tt>FollowSymLinks</tt> option is enabled for the <tt>cgi-bin</tt> directory.
+</li></ol><p>
+The first option is recommended as it also allows you to map the CGI to a friendly URL.
+</p>
+<p>
+Now, edit the Apache configuration file and add this snippet, file names and locations changed to match your installation:
+</p>
+<pre class="wiki">ScriptAlias /trac /usr/share/trac/cgi-bin/trac.cgi
+</pre><blockquote>
+<p>
+<i>Note that this directive requires the <tt>mod_alias</tt> module to be installed and enabled.</i>
+</p>
+</blockquote>
+<p>
+If you're using Trac with a single project you need to set its location using the <tt>TRAC_ENV</tt> environment variable:
+</p>
+<pre class="wiki">&lt;Location "/trac"&gt;
+  SetEnv TRAC_ENV "/path/to/projectenv"
+&lt;/Location&gt;
+</pre><p>
+Or to use multiple projects you can specify their common parent directory using the <tt>TRAC_ENV_PARENT_DIR</tt> variable:
+</p>
+<pre class="wiki">&lt;Location "/trac"&gt;
+  SetEnv TRAC_ENV_PARENT_DIR "/path/to/project/parent/dir"
+&lt;/Location&gt;
+</pre><blockquote>
+<p>
+<i>Note that the <tt>SetEnv</tt> directive requires the <tt>mod_env</tt> module to be installed and enable. If not, you could set TRAC_ENV in trac.cgi. Just add the following code between "try:&#34; and &#34;from trac.web ...":</i>
+</p>
+</blockquote>
+<pre class="wiki">    import os
+    os.environ['TRAC_ENV'] = "/path/to/projectenv"
+</pre><blockquote>
+<p>
+<i> Or for TRAC_ENV_PARENT_DIR: </i>
+</p>
+</blockquote>
+<pre class="wiki">    import os
+    os.environ['TRAC_ENV_PARENT_DIR'] = "/path/to/project/parent/dir"
+</pre><p>
+This will make Trac available at <tt>http://yourhost.example.org/trac</tt>.
+</p>
+<p>
+If you are using the <a class="ext-link" href="http://httpd.apache.org/docs/suexec.html"><span class="icon"> </span>Apache suEXEC</a> feature please see <a class="ext-link" href="http://trac.edgewall.org/wiki/ApacheSuexec"><span class="icon"> </span>http://trac.edgewall.org/wiki/ApacheSuexec</a>.
+</p>
+<p>
+On some systems, you <i>may</i> need to edit the shebang line in the <tt>trac.cgi</tt> file to point to your real Python installation path. On a Windows system you may need to configure Windows to know how to execute a .cgi file (Explorer -&gt; Tools -&gt; Folder Options -&gt; File Types -&gt; CGI).
+</p>
+<h2 id="MappingStaticResources">Mapping Static Resources</h2>
+<p>
+Out of the box, Trac will serve static resources such as style sheets or images itself. For a CGI setup, though, this is highly undesirable, because it results in the CGI script being invoked for documents that could be much more efficiently served by the web server directly.
+</p>
+<p>
+Web servers such as <a class="ext-link" href="http://httpd.apache.org/"><span class="icon"> </span>Apache HTTPD</a> allow you to create “Aliases” to resources, thereby giving them a virtual URL that doesn't necessarily bear any resemblance to the layout of the servers file system. We already used this capability above when defining a <tt>ScriptAlias</tt> for the CGI script, and we'll use it now to map requests to the static resources to the directory on the file system that contains them, thereby bypassing the processing of such requests by the CGI script.
+</p>
+<p>
+Edit the Apache configuration file again and add the following snippet <strong>before</strong> the <tt>ScriptAlias</tt> for the CGI script , file names and locations changed to match your installation:
+</p>
+<pre class="wiki">Alias /trac/chrome/common /usr/share/trac/htdocs
+&lt;Directory "/usr/share/trac/htdocs"&gt;
+  Order allow,deny
+  Allow from all
+&lt;/Directory&gt;
+</pre><p>
+Note that whatever URL path you mapped the <tt>trac.cgi</tt> script to, the path <tt>/chrome/common</tt> is the path you have to append to that location to intercept requests to the static resources. 
+</p>
+<p>
+For example, if Trac is mapped to <tt>/cgi-bin/trac.cgi</tt> on your server, the URL of the Alias should be <tt>/cgi-bin/trac.cgi/chrome/common</tt>.
+</p>
+<p>
+Similarly, if you have static resources in a projects htdocs directory, you can configure apache to serve those resources (again, put this <strong>before</strong> the <tt>ScriptAlias</tt> for the CGI script, and adjust names and locations to match your installation):
+</p>
+<pre class="wiki">Alias /trac/chrome/site /path/to/projectenv/htdocs
+&lt;Directory "/path/to/projectenv/htdocs"&gt;
+  Order allow,deny
+  Allow from all
+&lt;/Directory&gt;
+</pre><p>
+Alternatively, you can set the <tt>htdocs_location</tt> configuration option in <a class="wiki" href="/trac/wiki/TracIni">trac.ini</a>:
+</p>
+<pre class="wiki">[trac]
+htdocs_location = /trac-htdocs
+</pre><p>
+Trac will then use this URL when embedding static resources into HTML pages. Of course, you still need to make the Trac <tt>htdocs</tt> directory available through the web server at the specified URL, for example by copying (or linking) the directory into the document root of the web server:
+</p>
+<pre class="wiki">$ ln -s /usr/share/trac/htdocs /var/www/your_site.com/htdocs/trac-htdocs
+</pre><p>
+Note that in order to get this <tt>htdocs</tt> directory, you need first to extract the relevant Trac resources using the <tt>deploy</tt> command of <a class="wiki" href="/trac/wiki/TracAdmin">TracAdmin</a>:
+<pre class="wiki">deploy &lt;directory&gt;
+	-- Extract static resources from Trac and all plugins.
+
+</pre>
+</p>
+<h2 id="AddingAuthentication">Adding Authentication</h2>
+<p>
+The simplest way to enable authentication with Apache is to create a password file. Use the <tt>htpasswd</tt> program to create the password file:
+</p>
+<pre class="wiki">$ htpasswd -c /somewhere/trac.htpasswd admin
+New password: &lt;type password&gt;
+Re-type new password: &lt;type password again&gt;
+Adding password for user admin
+</pre><p>
+After the first user, you dont need the "-c" option anymore:
+</p>
+<pre class="wiki">$ htpasswd /somewhere/trac.htpasswd john
+New password: &lt;type password&gt;
+Re-type new password: &lt;type password again&gt;
+Adding password for user john
+</pre><blockquote>
+<p>
+<i>See the man page for <tt>htpasswd</tt> for full documentation.</i>
+</p>
+</blockquote>
+<p>
+After you've created the users, you can set their permissions using <a class="wiki" href="/trac/wiki/TracPermissions">TracPermissions</a>.
+</p>
+<p>
+Now, you'll need to enable authentication against the password file in the Apache configuration:
+</p>
+<pre class="wiki">&lt;Location "/trac/login"&gt;
+  AuthType Basic
+  AuthName "Trac"
+  AuthUserFile /somewhere/trac.htpasswd
+  Require valid-user
+&lt;/Location&gt;
+</pre><p>
+If you're hosting multiple projects you can use the same password file for all of them:
+</p>
+<pre class="wiki">&lt;LocationMatch "/trac/[^/]+/login"&gt;
+  AuthType Basic
+  AuthName "Trac"
+  AuthUserFile /somewhere/trac.htpasswd
+  Require valid-user
+&lt;/LocationMatch&gt;
+</pre><p>
+For better security, it is recommended that you either enable SSL or at least use the “digest” authentication scheme instead of “Basic”. Please read the <a class="ext-link" href="http://httpd.apache.org/docs/2.0/"><span class="icon"> </span>Apache HTTPD documentation</a> to find out more. For example, on a Debian 4.0r1 (etch) system the relevant section  in apache configuration can look like this:
+</p>
+<pre class="wiki">&lt;Location "/trac/login"&gt;
+    LoadModule auth_digest_module /usr/lib/apache2/modules/mod_auth_digest.so
+    AuthType Digest
+    AuthName "trac"
+    AuthDigestDomain /trac
+    AuthUserFile /somewhere/trac.htpasswd
+    Require valid-user
+&lt;/Location&gt;
+</pre><p>
+and you'll have to create your .htpasswd file with htdigest instead of htpasswd as follows:
+</p>
+<pre class="wiki"># htdigest /somewhere/trac.htpasswd trac admin
+</pre><p>
+where the "trac" parameter above is the same as AuthName above  ("Realm" in apache-docs). 
+</p>
+<hr />
+<p>
+See also:  <a class="wiki" href="/trac/wiki/TracGuide">TracGuide</a>, <a class="wiki" href="/trac/wiki/TracInstall">TracInstall</a>, <a class="wiki" href="/trac/wiki/TracModWSGI">wiki:TracModWSGI</a>, <a class="wiki" href="/trac/wiki/TracFastCgi">TracFastCgi</a>, <a class="wiki" href="/trac/wiki/TracModPython">TracModPython</a>
+</p>
+
+        
+        
+      </div>
+    </div>
+    <div id="altlinks">
+      <h3>Download in other formats:</h3>
+      <ul>
+        <li class="last first">
+          <a rel="nofollow" href="/trac/wiki/TracCgi?format=txt">Plain Text</a>
+        </li>
+      </ul>
+    </div>
+    </div>
+    <div id="footer" lang="en" xml:lang="en"><hr />
+      <a id="tracpowered" href="http://trac.edgewall.org/"><img src="/trac/chrome/common/trac_logo_mini.png" height="30" width="107" alt="Trac Powered" /></a>
+      <p class="left">
+        Powered by <a href="/trac/about"><strong>Trac 0.11.4</strong></a><br />
+        By <a href="http://www.edgewall.org/">Edgewall Software</a>.
+      </p>
+      <p class="right">Visit the Trac open source project at<br /><a href="http://trac.edgewall.org/">http://trac.edgewall.org/</a></p>
+    </div>
+    <div id="footer">
+	<div id="copyright">Copyright © Garlik 2009</div>
+		<div id="garlik_logo">
+	<a href="http://www.garlik.com/" rel="external" title="Click here to visit the Garlik homepage"><img src="/images/garlik.gif" alt="powered by Garlik" /></a>
+	</div>
+	<div id="foot_nav">
+	<ul>
+			<li><a href="/about" title="About" id="about">About</a></li>
+			<li><a href="/faqs" title="FAQs" id="faqs">FAQs</a></li>
+			<li><a href="/support" title="Install" id="support">Support</a></li>
+			<li><a href="/developers" title="Developers" id="developers">Developers</a></li>
+			<li><a href="/projects" title="Projects" id="projetcs">Projects</a></li>
+	</ul>
+	</div>
+    </div>
+    </div>
+  </body>
+</html>

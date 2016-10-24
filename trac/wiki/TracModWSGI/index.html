@@ -1,0 +1,273 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  
+  
+
+  
+
+
+  <head>
+    <title>
+      TracModWSGI – 4store
+    </title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <!--[if IE]><script type="text/javascript">
+      if (/^#__msie303:/.test(window.location.hash))
+        window.location.replace(window.location.hash.replace(/^#__msie303:/, '#'));
+    </script><![endif]-->
+        <link rel="search" href="/trac/search" />
+        <link rel="help" href="/trac/wiki/TracGuide" />
+        <link rel="alternate" href="/trac/wiki/TracModWSGI?format=txt" type="text/x-trac-wiki" title="Plain Text" />
+        <link rel="start" href="/trac/wiki" />
+        <link rel="stylesheet" href="/trac/chrome/common/css/trac.css" type="text/css" /><link rel="stylesheet" href="/trac/chrome/common/css/wiki.css" type="text/css" />
+        <link rel="shortcut icon" href="/images/favico.png" type="image/png" />
+        <link rel="icon" href="/images/favico.png" type="image/png" />
+      <link type="application/opensearchdescription+xml" rel="search" href="/trac/search/opensearch" title="Search 4store" />
+    <script type="text/javascript" src="/trac/chrome/common/js/jquery.js"></script><script type="text/javascript" src="/trac/chrome/common/js/babel.js"></script><script type="text/javascript" src="/trac/chrome/common/js/messages/en_US.js"></script><script type="text/javascript" src="/trac/chrome/common/js/trac.js"></script><script type="text/javascript" src="/trac/chrome/common/js/search.js"></script><script type="text/javascript" src="/trac/chrome/common/js/folding.js"></script>
+    <!--[if lt IE 7]>
+    <script type="text/javascript" src="/trac/chrome/common/js/ie_pre7_hacks.js"></script>
+    <![endif]-->
+    <meta name="ROBOTS" content="NOINDEX, NOFOLLOW" />
+    <script type="text/javascript">
+      jQuery(document).ready(function($) {
+        $("#content").find("h1,h2,h3,h4,h5,h6").addAnchor(_("Link to this section"));
+        $("#content").find(".wikianchor").each(function() {
+          $(this).addAnchor(babel.format(_("Link to #%(id)s"), {id: $(this).attr('id')}));
+        });
+        $(".foldable").enableFolding(true, true);
+      });
+    </script>
+    <link rel="stylesheet" type="text/css" href="/style/main.css" />
+  </head>
+  <body>
+    <div id="container">
+    <div id="siteheader">
+    </div>
+    <div id="banner">
+      <div id="header">
+        <a id="logo" href="http://4store.org/"><img src="/images/4store.png" alt="4store" height="48" width="143" /></a>
+      </div>
+      <form id="search" action="/trac/search" method="get">
+        <div>
+          <label for="proj-search">Search:</label>
+          <input type="text" id="proj-search" name="q" size="18" value="" />
+          <input type="submit" value="Search" />
+        </div>
+      </form>
+      <div id="metanav" class="nav">
+    <ul>
+      <li class="first"><a href="/trac/login">Login</a></li><li><a href="/trac/prefs">Preferences</a></li><li><a href="/trac/wiki/TracGuide">Help/Guide</a></li><li class="last"><a href="/trac/about">About Trac</a></li>
+    </ul>
+  </div>
+    </div>
+    <div id="mainnav" class="nav">
+    <ul>
+      <li class="first active"><a href="/trac/wiki">Wiki</a></li><li><a href="/trac/timeline">Timeline</a></li><li><a href="/trac/roadmap">Roadmap</a></li><li><a href="/trac/report">View Tickets</a></li><li class="last"><a href="/trac/search">Search</a></li>
+    </ul>
+  </div>
+    <div id="main">
+      <div id="pagepath" class="noprint">
+  <a class="pathentry first" title="View WikiStart" href="/trac/wiki">wiki:</a><a class="pathentry" href="/trac/wiki/TracModWSGI" title="View TracModWSGI">TracModWSGI</a>
+</div>
+      <div id="ctxtnav" class="nav">
+        <h2>Context Navigation</h2>
+          <ul>
+              <li class="first"><a href="/trac/wiki/WikiStart">Start Page</a></li><li><a href="/trac/wiki/TitleIndex">Index</a></li><li class="last"><a href="/trac/wiki/TracModWSGI?action=history">History</a></li>
+          </ul>
+        <hr />
+      </div>
+    <div id="content" class="wiki">
+      <div class="wikipage searchable">
+        
+          
+          <div class="trac-modifiedby">
+            <span><a href="/trac/wiki/TracModWSGI?action=diff&amp;version=2" title="Version 2 by trac">Last modified</a> <a class="timeline" href="/trac/timeline?from=2011-12-01T17%3A47%3A14Z&amp;precision=second" title="2011-12-01T17:47:14Z in Timeline">4 years</a> ago</span>
+            <span class="trac-print">Last modified on 01/12/11 17:47:14</span>
+          </div>
+          <div id="wikipage"><h1 id="Tracandmod_wsgi">Trac and mod_wsgi</h1>
+<p>
+<strong>Important note:</strong> <em>Please use either version 1.6, 2.4 or later of <tt>mod_wsgi</tt>. Versions prior to 2.4 in the 2.X branch have problems with some Apache configurations that use WSGI file wrapper extension. This extension is used in Trac to serve up attachments and static media files such as style sheets. If you are affected by this problem attachments will appear to be empty and formatting of HTML pages will appear not to work due to style sheet files not loading properly. See mod_wsgi tickets <a class="ext-link" href="http://code.google.com/p/modwsgi/issues/detail?id=100"><span class="icon">​</span>#100</a> and <a class="ext-link" href="http://code.google.com/p/modwsgi/issues/detail?id=132"><span class="icon">​</span>#132</a>.</em>
+</p>
+<p>
+<a class="ext-link" href="http://code.google.com/p/modwsgi/"><span class="icon">​</span>mod_wsgi</a> is an Apache module for running WSGI-compatible Python applications directly on top of Apache. The mod_wsgi adapter is written completely in C and provides significantly better performance than using existing WSGI adapters for mod_python or CGI.
+</p>
+<p>
+Trac can be run on top of mod_wsgi with the help of the following application script, which is just a Python file, though usually saved with a .wsgi extension). This file can be created using <strong>trac-admin &lt;env&gt; deploy &lt;dir&gt;</strong> command which automatically substitutes required paths.
+</p>
+<div class="code"><pre>import os
+
+os.environ['TRAC_ENV'] = '/usr/local/trac/mysite'
+os.environ['PYTHON_EGG_CACHE'] = '/usr/local/trac/mysite/eggs'
+
+import trac.web.main
+application = trac.web.main.dispatch_request
+</pre></div><p>
+The <tt>TRAC_ENV</tt> variable should naturally be the directory for your Trac environment (if you have several Trac environments in a directory, you can also use <tt>TRAC_ENV_PARENT_DIR</tt> instead), while the <tt>PYTHON_EGG_CACHE</tt> should be a directory where Python can temporarily extract Python eggs.
+</p>
+<p>
+<strong>Important note:</strong> If you're using multiple <tt>.wsgi</tt> files (for example one per Trac environment) you must <em>not</em> use <tt>os.environ['TRAC_ENV']</tt> to set the path to the Trac environment. Using this method may lead to Trac delivering the content of another Trac environment. (The variable may be filled with the path of a previously viewed Trac environment.) To solve this problem, use the following <tt>.wsgi</tt> file instead:
+</p>
+<div class="code"><pre>import os
+
+os.environ['PYTHON_EGG_CACHE'] = '/usr/local/trac/mysite/eggs'
+
+import trac.web.main
+def application(environ, start_response):
+  environ['trac.env_path'] = '/usr/local/trac/mysite' 
+  return trac.web.main.dispatch_request(environ, start_response)
+</pre></div><p>
+For clarity, you should give this file a <tt>.wsgi</tt> extension. You should probably put the file in it's own directory, since you will open up its directory to Apache. You can create a .wsgi files which handles all this for you by running the <a class="wiki" href="/trac/wiki/TracAdmin">TracAdmin</a> command <tt>deploy</tt>.
+</p>
+<p>
+If you have installed trac and eggs in a path different from the standard one you should add that path by adding the following code on top of the wsgi script:
+</p>
+<div class="code"><pre>import site
+site.addsitedir('/usr/local/trac/lib/python2.4/site-packages')
+</pre></div><p>
+Change it according to the path you installed the trac libs at.
+</p>
+<p>
+After you've done preparing your wsgi-script, add the following to your httpd.conf.
+</p>
+<pre class="wiki">WSGIScriptAlias /trac /usr/local/trac/mysite/apache/mysite.wsgi
+
+&lt;Directory /usr/local/trac/mysite/apache&gt;
+    WSGIApplicationGroup %{GLOBAL}
+    Order deny,allow
+    Allow from all
+&lt;/Directory&gt;
+</pre><p>
+Here, the script is in a subdirectory of the Trac environment. In order to let Apache run the script, access to the directory in which the script resides is opened up to all of Apache. Additionally, the <tt>WSGIApplicationGroup</tt> directive ensures that Trac is always run in the first Python interpreter created by mod_wsgi; this is necessary because the Subversion Python bindings, which are used by Trac, don't always work in other subinterpreters and may cause requests to hang or cause Apache to crash as a result. After adding this configuration, restart Apache, and then it should work.
+</p>
+<p>
+To test the setup of Apache, mod_wsgi and Python itself (ie. without involving Trac and dependencies), this simple wsgi application can be used to make sure that requests gets served (use as only content in your .wsgi script):
+</p>
+<pre class="wiki">def application(environ, start_response):
+        start_response('200 OK',[('Content-type','text/html')])
+        return ['&lt;html&gt;&lt;body&gt;Hello World!&lt;/body&gt;&lt;/html&gt;']
+</pre><p>
+See also the mod_wsgi <a class="ext-link" href="http://code.google.com/p/modwsgi/wiki/IntegrationWithTrac"><span class="icon">​</span>installation instructions</a> for Trac.
+</p>
+<p>
+For troubleshooting tips, see the <a class="wiki" href="/trac/wiki/TracModPython#Troubleshooting">mod_python troubleshooting</a> section, as most Apache-related issues are quite similar, plus discussion of potential <a class="ext-link" href="http://code.google.com/p/modwsgi/wiki/ApplicationIssues"><span class="icon">​</span>application issues</a> when using mod_wsgi.
+</p>
+<p>
+<em>Note: using mod_wsgi 2.5 and Python 2.6.1 gave an Internal Server Error on my system (Apache 2.2.11 and Trac 0.11.2.1). Upgrading to Python 2.6.2 (as suggested <a class="ext-link" href="http://www.mail-archive.com/modwsgi@googlegroups.com/msg01917.html"><span class="icon">​</span>here</a>) solved this for me<br />-- Graham Shanks</em>
+</p>
+<h2 id="ApacheBasicAuthenticationforTracthrumod_wsgi">Apache Basic Authentication for Trac thru mod_wsgi</h2>
+<p>
+Per the mod_wsgi documentation linked to above, here is an example Apache configuration that a) serves the trac from a virtualhost subdomain and b) uses Apache basic authentication for Trac authentication.
+</p>
+<p>
+If you want your trac to be served from e.g. http://trac.my-proj.my-site.org, then from the folder e.g. <tt>/home/trac-for-my-proj</tt>, if you used the command <tt>trac-admin the-env initenv</tt> to create a folder <tt>the-env</tt>, and you used <tt>trac-admin the-env deploy the-deploy</tt> to create a folder <tt>the-deploy</tt>, then:
+</p>
+<p>
+create the htpasswd file:
+</p>
+<pre class="wiki">cd /home/trac-for-my-proj/the-env
+htpasswd -c htpasswd firstuser
+### and add more users to it as needed:
+htpasswd htpasswd seconduser
+</pre><p>
+(for security keep the file above your document root)
+</p>
+<p>
+create this file e.g. (ubuntu) <tt>/etc/apache2/sites-enabled/trac.my-proj.my-site.org.conf</tt> with these contents:
+</p>
+<pre class="wiki">&lt;Directory /home/trac-for-my-proj/the-deploy/cgi-bin/trac.wsgi&gt;
+  WSGIApplicationGroup %{GLOBAL}
+  Order deny,allow
+  Allow from all
+&lt;/Directory&gt;
+
+&lt;VirtualHost *:80&gt;
+  ServerName trac.my-proj.my-site.org
+  DocumentRoot /home/trac-for-my-proj/the-env/htdocs/
+  WSGIScriptAlias / /home/trac-for-my-proj/the-deploy/cgi-bin/trac.wsgi
+  &lt;Location '/'&gt;
+    AuthType Basic
+    AuthName "Trac"
+    AuthUserFile /home/trac-for-my-proj/the-env/htpasswd
+    Require valid-user
+  &lt;/Location&gt;
+&lt;/VirtualHost&gt;
+
+</pre><p>
+(for subdomains to work you would probably also need to alter /etc/hosts and add A-Records to your host's DNS.)
+</p>
+<h2 id="TracwithPostgreSQL">Trac with PostgreSQL</h2>
+<p>
+When using the mod_wsgi adapter with multiple Trac instances and PostgreSQL (or MySQL?) as a database back-end the server can get a lot of open database connections. (and thus PostgreSQL processes)
+</p>
+<p>
+A workable solution is to disabled connection pooling in Trac. This is done by setting poolable = False in trac.db.postgres_backend on the PostgreSQLConnection class.
+</p>
+<p>
+But it's not necessary to edit the source of trac, the following lines in trac.wsgi will also work:
+</p>
+<pre class="wiki">import trac.db.postgres_backend
+trac.db.postgres_backend.PostgreSQLConnection.poolable = False
+</pre><p>
+Now Trac drops the connection after serving a page and the connection count on the database will be kept minimal.
+</p>
+<h2 id="GettingTractoworknicelywithSSPIandRequireGroup">Getting Trac to work nicely with SSPI and 'Require Group'</h2>
+<p>
+If like me you've set Trac up on Apache, Win32 and configured SSPI, but added a 'Require group' option to your apache configuration, then the SSPIOmitDomain option is probably not working.  If its not working your usernames in trac are probably looking like 'DOMAIN\user' rather than 'user'.
+</p>
+<p>
+This WSGI script 'fixes' things, hope it helps:
+</p>
+<pre class="wiki">import os
+import trac.web.main
+
+os.environ['TRAC_ENV'] = '/usr/local/trac/mysite'
+os.environ['PYTHON_EGG_CACHE'] = '/usr/local/trac/mysite/eggs'
+
+def application(environ, start_response):
+    if "\\" in environ['REMOTE_USER']:
+        environ['REMOTE_USER'] = environ['REMOTE_USER'].split("\\", 1)[1]
+    return trac.web.main.dispatch_request(environ, start_response)
+</pre><hr />
+<p>
+See also:  <a class="wiki" href="/trac/wiki/TracGuide">TracGuide</a>, <a class="wiki" href="/trac/wiki/TracInstall">TracInstall</a>, <a class="wiki" href="/trac/wiki/TracFastCgi">FastCGI</a>, <a class="wiki" href="/trac/wiki/TracModPython">ModPython</a>, <a class="ext-link" href="http://trac.edgewall.org/intertrac/TracNginxRecipe" title="TracNginxRecipe in Trac project trac"><span class="icon">​</span>TracNginxRecipe</a>
+</p>
+</div>
+        
+        
+      </div>
+      
+
+    </div>
+    <div id="altlinks">
+      <h3>Download in other formats:</h3>
+      <ul>
+        <li class="last first">
+          <a rel="nofollow" href="/trac/wiki/TracModWSGI?format=txt">Plain Text</a>
+        </li>
+      </ul>
+    </div>
+    </div>
+    <div id="footer" lang="en" xml:lang="en"><hr />
+      <a id="tracpowered" href="http://trac.edgewall.org/"><img src="/trac/chrome/common/trac_logo_mini.png" height="30" width="107" alt="Trac Powered" /></a>
+      <p class="left">Powered by <a href="/trac/about"><strong>Trac 0.12.4</strong></a><br />
+        By <a href="http://www.edgewall.org/">Edgewall Software</a>.</p>
+      <p class="right">Visit the Trac open source project at<br /><a href="http://trac.edgewall.org/">http://trac.edgewall.org/</a></p>
+    </div>
+    <div id="footer">
+	<div id="copyright">Copyright © Garlik 2009</div>
+		<div id="garlik_logo">
+	<a href="http://www.garlik.com/" rel="external" title="Click here to visit the Garlik homepage"><img src="/images/garlik.gif" alt="powered by Garlik" /></a>
+	</div>
+	<div id="foot_nav">
+	<ul>
+			<li><a href="/about" title="About" id="about">About</a></li>
+			<li><a href="/faqs" title="FAQs" id="faqs">FAQs</a></li>
+			<li><a href="/support" title="Install" id="support">Support</a></li>
+			<li><a href="/developers" title="Developers" id="developers">Developers</a></li>
+			<li><a href="/projects" title="Projects" id="projetcs">Projects</a></li>
+	</ul>
+	</div>
+    </div>
+    </div>
+  </body>
+</html>

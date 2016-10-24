@@ -1,0 +1,268 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  
+  
+
+  
+
+
+  <head>
+    <title>
+      SparqlServer – 4store
+    </title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <!--[if IE]><script type="text/javascript">
+      if (/^#__msie303:/.test(window.location.hash))
+        window.location.replace(window.location.hash.replace(/^#__msie303:/, '#'));
+    </script><![endif]-->
+        <link rel="search" href="/trac/search" />
+        <link rel="help" href="/trac/wiki/TracGuide" />
+        <link rel="alternate" href="/trac/wiki/SparqlServer?format=txt" type="text/x-trac-wiki" title="Plain Text" />
+        <link rel="start" href="/trac/wiki" />
+        <link rel="stylesheet" href="/trac/chrome/common/css/trac.css" type="text/css" /><link rel="stylesheet" href="/trac/chrome/common/css/wiki.css" type="text/css" />
+        <link rel="shortcut icon" href="/images/favico.png" type="image/png" />
+        <link rel="icon" href="/images/favico.png" type="image/png" />
+      <link type="application/opensearchdescription+xml" rel="search" href="/trac/search/opensearch" title="Search 4store" />
+    <script type="text/javascript" src="/trac/chrome/common/js/jquery.js"></script><script type="text/javascript" src="/trac/chrome/common/js/babel.js"></script><script type="text/javascript" src="/trac/chrome/common/js/messages/en_US.js"></script><script type="text/javascript" src="/trac/chrome/common/js/trac.js"></script><script type="text/javascript" src="/trac/chrome/common/js/search.js"></script><script type="text/javascript" src="/trac/chrome/common/js/folding.js"></script>
+    <!--[if lt IE 7]>
+    <script type="text/javascript" src="/trac/chrome/common/js/ie_pre7_hacks.js"></script>
+    <![endif]-->
+    <script type="text/javascript">
+      jQuery(document).ready(function($) {
+        $("#content").find("h1,h2,h3,h4,h5,h6").addAnchor(_("Link to this section"));
+        $("#content").find(".wikianchor").each(function() {
+          $(this).addAnchor(babel.format(_("Link to #%(id)s"), {id: $(this).attr('id')}));
+        });
+        $(".foldable").enableFolding(true, true);
+      });
+    </script>
+    <link rel="stylesheet" type="text/css" href="/style/main.css" />
+  </head>
+  <body>
+    <div id="container">
+    <div id="siteheader">
+    </div>
+    <div id="banner">
+      <div id="header">
+        <a id="logo" href="http://4store.org/"><img src="/images/4store.png" alt="4store" height="48" width="143" /></a>
+      </div>
+      <form id="search" action="/trac/search" method="get">
+        <div>
+          <label for="proj-search">Search:</label>
+          <input type="text" id="proj-search" name="q" size="18" value="" />
+          <input type="submit" value="Search" />
+        </div>
+      </form>
+      <div id="metanav" class="nav">
+    <ul>
+      <li class="first"><a href="/trac/login">Login</a></li><li><a href="/trac/prefs">Preferences</a></li><li><a href="/trac/wiki/TracGuide">Help/Guide</a></li><li class="last"><a href="/trac/about">About Trac</a></li>
+    </ul>
+  </div>
+    </div>
+    <div id="mainnav" class="nav">
+    <ul>
+      <li class="first active"><a href="/trac/wiki">Wiki</a></li><li><a href="/trac/timeline">Timeline</a></li><li><a href="/trac/roadmap">Roadmap</a></li><li><a href="/trac/report">View Tickets</a></li><li class="last"><a href="/trac/search">Search</a></li>
+    </ul>
+  </div>
+    <div id="main">
+      <div id="pagepath" class="noprint">
+  <a class="pathentry first" title="View WikiStart" href="/trac/wiki">wiki:</a><a class="pathentry" href="/trac/wiki/SparqlServer" title="View SparqlServer">SparqlServer</a>
+</div>
+      <div id="ctxtnav" class="nav">
+        <h2>Context Navigation</h2>
+          <ul>
+              <li class="first"><a href="/trac/wiki/WikiStart">Start Page</a></li><li><a href="/trac/wiki/TitleIndex">Index</a></li><li class="last"><a href="/trac/wiki/SparqlServer?action=history">History</a></li>
+          </ul>
+        <hr />
+      </div>
+    <div id="content" class="wiki">
+      <div class="wikipage searchable">
+        
+          
+          <div class="trac-modifiedby">
+            <span><a href="/trac/wiki/SparqlServer?action=diff&amp;version=29" title="Version 29 by ms8">Last modified</a> <a class="timeline" href="/trac/timeline?from=2012-07-09T23%3A33%3A32%2B01%3A00&amp;precision=second" title="2012-07-09T23:33:32+01:00 in Timeline">4 years</a> ago</span>
+            <span class="trac-print">Last modified on 09/07/12 23:33:32</span>
+          </div>
+          <div id="wikipage"><h2 id="HTTPserver">HTTP server</h2>
+<p>
+4store includes a SPARQL HTTP protocol server, which can answer SPARQL queries using the standard SPARQL HTTP query protocol among other features.
+</p>
+<h2 id="Running">Running</h2>
+<pre class="wiki">4s-httpd -p 8000 demo
+</pre><p>
+This starts a server on TCP port 8000 which answers queries for the 4store KB named demo. If you have several 4store KBs they will need to run on separate ports.
+</p>
+<p>
+<em>N.B.</em> When you run a 4s-httpd and connect it to a 4store backend you will no longer be able to use the 4s- command line tools. You can however use <a class="ext-link" href="http://github.com/tialaramex/sparql-query/"><span class="icon">​</span>sparql-query</a> (or any other SPARQL client) to issue queries, and curl to add/remove graphs (see below).
+</p>
+<h2 id="Querying">Querying</h2>
+<p>
+Once the above example server is running you can see an overview page from a web browser at
+</p>
+<pre class="wiki">http://localhost:8000/status/
+</pre><p>
+and the SPARQL endpoint is at
+</p>
+<pre class="wiki">http://localhost:8000/sparql/
+</pre><p>
+With an HTML interface at
+</p>
+<pre class="wiki">http://localhost:8000/test/
+</pre><p>
+You can use <a class="ext-link" href="http://github.com/tialaramex/sparql-query"><span class="icon">​</span>sparql-query</a> to query the SPARQL server on the command line.
+</p>
+<h3 id="SoftLimits">Soft Limits</h3>
+<p>
+By default 4store gives a soft limit of about 1000, this prevents the query engine from doing too much work on any one query. You can change this value using a CGI argument <tt>soft-limit</tt>, setting it to -1 will disable the soft limit altogether.
+</p>
+<h2 id="Updates">Updates</h2>
+<p>
+You can send SPARQL Update 1.1 requests to <tt>http://localhost:8000/update/</tt> or the appropriate URL for your settings.
+</p>
+<p>
+Updates must be send as POST reuqests, to the /update/ endpoint, and the request is sent with the update= CGI parameter, e.g.
+</p>
+<pre class="wiki">curl -i -d 'update=INSERT+DATA+{+GRAPH+&lt;http://example.com/G&gt;+{+&lt;http://example.com/s&gt;+&lt;http://example.com/p&gt;+"o"+}+}' http://localhost:8000/update/
+</pre><p>
+Which will send the SPARQL Update request
+</p>
+<pre class="wiki">INSERT DATA { GRAPH &lt;http://example.com/G&gt; { &lt;http://example.com/s&gt; &lt;http://example.com/p&gt; "o" } }
+</pre><h2 id="AddingandRemovingData">Adding and Removing Data</h2>
+<p>
+You can add and remove RDF graphs using a RESTful interface. The RESTful update endpoint is on <tt>/data/</tt>, so by default the URI is <tt>http://localhost:8000/data/</tt>.
+</p>
+<h3 id="RemovingdatawithDELETE">Removing data with DELETE</h3>
+<p>
+You can delete graphs using the DELETE HTTP verb. eg.
+</p>
+<pre class="wiki">curl -X DELETE 'http://localhost:8000/data/http://example.com/data'
+</pre><p>
+or the SPARQL 1.1 standard syntax (available in more recent versions of 4store), which is:
+</p>
+<pre class="wiki">curl -X DELETE 'http://localhost:8000/data/?graph=http%3A%2F%2Fexample.com%2Fdata'
+</pre><h3 id="ReplacedatawithPUT">Replace data with PUT</h3>
+<p>
+Data can be replaced using the <tt>PUT</tt> verb. If you want the model URI (SPARQL graph) to be a sub-URI of the SPARQL endpoint then it's easy:
+</p>
+<pre class="wiki">curl -T file.rdf 'http://localhost:8000/data/file.rdf'
+</pre><p>
+will use PUT to write/replace the graph <a class="ext-link" href="http://localhost:8000/data/file.rdf"><span class="icon">​</span>http://localhost:8000/data/file.rdf</a> in the store.
+</p>
+<p>
+If you want to write to an arbitrary graph URI then you can concatenate the SPARQL endpoint URI and the graph URI, eg. if you want to write to <a class="ext-link" href="http://example.com/data"><span class="icon">​</span>http://example.com/data</a> you can use:
+</p>
+<pre class="wiki">curl -T file.rdf 'http://localhost:8000/data/http://example.com/data'
+</pre><p>
+The server will attempt to guess the content type of the data PUT, but you can specify a MIME type directly with the Content-Type header, eg:
+</p>
+<pre class="wiki">curl -T file.rdf -H 'Content-Type: application/x-turtle' 'http://localhost:8000/data/data.rdf'
+</pre><p>
+If using an HTTP library directly then you can just connect to localhost:8000 and PUT to the end URI directly, eg:
+</p>
+<pre class="wiki">PUT http://example.com/data HTTP/1.0
+...
+</pre><p>
+the above feature is just for compatibility with clients with limited expressivity.
+</p>
+<h3 id="AppenddatawithPOST">Append data with POST</h3>
+<p>
+If you wish to add data to a graph then you can use the POST verb. POST requests must be sent to the <tt>/data/</tt> endpoint to distinguish them from SPARQL/Query requests. 
+</p>
+<p>
+The POST arguments used are <tt>graph</tt>, <tt>data</tt>, and <tt>mime-type</tt>.
+</p>
+<p>
+<tt>graph</tt> contains the graph URI to append data to, <tt>data</tt> contains the RDF syntax bytes, and <tt>mime-type</tt> the MIME type of the POSTed data.
+</p>
+<pre class="wiki">curl -d 'data=%3Chttp%3A%2F%2Fexample.com%2Fperson%2F1234%23person%3E+%3Chttp%3A%2F%2Fxmlns.com%2Ffoaf%2F0.1%2Fname%3E+%22John+Doe%22+.&amp;graph=http%3A%2F%2Fexample.com%2Fgraph3&amp;mime-type=application/x-turtle' http://localhost:8888/data/
+</pre><p>
+Which posts the following turtle :
+</p>
+<pre class="wiki">&lt;http://example.com/person/1234#person&gt; &lt;http://xmlns.com/foaf/0.1/name&gt; "John Doe" .
+</pre><p>
+To the following model : 
+</p>
+<pre class="wiki">http://example.com/graph3
+</pre><p>
+With the following mime-type : 
+</p>
+<pre class="wiki">application/x-turtle
+</pre><p>
+To POST the contents of a file to a given graph URI could can use the following incantation of curl :
+</p>
+<pre class="wiki">curl --data-urlencode data@foo.ttl -d 'graph=http%3A%2F%2Fexample.com%2Fgraph3' -d 'mime-type=application/x-turtle' http://localhost:8888/data/
+</pre><p>
+Where the notation '--data-urlencode data@…' means url-encode the contents of the file 'foo.ttl' and add it to the POST variable 'data'.
+</p>
+<p>
+Note that, the values POSTed need to be URI encoded.
+</p>
+<h2 id="ShuttingDown">Shutting Down</h2>
+<p>
+If you want to stop the <tt>4s-httpd</tt> you have to kill it, there will typically be two processes per KB running, so if there's only one KB running you can do <tt>killall 4s-httpd</tt> to shut it down.
+</p>
+<p>
+It is safe to kill <tt>4s-httpd</tt> as long as you don't use -9.
+</p>
+<h2 id="ConfigFile">Config File</h2>
+<p>
+From version 1.1.2 4s-httpd supports a config file in <tt>/etc/4store.conf</tt>, there's an example below:
+</p>
+<pre class="wiki">[default]
+        unsafe = true           # enable LOAD etc. (default is disabled)
+        cors = true             # enable CORS (default is disabled)
+
+[test]
+        port = 8888             # HTTP port number (default is 8080)
+        default-graph = false   # default graph = union of named graphs (default)
+        soft-limit = 0          # disable soft limit
+        opt-level = 3           # enable all optimisations (default)
+</pre><p>
+This means that all HTTP servers will allow unsafe operations, and enable CORS, and the "test" KB will start on port 8888, have a default query graph, and have the "soft limiting" disabled. Note that if you have a KB called "default" then you can't override settings for it.
+</p>
+<h2 id="SeeAlso">See Also</h2>
+<blockquote>
+<p>
+<a class="wiki" href="/trac/wiki/GraphAccessControl">GraphAccessControl</a>
+</p>
+</blockquote>
+</div>
+        
+        
+      </div>
+      
+
+    </div>
+    <div id="altlinks">
+      <h3>Download in other formats:</h3>
+      <ul>
+        <li class="last first">
+          <a rel="nofollow" href="/trac/wiki/SparqlServer?format=txt">Plain Text</a>
+        </li>
+      </ul>
+    </div>
+    </div>
+    <div id="footer" lang="en" xml:lang="en"><hr />
+      <a id="tracpowered" href="http://trac.edgewall.org/"><img src="/trac/chrome/common/trac_logo_mini.png" height="30" width="107" alt="Trac Powered" /></a>
+      <p class="left">Powered by <a href="/trac/about"><strong>Trac 0.12.4</strong></a><br />
+        By <a href="http://www.edgewall.org/">Edgewall Software</a>.</p>
+      <p class="right">Visit the Trac open source project at<br /><a href="http://trac.edgewall.org/">http://trac.edgewall.org/</a></p>
+    </div>
+    <div id="footer">
+	<div id="copyright">Copyright © Garlik 2009</div>
+		<div id="garlik_logo">
+	<a href="http://www.garlik.com/" rel="external" title="Click here to visit the Garlik homepage"><img src="/images/garlik.gif" alt="powered by Garlik" /></a>
+	</div>
+	<div id="foot_nav">
+	<ul>
+			<li><a href="/about" title="About" id="about">About</a></li>
+			<li><a href="/faqs" title="FAQs" id="faqs">FAQs</a></li>
+			<li><a href="/support" title="Install" id="support">Support</a></li>
+			<li><a href="/developers" title="Developers" id="developers">Developers</a></li>
+			<li><a href="/projects" title="Projects" id="projetcs">Projects</a></li>
+	</ul>
+	</div>
+    </div>
+    </div>
+  </body>
+</html>

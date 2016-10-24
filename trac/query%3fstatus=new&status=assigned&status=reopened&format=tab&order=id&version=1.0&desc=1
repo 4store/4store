@@ -1,0 +1,5 @@
+id	summary	status	owner	type	priority	milestone
+134	HTTP server returns 200 even when there's an error	new	njl	defect	major	
+102	Optimisation for freetext search using regexs	new	--	enhancement	major	
+77	Bind cache/ASK bug	new	swh	defect	major	
+4	4store.org doesn't explain how to shut down http/sparql server	new	--	task	major	

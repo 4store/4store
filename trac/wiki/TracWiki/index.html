@@ -1,0 +1,170 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  
+  
+
+  
+
+
+  <head>
+    <title>
+      TracWiki – 4store
+    </title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <!--[if IE]><script type="text/javascript">
+      if (/^#__msie303:/.test(window.location.hash))
+        window.location.replace(window.location.hash.replace(/^#__msie303:/, '#'));
+    </script><![endif]-->
+        <link rel="search" href="/trac/search" />
+        <link rel="help" href="/trac/wiki/TracGuide" />
+        <link rel="alternate" href="/trac/wiki/TracWiki?format=txt" type="text/x-trac-wiki" title="Plain Text" />
+        <link rel="start" href="/trac/wiki" />
+        <link rel="stylesheet" href="/trac/chrome/common/css/trac.css" type="text/css" /><link rel="stylesheet" href="/trac/chrome/common/css/wiki.css" type="text/css" />
+        <link rel="shortcut icon" href="/images/favico.png" type="image/png" />
+        <link rel="icon" href="/images/favico.png" type="image/png" />
+      <link type="application/opensearchdescription+xml" rel="search" href="/trac/search/opensearch" title="Search 4store" />
+    <script type="text/javascript" src="/trac/chrome/common/js/jquery.js"></script><script type="text/javascript" src="/trac/chrome/common/js/babel.js"></script><script type="text/javascript" src="/trac/chrome/common/js/messages/en_US.js"></script><script type="text/javascript" src="/trac/chrome/common/js/trac.js"></script><script type="text/javascript" src="/trac/chrome/common/js/search.js"></script><script type="text/javascript" src="/trac/chrome/common/js/folding.js"></script>
+    <!--[if lt IE 7]>
+    <script type="text/javascript" src="/trac/chrome/common/js/ie_pre7_hacks.js"></script>
+    <![endif]-->
+    <meta name="ROBOTS" content="NOINDEX, NOFOLLOW" />
+    <script type="text/javascript">
+      jQuery(document).ready(function($) {
+        $("#content").find("h1,h2,h3,h4,h5,h6").addAnchor(_("Link to this section"));
+        $("#content").find(".wikianchor").each(function() {
+          $(this).addAnchor(babel.format(_("Link to #%(id)s"), {id: $(this).attr('id')}));
+        });
+        $(".foldable").enableFolding(true, true);
+      });
+    </script>
+    <link rel="stylesheet" type="text/css" href="/style/main.css" />
+  </head>
+  <body>
+    <div id="container">
+    <div id="siteheader">
+    </div>
+    <div id="banner">
+      <div id="header">
+        <a id="logo" href="http://4store.org/"><img src="/images/4store.png" alt="4store" height="48" width="143" /></a>
+      </div>
+      <form id="search" action="/trac/search" method="get">
+        <div>
+          <label for="proj-search">Search:</label>
+          <input type="text" id="proj-search" name="q" size="18" value="" />
+          <input type="submit" value="Search" />
+        </div>
+      </form>
+      <div id="metanav" class="nav">
+    <ul>
+      <li class="first"><a href="/trac/login">Login</a></li><li><a href="/trac/prefs">Preferences</a></li><li><a href="/trac/wiki/TracGuide">Help/Guide</a></li><li class="last"><a href="/trac/about">About Trac</a></li>
+    </ul>
+  </div>
+    </div>
+    <div id="mainnav" class="nav">
+    <ul>
+      <li class="first active"><a href="/trac/wiki">Wiki</a></li><li><a href="/trac/timeline">Timeline</a></li><li><a href="/trac/roadmap">Roadmap</a></li><li><a href="/trac/report">View Tickets</a></li><li class="last"><a href="/trac/search">Search</a></li>
+    </ul>
+  </div>
+    <div id="main">
+      <div id="pagepath" class="noprint">
+  <a class="pathentry first" title="View WikiStart" href="/trac/wiki">wiki:</a><a class="pathentry" href="/trac/wiki/TracWiki" title="View TracWiki">TracWiki</a>
+</div>
+      <div id="ctxtnav" class="nav">
+        <h2>Context Navigation</h2>
+          <ul>
+              <li class="first"><a href="/trac/wiki/WikiStart">Start Page</a></li><li><a href="/trac/wiki/TitleIndex">Index</a></li><li class="last"><a href="/trac/wiki/TracWiki?action=history">History</a></li>
+          </ul>
+        <hr />
+      </div>
+    <div id="content" class="wiki">
+      <div class="wikipage searchable">
+        
+          
+          <div class="trac-modifiedby">
+            <span><a href="/trac/wiki/TracWiki?action=diff&amp;version=2" title="Version 2 by trac">Last modified</a> <a class="timeline" href="/trac/timeline?from=2011-12-01T17%3A47%3A14Z&amp;precision=second" title="2011-12-01T17:47:14Z in Timeline">4 years</a> ago</span>
+            <span class="trac-print">Last modified on 01/12/11 17:47:14</span>
+          </div>
+          <div id="wikipage"><h1 id="TheTracWikiEngine">The Trac Wiki Engine</h1>
+<p>
+</p><div class="wiki-toc"><h4>Table of Contents</h4><ul><li class="False"><a class="False" href="/trac/wiki/TracGuide">Index</a></li><li class="False"><a class="False" href="/trac/wiki/TracInstall">Installation</a></li><li class="False"><a class="False" href="/trac/wiki/TracInterfaceCustomization">Customization</a></li><li class="False"><a class="False" href="/trac/wiki/TracPlugins">Plugins</a></li><li class="False"><a class="False" href="/trac/wiki/TracUpgrade">Upgrading</a></li><li class="False"><a class="False" href="/trac/wiki/TracIni">Configuration</a></li><li class="False"><a class="False" href="/trac/wiki/TracAdmin">Administration</a></li><li class="False"><a class="False" href="/trac/wiki/TracBackup">Backup</a></li><li class="False"><a class="False" href="/trac/wiki/TracLogging">Logging</a></li><li class="False"><a class="False" href="/trac/wiki/TracPermissions">Permissions</a></li><li class="active"><a class="False" href="/trac/wiki/TracWiki">The Wiki</a></li><li class="False"><a class="False" href="/trac/wiki/WikiFormatting">Wiki Formatting</a></li><li class="False"><a class="False" href="/trac/wiki/TracTimeline">Timeline</a></li><li class="False"><a class="False" href="/trac/wiki/TracBrowser">Repository Browser</a></li><li class="False"><a class="False" href="/trac/wiki/TracRevisionLog">Revision Log</a></li><li class="False"><a class="False" href="/trac/wiki/TracChangeset">Changesets</a></li><li class="False"><a class="False" href="/trac/wiki/TracTickets">Tickets</a></li><li class="False"><a class="False" href="/trac/wiki/TracWorkflow">Workflow</a></li><li class="False"><a class="False" href="/trac/wiki/TracRoadmap">Roadmap</a></li><li class="False"><a class="False" href="/trac/wiki/TracQuery">Ticket Queries</a></li><li class="False"><a class="False" href="/trac/wiki/TracReports">Reports</a></li><li class="False"><a class="False" href="/trac/wiki/TracRss">RSS Support</a></li><li class="False"><a class="False" href="/trac/wiki/TracNotification">Notification</a></li></ul></div><p>
+</p>
+<p>
+Trac has a built-in wiki engine, used for text and documentation throughout the system. <a class="wiki" href="/trac/wiki/WikiFormatting">WikiFormatting</a> is used in <a class="wiki" href="/trac/wiki/TitleIndex">wiki pages</a>, <a class="wiki" href="/trac/wiki/TracTickets">tickets</a>, <a class="wiki" href="/trac/wiki/TracChangeset">check-in log messages</a>, <a class="wiki" href="/trac/wiki/TracRoadmap">milestone</a> and <a class="wiki" href="/trac/wiki/TracReports">report</a> descriptions.  It allows for formatted text and hyperlinks in and between all Trac modules.
+</p>
+<p>
+Editing wiki text is easy, using any web browser and a simple <a class="wiki" href="/trac/wiki/WikiFormatting">formatting system</a>, rather than more complex markup languages like HTML.  The reasoning behind its design is that HTML, with its large collection of nestable tags, is too complicated to allow fast-paced editing, and distracts from the actual content of the pages. Note though that Trac also supports <a class="wiki" href="/trac/wiki/WikiHtml">HTML</a>, <a class="wiki" href="/trac/wiki/WikiRestructuredText">reStructuredText</a> and <a class="ext-link" href="http://www.textism.com/tools/textile/"><span class="icon">​</span>Textile</a> as alternative markup formats.
+</p>
+<p>
+The main goal of the wiki is to make editing text easier and <em>encourage</em> people to contribute and annotate text content for a project. Trac also provides a simple toolbar to make formatting text even easier, and supports the <a class="ext-link" href="http://universaleditbutton.org/Universal_Edit_Button"><span class="icon">​</span>universal edit button</a> of your browser.
+</p>
+<p>
+The wiki itself does not enforce any structure, but rather resembles a stack of empty sheets of paper, where you can organize information and documentation as you see fit, and later reorganize if necessary. 
+As contributing to a wiki is essentially building an hypertext, 
+general advice regarding HTML authoring apply here as well.
+For example, the <em><a class="ext-link" href="http://www.w3.org/Provider/Style"><span class="icon">​</span>Style Guide for online hypertext</a></em> explains how to think about the
+<a class="ext-link" href="http://www.w3.org/Provider/Style/Structure.html"><span class="icon">​</span>overall structure of a work</a> 
+and how to organize information <a class="ext-link" href="http://www.w3.org/Provider/Style/WithinDocument.html"><span class="icon">​</span>within each document</a>. One of the most important tip is “make your HTML page such that you can read it even if you don't follow any links.”
+</p>
+<p>
+Learn more about:
+</p>
+<ul><li><a class="wiki" href="/trac/wiki/WikiNewPage">WikiNewPage</a> creation, which can be configured to start from a <a class="wiki" href="/trac/wiki/PageTemplates">page template</a>
+</li><li><a class="wiki" href="/trac/wiki/WikiFormatting">WikiFormatting</a> rules, including advanced topics like <a class="wiki" href="/trac/wiki/WikiMacros">WikiMacros</a> and <a class="wiki" href="/trac/wiki/WikiProcessors">WikiProcessors</a>
+</li><li>How to use <a class="wiki" href="/trac/wiki/WikiPageNames">WikiPageNames</a> and other forms of <a class="wiki" href="/trac/wiki/TracLinks">TracLinks</a> which are used to refer in a precise way to any resource within Trac
+</li></ul><p>
+If you want to practice editing, please use the <a class="wiki" href="/trac/wiki/SandBox">SandBox</a>.
+</p>
+<p>
+Before saving your changes, you can <em>Preview</em> the page or <em>Review the Changes</em> you've made.
+You can get an automatic preview of the formatting as you type when you activate the <em>Edit Side-by-side</em> mode. <em> There is a <a class="wiki" href="/trac/wiki/TracIni#trac-section">configurable delay</a> between when you make your edit and when the automatic preview will update.</em>
+</p>
+<p>
+Some more information about wikis on the web:
+</p>
+<ul><li>A definition of <a class="ext-link" href="http://wikipedia.org/wiki/Wiki"><span class="icon">​</span>Wiki</a>, in a famous  wiki encyclopedia
+</li><li>The <a class="ext-link" href="http://c2.com/cgi/wiki?WikiHistory"><span class="icon">​</span>History</a> of the original wiki
+</li><li>A wiki page explaining <a class="ext-link" href="http://www.usemod.com/cgi-bin/mb.pl?WhyWikiWorks"><span class="icon">​</span>why wiki works</a>
+</li></ul><hr />
+<p>
+See also: <a class="wiki" href="/trac/wiki/TracGuide">TracGuide</a>
+</p>
+</div>
+        
+        
+      </div>
+      
+
+    </div>
+    <div id="altlinks">
+      <h3>Download in other formats:</h3>
+      <ul>
+        <li class="last first">
+          <a rel="nofollow" href="/trac/wiki/TracWiki?format=txt">Plain Text</a>
+        </li>
+      </ul>
+    </div>
+    </div>
+    <div id="footer" lang="en" xml:lang="en"><hr />
+      <a id="tracpowered" href="http://trac.edgewall.org/"><img src="/trac/chrome/common/trac_logo_mini.png" height="30" width="107" alt="Trac Powered" /></a>
+      <p class="left">Powered by <a href="/trac/about"><strong>Trac 0.12.4</strong></a><br />
+        By <a href="http://www.edgewall.org/">Edgewall Software</a>.</p>
+      <p class="right">Visit the Trac open source project at<br /><a href="http://trac.edgewall.org/">http://trac.edgewall.org/</a></p>
+    </div>
+    <div id="footer">
+	<div id="copyright">Copyright © Garlik 2009</div>
+		<div id="garlik_logo">
+	<a href="http://www.garlik.com/" rel="external" title="Click here to visit the Garlik homepage"><img src="/images/garlik.gif" alt="powered by Garlik" /></a>
+	</div>
+	<div id="foot_nav">
+	<ul>
+			<li><a href="/about" title="About" id="about">About</a></li>
+			<li><a href="/faqs" title="FAQs" id="faqs">FAQs</a></li>
+			<li><a href="/support" title="Install" id="support">Support</a></li>
+			<li><a href="/developers" title="Developers" id="developers">Developers</a></li>
+			<li><a href="/projects" title="Projects" id="projetcs">Projects</a></li>
+	</ul>
+	</div>
+    </div>
+    </div>
+  </body>
+</html>

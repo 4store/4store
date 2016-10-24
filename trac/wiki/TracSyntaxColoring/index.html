@@ -1,0 +1,232 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  
+  
+
+  
+
+
+  
+
+  <head>
+    <title>
+      TracSyntaxColoring – 4store
+    </title>
+        <link rel="search" href="/trac/search" />
+        <link rel="help" href="/trac/wiki/TracGuide" />
+        <link rel="alternate" href="/trac/wiki/TracSyntaxColoring?format=txt" type="text/x-trac-wiki" title="Plain Text" />
+        <link rel="start" href="/trac/wiki" />
+        <link rel="stylesheet" href="/trac/chrome/common/css/trac.css" type="text/css" /><link rel="stylesheet" href="/trac/chrome/common/css/wiki.css" type="text/css" />
+        <link rel="shortcut icon" href="/images/favico.png" type="image/png" />
+        <link rel="icon" href="/images/favico.png" type="image/png" />
+      <link type="application/opensearchdescription+xml" rel="search" href="/trac/search/opensearch" title="Search 4store" />
+    <script type="text/javascript" src="/trac/chrome/common/js/jquery.js"></script><script type="text/javascript" src="/trac/chrome/common/js/trac.js"></script><script type="text/javascript" src="/trac/chrome/common/js/search.js"></script>
+    <!--[if lt IE 7]>
+    <script type="text/javascript" src="/trac/chrome/common/js/ie_pre7_hacks.js"></script>
+    <![endif]-->
+    <script type="text/javascript">
+      jQuery(document).ready(function($) {
+        $("#content").find("h1,h2,h3,h4,h5,h6").addAnchor("Link to this section");
+      });
+    </script>
+    <link rel="stylesheet" type="text/css" href="/style/main.css" />
+  </head>
+  <body>
+    <div id="container">
+    <div id="siteheader">
+    </div>
+    <div id="banner">
+      <div id="header">
+        <a id="logo" href="http://4store.org/"><img src="/images/4store.png" alt="4store" height="48" width="143" /></a>
+      </div>
+      <form id="search" action="/trac/search" method="get">
+        <div>
+          <label for="proj-search">Search:</label>
+          <input type="text" id="proj-search" name="q" size="18" value="" />
+          <input type="submit" value="Search" />
+        </div>
+      </form>
+      <div id="metanav" class="nav">
+    <ul>
+      <li class="first"><a href="/trac/login">Login</a></li><li><a href="/trac/prefs">Preferences</a></li><li><a href="/trac/wiki/TracGuide">Help/Guide</a></li><li class="last"><a href="/trac/about">About Trac</a></li>
+    </ul>
+  </div>
+    </div>
+    <div id="mainnav" class="nav">
+    <ul>
+      <li class="first active"><a href="/trac/wiki">Wiki</a></li><li><a href="/trac/timeline">Timeline</a></li><li><a href="/trac/roadmap">Roadmap</a></li><li><a href="/trac/report">View Tickets</a></li><li class="last"><a href="/trac/search">Search</a></li>
+    </ul>
+  </div>
+    <div id="main">
+      <div id="ctxtnav" class="nav">
+        <h2>Context Navigation</h2>
+          <ul>
+              <li class="first"><a href="/trac/wiki/WikiStart">Start Page</a></li><li><a href="/trac/wiki/TitleIndex">Index</a></li><li><a href="/trac/wiki/TracSyntaxColoring?action=history">History</a></li><li class="last"><a href="/trac/wiki/TracSyntaxColoring?action=diff&amp;version=1">Last Change</a></li>
+          </ul>
+        <hr />
+      </div>
+    <div id="content" class="wiki">
+      <div class="wikipage searchable">
+        
+          <h1 id="SyntaxColoringofSourceCode">Syntax Coloring of Source Code</h1>
+<p>
+Trac supports language-specific syntax highlighting of source code in <a class="wiki" href="/trac/wiki/WikiFormatting">wiki formatted</a> text and the <a class="wiki" href="/trac/wiki/TracBrowser">repository browser</a>.
+</p>
+<p>
+To do this, Trac uses external libraries with support for a great number of programming languages.
+</p>
+<p>
+Currently Trac supports syntax coloring using one or more of the following packages:
+</p>
+<ul><li><a class="ext-link" href="http://www.codento.com/people/mtr/genscript/"><span class="icon"> </span>GNU Enscript</a> 
+</li><li><a class="ext-link" href="http://silvercity.sourceforge.net/"><span class="icon"> </span>SilverCity</a>
+</li><li><a class="ext-link" href="http://pygments.pocoo.org/"><span class="icon"> </span>Pygments</a> (but needs a plugin for 0.10, see <a class="wiki" href="/trac/wiki/TracSyntaxColoring#AboutPygments">below</a>)
+</li></ul><p>
+To activate syntax coloring, simply install either one (or more) of these packages. No additional configuration is required, however to modify the colors, have a look at <tt>trac/htdocs/css/code.css</tt>.
+</p>
+<p>
+If you don't know why trac isnt detecting an installed library, try turning on Trac logging. It actually appears that Trac is broken with <a class="missing wiki">SilverCity?</a> 0.9.6. Either use the current 0.9.7 or the older 0.9.5 <a class="ext-link" href="http://trac.edgewall.org/wiki/TracFaq#why-is-my-css-code-not-being-highlighted-even-though-i-have-silvercity-installed"><span class="icon"> </span>http://trac.edgewall.org/wiki/TracFaq#why-is-my-css-code-not-being-highlighted-even-though-i-have-silvercity-installed</a>
+</p>
+<p>
+When in use, Trac will automatically prioritize SilverCity highlighting over Enscript if possible, (see note below). 
+</p>
+<p>
+If neither package is available, Trac will display the data as plain text. 
+</p>
+<p>
+<strong>Note:</strong> Enscript supports a greater number of languages, however SilverCity is generally faster since it is a library and isn't executed in an external process.
+</p>
+<h3 id="AboutSilverCity">About SilverCity</h3>
+<p>
+SilverCity uses the lexer from <a class="ext-link" href="http://www.scintilla.org/"><span class="icon"> </span>Scintilla</a>. Scintilla supports more languages than SilverCity implements. If you want to add a language to SilverCity supported by Scintilla, it's not very difficult. See <a class="ext-link" href="http://trac.edgewall.org/wiki/SilverCityAddLanguage"><span class="icon"> </span>SilverCityAddLanguage</a> for some information how.
+</p>
+<h3 id="AboutPygments">About Pygments</h3>
+<p>
+Starting with trac 0.11 <a class="ext-link" href="http://pygments.org/"><span class="icon"> </span>pygments</a> will be the new default highlighter. It's a highlighting library implemented in pure python, very fast, easy to extend and <a class="ext-link" href="http://pygments.org/docs/"><span class="icon"> </span>well documented</a>. While it does not support as many languages as Enscript or Scintilla the overall output quality is much better.
+</p>
+<p>
+To use pygments in trac 0.11 you just have to install pygments 0.6 or higher (pygments_default_style = colorful under [mimeviewer] options has to be added).If you want to use it in trac 0.10 too you have to install the <a class="ext-link" href="http://trac-hacks.org/wiki/TracPygmentsPlugin"><span class="icon"> </span>TracPygmentsPlugin</a> from trac hacks. If you encounter any bugs, please file tickets regarding Pygments in <a class="ext-link" href="http://dev.pocoo.org/projects/pygments/"><span class="icon"> </span>the pygments trac</a>.
+</p>
+<p>
+It's very likely that the list below is outdated because the list of supported pygments lexers is growing weekly. Just have a look at the page of <a class="ext-link" href="http://pygments.org/docs/lexers/"><span class="icon"> </span>supported lexers</a> on the pygments webpage.
+</p>
+<h2 id="SyntaxColoringSupport">Syntax Coloring Support</h2>
+<table class="wiki">
+<tr><td> </td><td> SilverCity </td><td> Enscript </td><td> Pygments 
+</td></tr><tr><td> Ada      </td><td>   </td><td> X </td><td> 
+</td></tr><tr><td> Asm      </td><td>   </td><td> X </td><td> 
+</td></tr><tr><td> Apache Conf (htaccess)) </td><td> </td><td> </td><td> X 
+</td></tr><tr><td> * ASP    </td><td> X </td><td> X </td><td> 
+</td></tr><tr><td> * C      </td><td> X </td><td> X </td><td> X 
+</td></tr><tr><td> * C#     </td><td>   </td><td> X(2) </td><td> X 
+</td></tr><tr><td> * C++    </td><td> X </td><td> X </td><td> X 
+</td></tr><tr><td> * Java   </td><td> X(4)</td><td> X </td><td> X 
+</td></tr><tr><td> Awk      </td><td>   </td><td> X </td><td> 
+</td></tr><tr><td> Boo </td><td> </td><td> </td><td> X 
+</td></tr><tr><td> CSS      </td><td> X </td><td>   </td><td> X 
+</td></tr><tr><td> Python Doctests </td><td> </td><td> </td><td> X 
+</td></tr><tr><td> Diff     </td><td>   </td><td> X </td><td> X 
+</td></tr><tr><td> Eiffel   </td><td>   </td><td> X </td><td> 
+</td></tr><tr><td> Elisp    </td><td>   </td><td> X </td><td> 
+</td></tr><tr><td> Fortran  </td><td>   </td><td> X(3) </td><td> 
+</td></tr><tr><td> Haskell  </td><td>   </td><td> X </td><td> X 
+</td></tr><tr><td> Genshi </td><td> </td><td> </td><td> X 
+</td></tr><tr><td> HTML     </td><td> X </td><td> X </td><td> X 
+</td></tr><tr><td> IDL      </td><td>   </td><td> X </td><td> 
+</td></tr><tr><td> INI </td><td> </td><td> </td><td> X 
+</td></tr><tr><td> Javascript </td><td> X </td><td> X </td><td> X 
+</td></tr><tr><td> Lua </td><td> </td><td> </td><td> X 
+</td></tr><tr><td> m4       </td><td>   </td><td> X </td><td> 
+</td></tr><tr><td> Makefile </td><td>   </td><td> X </td><td> X 
+</td></tr><tr><td> Mako </td><td> </td><td> </td><td> X 
+</td></tr><tr><td> Matlab   </td><td>   </td><td> X (5) </td><td> 
+</td></tr><tr><td> Mygthy </td><td> </td><td> </td><td> X 
+</td></tr><tr><td> Objective-C</td><td> </td><td> X </td><td> 
+</td></tr><tr><td> OCaml    </td><td>   </td><td>   </td><td> X 
+</td></tr><tr><td> Pascal   </td><td>   </td><td> X </td><td> X 
+</td></tr><tr><td> * Perl   </td><td> X </td><td> X </td><td> X 
+</td></tr><tr><td> * PHP    </td><td> X </td><td>   </td><td> X 
+</td></tr><tr><td> PSP      </td><td> X </td><td>   </td><td> 
+</td></tr><tr><td> Pyrex    </td><td>   </td><td> X </td><td> 
+</td></tr><tr><td> * Python </td><td> X </td><td> X </td><td> X 
+</td></tr><tr><td> * Ruby   </td><td> X </td><td> X (1) </td><td> X 
+</td></tr><tr><td> Scheme   </td><td>   </td><td> X </td><td> X 
+</td></tr><tr><td> Shell    </td><td>   </td><td> X </td><td> X 
+</td></tr><tr><td> Smarty </td><td> </td><td> </td><td> X 
+</td></tr><tr><td> SQL      </td><td> X </td><td> X </td><td> X 
+</td></tr><tr><td> Troff    </td><td>   </td><td> X </td><td> X 
+</td></tr><tr><td> TCL      </td><td>   </td><td> X </td><td> 
+</td></tr><tr><td> Tex      </td><td>   </td><td> X </td><td> X 
+</td></tr><tr><td> Verilog  </td><td> X(4) </td><td> X </td><td> 
+</td></tr><tr><td> VHDL     </td><td>   </td><td> X </td><td> 
+</td></tr><tr><td> Visual Basic </td><td></td><td> X </td><td> X 
+</td></tr><tr><td> VRML     </td><td>   </td><td> X </td><td> 
+</td></tr><tr><td> XML      </td><td> X </td><td>  </td><td> X 
+</td></tr></table>
+<p>
+<i>(*) Supported as inline code blocks in <a class="wiki" href="/trac/wiki/WikiFormatting">Wiki text</a> using <a class="wiki" href="/trac/wiki/WikiProcessors">WikiProcessors</a>.</i>
+</p>
+<p>
+<i>(1) Ruby highlighting is not included in the Enscript distribution.  Highlighting rules for Ruby can be obtained from: <a class="ext-link" href="http://neugierig.org/software/ruby/"><span class="icon"> </span>http://neugierig.org/software/ruby/</a>
+</i></p>
+<p>
+<i>(2) C# highlighting is not included in the Enscript distribution.  Highlighting rules for C# can be obtained from: <a class="ext-link" href="http://wiki.hasno.info/index.php/Csharp.st"><span class="icon"> </span>http://wiki.hasno.info/index.php/Csharp.st</a>
+</i></p>
+<p>
+<i>(3) Fortran: as packaged, Enscript only supports the fixed source form. Highlighting rules for Fortran 90x/2003 can be obtained from: <a class="ext-link" href="http://wiki.hasno.info/index.php/F90.st"><span class="icon"> </span>http://wiki.hasno.info/index.php/F90.st</a>
+</i></p>
+<p>
+<i>(4) since Silvercity 0.9.7 released on 2006-11-23
+</i></p>
+<p>
+<i>(5) By default <tt>.m</tt> files are considered Objective-C files. In order to treat <tt>.m</tt> files as MATLAB files, add "text/x-matlab:m" to the "mime_map" setting in the <a class="wiki" href="/trac/wiki/TracIni#mimeviewer-section">[mimeviewer] section of trac.ini</a>.
+</i></p>
+<h2 id="ExtraSoftware">Extra Software</h2>
+<ul><li>GNU Enscript -- <a class="ext-link" href="http://directory.fsf.org/GNU/enscript.html"><span class="icon"> </span>http://directory.fsf.org/GNU/enscript.html</a>
+</li><li>GNU Enscript for Windows -- <a class="ext-link" href="http://gnuwin32.sourceforge.net/packages/enscript.htm"><span class="icon"> </span>http://gnuwin32.sourceforge.net/packages/enscript.htm</a>
+</li><li>SilverCity -- <a class="ext-link" href="http://silvercity.sf.net/"><span class="icon"> </span>http://silvercity.sf.net/</a>
+</li><li>Pygments -- <a class="ext-link" href="http://pygments.org/"><span class="icon"> </span>http://pygments.org/</a>
+</li></ul><hr />
+<p>
+See also: <a class="wiki" href="/trac/wiki/WikiProcessors">WikiProcessors</a>, <a class="wiki" href="/trac/wiki/WikiFormatting">WikiFormatting</a>, <a class="wiki" href="/trac/wiki/TracWiki">TracWiki</a>, <a class="wiki" href="/trac/wiki/TracBrowser">TracBrowser</a>
+</p>
+
+        
+        
+      </div>
+    </div>
+    <div id="altlinks">
+      <h3>Download in other formats:</h3>
+      <ul>
+        <li class="last first">
+          <a rel="nofollow" href="/trac/wiki/TracSyntaxColoring?format=txt">Plain Text</a>
+        </li>
+      </ul>
+    </div>
+    </div>
+    <div id="footer" lang="en" xml:lang="en"><hr />
+      <a id="tracpowered" href="http://trac.edgewall.org/"><img src="/trac/chrome/common/trac_logo_mini.png" height="30" width="107" alt="Trac Powered" /></a>
+      <p class="left">
+        Powered by <a href="/trac/about"><strong>Trac 0.11.4</strong></a><br />
+        By <a href="http://www.edgewall.org/">Edgewall Software</a>.
+      </p>
+      <p class="right">Visit the Trac open source project at<br /><a href="http://trac.edgewall.org/">http://trac.edgewall.org/</a></p>
+    </div>
+    <div id="footer">
+	<div id="copyright">Copyright © Garlik 2009</div>
+		<div id="garlik_logo">
+	<a href="http://www.garlik.com/" rel="external" title="Click here to visit the Garlik homepage"><img src="/images/garlik.gif" alt="powered by Garlik" /></a>
+	</div>
+	<div id="foot_nav">
+	<ul>
+			<li><a href="/about" title="About" id="about">About</a></li>
+			<li><a href="/faqs" title="FAQs" id="faqs">FAQs</a></li>
+			<li><a href="/support" title="Install" id="support">Support</a></li>
+			<li><a href="/developers" title="Developers" id="developers">Developers</a></li>
+			<li><a href="/projects" title="Projects" id="projetcs">Projects</a></li>
+	</ul>
+	</div>
+    </div>
+    </div>
+  </body>
+</html>

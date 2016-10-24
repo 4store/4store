@@ -1,0 +1,993 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  
+  
+
+  
+
+
+  <head>
+    <title>
+      TracQuery – 4store
+    </title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <!--[if IE]><script type="text/javascript">
+      if (/^#__msie303:/.test(window.location.hash))
+        window.location.replace(window.location.hash.replace(/^#__msie303:/, '#'));
+    </script><![endif]-->
+        <link rel="search" href="/trac/search" />
+        <link rel="help" href="/trac/wiki/TracGuide" />
+        <link rel="alternate" href="/trac/wiki/TracQuery?format=txt" type="text/x-trac-wiki" title="Plain Text" />
+        <link rel="start" href="/trac/wiki" />
+        <link rel="stylesheet" href="/trac/chrome/common/css/trac.css" type="text/css" /><link rel="stylesheet" href="/trac/chrome/common/css/wiki.css" type="text/css" />
+        <link rel="shortcut icon" href="/images/favico.png" type="image/png" />
+        <link rel="icon" href="/images/favico.png" type="image/png" />
+      <link type="application/opensearchdescription+xml" rel="search" href="/trac/search/opensearch" title="Search 4store" />
+    <script type="text/javascript" src="/trac/chrome/common/js/jquery.js"></script><script type="text/javascript" src="/trac/chrome/common/js/babel.js"></script><script type="text/javascript" src="/trac/chrome/common/js/messages/en_US.js"></script><script type="text/javascript" src="/trac/chrome/common/js/trac.js"></script><script type="text/javascript" src="/trac/chrome/common/js/search.js"></script><script type="text/javascript" src="/trac/chrome/common/js/folding.js"></script>
+    <!--[if lt IE 7]>
+    <script type="text/javascript" src="/trac/chrome/common/js/ie_pre7_hacks.js"></script>
+    <![endif]-->
+    <meta name="ROBOTS" content="NOINDEX, NOFOLLOW" />
+    <script type="text/javascript">
+      jQuery(document).ready(function($) {
+        $("#content").find("h1,h2,h3,h4,h5,h6").addAnchor(_("Link to this section"));
+        $("#content").find(".wikianchor").each(function() {
+          $(this).addAnchor(babel.format(_("Link to #%(id)s"), {id: $(this).attr('id')}));
+        });
+        $(".foldable").enableFolding(true, true);
+      });
+    </script>
+    <link rel="stylesheet" type="text/css" href="/style/main.css" />
+  </head>
+  <body>
+    <div id="container">
+    <div id="siteheader">
+    </div>
+    <div id="banner">
+      <div id="header">
+        <a id="logo" href="http://4store.org/"><img src="/images/4store.png" alt="4store" height="48" width="143" /></a>
+      </div>
+      <form id="search" action="/trac/search" method="get">
+        <div>
+          <label for="proj-search">Search:</label>
+          <input type="text" id="proj-search" name="q" size="18" value="" />
+          <input type="submit" value="Search" />
+        </div>
+      </form>
+      <div id="metanav" class="nav">
+    <ul>
+      <li class="first"><a href="/trac/login">Login</a></li><li><a href="/trac/prefs">Preferences</a></li><li><a href="/trac/wiki/TracGuide">Help/Guide</a></li><li class="last"><a href="/trac/about">About Trac</a></li>
+    </ul>
+  </div>
+    </div>
+    <div id="mainnav" class="nav">
+    <ul>
+      <li class="first active"><a href="/trac/wiki">Wiki</a></li><li><a href="/trac/timeline">Timeline</a></li><li><a href="/trac/roadmap">Roadmap</a></li><li><a href="/trac/report">View Tickets</a></li><li class="last"><a href="/trac/search">Search</a></li>
+    </ul>
+  </div>
+    <div id="main">
+      <div id="pagepath" class="noprint">
+  <a class="pathentry first" title="View WikiStart" href="/trac/wiki">wiki:</a><a class="pathentry" href="/trac/wiki/TracQuery" title="View TracQuery">TracQuery</a>
+</div>
+      <div id="ctxtnav" class="nav">
+        <h2>Context Navigation</h2>
+          <ul>
+              <li class="first"><a href="/trac/wiki/WikiStart">Start Page</a></li><li><a href="/trac/wiki/TitleIndex">Index</a></li><li class="last"><a href="/trac/wiki/TracQuery?action=history">History</a></li>
+          </ul>
+        <hr />
+      </div>
+    <div id="content" class="wiki">
+      <div class="wikipage searchable">
+        
+          
+          <div class="trac-modifiedby">
+            <span><a href="/trac/wiki/TracQuery?action=diff&amp;version=2" title="Version 2 by trac">Last modified</a> <a class="timeline" href="/trac/timeline?from=2011-12-01T17%3A47%3A14Z&amp;precision=second" title="2011-12-01T17:47:14Z in Timeline">4 years</a> ago</span>
+            <span class="trac-print">Last modified on 01/12/11 17:47:14</span>
+          </div>
+          <div id="wikipage"><h1 id="TracTicketQueries">Trac Ticket Queries</h1>
+<p>
+</p><div class="wiki-toc"><h4>Table of Contents</h4><ul><li class="False"><a class="False" href="/trac/wiki/TracGuide">Index</a></li><li class="False"><a class="False" href="/trac/wiki/TracInstall">Installation</a></li><li class="False"><a class="False" href="/trac/wiki/TracInterfaceCustomization">Customization</a></li><li class="False"><a class="False" href="/trac/wiki/TracPlugins">Plugins</a></li><li class="False"><a class="False" href="/trac/wiki/TracUpgrade">Upgrading</a></li><li class="False"><a class="False" href="/trac/wiki/TracIni">Configuration</a></li><li class="False"><a class="False" href="/trac/wiki/TracAdmin">Administration</a></li><li class="False"><a class="False" href="/trac/wiki/TracBackup">Backup</a></li><li class="False"><a class="False" href="/trac/wiki/TracLogging">Logging</a></li><li class="False"><a class="False" href="/trac/wiki/TracPermissions">Permissions</a></li><li class="False"><a class="False" href="/trac/wiki/TracWiki">The Wiki</a></li><li class="False"><a class="False" href="/trac/wiki/WikiFormatting">Wiki Formatting</a></li><li class="False"><a class="False" href="/trac/wiki/TracTimeline">Timeline</a></li><li class="False"><a class="False" href="/trac/wiki/TracBrowser">Repository Browser</a></li><li class="False"><a class="False" href="/trac/wiki/TracRevisionLog">Revision Log</a></li><li class="False"><a class="False" href="/trac/wiki/TracChangeset">Changesets</a></li><li class="False"><a class="False" href="/trac/wiki/TracTickets">Tickets</a></li><li class="False"><a class="False" href="/trac/wiki/TracWorkflow">Workflow</a></li><li class="False"><a class="False" href="/trac/wiki/TracRoadmap">Roadmap</a></li><li class="active"><a class="False" href="/trac/wiki/TracQuery">Ticket Queries</a></li><li class="False"><a class="False" href="/trac/wiki/TracReports">Reports</a></li><li class="False"><a class="False" href="/trac/wiki/TracRss">RSS Support</a></li><li class="False"><a class="False" href="/trac/wiki/TracNotification">Notification</a></li></ul></div><p>
+</p>
+<p>
+In addition to <a class="wiki" href="/trac/wiki/TracReports">reports</a>, Trac provides support for <em>custom ticket queries</em>, used to display lists of tickets meeting a specified set of criteria. 
+</p>
+<p>
+To configure and execute a custom query, switch to the <em>View Tickets</em> module from the navigation bar, and select the <em>Custom Query</em> link.
+</p>
+<h2 id="Filters">Filters</h2>
+<p>
+When you first go to the query page the default filter will display tickets relevant to you:
+</p>
+<ul><li>If logged in then all open tickets it will display open tickets assigned to you.
+</li><li>If not logged in but you have specified a name or email address in the preferences then it will display all open tickets where your email (or name if email not defined) is in the CC list.
+</li><li>If not logged and no name/email defined in the preferences then all open issues are displayed.
+</li></ul><p>
+Current filters can be removed by clicking the button to the right with the minus sign on the label.  New filters are added from the pulldown lists at the bottom corners of the filters box ('And' conditions on the left, 'Or' conditions on the right).  Filters with either a text box or a pulldown menu of options can be added multiple times to perform an <em>or</em> of the criteria.
+</p>
+<p>
+You can use the fields just below the filters box to group the results based on a field, or display the full description for each ticket.
+</p>
+<p>
+Once you've edited your filters click the <em>Update</em> button to refresh your results.
+</p>
+<h2 id="NavigatingTickets">Navigating Tickets</h2>
+<p>
+Clicking on one of the query results will take you to that ticket.  You can navigate through the results by clicking the <em>Next Ticket</em> or <em>Previous Ticket</em> links just below the main menu bar, or click the <em>Back to Query</em> link to return to the query page.  
+</p>
+<p>
+You can safely edit any of the tickets and continue to navigate through the results using the <em>Next/Previous/Back to Query</em> links after saving your results.  When you return to the query <em>any tickets which were edited</em> will be displayed with italicized text.  If one of the tickets was edited such that <span style="color: grey">it no longer matches the query criteria </span> the text will also be greyed. Lastly, if <strong>a new ticket matching the query criteria has been created</strong>, it will be shown in bold. 
+</p>
+<p>
+The query results can be refreshed and cleared of these status indicators by clicking the <em>Update</em> button again.
+</p>
+<h2 id="SavingQueries">Saving Queries</h2>
+<p>
+Trac allows you to save the query as a named query accessible from the reports module. To save a query ensure that you have <em>Updated</em> the view and then click the <em>Save query</em> button displayed beneath the results.
+You can also save references to queries in Wiki content, as described below.
+</p>
+<p>
+<em>Note:</em> one way to easily build queries like the ones below, you can build and test the queries in the Custom report module and when ready - click <em>Save query</em>. This will build the query string for you. All you need to do is remove the extra line breaks.
+</p>
+<h3 id="UsingTracLinks">Using <a class="wiki" href="/trac/wiki/TracLinks">TracLinks</a></h3>
+<p>
+You may want to save some queries so that you can come back to them later.  You can do this by making a link to the query from any Wiki page.
+</p>
+<pre class="wiki">[query:status=new|assigned|reopened&amp;version=1.0 Active tickets against 1.0]
+</pre><p>
+Which is displayed as:
+</p>
+<blockquote>
+<p>
+<a class="query" href="/trac/query?status=new&amp;status=assigned&amp;status=reopened&amp;version=1.0&amp;order=priority">Active tickets against 1.0</a>
+</p>
+</blockquote>
+<p>
+This uses a very simple query language to specify the criteria (see <a class="wiki" href="/trac/wiki/TracQuery#QueryLanguage">Query Language</a>).
+</p>
+<p>
+Alternatively, you can copy the query string of a query and paste that into the Wiki link, including the leading <tt>?</tt> character:
+</p>
+<pre class="wiki">[query:?status=new&amp;status=assigned&amp;status=reopened&amp;group=owner Assigned tickets by owner]
+</pre><p>
+Which is displayed as:
+</p>
+<blockquote>
+<p>
+<a class="query" href="/trac/query?status=new&amp;status=assigned&amp;status=reopened&amp;group=owner">Assigned tickets by owner</a>
+</p>
+</blockquote>
+<h3 id="UsingtheTicketQueryMacro">Using the <tt>[[TicketQuery]]</tt> Macro</h3>
+<p>
+The <a class="ext-link" href="http://trac.edgewall.org/intertrac/TicketQuery" title="TicketQuery in Trac project trac"><span class="icon">​</span>TicketQuery</a> macro lets you display lists of tickets matching certain criteria anywhere you can use <a class="wiki" href="/trac/wiki/WikiFormatting">WikiFormatting</a>.
+</p>
+<p>
+Example:
+</p>
+<pre class="wiki">[[TicketQuery(version=0.6|0.7&amp;resolution=duplicate)]]
+</pre><p>
+This is displayed as:
+</p>
+<blockquote>
+<p>
+<span class="query_no_results">No results</span>
+</p>
+</blockquote>
+<p>
+Just like the <a class="wiki" href="/trac/wiki/TracQuery#UsingTracLinks">query: wiki links</a>, the parameter of this macro expects a query string formatted according to the rules of the simple <a class="wiki" href="/trac/wiki/TracQuery#QueryLanguage">ticket query language</a>.
+</p>
+<p>
+A more compact representation without the ticket summaries is also available:
+</p>
+<pre class="wiki">[[TicketQuery(version=0.6|0.7&amp;resolution=duplicate, compact)]]
+</pre><p>
+This is displayed as:
+</p>
+<blockquote>
+<p>
+<span class="query_no_results">No results</span>
+</p>
+</blockquote>
+<p>
+Finally if you wish to receive only the number of defects that match the query using the <tt></tt>count<tt></tt> parameter.
+</p>
+<pre class="wiki">[[TicketQuery(version=0.6|0.7&amp;resolution=duplicate, count)]]
+</pre><p>
+This is displayed as:
+</p>
+<blockquote>
+<p>
+<span class="query_count" title="0 tickets for which version=0.6|0.7&amp;resolution=duplicate&amp;max=0&amp;order=id">0</span>
+</p>
+</blockquote>
+<h3 id="Customizingthetableformat">Customizing the <em>table</em> format</h3>
+<p>
+You can also customize the columns displayed in the table format (<em>format=table</em>) by using <em>col=&lt;field&gt;</em> - you can specify multiple fields and what order they are displayed by placing pipes (<tt>|</tt>) between the columns like below:
+</p>
+<pre class="wiki">[[TicketQuery(max=3,status=closed,order=id,desc=1,format=table,col=resolution|summary|owner|reporter)]]
+</pre><p>
+This is displayed as:
+</p><div xmlns="http://www.w3.org/1999/xhtml">
+  <h2 class="report-result">
+    Results <span class="numresults">(1 - 3 of 9)</span>
+  </h2>
+  <div class="paging"> 
+
+     
+     
+      <span> 
+        <span class="current">1</span> 
+      </span> 
+       
+     
+       
+      <span> 
+        <a href="/trac/query?status=closed&amp;max=3&amp;page=2&amp;col=id&amp;col=resolution&amp;col=summary&amp;col=owner&amp;col=reporter&amp;desc=1&amp;order=id" title="Page 2">2</a> 
+      </span> 
+     
+       
+      <span> 
+        <a href="/trac/query?status=closed&amp;max=3&amp;page=3&amp;col=id&amp;col=resolution&amp;col=summary&amp;col=owner&amp;col=reporter&amp;desc=1&amp;order=id" title="Page 3">3</a> 
+      </span> 
+     
+    <span class="next"> 
+      <a href="/trac/query?status=closed&amp;max=3&amp;page=2&amp;col=id&amp;col=resolution&amp;col=summary&amp;col=owner&amp;col=reporter&amp;desc=1&amp;order=id" title="Next Page">→</a> 
+    </span> 
+
+</div>
+  
+  
+  
+    
+  
+  <table class="listing tickets">
+    <thead>
+      
+    <tr class="trac-columns">
+      <th class="id desc">
+        
+        <a title="Sort by Ticket (ascending)" href="/trac/query?status=closed&amp;max=3&amp;col=id&amp;col=resolution&amp;col=summary&amp;col=owner&amp;col=reporter&amp;order=id">Ticket</a>
+      </th><th class="resolution">
+        
+        <a title="Sort by Resolution (ascending)" href="/trac/query?status=closed&amp;max=3&amp;col=id&amp;col=resolution&amp;col=summary&amp;col=owner&amp;col=reporter&amp;order=resolution">Resolution</a>
+      </th><th class="summary">
+        
+        <a title="Sort by Summary (ascending)" href="/trac/query?status=closed&amp;max=3&amp;col=id&amp;col=resolution&amp;col=summary&amp;col=owner&amp;col=reporter&amp;order=summary">Summary</a>
+      </th><th class="owner">
+        
+        <a title="Sort by Owner (ascending)" href="/trac/query?status=closed&amp;max=3&amp;col=id&amp;col=resolution&amp;col=summary&amp;col=owner&amp;col=reporter&amp;order=owner">Owner</a>
+      </th><th class="reporter">
+        
+        <a title="Sort by Reporter (ascending)" href="/trac/query?status=closed&amp;max=3&amp;col=id&amp;col=resolution&amp;col=summary&amp;col=owner&amp;col=reporter&amp;order=reporter">Reporter</a>
+      </th>
+    </tr>
+  
+    </thead>
+    
+      
+      <tbody>
+        
+        
+          
+            
+
+              <tr class="even prio3">
+                
+                  
+                    <td class="id"><a href="/trac/ticket/133" title="View ticket" class="closed">#133</a></td>
+                    
+                  
+                
+                  
+                    
+                    <td class="resolution">
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      fixed
+                    </td>
+                  
+                
+                  
+                    
+                    <td class="summary">
+                      <a href="/trac/ticket/133" title="View ticket">4store Mac OS X app breaks under Snow Leopard with libxslt/libxml2 error</a>
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                    </td>
+                  
+                
+                  
+                    
+                    <td class="owner">
+                      
+                      
+                      
+                      
+                      swh
+                      
+                      
+                      
+                    </td>
+                  
+                
+                  
+                    
+                    <td class="reporter">
+                      
+                      
+                      anonymous
+                      
+                      
+                      
+                      
+                      
+                    </td>
+                  
+                
+              </tr>
+
+              
+                
+                  
+                  
+                
+              
+            
+          
+        
+          
+            
+
+              <tr class="odd prio3">
+                
+                  
+                    <td class="id"><a href="/trac/ticket/78" title="View ticket" class="closed">#78</a></td>
+                    
+                  
+                
+                  
+                    
+                    <td class="resolution">
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      fixed
+                    </td>
+                  
+                
+                  
+                    
+                    <td class="summary">
+                      <a href="/trac/ticket/78" title="View ticket">4s-import aborts if it encounters a bad URI</a>
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                    </td>
+                  
+                
+                  
+                    
+                    <td class="owner">
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                    </td>
+                  
+                
+                  
+                    
+                    <td class="reporter">
+                      
+                      
+                      swh
+                      
+                      
+                      
+                      
+                      
+                    </td>
+                  
+                
+              </tr>
+
+              
+                
+                  
+                  
+                
+              
+            
+          
+        
+          
+            
+
+              <tr class="even prio3">
+                
+                  
+                    <td class="id"><a href="/trac/ticket/77" title="View ticket" class="closed">#77</a></td>
+                    
+                  
+                
+                  
+                    
+                    <td class="resolution">
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      fixed
+                    </td>
+                  
+                
+                  
+                    
+                    <td class="summary">
+                      <a href="/trac/ticket/77" title="View ticket">Bind cache/ASK bug</a>
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                    </td>
+                  
+                
+                  
+                    
+                    <td class="owner">
+                      
+                      
+                      
+                      
+                      swh
+                      
+                      
+                      
+                    </td>
+                  
+                
+                  
+                    
+                    <td class="reporter">
+                      
+                      
+                      swh
+                      
+                      
+                      
+                      
+                      
+                    </td>
+                  
+                
+              </tr>
+
+              
+                
+                  
+                  
+                
+              
+            
+          
+        
+        
+      </tbody>
+    
+  </table>
+  <div class="paging"> 
+
+     
+     
+      <span> 
+        <span class="current">1</span> 
+      </span> 
+       
+     
+       
+      <span> 
+        <a href="/trac/query?status=closed&amp;max=3&amp;page=2&amp;col=id&amp;col=resolution&amp;col=summary&amp;col=owner&amp;col=reporter&amp;desc=1&amp;order=id" title="Page 2">2</a> 
+      </span> 
+     
+       
+      <span> 
+        <a href="/trac/query?status=closed&amp;max=3&amp;page=3&amp;col=id&amp;col=resolution&amp;col=summary&amp;col=owner&amp;col=reporter&amp;desc=1&amp;order=id" title="Page 3">3</a> 
+      </span> 
+     
+    <span class="next"> 
+      <a href="/trac/query?status=closed&amp;max=3&amp;page=2&amp;col=id&amp;col=resolution&amp;col=summary&amp;col=owner&amp;col=reporter&amp;desc=1&amp;order=id" title="Next Page">→</a> 
+    </span> 
+
+</div>
+</div><p>
+</p>
+<h4 id="Fullrows">Full rows</h4>
+<p>
+In <em>table</em> format you can also have full rows by using <em>rows=&lt;field&gt;</em> like below:
+</p>
+<pre class="wiki">[[TicketQuery(max=3,status=closed,order=id,desc=1,format=table,col=resolution|summary|owner|reporter,rows=description)]]
+</pre><p>
+This is displayed as:
+</p><div xmlns="http://www.w3.org/1999/xhtml">
+  <h2 class="report-result">
+    Results <span class="numresults">(1 - 3 of 9)</span>
+  </h2>
+  <div class="paging"> 
+
+     
+     
+      <span> 
+        <span class="current">1</span> 
+      </span> 
+       
+     
+       
+      <span> 
+        <a href="/trac/query?status=closed&amp;max=3&amp;page=2&amp;col=id&amp;col=resolution&amp;col=summary&amp;col=owner&amp;col=reporter&amp;desc=1&amp;order=id&amp;row=description" title="Page 2">2</a> 
+      </span> 
+     
+       
+      <span> 
+        <a href="/trac/query?status=closed&amp;max=3&amp;page=3&amp;col=id&amp;col=resolution&amp;col=summary&amp;col=owner&amp;col=reporter&amp;desc=1&amp;order=id&amp;row=description" title="Page 3">3</a> 
+      </span> 
+     
+    <span class="next"> 
+      <a href="/trac/query?status=closed&amp;max=3&amp;page=2&amp;col=id&amp;col=resolution&amp;col=summary&amp;col=owner&amp;col=reporter&amp;desc=1&amp;order=id" title="Next Page">→</a> 
+    </span> 
+
+</div>
+  
+  
+  
+    
+  
+  <table class="listing tickets">
+    <thead>
+      
+    <tr class="trac-columns">
+      <th class="id desc">
+        
+        <a title="Sort by Ticket (ascending)" href="/trac/query?status=closed&amp;max=3&amp;col=id&amp;col=resolution&amp;col=summary&amp;col=owner&amp;col=reporter&amp;order=id&amp;row=description">Ticket</a>
+      </th><th class="resolution">
+        
+        <a title="Sort by Resolution (ascending)" href="/trac/query?status=closed&amp;max=3&amp;col=id&amp;col=resolution&amp;col=summary&amp;col=owner&amp;col=reporter&amp;order=resolution&amp;row=description">Resolution</a>
+      </th><th class="summary">
+        
+        <a title="Sort by Summary (ascending)" href="/trac/query?status=closed&amp;max=3&amp;col=id&amp;col=resolution&amp;col=summary&amp;col=owner&amp;col=reporter&amp;order=summary&amp;row=description">Summary</a>
+      </th><th class="owner">
+        
+        <a title="Sort by Owner (ascending)" href="/trac/query?status=closed&amp;max=3&amp;col=id&amp;col=resolution&amp;col=summary&amp;col=owner&amp;col=reporter&amp;order=owner&amp;row=description">Owner</a>
+      </th><th class="reporter">
+        
+        <a title="Sort by Reporter (ascending)" href="/trac/query?status=closed&amp;max=3&amp;col=id&amp;col=resolution&amp;col=summary&amp;col=owner&amp;col=reporter&amp;order=reporter&amp;row=description">Reporter</a>
+      </th>
+    </tr>
+  
+    </thead>
+    
+      
+      <tbody>
+        
+        
+          
+            
+
+              <tr class="even prio3">
+                
+                  
+                    <td class="id"><a href="/trac/ticket/133" title="View ticket" class="closed">#133</a></td>
+                    
+                  
+                
+                  
+                    
+                    <td class="resolution">
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      fixed
+                    </td>
+                  
+                
+                  
+                    
+                    <td class="summary">
+                      <a href="/trac/ticket/133" title="View ticket">4store Mac OS X app breaks under Snow Leopard with libxslt/libxml2 error</a>
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                    </td>
+                  
+                
+                  
+                    
+                    <td class="owner">
+                      
+                      
+                      
+                      
+                      swh
+                      
+                      
+                      
+                    </td>
+                  
+                
+                  
+                    
+                    <td class="reporter">
+                      
+                      
+                      anonymous
+                      
+                      
+                      
+                      
+                      
+                    </td>
+                  
+                
+              </tr>
+
+              
+                
+                  
+                  <tr class="fullrow">
+                    <th class="meta">Description</th>
+                    <td colspan="4">
+                      <p>
+Using the 4store OS X application:
+</p>
+<pre class="wiki">$ 4s-backend-setup test
+dyld: Library not loaded: /usr/lib/libxml2.2.dylib
+  Referenced from: /usr/lib/libxslt.1.dylib
+  Reason: Incompatible library version: libxslt.1.dylib requires version 10.0.0 or later, but libxml2.2.dylib provides version 9.0.0
+Trace/BPT trap
+</pre><p>
+Presumably this is a Snow Leopard issue?
+</p>
+
+                    </td>
+                  </tr>
+                
+              
+            
+          
+        
+          
+            
+
+              <tr class="odd prio3">
+                
+                  
+                    <td class="id"><a href="/trac/ticket/78" title="View ticket" class="closed">#78</a></td>
+                    
+                  
+                
+                  
+                    
+                    <td class="resolution">
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      fixed
+                    </td>
+                  
+                
+                  
+                    
+                    <td class="summary">
+                      <a href="/trac/ticket/78" title="View ticket">4s-import aborts if it encounters a bad URI</a>
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                    </td>
+                  
+                
+                  
+                    
+                    <td class="owner">
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                    </td>
+                  
+                
+                  
+                    
+                    <td class="reporter">
+                      
+                      
+                      swh
+                      
+                      
+                      
+                      
+                      
+                    </td>
+                  
+                
+              </tr>
+
+              
+                
+                  
+                  <tr class="fullrow">
+                    <th class="meta">Description</th>
+                    <td colspan="4">
+                      <p>
+eg.
+</p>
+<p>
+<tt> 4s-import bestbuy http://products.semweb.bestbuy.com/products/10303584/semanticweb.rdf http://products.semweb.bestbuy.com/products/10303655/semanticweb.rdf http://products.semweb.bestbuy.com/products/10303708/semanticweb.rdf </tt>
+</p>
+<p>
+This happens after the model deletes have happened, so it ends up wiping the models listed.
+</p>
+<p>
+There's an exit() at import.c:342, which probably shouldn't be there.
+</p>
+<p>
+Reported by presbrey on IRC.
+</p>
+
+                    </td>
+                  </tr>
+                
+              
+            
+          
+        
+          
+            
+
+              <tr class="even prio3">
+                
+                  
+                    <td class="id"><a href="/trac/ticket/77" title="View ticket" class="closed">#77</a></td>
+                    
+                  
+                
+                  
+                    
+                    <td class="resolution">
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      fixed
+                    </td>
+                  
+                
+                  
+                    
+                    <td class="summary">
+                      <a href="/trac/ticket/77" title="View ticket">Bind cache/ASK bug</a>
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                    </td>
+                  
+                
+                  
+                    
+                    <td class="owner">
+                      
+                      
+                      
+                      
+                      swh
+                      
+                      
+                      
+                    </td>
+                  
+                
+                  
+                    
+                    <td class="reporter">
+                      
+                      
+                      swh
+                      
+                      
+                      
+                      
+                      
+                    </td>
+                  
+                
+              </tr>
+
+              
+                
+                  
+                  <tr class="fullrow">
+                    <th class="meta">Description</th>
+                    <td colspan="4">
+                      <p>
+"We seemed to encountered a bug when using ASK. So if we do something
+like this:
+</p>
+<p>
+ASK WHERE {?o &lt;<a class="ext-link" href="http://prop"><span class="icon">​</span>http://prop</a>&gt; &lt;<a class="ext-link" href="http://other property url"><span class="icon">​</span>http://other property url</a>&gt;}
+</p>
+<p>
+and the result that we expect is false. The first time the query is
+executed after starting 4store, false is returned. All subsequent
+times true is returned."
+</p>
+<p>
+From Paul.
+</p>
+
+                    </td>
+                  </tr>
+                
+              
+            
+          
+        
+        
+      </tbody>
+    
+  </table>
+  <div class="paging"> 
+
+     
+     
+      <span> 
+        <span class="current">1</span> 
+      </span> 
+       
+     
+       
+      <span> 
+        <a href="/trac/query?status=closed&amp;max=3&amp;page=2&amp;col=id&amp;col=resolution&amp;col=summary&amp;col=owner&amp;col=reporter&amp;desc=1&amp;order=id&amp;row=description" title="Page 2">2</a> 
+      </span> 
+     
+       
+      <span> 
+        <a href="/trac/query?status=closed&amp;max=3&amp;page=3&amp;col=id&amp;col=resolution&amp;col=summary&amp;col=owner&amp;col=reporter&amp;desc=1&amp;order=id&amp;row=description" title="Page 3">3</a> 
+      </span> 
+     
+    <span class="next"> 
+      <a href="/trac/query?status=closed&amp;max=3&amp;page=2&amp;col=id&amp;col=resolution&amp;col=summary&amp;col=owner&amp;col=reporter&amp;desc=1&amp;order=id" title="Next Page">→</a> 
+    </span> 
+
+</div>
+</div><p>
+</p>
+<h3 id="QueryLanguage">Query Language</h3>
+<p>
+<tt>query:</tt> <a class="wiki" href="/trac/wiki/TracLinks">TracLinks</a> and the <tt>[[TicketQuery]]</tt> macro both use a mini “query language” for specifying query filters. Basically, the filters are separated by ampersands (<tt>&amp;</tt>). Each filter then consists of the ticket field name, an operator, and one or more values. More than one value are separated by a pipe (<tt>|</tt>), meaning that the filter matches any of the values. To include a litteral <tt>&amp;</tt> or <tt>|</tt> in a value, escape the character with a backslash (<tt>\</tt>).
+</p>
+<p>
+The available operators are:
+</p>
+<table class="wiki">
+<tr><td> <strong><tt>=</tt></strong> </td><td> the field content exactly matches the one of the values 
+</td></tr><tr><td> <strong><tt>~=</tt></strong> </td><td> the field content contains one or more of the values 
+</td></tr><tr><td> <strong><tt>^=</tt></strong> </td><td> the field content starts with one of the values 
+</td></tr><tr><td> <strong><tt>$=</tt></strong> </td><td> the field content ends with one of the values 
+</td></tr></table>
+<p>
+All of these operators can also be negated:
+</p>
+<table class="wiki">
+<tr><td> <strong><tt>!=</tt></strong> </td><td> the field content matches none of the values 
+</td></tr><tr><td> <strong><tt>!~=</tt></strong> </td><td> the field content does not contain any of the values 
+</td></tr><tr><td> <strong><tt>!^=</tt></strong> </td><td> the field content does not start with any of the values 
+</td></tr><tr><td> <strong><tt>!$=</tt></strong> </td><td> the field content does not end with any of the values 
+</td></tr></table>
+<p>
+The date fields <tt>created</tt> and <tt>modified</tt> can be constrained by using the <tt>=</tt> operator and specifying a value containing two dates separated by two dots (<tt>..</tt>). Either end of the date range can be left empty, meaning that the corresponding end of the range is open. The date parser understands a few natural date specifications like "3 weeks ago", "last month" and "now", as well as Bugzilla-style date specifications like "1d", "2w", "3m" or "4y" for 1 day, 2 weeks, 3 months and 4 years, respectively. Spaces in date specifications can be left out to avoid having to quote the query string. 
+</p>
+<table class="wiki">
+<tr><td> <strong><tt>created=2007-01-01..2008-01-01</tt></strong> </td><td> query tickets created in 2007 
+</td></tr><tr><td> <strong><tt>created=lastmonth..thismonth</tt></strong> </td><td> query tickets created during the previous month 
+</td></tr><tr><td> <strong><tt>modified=1weekago..</tt></strong> </td><td> query tickets that have been modified in the last week 
+</td></tr><tr><td> <strong><tt>modified=..30daysago</tt></strong> </td><td> query tickets that have been inactive for the last 30 days 
+</td></tr></table>
+<hr />
+<p>
+See also: <a class="wiki" href="/trac/wiki/TracTickets">TracTickets</a>, <a class="wiki" href="/trac/wiki/TracReports">TracReports</a>, <a class="wiki" href="/trac/wiki/TracGuide">TracGuide</a>
+</p>
+</div>
+        
+        
+      </div>
+      
+
+    </div>
+    <script type="text/javascript">
+        jQuery.loadStyleSheet("/trac/chrome/common/css/report.css", "text/css");
+    </script>
+    <div id="altlinks">
+      <h3>Download in other formats:</h3>
+      <ul>
+        <li class="last first">
+          <a rel="nofollow" href="/trac/wiki/TracQuery?format=txt">Plain Text</a>
+        </li>
+      </ul>
+    </div>
+    </div>
+    <div id="footer" lang="en" xml:lang="en"><hr />
+      <a id="tracpowered" href="http://trac.edgewall.org/"><img src="/trac/chrome/common/trac_logo_mini.png" height="30" width="107" alt="Trac Powered" /></a>
+      <p class="left">Powered by <a href="/trac/about"><strong>Trac 0.12.4</strong></a><br />
+        By <a href="http://www.edgewall.org/">Edgewall Software</a>.</p>
+      <p class="right">Visit the Trac open source project at<br /><a href="http://trac.edgewall.org/">http://trac.edgewall.org/</a></p>
+    </div>
+    <div id="footer">
+	<div id="copyright">Copyright © Garlik 2009</div>
+		<div id="garlik_logo">
+	<a href="http://www.garlik.com/" rel="external" title="Click here to visit the Garlik homepage"><img src="/images/garlik.gif" alt="powered by Garlik" /></a>
+	</div>
+	<div id="foot_nav">
+	<ul>
+			<li><a href="/about" title="About" id="about">About</a></li>
+			<li><a href="/faqs" title="FAQs" id="faqs">FAQs</a></li>
+			<li><a href="/support" title="Install" id="support">Support</a></li>
+			<li><a href="/developers" title="Developers" id="developers">Developers</a></li>
+			<li><a href="/projects" title="Projects" id="projetcs">Projects</a></li>
+	</ul>
+	</div>
+    </div>
+    </div>
+  </body>
+</html>

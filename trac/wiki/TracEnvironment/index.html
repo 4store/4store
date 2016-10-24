@@ -1,0 +1,281 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  
+  
+
+  
+
+
+  <head>
+    <title>
+      TracEnvironment – 4store
+    </title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <!--[if IE]><script type="text/javascript">
+      if (/^#__msie303:/.test(window.location.hash))
+        window.location.replace(window.location.hash.replace(/^#__msie303:/, '#'));
+    </script><![endif]-->
+        <link rel="search" href="/trac/search" />
+        <link rel="help" href="/trac/wiki/TracGuide" />
+        <link rel="alternate" href="/trac/wiki/TracEnvironment?format=txt" type="text/x-trac-wiki" title="Plain Text" />
+        <link rel="start" href="/trac/wiki" />
+        <link rel="stylesheet" href="/trac/chrome/common/css/trac.css" type="text/css" /><link rel="stylesheet" href="/trac/chrome/common/css/wiki.css" type="text/css" />
+        <link rel="shortcut icon" href="/images/favico.png" type="image/png" />
+        <link rel="icon" href="/images/favico.png" type="image/png" />
+      <link type="application/opensearchdescription+xml" rel="search" href="/trac/search/opensearch" title="Search 4store" />
+    <script type="text/javascript" src="/trac/chrome/common/js/jquery.js"></script><script type="text/javascript" src="/trac/chrome/common/js/babel.js"></script><script type="text/javascript" src="/trac/chrome/common/js/messages/en_US.js"></script><script type="text/javascript" src="/trac/chrome/common/js/trac.js"></script><script type="text/javascript" src="/trac/chrome/common/js/search.js"></script><script type="text/javascript" src="/trac/chrome/common/js/folding.js"></script>
+    <!--[if lt IE 7]>
+    <script type="text/javascript" src="/trac/chrome/common/js/ie_pre7_hacks.js"></script>
+    <![endif]-->
+    <meta name="ROBOTS" content="NOINDEX, NOFOLLOW" />
+    <script type="text/javascript">
+      jQuery(document).ready(function($) {
+        $("#content").find("h1,h2,h3,h4,h5,h6").addAnchor(_("Link to this section"));
+        $("#content").find(".wikianchor").each(function() {
+          $(this).addAnchor(babel.format(_("Link to #%(id)s"), {id: $(this).attr('id')}));
+        });
+        $(".foldable").enableFolding(true, true);
+      });
+    </script>
+    <link rel="stylesheet" type="text/css" href="/style/main.css" />
+  </head>
+  <body>
+    <div id="container">
+    <div id="siteheader">
+    </div>
+    <div id="banner">
+      <div id="header">
+        <a id="logo" href="http://4store.org/"><img src="/images/4store.png" alt="4store" height="48" width="143" /></a>
+      </div>
+      <form id="search" action="/trac/search" method="get">
+        <div>
+          <label for="proj-search">Search:</label>
+          <input type="text" id="proj-search" name="q" size="18" value="" />
+          <input type="submit" value="Search" />
+        </div>
+      </form>
+      <div id="metanav" class="nav">
+    <ul>
+      <li class="first"><a href="/trac/login">Login</a></li><li><a href="/trac/prefs">Preferences</a></li><li><a href="/trac/wiki/TracGuide">Help/Guide</a></li><li class="last"><a href="/trac/about">About Trac</a></li>
+    </ul>
+  </div>
+    </div>
+    <div id="mainnav" class="nav">
+    <ul>
+      <li class="first active"><a href="/trac/wiki">Wiki</a></li><li><a href="/trac/timeline">Timeline</a></li><li><a href="/trac/roadmap">Roadmap</a></li><li><a href="/trac/report">View Tickets</a></li><li class="last"><a href="/trac/search">Search</a></li>
+    </ul>
+  </div>
+    <div id="main">
+      <div id="pagepath" class="noprint">
+  <a class="pathentry first" title="View WikiStart" href="/trac/wiki">wiki:</a><a class="pathentry" href="/trac/wiki/TracEnvironment" title="View TracEnvironment">TracEnvironment</a>
+</div>
+      <div id="ctxtnav" class="nav">
+        <h2>Context Navigation</h2>
+          <ul>
+              <li class="first"><a href="/trac/wiki/WikiStart">Start Page</a></li><li><a href="/trac/wiki/TitleIndex">Index</a></li><li class="last"><a href="/trac/wiki/TracEnvironment?action=history">History</a></li>
+          </ul>
+        <hr />
+      </div>
+    <div id="content" class="wiki">
+      <div class="wikipage searchable">
+        
+          
+          <div class="trac-modifiedby">
+            <span><a href="/trac/wiki/TracEnvironment?action=diff&amp;version=2" title="Version 2 by trac">Last modified</a> <a class="timeline" href="/trac/timeline?from=2011-12-01T17%3A47%3A14Z&amp;precision=second" title="2011-12-01T17:47:14Z in Timeline">4 years</a> ago</span>
+            <span class="trac-print">Last modified on 01/12/11 17:47:14</span>
+          </div>
+          <div id="wikipage"><h1 id="TheTracEnvironment">The Trac Environment</h1>
+<p>
+Trac uses a directory structure and a database for storing project data. The directory is referred to as the “environment”.
+</p>
+<h2 id="CreatinganEnvironment">Creating an Environment</h2>
+<p>
+A new Trac environment is created using  <a class="wiki" href="/trac/wiki/TracAdmin#initenv">trac-admin's initenv</a>:
+</p>
+<pre class="wiki">$ trac-admin /path/to/myproject initenv
+</pre><p>
+<tt>trac-admin</tt> will ask you for the name of the project and the
+database connection string (explained below).
+</p>
+<h3 id="SomeUsefulTips">Some Useful Tips</h3>
+<ul><li>The user under which the web server runs will require file system write permission to 
+the environment directory and all the files inside. Please remember to set
+the appropriate permissions. The same applies to the source code repository, 
+although the user under which Trac runs will only require write access to a Subversion repository created with the BDB file system; for other repository types, check the corresponding plugin's documentation. 
+</li></ul><p>
+ 
+</p>
+<ul><li><tt>initenv</tt>, when using an svn repository, does not imply that trac-admin will perform <tt>svnadmin create</tt> for the specified repository path. You need to perform the <tt>svnadmin create</tt> prior to <tt>trac-admin initenv</tt> if you're creating a new svn repository altogether with a new trac environment, otherwise you will see a message "Warning: couldn't index the repository" when initializing the environment.
+</li></ul><ul><li>Non-ascii environment paths are not supported
+</li></ul><p>
+ 
+</p>
+<ul><li>Also, it seems that project names with spaces can be problematic for authentication (see <a class="ext-link" href="http://trac.edgewall.org/intertrac/%237163" title="#7163 in Trac project trac"><span class="icon">​</span>#7163</a>).
+</li></ul><ul><li><a class="wiki" href="/trac/wiki/TracPlugins">TracPlugins</a> located in a <a class="wiki" href="/trac/wiki/TracIni#inherit-section">shared plugins folder</a> that is defined in an <a class="wiki" href="/trac/wiki/TracIni#GlobalConfiguration">inherited configuration</a> are currently not loaded during creation, and hence, if they need to create extra tables for example, you'll need to <a class="wiki" href="/trac/wiki/TracUpgrade#UpgradetheTracEnvironment">upgrade the environment</a> before being able to use it.
+</li></ul><h2 id="DatabaseConnectionStrings">Database Connection Strings</h2>
+<p>
+Since version 0.9, Trac supports both <a class="ext-link" href="http://sqlite.org/"><span class="icon">​</span>SQLite</a> and
+<a class="ext-link" href="http://www.postgresql.org/"><span class="icon">​</span>PostgreSQL</a> database backends.  Preliminary
+support for <a class="ext-link" href="http://mysql.com/"><span class="icon">​</span>MySQL</a> was added in 0.10.  The default is
+to use SQLite, which is probably sufficient for most projects. The database
+file is then stored in the environment directory, and can easily be 
+<a class="wiki" href="/trac/wiki/TracBackup">backed up</a> together with the rest of the environment.
+</p>
+<h3 id="SQLiteConnectionString">SQLite Connection String</h3>
+<p>
+The connection string for an SQLite database is:
+</p>
+<pre class="wiki">sqlite:db/trac.db
+</pre><p>
+where <tt>db/trac.db</tt> is the path to the database file within the Trac environment.
+</p>
+<h3 id="PostgreSQLConnectionString">PostgreSQL Connection String</h3>
+<p>
+If you want to use PostgreSQL or MySQL instead, you'll have to use a
+different connection string. For example, to connect to a PostgreSQL
+database on the same machine called <tt>trac</tt>, that allows access to the
+user <tt>johndoe</tt> with the password <tt>letmein</tt>, use:
+</p>
+<pre class="wiki">postgres://johndoe:letmein@localhost/trac
+</pre><p>
+<em>Note that due to the way the above string is parsed, the "/" and "@" characters cannot be part of the password.</em>
+</p>
+<p>
+If PostgreSQL is running on a non-standard port (for example 9342), use:
+</p>
+<pre class="wiki">postgres://johndoe:letmein@localhost:9342/trac
+</pre><p>
+On UNIX, you might want to select a UNIX socket for the transport,
+either the default socket as defined by the PGHOST environment variable:
+</p>
+<pre class="wiki">postgres://user:password@/database
+</pre><p>
+or a specific one:
+</p>
+<pre class="wiki">postgres://user:password@/database?host=/path/to/socket/dir
+</pre><p>
+Note that with PostgreSQL you will have to create the database before running
+<tt>trac-admin initenv</tt>.
+</p>
+<p>
+See the <a class="ext-link" href="http://www.postgresql.org/docs/"><span class="icon">​</span>PostgreSQL documentation</a> for detailed instructions on how to administer <a class="ext-link" href="http://postgresql.org"><span class="icon">​</span>PostgreSQL</a>.
+Generally, the following is sufficient to create a database user named <tt>tracuser</tt>, and a database named <tt>trac</tt>.
+</p>
+<pre class="wiki">createuser -U postgres -E -P tracuser
+createdb -U postgres -O tracuser -E UTF8 trac
+</pre><p>
+When running <tt>createuser</tt> you will be prompted for the password for the user 'tracuser'. This new user will not be a superuser, will not be allowed to create other databases and will not be allowed to create other roles. These privileges are not needed to run a trac instance. If no password is desired for the user, simply remove the <tt>-P</tt> and <tt>-E</tt> options from the <tt>createuser</tt> command.  Also note that the database should be created as UTF8. LATIN1 encoding causes errors trac's use of unicode in trac.  SQL_ASCII also seems to work.
+</p>
+<p>
+Under some default configurations (debian) one will have run the <tt>createuser</tt> and <tt>createdb</tt> scripts as the <tt>postgres</tt> user.  For example:
+</p>
+<pre class="wiki">sudo su - postgres -c 'createuser -U postgres -S -D -R -E -P tracuser'
+sudo su - postgres -c 'createdb -U postgres -O tracuser -E UTF8 trac'
+</pre><p>
+Trac uses the <tt>public</tt> schema by default but you can specify a different schema in the connection string:
+</p>
+<pre class="wiki">postgres://user:pass@server/database?schema=yourschemaname
+</pre><h3 id="MySQLConnectionString">MySQL Connection String</h3>
+<p>
+If you want to use MySQL instead, you'll have to use a
+different connection string. For example, to connect to a MySQL
+database on the same machine called <tt>trac</tt>, that allows access to the
+user <tt>johndoe</tt> with the password <tt>letmein</tt>, the mysql connection string is:
+</p>
+<pre class="wiki">mysql://johndoe:letmein@localhost:3306/trac
+</pre><h2 id="SourceCodeRepository">Source Code Repository</h2>
+<p>
+Since version 0.12, a single Trac environment can be connected to more than one repository. There are many different ways to connect repositories to an environment, see <a class="wiki" href="/trac/wiki/TracRepositoryAdmin">TracRepositoryAdmin</a>. This page also details the various attributes that can be set for a repository (like <tt>type</tt>, <tt>url</tt>, <tt>description</tt>).
+</p>
+<p>
+In Trac 0.12 <tt>trac-admin</tt> no longer asks questions related to repositories. Therefore, by default Trac is not connected to any source code repository, and the <em>Browse Source</em> toolbar item will not be displayed.
+You can also explicitly disable the <tt>trac.versioncontrol.*</tt> components (which are otherwise still loaded)
+</p>
+<pre class="wiki">[components]
+trac.versioncontrol.* = disabled
+</pre><p>
+For some version control systems, it is possible to specify not only the path to the repository,
+but also a <em>scope</em> within the repository. Trac will then only show information
+related to the files and changesets below that scope. The Subversion backend for
+Trac supports this; for other types, check the corresponding plugin's documentation.
+</p>
+<p>
+Example of a configuration for a Subversion repository used as the default repository:
+</p>
+<pre class="wiki">[trac]
+repository_type = svn
+repository_dir = /path/to/your/repository
+</pre><p>
+The configuration for a scoped Subversion repository would be:
+</p>
+<pre class="wiki">[trac]
+repository_type = svn
+repository_dir = /path/to/your/repository/scope/within/repos
+</pre><h2 id="DirectoryStructure">Directory Structure</h2>
+<p>
+An environment directory will usually consist of the following files and directories:
+</p>
+<ul><li><tt>README</tt> - Brief description of the environment.
+</li><li><tt>VERSION</tt> - Contains the environment version identifier.
+</li><li><tt>attachments</tt> - Attachments to wiki pages and tickets are stored here.
+</li><li><tt>conf</tt>
+<ul><li><tt>trac.ini</tt> - Main configuration file. See <a class="wiki" href="/trac/wiki/TracIni">TracIni</a>.
+</li></ul></li><li><tt>db</tt>
+<ul><li><tt>trac.db</tt> - The SQLite database (if you're using SQLite).
+</li></ul></li><li><tt>htdocs</tt> - directory containing web resources, which can be referenced in Genshi templates using <tt>/htdocs/site/...</tt> URLs. <em>(since 0.11)</em>
+</li><li><tt>log</tt> - default directory for log files, if logging is turned on and a relative path is given.
+</li><li><tt>plugins</tt> - Environment-specific <a class="wiki" href="/trac/wiki/TracPlugins">plugins</a> (Python eggs or single file plugins, since <a class="ext-link" href="http://trac.edgewall.org/intertrac/milestone%3A0.10" title="milestone:0.10 in Trac project trac"><span class="icon">​</span>0.10</a>)
+</li><li><tt>templates</tt> - Custom Genshi environment-specific templates. <em>(since 0.11)</em>
+<ul><li><tt>site.html</tt> - method to customize header, footer, and style, described in <a class="wiki" href="/trac/wiki/TracInterfaceCustomization#SiteAppearance">TracInterfaceCustomization#SiteAppearance</a>
+</li></ul></li></ul><p>
+<strong>Caveat:</strong> <em>don't confuse a Trac environment directory with the source code repository directory.</em> 
+</p>
+<p>
+This is a common beginners' mistake.
+It happens that the structure for a Trac environment is loosely modelled after the Subversion repository directory 
+structure, but those are two disjoint entities and they are not and <em>must not</em> be located at the same place.
+</p>
+<hr />
+<p>
+See also: <a class="wiki" href="/trac/wiki/TracAdmin">TracAdmin</a>, <a class="wiki" href="/trac/wiki/TracBackup">TracBackup</a>, <a class="wiki" href="/trac/wiki/TracIni">TracIni</a>, <a class="wiki" href="/trac/wiki/TracGuide">TracGuide</a>
+</p>
+</div>
+        
+        
+      </div>
+      
+
+    </div>
+    <div id="altlinks">
+      <h3>Download in other formats:</h3>
+      <ul>
+        <li class="last first">
+          <a rel="nofollow" href="/trac/wiki/TracEnvironment?format=txt">Plain Text</a>
+        </li>
+      </ul>
+    </div>
+    </div>
+    <div id="footer" lang="en" xml:lang="en"><hr />
+      <a id="tracpowered" href="http://trac.edgewall.org/"><img src="/trac/chrome/common/trac_logo_mini.png" height="30" width="107" alt="Trac Powered" /></a>
+      <p class="left">Powered by <a href="/trac/about"><strong>Trac 0.12.4</strong></a><br />
+        By <a href="http://www.edgewall.org/">Edgewall Software</a>.</p>
+      <p class="right">Visit the Trac open source project at<br /><a href="http://trac.edgewall.org/">http://trac.edgewall.org/</a></p>
+    </div>
+    <div id="footer">
+	<div id="copyright">Copyright © Garlik 2009</div>
+		<div id="garlik_logo">
+	<a href="http://www.garlik.com/" rel="external" title="Click here to visit the Garlik homepage"><img src="/images/garlik.gif" alt="powered by Garlik" /></a>
+	</div>
+	<div id="foot_nav">
+	<ul>
+			<li><a href="/about" title="About" id="about">About</a></li>
+			<li><a href="/faqs" title="FAQs" id="faqs">FAQs</a></li>
+			<li><a href="/support" title="Install" id="support">Support</a></li>
+			<li><a href="/developers" title="Developers" id="developers">Developers</a></li>
+			<li><a href="/projects" title="Projects" id="projetcs">Projects</a></li>
+	</ul>
+	</div>
+    </div>
+    </div>
+  </body>
+</html>

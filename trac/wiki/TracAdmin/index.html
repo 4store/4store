@@ -1,0 +1,606 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  
+  
+
+  
+
+
+  <head>
+    <title>
+      TracAdmin – 4store
+    </title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <!--[if IE]><script type="text/javascript">
+      if (/^#__msie303:/.test(window.location.hash))
+        window.location.replace(window.location.hash.replace(/^#__msie303:/, '#'));
+    </script><![endif]-->
+        <link rel="search" href="/trac/search" />
+        <link rel="help" href="/trac/wiki/TracGuide" />
+        <link rel="alternate" href="/trac/wiki/TracAdmin?format=txt" type="text/x-trac-wiki" title="Plain Text" />
+        <link rel="start" href="/trac/wiki" />
+        <link rel="stylesheet" href="/trac/chrome/common/css/trac.css" type="text/css" /><link rel="stylesheet" href="/trac/chrome/common/css/wiki.css" type="text/css" />
+        <link rel="shortcut icon" href="/images/favico.png" type="image/png" />
+        <link rel="icon" href="/images/favico.png" type="image/png" />
+      <link type="application/opensearchdescription+xml" rel="search" href="/trac/search/opensearch" title="Search 4store" />
+    <script type="text/javascript" src="/trac/chrome/common/js/jquery.js"></script><script type="text/javascript" src="/trac/chrome/common/js/babel.js"></script><script type="text/javascript" src="/trac/chrome/common/js/messages/en_US.js"></script><script type="text/javascript" src="/trac/chrome/common/js/trac.js"></script><script type="text/javascript" src="/trac/chrome/common/js/search.js"></script><script type="text/javascript" src="/trac/chrome/common/js/folding.js"></script>
+    <!--[if lt IE 7]>
+    <script type="text/javascript" src="/trac/chrome/common/js/ie_pre7_hacks.js"></script>
+    <![endif]-->
+    <meta name="ROBOTS" content="NOINDEX, NOFOLLOW" />
+    <script type="text/javascript">
+      jQuery(document).ready(function($) {
+        $("#content").find("h1,h2,h3,h4,h5,h6").addAnchor(_("Link to this section"));
+        $("#content").find(".wikianchor").each(function() {
+          $(this).addAnchor(babel.format(_("Link to #%(id)s"), {id: $(this).attr('id')}));
+        });
+        $(".foldable").enableFolding(true, true);
+      });
+    </script>
+    <link rel="stylesheet" type="text/css" href="/style/main.css" />
+  </head>
+  <body>
+    <div id="container">
+    <div id="siteheader">
+    </div>
+    <div id="banner">
+      <div id="header">
+        <a id="logo" href="http://4store.org/"><img src="/images/4store.png" alt="4store" height="48" width="143" /></a>
+      </div>
+      <form id="search" action="/trac/search" method="get">
+        <div>
+          <label for="proj-search">Search:</label>
+          <input type="text" id="proj-search" name="q" size="18" value="" />
+          <input type="submit" value="Search" />
+        </div>
+      </form>
+      <div id="metanav" class="nav">
+    <ul>
+      <li class="first"><a href="/trac/login">Login</a></li><li><a href="/trac/prefs">Preferences</a></li><li><a href="/trac/wiki/TracGuide">Help/Guide</a></li><li class="last"><a href="/trac/about">About Trac</a></li>
+    </ul>
+  </div>
+    </div>
+    <div id="mainnav" class="nav">
+    <ul>
+      <li class="first active"><a href="/trac/wiki">Wiki</a></li><li><a href="/trac/timeline">Timeline</a></li><li><a href="/trac/roadmap">Roadmap</a></li><li><a href="/trac/report">View Tickets</a></li><li class="last"><a href="/trac/search">Search</a></li>
+    </ul>
+  </div>
+    <div id="main">
+      <div id="pagepath" class="noprint">
+  <a class="pathentry first" title="View WikiStart" href="/trac/wiki">wiki:</a><a class="pathentry" href="/trac/wiki/TracAdmin" title="View TracAdmin">TracAdmin</a>
+</div>
+      <div id="ctxtnav" class="nav">
+        <h2>Context Navigation</h2>
+          <ul>
+              <li class="first"><a href="/trac/wiki/WikiStart">Start Page</a></li><li><a href="/trac/wiki/TitleIndex">Index</a></li><li class="last"><a href="/trac/wiki/TracAdmin?action=history">History</a></li>
+          </ul>
+        <hr />
+      </div>
+    <div id="content" class="wiki">
+      <div class="wikipage searchable">
+        
+          
+          <div class="trac-modifiedby">
+            <span><a href="/trac/wiki/TracAdmin?action=diff&amp;version=2" title="Version 2 by trac">Last modified</a> <a class="timeline" href="/trac/timeline?from=2011-12-01T17%3A47%3A14Z&amp;precision=second" title="2011-12-01T17:47:14Z in Timeline">4 years</a> ago</span>
+            <span class="trac-print">Last modified on 01/12/11 17:47:14</span>
+          </div>
+          <div id="wikipage"><h1 id="TracAdmin"><a class="wiki" href="/trac/wiki/TracAdmin">TracAdmin</a></h1>
+<p>
+</p><div class="wiki-toc"><h4>Table of Contents</h4><ul><li class="False"><a class="False" href="/trac/wiki/TracGuide">Index</a></li><li class="False"><a class="False" href="/trac/wiki/TracInstall">Installation</a></li><li class="False"><a class="False" href="/trac/wiki/TracInterfaceCustomization">Customization</a></li><li class="False"><a class="False" href="/trac/wiki/TracPlugins">Plugins</a></li><li class="False"><a class="False" href="/trac/wiki/TracUpgrade">Upgrading</a></li><li class="False"><a class="False" href="/trac/wiki/TracIni">Configuration</a></li><li class="active"><a class="False" href="/trac/wiki/TracAdmin">Administration</a></li><li class="False"><a class="False" href="/trac/wiki/TracBackup">Backup</a></li><li class="False"><a class="False" href="/trac/wiki/TracLogging">Logging</a></li><li class="False"><a class="False" href="/trac/wiki/TracPermissions">Permissions</a></li><li class="False"><a class="False" href="/trac/wiki/TracWiki">The Wiki</a></li><li class="False"><a class="False" href="/trac/wiki/WikiFormatting">Wiki Formatting</a></li><li class="False"><a class="False" href="/trac/wiki/TracTimeline">Timeline</a></li><li class="False"><a class="False" href="/trac/wiki/TracBrowser">Repository Browser</a></li><li class="False"><a class="False" href="/trac/wiki/TracRevisionLog">Revision Log</a></li><li class="False"><a class="False" href="/trac/wiki/TracChangeset">Changesets</a></li><li class="False"><a class="False" href="/trac/wiki/TracTickets">Tickets</a></li><li class="False"><a class="False" href="/trac/wiki/TracWorkflow">Workflow</a></li><li class="False"><a class="False" href="/trac/wiki/TracRoadmap">Roadmap</a></li><li class="False"><a class="False" href="/trac/wiki/TracQuery">Ticket Queries</a></li><li class="False"><a class="False" href="/trac/wiki/TracReports">Reports</a></li><li class="False"><a class="False" href="/trac/wiki/TracRss">RSS Support</a></li><li class="False"><a class="False" href="/trac/wiki/TracNotification">Notification</a></li></ul></div><p>
+</p>
+<p>
+Trac is distributed with a powerful command-line configuration tool. This tool can be used  to configure and customize your Trac-installation to better fit your needs.
+</p>
+<p>
+Some of those operations can also be performed via the <em>Admin</em> web interface, an updated version of the <a class="ext-link" href="http://trac.edgewall.org/intertrac/WebAdmin" title="WebAdmin in Trac project trac"><span class="icon">​</span>WebAdmin</a> plugin now integrated within Trac (since version 0.11).
+</p>
+<h2 id="Usage">Usage</h2>
+<p>
+For nearly every <tt>trac-admin</tt> command, you'll need to specify the path to the <a class="wiki" href="/trac/wiki/TracEnvironment">TracEnvironment</a> that you want to administer as the first argument, for example:
+</p>
+<pre class="wiki">trac-admin /path/to/projenv wiki list
+</pre><p>
+The only exception is for the <tt>help</tt> command, but even in this case if you omit the environment, you'll only get a very succinct list of commands (<tt>help</tt> and <tt>initenv</tt>), the same list you'd get when invoking <tt>trac-admin</tt> alone.
+Also, <tt>trac-admin --version</tt> will tell you about the Trac version (e.g. 0.12) corresponding to the program.
+</p>
+<p>
+If you want to get a comprehensive list of the available commands and sub-commands, you need to specify an existing environment:
+</p>
+<pre class="wiki">trac-admin /path/to/projenv help
+</pre><p>
+Some commands have a more detailed help, which you can access by specifying the command's name as a subcommand for <tt>help</tt>:
+</p>
+<pre class="wiki">trac-admin /path/to/projenv help &lt;command&gt;
+</pre><h3 id="initenv"><tt>trac-admin &lt;targetdir&gt; initenv</tt></h3>
+<p>
+This subcommand is very important as it's the one used to create a <a class="wiki" href="/trac/wiki/TracEnvironment">TracEnvironment</a> in the specified <tt>&lt;targetdir&gt;</tt>. That directory must not exists prior to the call.
+</p>
+<p>
+<pre class="wiki">initenv [&lt;projectname&gt; &lt;db&gt; [&lt;repostype&gt; &lt;repospath&gt;]]
+
+    Create and initialize a new environment
+
+    If no arguments are given, then the required parameters are requested
+    interactively.
+
+    One or more optional arguments --inherit=PATH can be used to specify the
+    "[inherit] file" option at environment creation time, so that only the
+    options not already specified in one of the global configuration files are
+    written to the conf/trac.ini file of the newly created environment.
+    Relative paths are resolved relative to the "conf" directory of the new
+    environment.
+
+</pre>
+</p>
+<p>
+It supports an extra <tt>--inherit</tt> option, which can be used to specify a global configuration file which can be used share settings between several environments. You can also inherit from a shared configuration afterwards, by setting the <tt>[inherit] file</tt> option in the <tt>conf/trac.ini</tt> file in your newly created environment, but the advantage of specifying the inherited configuration file at environment creation time is that only the options <em>not</em> already specified in the global configuration file will be written in the created environment's <tt>conf/trac.ini</tt> file.
+See <a class="wiki" href="/trac/wiki/TracIni#GlobalConfiguration">TracIni#GlobalConfiguration</a>.
+</p>
+<p>
+Note that in version 0.11 of Trac, <tt>initenv</tt> lost an extra last argument <tt>&lt;templatepath&gt;</tt>, which was used in previous versions to point to the <tt>templates</tt> folder. If you are using the one-liner '<tt>trac-admin /path/to/trac/ initenv &lt;projectname&gt; &lt;db&gt; &lt;repostype&gt; &lt;repospath&gt;</tt>' in the above and getting an error that reads <strong>'<tt>Wrong number of arguments to initenv: 4</tt></strong>', then this is because you're using a <tt>trac-admin</tt> script from an <strong>older</strong> version of Trac.
+</p>
+<h2 id="InteractiveMode">Interactive Mode</h2>
+<p>
+When passing the environment path as the only argument, <tt>trac-admin</tt> starts in interactive mode.
+Commands can then be executed on the selected environment using the prompt, which offers tab-completion
+(on non-Windows environments, and when the Python <tt>readline</tt> module is available) and automatic repetition of the last command issued.
+</p>
+<p>
+Once you're in interactive mode, you can also get help on specific commands or subsets of commands:
+</p>
+<p>
+For example, to get an explanation of the <tt>resync</tt> command, run:
+</p>
+<pre class="wiki">&gt; help resync
+</pre><p>
+To get help on all the Wiki-related commands, run:
+</p>
+<pre class="wiki">&gt; help wiki
+</pre><h2 id="FullCommandReference">Full Command Reference</h2>
+<p>
+You'll find below the detailed help for all the commands available by default in <tt>trac-admin</tt>. Note that this may not match the list given by <tt>trac-admin &lt;yourenv&gt; help</tt>, as the commands  pertaining to components disabled in that environment won't be available and conversely some plugins activated in the environment can add their own commands.
+</p>
+<p>
+<pre class="wiki">help 
+
+    Show documentation
+
+initenv [&lt;projectname&gt; &lt;db&gt; [&lt;repostype&gt; &lt;repospath&gt;]]
+
+    Create and initialize a new environment
+
+    If no arguments are given, then the required parameters are requested
+    interactively.
+
+    One or more optional arguments --inherit=PATH can be used to specify the
+    "[inherit] file" option at environment creation time, so that only the
+    options not already specified in one of the global configuration files are
+    written to the conf/trac.ini file of the newly created environment.
+    Relative paths are resolved relative to the "conf" directory of the new
+    environment.
+
+attachment add &lt;realm:id&gt; &lt;path&gt; [author] [description]
+
+    Attach a file to a resource
+
+    The resource is identified by its realm and identifier. The attachment will
+    be named according to the base name of the file.
+
+attachment export &lt;realm:id&gt; &lt;name&gt; [destination]
+
+    Export an attachment from a resource to a file or stdout
+
+    The resource is identified by its realm and identifier. If no destination
+    is specified, the attachment is output to stdout.
+
+attachment list &lt;realm:id&gt;
+
+    List attachments of a resource
+
+    The resource is identified by its realm and identifier.
+
+attachment remove &lt;realm:id&gt; &lt;name&gt;
+
+    Remove an attachment from a resource
+
+    The resource is identified by its realm and identifier.
+
+changeset added &lt;repos&gt; &lt;rev&gt; [rev] [...]
+
+    Notify trac about changesets added to a repository
+
+    This command should be called from a post-commit hook. It will trigger a
+    cache update and notify components about the addition.
+
+changeset modified &lt;repos&gt; &lt;rev&gt; [rev] [...]
+
+    Notify trac about changesets modified in a repository
+
+    This command should be called from a post-revprop hook after revision
+    properties like the commit message, author or date have been changed. It
+    will trigger a cache update for the given revisions and notify components
+    about the change.
+
+component add &lt;name&gt; &lt;owner&gt;
+
+    Add a new component
+
+component chown &lt;name&gt; &lt;owner&gt;
+
+    Change component ownership
+
+component list 
+
+    Show available components
+
+component remove &lt;name&gt;
+
+    Remove/uninstall a component
+
+component rename &lt;name&gt; &lt;newname&gt;
+
+    Rename a component
+
+config get &lt;section&gt; &lt;option&gt;
+
+    Get the value of the given option in "trac.ini"
+
+config remove &lt;section&gt; &lt;option&gt;
+
+    Remove the specified option from "trac.ini"
+
+config set &lt;section&gt; &lt;option&gt; &lt;value&gt;
+
+    Set the value for the given option in "trac.ini"
+
+deploy &lt;directory&gt;
+
+    Extract static resources from Trac and all plugins
+
+hotcopy &lt;backupdir&gt;
+
+    Make a hot backup copy of an environment
+
+milestone add &lt;name&gt; [due]
+
+    Add milestone
+
+milestone completed &lt;name&gt; &lt;completed&gt;
+
+    Set milestone complete date
+
+    The &lt;completed&gt; date must be specified in the "YYYY-MM-DD" format.
+    Alternatively, "now" can be used to set the completion date to the current
+    time. To remove the completion date from a milestone, specify an empty
+    string ("").
+
+milestone due &lt;name&gt; &lt;due&gt;
+
+    Set milestone due date
+
+    The &lt;due&gt; date must be specified in the "YYYY-MM-DD" format. Alternatively,
+    "now" can be used to set the due date to the current time. To remove the
+    due date from a milestone, specify an empty string ("").
+
+milestone list 
+
+    Show milestones
+
+milestone remove &lt;name&gt;
+
+    Remove milestone
+
+milestone rename &lt;name&gt; &lt;newname&gt;
+
+    Rename milestone
+
+permission add &lt;user&gt; &lt;action&gt; [action] [...]
+
+    Add a new permission rule
+
+permission list [user]
+
+    List permission rules
+
+permission remove &lt;user&gt; &lt;action&gt; [action] [...]
+
+    Remove a permission rule
+
+priority add &lt;value&gt;
+
+    Add a priority value option
+
+priority change &lt;value&gt; &lt;newvalue&gt;
+
+    Change a priority value
+
+priority list 
+
+    Show possible ticket priorities
+
+priority order &lt;value&gt; up|down
+
+    Move a priority value up or down in the list
+
+priority remove &lt;value&gt;
+
+    Remove a priority value
+
+repository add &lt;repos&gt; &lt;dir&gt; [type]
+
+    Add a source repository
+
+repository alias &lt;name&gt; &lt;target&gt;
+
+    Create an alias for a repository
+
+repository list 
+
+    List source repositories
+
+repository remove &lt;repos&gt;
+
+    Remove a source repository
+
+repository resync &lt;repos&gt; [rev]
+
+    Re-synchronize trac with repositories
+
+    When [rev] is specified, only that revision is synchronized. Otherwise, the
+    complete revision history is synchronized. Note that this operation can
+    take a long time to complete. If synchronization gets interrupted, it can
+    be resumed later using the `sync` command.
+
+    To synchronize all repositories, specify "*" as the repository.
+
+repository set &lt;repos&gt; &lt;key&gt; &lt;value&gt;
+
+    Set an attribute of a repository
+
+    The following keys are supported: alias, description, dir, hidden, name,
+    type, url
+
+repository sync &lt;repos&gt; [rev]
+
+    Resume synchronization of repositories
+
+    It works like `resync`, except that it doesn't clear the already
+    synchronized changesets, so it's a better way to resume an interrupted
+    `resync`.
+
+    See `resync` help for detailed usage.
+
+resolution add &lt;value&gt;
+
+    Add a resolution value option
+
+resolution change &lt;value&gt; &lt;newvalue&gt;
+
+    Change a resolution value
+
+resolution list 
+
+    Show possible ticket resolutions
+
+resolution order &lt;value&gt; up|down
+
+    Move a resolution value up or down in the list
+
+resolution remove &lt;value&gt;
+
+    Remove a resolution value
+
+session add &lt;sid[:0|1]&gt; [name] [email]
+
+    Create a session for the given sid
+
+    Populates the name and email attributes for the given session. Adding a
+    suffix ':0' to the sid makes the session unauthenticated, and a suffix ':1'
+    makes it authenticated (the default if no suffix is specified).
+
+session delete &lt;sid[:0|1]&gt; [...]
+
+    Delete the session of the specified sid
+
+    An sid suffix ':0' operates on an unauthenticated session with the given
+    sid, and a suffix ':1' on an authenticated session (the default).
+    Specifying the sid 'anonymous' will delete all anonymous sessions.
+
+session list [sid[:0|1]] [...]
+
+    List the name and email for the given sids
+
+    Specifying the sid 'anonymous' lists all unauthenticated sessions, and
+    'authenticated' all authenticated sessions. '*' lists all sessions, and is
+    the default if no sids are given.
+
+    An sid suffix ':0' operates on an unauthenticated session with the given
+    sid, and a suffix ':1' on an authenticated session (the default).
+
+session purge &lt;age&gt;
+
+    Purge all anonymous sessions older than the given age
+
+    Age may be specified as a relative time like "90 days ago", or in YYYYMMDD
+    format.
+
+session set &lt;name|email&gt; &lt;sid[:0|1]&gt; &lt;value&gt;
+
+    Set the name or email attribute of the given sid
+
+    An sid suffix ':0' operates on an unauthenticated session with the given
+    sid, and a suffix ':1' on an authenticated session (the default).
+
+severity add &lt;value&gt;
+
+    Add a severity value option
+
+severity change &lt;value&gt; &lt;newvalue&gt;
+
+    Change a severity value
+
+severity list 
+
+    Show possible ticket severities
+
+severity order &lt;value&gt; up|down
+
+    Move a severity value up or down in the list
+
+severity remove &lt;value&gt;
+
+    Remove a severity value
+
+ticket remove &lt;number&gt;
+
+    Remove ticket
+
+ticket_type add &lt;value&gt;
+
+    Add a ticket type
+
+ticket_type change &lt;value&gt; &lt;newvalue&gt;
+
+    Change a ticket type
+
+ticket_type list 
+
+    Show possible ticket types
+
+ticket_type order &lt;value&gt; up|down
+
+    Move a ticket type up or down in the list
+
+ticket_type remove &lt;value&gt;
+
+    Remove a ticket type
+
+upgrade 
+
+    Upgrade database to current version
+
+version add &lt;name&gt; [time]
+
+    Add version
+
+version list 
+
+    Show versions
+
+version remove &lt;name&gt;
+
+    Remove version
+
+version rename &lt;name&gt; &lt;newname&gt;
+
+    Rename version
+
+version time &lt;name&gt; &lt;time&gt;
+
+    Set version date
+
+    The &lt;time&gt; must be specified in the "YYYY-MM-DD" format. Alternatively,
+    "now" can be used to set the version date to the current time. To remove
+    the date from a version, specify an empty string ("").
+
+wiki dump &lt;directory&gt; [page] [...]
+
+    Export wiki pages to files named by title
+
+    Individual wiki page names can be specified after the directory. A name
+    ending with a * means that all wiki pages starting with that prefix should
+    be dumped. If no name is specified, all wiki pages are dumped.
+
+wiki export &lt;page&gt; [file]
+
+    Export wiki page to file or stdout
+
+wiki import &lt;page&gt; [file]
+
+    Import wiki page from file or stdin
+
+wiki list 
+
+    List wiki pages
+
+wiki load &lt;path&gt; [...]
+
+    Import wiki pages from files
+
+    If a given path is a file, it is imported as a page with the name of the
+    file. If a path is a directory, all files in that directory are imported.
+
+wiki remove &lt;page&gt;
+
+    Remove wiki page
+
+wiki rename &lt;page&gt; &lt;new_name&gt;
+
+    Rename wiki page
+
+wiki replace &lt;path&gt; [...]
+
+    Replace the content of wiki pages from files (DANGEROUS!)
+
+    This command replaces the content of the last version of one or more wiki
+    pages with new content. The previous content is lost, and no new entry is
+    created in the page history. The metadata of the page (time, author) is not
+    changed either.
+
+    If a given path is a file, it is imported as a page with the name of the
+    file. If a path is a directory, all files in that directory are imported.
+
+    WARNING: This operation results in the loss of the previous content and
+    cannot be undone. It may be advisable to backup the current content using
+    "wiki dump" beforehand.
+
+wiki upgrade 
+
+    Upgrade default wiki pages to current version
+
+</pre>
+</p>
+<hr />
+<p>
+See also: <a class="wiki" href="/trac/wiki/TracGuide">TracGuide</a>, <a class="wiki" href="/trac/wiki/TracBackup">TracBackup</a>, <a class="wiki" href="/trac/wiki/TracPermissions">TracPermissions</a>, <a class="wiki" href="/trac/wiki/TracEnvironment">TracEnvironment</a>, <a class="wiki" href="/trac/wiki/TracIni">TracIni</a>, <a class="ext-link" href="http://trac.edgewall.org/intertrac/TracMigrate" title="TracMigrate in Trac project trac"><span class="icon">​</span>TracMigrate</a>
+</p>
+</div>
+        
+        
+      </div>
+      
+
+    </div>
+    <div id="altlinks">
+      <h3>Download in other formats:</h3>
+      <ul>
+        <li class="last first">
+          <a rel="nofollow" href="/trac/wiki/TracAdmin?format=txt">Plain Text</a>
+        </li>
+      </ul>
+    </div>
+    </div>
+    <div id="footer" lang="en" xml:lang="en"><hr />
+      <a id="tracpowered" href="http://trac.edgewall.org/"><img src="/trac/chrome/common/trac_logo_mini.png" height="30" width="107" alt="Trac Powered" /></a>
+      <p class="left">Powered by <a href="/trac/about"><strong>Trac 0.12.4</strong></a><br />
+        By <a href="http://www.edgewall.org/">Edgewall Software</a>.</p>
+      <p class="right">Visit the Trac open source project at<br /><a href="http://trac.edgewall.org/">http://trac.edgewall.org/</a></p>
+    </div>
+    <div id="footer">
+	<div id="copyright">Copyright © Garlik 2009</div>
+		<div id="garlik_logo">
+	<a href="http://www.garlik.com/" rel="external" title="Click here to visit the Garlik homepage"><img src="/images/garlik.gif" alt="powered by Garlik" /></a>
+	</div>
+	<div id="foot_nav">
+	<ul>
+			<li><a href="/about" title="About" id="about">About</a></li>
+			<li><a href="/faqs" title="FAQs" id="faqs">FAQs</a></li>
+			<li><a href="/support" title="Install" id="support">Support</a></li>
+			<li><a href="/developers" title="Developers" id="developers">Developers</a></li>
+			<li><a href="/projects" title="Projects" id="projetcs">Projects</a></li>
+	</ul>
+	</div>
+    </div>
+    </div>
+  </body>
+</html>

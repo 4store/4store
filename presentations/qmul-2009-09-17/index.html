@@ -1,0 +1,774 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+ "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<head>
+<title>4store Tutorial</title>
+  <meta name="copyright" content="http://creativecommons.org/licenses/by/3.0/"/>
+  <link rel="stylesheet" type="text/css" media="screen, projection, print" href="slidy/slidy.css" /> 
+  <script src="slidy/slidy.js" charset="utf-8" type="text/javascript"></script> 
+  <link rel="stylesheet" type="text/css" media="screen, projection, print" href="slidy/garlik.css" /> 
+  <script>
+    function demo(query, soft_limit) {
+      alert("Run:\n"+query+"\nwith soft limit of "+soft_limit);
+      var uri="http://localhost:8080/sparql/?";
+      uri += "output=text&";
+      uri += "soft-limit="+soft_limit+"&";
+      uri += "query=" + escape(query);
+      window.open(uri);
+    }
+  </script>
+</head>
+<body>
+
+  <div class="background">
+    <img id="head-logo" title="Garlik logo" alt="Garlik Ltd" src="slidy/garlik.gif" style="width:92px;height:34px;"/>
+  </div>
+
+  <!-- INTRODUCTION -->
+
+  <div class="slide cover">
+    <h1>4store Tutorial</h1>
+    <p>Garlik Ltd.</p>
+    <ul>
+      <li>Steve Harris</li>
+      <li>Nick Lamb</li>
+      <li>Mischa Tuffield</li>
+      <li>Luke Wilson-Mawer</li>
+    </ul>
+    <p>More info at <tt><a href="http://4store.org/">4store.org</a></tt> and<br/><tt>#4store</tt> on <tt>irc.freenode.net</tt></p>
+  </div>
+
+  <div class="slide">
+    <h2>Introduction</h2>
+    <p>In this tutorial we plan to cover:</p>
+    <ul>
+      <li>Install and setup of 4store</li>
+      <li>Cluster configuration</li>
+      <li>Performance tips and tricks</li>
+      <p>and maybe</p>
+      <li>Diagnostics</li>
+    </ul>
+    <p>Please interrupt if you have questions</p>
+    <div class="comment">We'll try and cover everything, but might have to skip a few things if we run out of time.</div>
+  </div>
+
+  <div class="slide">
+    <h2>Setup - Requirements</h2>
+    <ul>
+      <li>64-bit for production</li>
+      <ul><li>4store uses memory mapping, limited address space</li></ul>
+<!-- up to ~4GB per segment -->
+      <ul><li>but 10s of millions of triples without</li></ul>
+      <li>Most tested on x86-64 with CentOS 5</li>
+      <li>RAM &gt; CPU &gt; disk</li>
+      <ul><li>but remember to allow for raw RDF data</li></ul>
+      <li>./configure</li>
+      <ul><li>checks source code dependencies, not autoconf</li></ul>
+    </ul>
+  </div>
+
+  <div class="slide">
+    <h2>Setup - installation</h2>
+    <ul>
+      <li>source install</li>
+      <ul><li>(Hopefully binary packages are similar but easier)</li>
+      <li>/usr/local/lib(64) + ldconfig</li>
+      <li>/var/lib/4store</li>
+      </ul>
+      <li>Use a separate 4store user ?</li>
+      <ul><li>Not essential, avoids permissions problems, alternative is chmod 777</li></ul>
+<!-- we used 1777 like /tmp/ -->
+      <ul><li>4s-httpd / 4s-query / 4s-import doesn't need access</li></ul>
+    </ul>
+  </div>
+
+  <div class="slide">
+    <h2>Setup - backend settings</h2>
+      <h4>4s-backend-setup <em>...</em></h4>
+    <ul>
+      <li>4s-backend-setup</li>
+      <li>--node 0</li>
+      <li>--cluster 1</li>
+      <li>--segments 16</li>
+      <li><em>--mirror</em></li>
+    </ul>
+    <h3>Security</h3>
+    <ul>
+      <li>4s-backend-setup --password <em>sesame</em></li>
+      <li>Shared secret</li>
+      <li>Link is not encrypted</li>
+    </ul>
+  </div>
+
+  <!-- BUILDING CLUSTERS -->
+
+  <div class="slide">
+    <h2>Clusters - Principles</h2>
+    <ul>
+       <li>Fast local network</li>
+       <ul><li>Low-latency, 100Mbit ok, Gbit better</li></ul>
+       <li>Same LAN for DNS-SD</li>
+       <ul><li>Could go beyond LAN, but untested, performance would suffer on slow links</li></ul>
+       <li>High-bandwidth operations are unicast</li>
+       <ul><li>So you don't need a smart (expensive) switch that groks multicast</li></ul>
+    </ul>
+  </div>
+
+  <div class="slide">
+    <h2>Clusters - Diagram</h2>
+   <p><img src="images/cluster.png" alt="Cluster"/></p>
+<!-- show a separate querier (but note locking) -->
+  </div>
+
+  <div class="slide">
+    <h2>Clusters - Tools</h2>
+    <ul>
+       <li>SSH based - /etc/4s-cluster</li>
+       <li>operations initiated from 'master'</li>
+       <li>Public key infrastructure
+       <ul>
+       <li>manual (with Agent forwarding)</li>
+       <li>shosts</li>
+       <li>pre-seed keys to master or use DNSSEC</li>
+       </ul></li>
+    </ul>
+  </div>
+
+  <div class="slide">
+    <h2>Clusters - Tools</h2>
+    <ul>
+       <li>4s-cluster-create</li>
+       <li>4s-cluster-start</li>
+       <li>4s-cluster-stop</li>
+       <li>4s-cluster-destroy</li>
+    </ul>
+    <hr/>
+    <ul>
+       <li>4s-cluster-info</li>
+       <li>4s-cluster-copy (<em>must be quiescent</em>)</li>
+    </ul>
+  </div>
+
+  <div class="slide">
+    <h2>Clusters - Practice</h2>
+  <!-- BUILDING CLUSTERS -->
+    <ul>
+       <li>Many identical installs so e.g. Kickstart</li>
+       <ul><li>Building a reliable script is tricky, but once it works it is pretty reliable</li></ul>
+       <ul><li>Try to avoid doing unattended installs until you're comfortable</li></ul>
+<!-- check, do we include a Kickstart config? Can we put one together? -->
+    </ul>
+
+    <h3>Decisions</h3>
+    <ul>
+       <li>DHCP? LLv4? (or IPv6)</li>
+       <li>DNS? mDNS? (want nss-mdns)</li>
+       <li>NFS? rsync? package updates</li>
+<div class="comment">NFS binary updating problem</div>
+       <li>NIS?</li>
+<div class="comment">Maybe, if you already use it, but 4store user set up by Kickstart may be enough</div>
+    </ul>
+  </div>
+
+  <div class="slide">
+    <h2>Clusters - Demo</h2>
+    <ul>
+        <li>LLv4 + mDNS</li>
+<div class="comment">Same user on every machine - or something?</div>
+    <hr/>
+        <h3>Don't try this at home !</h3>
+<div class="comment">Protocol version compatibility, debug nightmare etc.</div>
+<!-- may need to pre-seed some stuff -->
+<!-- bring say 100 MT of data -->
+    </ul>
+  </div>
+
+  <!-- ADMINISTRATION -->
+  <!-- Mischa / Luke Slides -->
+
+ <div class="slide">
+  <h2>Filesystem Layout</h2>
+  <ul>
+   <li>4store places its data in : /var/lib/4store/</li>
+   <li>A directory is created for example KB present : /var/lib/4store/[KBNAME]/</li>
+  </ul>
+   <p><img src="images/fs_layout.png" alt="ls of file system"/></p>
+ </div>
+
+ <div class="slide">
+  <h2>Metadata turtle file (1)</h2>
+  <ul>
+   <li>Can be found /var/lib/4store/library/metadata.nt</li>
+   <li>
+   <pre>
+@base &lt;file:///var/lib/4store/library/metadata.nt&gt; .
+@prefix rdf: &lt;http://www.w3.org/1999/02/22-rdf-syntax-ns#&gt; .
+
+&lt;&gt;
+    &lt;http://4store.org/metadata#bnode&gt; "1" ;
+    &lt;http://4store.org/metadata#hash&gt; "none" ;
+    &lt;http://4store.org/metadata#hash_function&gt; "UMAC" ;
+    &lt;http://4store.org/metadata#kb_name&gt; "library" ;
+    &lt;http://4store.org/metadata#model_data&gt; "true" ;
+    &lt;http://4store.org/metadata#model_files&gt; "false" ;
+    &lt;http://4store.org/metadata#num_segments&gt; "2" ;
+    &lt;http://4store.org/metadata#salt&gt; "0" ;
+    &lt;http://4store.org/metadata#segment_p&gt; "0", "1" ;
+    &lt;http://4store.org/metadata#store_type&gt; "native" ;
+    &lt;http://4store.org/metadata#version&gt; "11" .
+   </pre>
+   </li>
+   </ul>
+ </div>
+  
+  <div class="slide">
+   <h2>Metadata turtle file (2)</h2>
+   <ul>
+   <li>Where by these are the only important fields:
+   <pre>   
+    &lt;http://4store.org/metadata#num_segments&gt; "2" ;
+    &lt;http://4store.org/metadata#segment_p&gt; "0", "1" ;
+   </pre>
+   </li>
+   <li>These related to the directories below:</li>
+  </ul>
+   <p><img src="images/fs_layout.png" alt="ls of file system"/></p>
+
+  </div>
+
+
+  <div class="slide">
+    <h2>Backup</h2>
+    <ul>
+     <li>Single Node Instance:
+      <ul>
+       <li>4s-file-backup [KB_NAME] &gt; ~/something.tar.gz</li>
+      </ul>
+     </li>
+     <li>Clustered Instance:
+      <ul>
+       <li>4s-cluster-file-backup</li>
+       <li>Creates a tar ball on a machine named backup (/etc/host) or .sshconfig which basically tar balls all of them to ~/4store/</li>
+       <li>4store/$1.$node.$datestamp.tar.gz</li>
+       <li>Can cause problems if there are imports ongoing</li>
+       <li>Perl script which goes through, and writes out triples to one file per graph (this is safe with lots of importing going on -- a la qdos)</li>
+       <li>You can hand mangle directories in /var/lib/4store</li>
+      </ul>
+     </li>
+     <li>Could be done in a similar manner using rsync, should be very similar to 4s-cluster-file-backup script</li>
+    </ul>
+  </div>
+
+  <div class="slide">
+    <h2>Restoring</h2>
+    <ul>
+      <li>Perl file method restore, very simple, parse file and reimport
+       <ul>
+        <li>HTTP Daemon</li>
+        <li>4s-import (faster)</li>
+       </ul>
+      </li>
+      <li>Or grab and put the tar balls created back into /var/lib/4store/</li>
+    </ul>
+  </div>
+
+  <div class="slide">
+    <h2>Logging</h2>
+    <ul>
+     <li>/var/log/messages (redhat flavoured linux), /var/log/system.log (mac), or  whatever your syslogger is called</li>
+     <li>Give us log file output if possible, when creating a bug report</li>
+     <li>Query Logs:
+      <ul>
+       <li>/var/log/4store/query-[KB_NAME].log</li> 
+       <li>-D stops the httpd from daemonising, and it runs to the terminal</li>
+      </ul>
+     </li>
+    </ul>
+  </div>
+
+  <div class="slide">
+    <h2>Percentage of free disk space</h2>
+    <ul>
+     <li>Environment Variable : FS_DISK_LIMIT</li>
+     <li>Read by 4s-backend when when started</li>
+     <li>This allows sysadmin to dictate behaviour of 4store when machine starts running out of free disk space</li>
+    </ul>
+  </div>
+
+  <!-- End Mischa / Luke slides -->
+  <!-- IMPORTING DATA -->
+
+  <div class="slide">
+    <h2>Importing Data</h2>
+    <ul>
+        <li>RDF parsed using Raptor</li>
+<div class="comment">Any parser bugs that can be reproduced with rapper aren't our fault</div>
+<div class="comment">Your raptor install may have more/ less format support</div>
+        <li>e.g. RDF/XML, Turtle, N-triples, TriG</li>
+<div class="comment">Not all RDF formats are created equal</div>
+        <li>performance varies by RDF format</li>
+<div class="comment">Parser CPU use limits import rate in many cases</div>
+        <li>file size limit (2G) for Turtle family</li>
+        <ul><li>but not N-Triples</li></ul>
+    </ul>
+  </div>
+
+  <div class="slide">
+    <h2>Import Methods</h2>
+    <ul>
+        <li>"offline" command line tools</li>
+        <li>"online" HTTP</li>
+<div class="comment">Two methods with advantages / disadvantages</div>
+    </ul>
+    <h3>Operations:</h3>
+<ul>
+   <li>insert / replace whole graph</li>
+   <li>add to existing graph</li>
+</ul>
+  </div>
+
+  <div class="slide">
+    <h2>Import - command line</h2>
+    <h3>4s-import</h3>
+    <ul>
+        <li>parser is local</li>
+<div class="comment">CPU intensive parsing</div>
+        <li>can import from a URI by default</li>
+        <li>reassuring progress indication with -v</li>
+        <p>BUT...</p>
+        <li>exclusive lock of KB</li>
+<div class="comment">No query access to this KB during import</div>
+    </ul>
+  </div>
+
+  <div class="slide">
+    <h2>Import - HTTP</h2>
+    <h3>PUT / POST</h3>
+    <ul>
+        <li>somewhat standard</li>
+        <li>serialised, but no lock</li>
+<div class="comment">Queries can run in parallel</div>
+        <li>parsed by 4s-httpd</li>
+<div class="comment">May want to transform to fastest RDF format</div>
+        <li>poorer RDF error reporting</li>
+<div class="comment">Need and out-of-band process to diagnose RDF syntax errors</div>
+        <li>safe default choice</li>
+    </ul>
+  </div>
+
+  <div class="slide">
+    <h2>Import - HTTP</h2>
+    <ul>
+        <li><strong>PUT <em>uri</em></strong> (see HTTP spec)
+        <ul><li>some HTTP libraries don't support this, so ...</li></ul></li>
+        <li><strong>PUT /data/<em>uri-encode-graph</em></strong></li>
+        <li><strong>DELETE</strong> (urls as for PUT)</li>
+        <li><strong>POST /data/</strong>  (add to existing graph)</li>
+        <li><strong>POST /update/</strong>  (SPARUL : W3C member submission)</li>
+    </ul>
+  </div>
+
+  <div class="slide">
+    <h2>Import - SPARUL subset</h2>
+    <ul>
+        <li>DROP and CLEAR (treated the same)</li>
+        <li>LOAD</li>
+        <li>LOAD INTO</li>
+    </ul>
+  </div>
+
+  <div class="slide">
+    <h2>Import - Client libraries</h2>
+    <h3>No need to roll your own</h3>
+    <ul>
+        <li>Links from the 4store.org wiki</li>
+        <li>PHP, Python, and Ruby</li>
+        <li>also do SPARQL queries</li>
+    </ul>
+  </div>
+
+
+  <!-- SCALABILITY -->
+  <!-- Start Mischa / Luke slides -->
+
+  <div class="slide">
+    <h2>Hash collisions</h2>
+    <ul>
+     <li>Unique Resources 4billion ~ before collision becomes likely</li>
+     <li>Separate value spaces for both URIs and Literals</li>
+     <li>4store likes storing bnodes, it can handle far more</li>
+     <li>This determines the upper limit of data which can be imported</li>
+    </ul>
+    <p><img src="images/4s-size.png" alt="4s-size output"/></p>
+  </div>
+    
+  <div class="slide">
+    <h2>RAM consumption, out of RAM effects.</h2>
+    <ul>
+     <li>maxi-density ~64bytes per quad</li>
+     <li>du -hs /var/lib/4store/[KB_NAME] to get how much RAM is being used
+      <ul>
+       <li>This is the worst case, as indexes are not always all paged in</li>
+      </ul>
+     </li>
+     <li>When running out of RAM, queries become very slow, but import should be OK</li>
+     <li>If you are using 32bit and you go over 2gigs of indexes per segment it then goes bang</li>
+    </ul>
+  </div>
+
+  <div class="slide">
+    <h2>Quantity of predicates.</h2>
+    <ul>
+     <li>For example, dbpedia 1.0 had loads of predicates, which becomes slow</li>
+     <li>dbpedia 3.1 has 49122 properties, but it is stressed that that is a lot for an ontology</li>
+     <li>This can cause problems with using operations that have to traverse all predicates or complex operations focused around predicates</li>
+     <li>Covered in detail in the Query Section</li>
+     <li>After 300 predicates steady drop off in performance, not problem unless you use lots of predicates in queries</li>
+    </ul>
+  </div>
+
+  <!-- QUERYING -->
+
+  <div class="slide">
+    <h2>Querying</h2>
+    <ul>
+      <li>Two ways to issue queries:</li>
+      <ul>
+        <li>Using the 4s-query command line tool</li>
+        <li>Over HTTP using SPARQL protocol</li>
+      </ul>
+      <li>SPARQL is usually more efficient</li>
+      <li>Can connect to 4s-query as a pipeline (-P)</li>
+      <ul>
+        <li>More efficient for lots of small queries</li>
+        <li>Non-standard</li>
+      </ul>
+    </ul>
+  </div>
+
+  <div class="slide">
+    <h2>Result formats</h2>
+    <ul>
+      <li>There are a handful of result formats</li>
+      <li>Can be chosen with <tt>4s-query -f</tt>,<tt> Accept:</tt> header, or <tt>output</tt> CGI argument</li>
+      <li>In decreasing order of efficiency:</li>
+      <ul>
+        <li>Tab Separated (“text”, <tt>text/tab-separated-values</tt>)</li>
+        <li>JSON (“json”, <tt>application/sparql-results+json</tt>)</li>
+        <li>SPARQL XML (default, “sparql”, <tt>application/sparql-results+xml</tt>)</li>
+      </ul>
+    </ul>
+  </div>
+
+  <div class="slide">
+    <h2>Result formats — TSV</h2>
+    <ul>
+      <li>Non-standard</li>
+      <li>Efficient to generate</li>
+      <li>Quick to parse</li>
+    </ul>
+    <pre>?x        ?y
+"foo"     "12"^^&lt;http://www.w3.org/2000/10/XMLSchema#integer&gt;
+"bar"@EN  &lt;http://4store.org/&gt;</pre>
+  </div>
+
+  <div class="slide">
+    <h2>Result formats — JSON</h2>
+    <ul>
+      <li>Working Group Note (<a href="http://www.w3.org/TR/rdf-sparql-json-res/">http://www.w3.org/TR/rdf-sparql-json-res/</a>)</li>
+      <li>Fairly efficient to generate</li>
+      <li>Fairly quick/simple to parse</li>
+    </ul>
+    <pre>{"head":{"vars":["x","y"]},
+ "results": {
+  "bindings":[
+   {"x":{"type":"literal","value":"foo"},
+    "y":{"type":"literal","value":"12",
+         "datatype":"http://www.w3.org/2001/XMLSchema#integer"}},
+   {"x":{"type":"literal","value":"bar","xml:lang":"EN"},
+    "y":{"type":"uri","value":"http://4store.org/"}}
+  ]
+ }
+}</pre>
+  </div>
+
+  <div class="slide">
+    <h2>Result formats — SPARQL</h2>
+    <ul>
+      <li>Standard</li>
+      <li>Fairly efficient to generate</li>
+      <li>Can be expensive to parse</li>
+    </ul>
+    <pre>&lt;?xml version="1.0"?&gt;
+&lt;sparql xmlns="http://www.w3.org/2005/sparql-results#"&gt;
+  &lt;head&gt;
+    &lt;variable name="x"/&gt;
+    &lt;variable name="y"/&gt;
+  &lt;/head&gt;
+  &lt;results&gt;
+    &lt;result&gt;
+      &lt;binding name="x"&gt;&lt;literal&gt;foo&lt;/literal&gt;&lt;/binding&gt;
+      &lt;binding name="y"&gt;&lt;literal datatype="http://www.w3.org/2001/XMLSchema#integer"&gt;12&lt;/literal&gt;&lt;/binding&gt;
+    &lt;/result&gt;
+    &lt;result&gt;
+      &lt;binding name="x"&gt;&lt;literal xml:lang="EN"&gt;bar&lt;/literal&gt;&lt;/binding&gt;
+      &lt;binding name="y"&gt;&lt;uri&gt;http://4store.org/&lt;/uri&gt;&lt;/binding&gt;
+    &lt;/result&gt;
+  &lt;/results&gt;
+&lt;/sparql&gt;</pre>
+  </div>
+
+  <div class="slide">
+    <h2>Query Quirks</h2>
+    <p>A handful of things that 4store does, which you might not be expecting</p>
+  </div>
+
+  <div class="slide">
+    <h2>Default graph (1)</h2>
+    <ul>
+      <li>Normally 4store does not have the behaviour as defined in the spec.</li>
+      <li>When dealing with lots of data with complex provenance, spec. behaviour is awkward</li>
+      <li>If you load <tt>a.rdf</tt>, <tt>b.rdf</tt>, and <tt>c.rdf</tt>:</li>
+      <ul>
+        <li>The default graph will contain the merge of <tt>a.rdf</tt>, <tt>b.rdf</tt>, and <tt>c.rdf</tt>, so:
+        <pre>SELECT * WHERE { ?x ?y ?z }</pre> will return all triples in the system
+        <pre>SELECT * WHERE { GRAPH &lt;a.rdf&gt; { ?x ?y ?z } }</pre> will just return triples in <tt>a.rdf</tt></li>
+      </ul>
+    </ul>
+  </div>
+
+  <div class="slide">
+    <h2>Default graph (2)</h2>
+    <ul>
+      <li>If you want the behaviour as defined in the spec:</li>
+      <ul>
+        <li>Import default graph data to <tt>&lt;default:&gt;</tt></li>
+        <ul>
+          <li>e.g. <tt>4s-import -M default: a.rdf b.rdf</tt></li>
+        </ul>
+        <li>Run queries with <tt>4s-query -d</tt>, or</li>
+        <li>Start the HTTP server with <tt>4s-httpd -d</tt></li>
+      </ul>
+      <li>Then
+        <pre>SELECT * WHERE { ?x ?y ?z }</pre> will return only the default graph.
+        <pre>SELECT * WHERE { GRAPH ?g { ?x ?y ?z } }</pre> will return everything else.</li>
+    </ul>
+  </div>
+
+  <div class="slide">
+    <h2>FROM (NAMED)</h2>
+    <ul>
+      <li>FROM might not do what you expect</li>
+      <li>Rather than loading the URI given, it just restricts answers to be
+taken from that/those graph(s)</li>
+      <li>e.g. <tt>SELECT * FROM &lt;a.rdf&gt; WHERE { ?x ?y ?z }</tt><br />will only draw answers from <tt>a.rdf</tt>.</li>
+      <li>It's very similar to <pre>SELECT * WHERE { GRAPH &lt;a.rdf&gt; { ?x ?y ?z } }</pre> but allows you to list many graphs.</li>
+      <li><tt>FROM NAMED</tt> isn't implemented at all</li>
+    </ul>
+  </div>
+
+  <div class="slide">
+    <h2>Soft Limits</h2>
+    <ul>
+      <li>When dealing with very large datasets, it's common to encounter queries that return millions of rows</li>
+      <li>Because HTTP is generally used as a transport it's difficult to stop the query processors, even if you realise in time (ctrl-C won't cut it!)</li>
+      <li>The soft limit constrains the amount of effort the query engine will put into answering any query, it limits the size of the working-set of the query.</li>
+      <li>Use <tt>&amp;soft-limit=</tt><em>N</em> to control it, it defaults to about 1000</li>
+      <li>Queries that have been constrained by the soft limit will be indicated with a warning in the results <a class="demo" href="javascript:demo('SELECT * WHERE { ?x ?y ?z }', 10)">[demo]</a></li>
+    </ul>
+  </div>
+
+  <div class="slide">
+    <h2>Public SPARQL Endpoints</h2>
+    <ul>
+      <li>One of the design goals of 4store was to allow this, but we've never
+done it in anger</li>
+      <ul>
+	<li>Can't promise that it's safe to do</li>
+	<li>Make sure you set a <tt>soft-limit</tt> explicitly in the HTTP call</li>
+	<li>Make sure you set <tt>restricted</tt></li>
+	<li>Good luck, and tell us how you get on</li>
+      </ul>
+    </ul>
+  </div>
+
+  <div class="slide">
+    <h2>Known Bugs</h2>
+    <ul>
+      <li>Bottom-up queries aren't executed correctly</li>
+      <ul>
+        <li>In practice you'll probably never see this</li>
+      </ul>
+      <li>Certain combinations of LIMIT, FILTER, OPTIONAL and ORDER BY can result in incorrect ordering</li>
+    </ul>
+  </div>
+
+  <!-- OPTIMISING QUERIES -->
+
+  <div class="slide">
+    <h2>Optimising queries</h2>
+    <p>Some experiences of how to make 4store queries run quickly, and how to diagnose performance problems if you find them</p>
+    <p>We will also cover some unusual or unexpected optimisations</p>
+  </div>
+
+  <div class="slide">
+    <h2>FILTERs slow, patterns fast</h2>
+    <ul>
+      <li>As a rule of thumb, FILTER expressions are not optimised</li>
+      <pre>SELECT * WHERE { ?x :p ?val . FILTER(?val &gt; 1 &amp;&amp; ?val &lt; 4) }</pre>
+      <p>is very slow, but</p>
+      <pre>SELECT * WHERE { { ?x :p 2 } UNION { ?x :p 3 } }</pre>
+      <p>will be very quick</p>
+      <li>This might come as a surprise to people familiar with relational databases</li>
+    </ul>
+  </div>
+
+  <div class="slide">
+    <h2>FILTER disjunctions</h2>
+    <ul>
+      <li>An exception to the “FILTERs slow” rule of thumb</li>
+      <li>FILTERs of the form
+        <pre>?x = <em>K</em> || ?x = <em>L</em> || ?x = <em>M</em> || …</pre>
+      can often be optimised, and are usually faster than the equivalent UNION, e.g.:
+        <pre>SELECT ?name
+WHERE {
+  &lt;s&gt; ?p ?name .
+  FILTER(?p = foaf:name || ?p = foaf:nick)
+}</pre>
+      is typically faster than
+        <pre>SELECT ?name
+WHERE {
+  { &lt;s&gt; foaf:name ?name . } UNION { &lt;s&gt; foaf:nick ?name . }
+}</pre></li>
+    </ul>
+  </div>
+
+  <div class="slide">
+    <h2>Known predicates</h2>
+    <ul>
+      <li>Queries with non-constant predicates, e.g.
+        <pre>SELECT * WHERE { &lt;s&gt; ?p ?o }</pre>
+        can be expensive to run, especially if you have a lot of predicates</li>
+      <li>Limiting the query to a few predicates, eg.
+        <pre>SELECT *
+WHERE {
+  &lt;s&gt; ?p ?o .
+  FILTER(?p = foaf:name || ?p = foaf:mbox || ?p = foaf:openid)
+}</pre>
+        is usually more efficient, if that's all you need.
+      </li>
+    </ul>
+  </div>
+
+  <div class="slide">
+    <h2>Constant Object Triple Groups</h2>
+    <ul>
+      <li>In systems with several segments, or clustered systems there's a big performance gain for this type of query:
+        <pre>SELECT ?x WHERE {
+  ?x :givenName "John" ;
+     :familyName "Smith" ;
+     :yearOfBirth 1973 .
+}</pre></li>
+      <li>Might expect it to be slow, but can be parallelised very efficiently <a class="demo" href="javascript:demo('SELECT * WHERE {
+?x &lt;http://www.census.gov/tiger/2002/vocab#lat&gt; \'37.614888\' ;
+   &lt;http://www.census.gov/tiger/2002/vocab#long&gt; \'-121.749163\' }', 1000)">[demo]</a></li>
+      <li>Also works for cases like
+<pre>SELECT ?x WHERE {
+  &lt;person&gt; :givenName ?given ;
+           :familyName ?family .
+  ?x :givenName ?given ;
+     :familyName ?family ;
+     :yearOfBirth 1973 .</pre>
+     as long as there's only one binding each for ?family and ?given.</li>
+    </ul>
+  </div>
+
+  <div class="slide">
+    <h2>CONSTRUCT and Linked Data services</h2>
+    <ul>
+      <li>An exception to the “Variable predicates” rule of thumb is
+        <pre>… WHERE { GRAPH <em>K</em> { ?s ?p ?o } }</pre> </li>
+      <li>This is especially useful for <tt>CONSTRUCT</tt>, returning whole graphs, e.g.
+        <pre>CONSTRUCT { ?s ?p ?o }
+WHERE {
+  GRAPH &lt;http://foo.com/x.rdf&gt; { ?s ?p ?o }
+}</pre></li>
+      <li>Which can be executed very quickly <a class="demo" href="javascript:demo('CONSTRUCT { ?s ?p ?o }
+WHERE {
+  GRAPH <http://plugin.org.uk/swh.xrdf> { ?s ?p ?o }
+}', 1000)">[demo]</a></li>
+    </ul>
+  </div>
+
+  <div class="slide">
+    <h2>LIMIT and OFFSET</h2>
+    <ul>
+      <li>LIMIT and OFFSET are not optimised in any way</li>
+      <li>If you need to paginate results like:
+        <pre>SELECT *
+WHERE {
+  ?x :title ?title .
+  ?x :rank ?rank
+}
+ORDER BY ?rank
+LIMIT 10 OFFSET <em>N x 10</em></pre></li>
+      <li>If you want to do that it might be faster to get a big block of results, cache and paginate in your app, rather than issue loads of queries</li>
+    </ul>
+  </div>
+
+  <div class="slide">
+    <h2>The End</h2>
+    <p>Thanks for your attention, we hope you now have a clearer idea of how 4store works.</p>
+    <p style="padding-top: 10em">We also have a few more slides on more complex internal issues and diagnosis, if you've not had enough already.</p>
+  </div>
+
+  <div class="slide">
+    <h2>Really Advanced Stuff</h2>
+    <p>Things that are pretty complex, and we might have time to touch on</p>
+  </div>
+
+  <div class="slide">
+    <h2>EXPLAIN syntax</h2>
+    <ul>
+      <li><tt>EXPLAIN</tt> only works from <tt>4s-query</tt> (a bug/omission) and you need <tt>LAQRS</tt> support compiled into Rasqal</li>
+      <li>Syntax:
+        <pre>PREFIX …
+<em>EXPLAIN</em> SELECT … WHERE …</pre>
+      </li>
+      <li>Example:
+        <pre>$ 4s-query loadtest
+'EXPLAIN SELECT ?a ?b WHERE { &lt;local:a&gt; ?y ?z . ?a ?b ?z }'
+
+execute: triple(uri&lt;local:a&gt;, variable(y), variable(z)) LIMIT 998
+mmmms (_,_[e7c9e444a4b5e52e],_,?) -&gt; 2
+2 bindings (2)
+execute: triple(variable(a), variable(b), variable(z)) LIMIT 998
+NNNNo (_,?,?,?[67ea9ed287a80d87 5b8e6e8d1ed39a5c]) -&gt; 2
+2 bindings (6)</pre></li>
+    </ul>
+  </div>
+
+  <div class="slide">
+    <h2>Index Files</h2>
+    <img src="images/ls-screenshot.png"/>
+    <ul>
+      <li>There are a number of different indexes in the 4store segment directory</li>
+      <ul>
+        <li>rhash*, ptrees, an mhash, and a tbchain</li>
+      </ul>
+    </ul>
+  </div>
+
+  <div class="slide">
+    <h2>RHash Diagnostics</h2>
+    <img src="images/rhashdump-screenshot.png"/>
+  </div>
+
+  <div class="slide">
+    <h2>PTree Diagnostics</h2>
+    <img src="images/ptreedump-screenshot.png"/>
+  </div>
+
+</body>
+</html>
