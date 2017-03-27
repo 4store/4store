@@ -19,5 +19,5 @@ addons:
     - libglib2.0-dev
     - libraptor2-dev
     - librasqal3-dev
-install: make get-deps
+# install: make get-deps
 script: ./autogen.sh && ./configure && make && make test
