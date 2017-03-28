@@ -1,0 +1,23 @@
+language: c
+sudo: false
+compiler:
+  - clang
+  - gcc
+addons:
+  apt:
+    packages:
+    - git
+    - make
+    - autoconf
+    - libtool
+    - pkg-config
+    - libncurses5-dev
+    - libreadline6-dev
+    - zlib1g-dev
+    - uuid-dev
+    - libxml2-dev
+    - libglib2.0-dev
+    - libraptor2-dev
+    - librasqal3-dev
+# install: make get-deps
+script: ./autogen.sh && ./configure && make && make test
