@@ -48,6 +48,7 @@ if (!@tests) {
 
 if ($pid = fork()) {
 	sleep(2);
+	my $httpd_port = 13579;
 	if ($httppid = fork()) {
 		if ($valgrind) {
 			sleep(4);
@@ -55,7 +56,7 @@ if ($pid = fork()) {
 			sleep(1);
 		}
 	} else {
-		my @cmd = ("../../src/http/4s-httpd", "-c", "../tests_4store.conf", "-X", "-D", "-p", "13579", $kb_name);
+		my @cmd = ("../../src/http/4s-httpd", "-c", "../tests_4store.conf", "-X", "-D", "-p", "$httpd_port", $kb_name);
 		if ($valgrind) {
 			print("Running httpd under valgrind, output in valgrind.txt\n");
 			unshift(@cmd, 'valgrind', '-v', '--trace-children=yes', '--log-file=valgrind.txt');
@@ -66,6 +67,7 @@ if ($pid = fork()) {
 		die "failed to exec HTTP server: $!";
 	}
 	print("4s-httpd running on PID $httppid\n");
+	`curl -I localhost:$httpd_port/status/ 1>&2`;
 	sleep(1);
 	my $fails = 0;
 	my $passes = 0;
@@ -116,6 +118,7 @@ if ($pid = fork()) {
 
 	}
 	print("Tests completed: passed $passes/".($fails+$passes)." ($fails fails)\n");
+	`tail -n +1 -- $outdir/*-errs 1>&2`;
 	$ret = kill 15, $httppid;
 	if (!$ret) {
 		warn("failed to kill HTTP server process, pid $httppid");
