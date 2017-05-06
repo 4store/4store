@@ -1,6 +1,6 @@
 # 4store
 
-[![Build Status](https://travis-ci.org/berezovskyi/4store.svg?branch=master)](https://travis-ci.org/berezovskyi/4store)
+[![Build Status](https://travis-ci.org/4store/4store.svg?branch=master)](https://travis-ci.org/4store/4store)
 
 4store is an efficient, scalable and stable RDF database.
 
