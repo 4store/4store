@@ -24,6 +24,6 @@ before_script:
   - mkdir -p /tmp/4store
 script:
   - ./autogen.sh
-  - ./configure --with-storage-path=/tmp/4store
+  - ./configure --with-storage-path=/tmp/4store --with_http_log=/tmp/4store
   - make
   - make test
