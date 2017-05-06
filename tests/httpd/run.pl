@@ -61,13 +61,13 @@ if ($pid = fork()) {
 			print("Running httpd under valgrind, output in valgrind.txt\n");
 			unshift(@cmd, 'valgrind', '-v', '--trace-children=yes', '--log-file=valgrind.txt');
 		}
-		close STDERR;
+		#close STDERR;
 		print(join(" ", @cmd)."\n");
 		exec(@cmd);
 		die "failed to exec HTTP server: $!";
 	}
 	print("4s-httpd running on PID $httppid\n");
-	`netstat -tulpn 1>&2`;
+	`ss -lt 1>&2`;
 	`curl -I http://127.0.0.1:$httpd_port/status/ 1>&2`;
 	sleep(1);
 	my $fails = 0;
