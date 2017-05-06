@@ -21,9 +21,9 @@ addons:
       - librasqal3-dev
 # install: make get-deps
 before_script:
-  - sudo mkdir -p /var/lib/4store/
+  - sudo mkdir -p /tmp/4store
 script:
   - ./autogen.sh
-  - ./configure
+  - ./configure --with-storage-path=/tmp/4store
   - make
   - make test
