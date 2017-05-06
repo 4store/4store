@@ -67,7 +67,8 @@ if ($pid = fork()) {
 		die "failed to exec HTTP server: $!";
 	}
 	print("4s-httpd running on PID $httppid\n");
-	`curl -I localhost:$httpd_port/status/ 1>&2`;
+	`netstat -tulpn 1>&2`;
+	`curl -I http://127.0.0.1:$httpd_port/status/ 1>&2`;
 	sleep(1);
 	my $fails = 0;
 	my $passes = 0;
@@ -84,7 +85,7 @@ if ($pid = fork()) {
 			$errout = "";
 		}
 		print("[....] $t\r[");
-		my $ret = system("EPR=http://127.0.0.1:13579 LANG=C LC_ALL=C TESTPATH=../../src scripts/$t > $outdir/$t $errout");
+		my $ret = system("EPR=http://127.0.0.1:$httpd_port LANG=C LC_ALL=C TESTPATH=../../src scripts/$t > $outdir/$t $errout");
 		if ($ret == 2) {
 			exit(2);
 		}
