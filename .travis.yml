@@ -1,29 +1,29 @@
 language: c
-sudo: false
+# sudo: false
 compiler:
   - clang
   - gcc
 addons:
   apt:
     packages:
-    - git
-    - make
-    - autoconf
-    - libtool
-    - pkg-config
-    - libncurses5-dev
-    - libreadline6-dev
-    - zlib1g-dev
-    - uuid-dev
-    - libxml2-dev
-    - libglib2.0-dev
-    - libraptor2-dev
-    - librasqal3-dev
+      - git
+      - make
+      - autoconf
+      - libtool
+      - pkg-config
+      - libncurses5-dev
+      - libreadline6-dev
+      - zlib1g-dev
+      - uuid-dev
+      - libxml2-dev
+      - libglib2.0-dev
+      - libraptor2-dev
+      - librasqal3-dev
 # install: make get-deps
 before_script:
-- mkdir /var/lib/4store/
+  - sudo mkdir -p /var/lib/4store/
 script:
-- ./autogen.sh
-- ./configure
-- make
-- make test
+  - ./autogen.sh
+  - ./configure
+  - make
+  - make test
