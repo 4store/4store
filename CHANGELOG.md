@@ -1,3 +1,14 @@
+# v1.1.7
+
+* Merge pull request #153 from berezovskyi/b147-travis
+* Add Travis build config
+* Merge pull request #151 from berezovskyi/b146-readme
+* Remove 'make get-deps' instruction
+* Updated README
+  * use docs/INSTALL as a base
+  * convert to Markdown
+  * add description
+
 # v1.1.6
 
 * Hack another localhost to be 127.0.0.1 (Steve Harris in e45e869a7a86dd92c791632d2ca5eaab37dd82bd)
