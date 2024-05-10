@@ -1,5 +1,7 @@
 # 4store
 
+[![Build Status](https://travis-ci.org/4store/4store.svg?branch=master)](https://travis-ci.org/4store/4store)
+
 4store is an efficient, scalable and stable RDF database.
 
 4store was designed by Steve Harris and developed at Garlik to underpin their
